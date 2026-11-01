@@ -280,3 +280,10 @@
 - The guard executes before atomic snapshot replacement, so suspiciously incomplete refreshes preserve the existing catalog snapshot.
 - Added a diagnostic report for product/variant coverage and common data-quality signals; these are reported without fabricating or automatically deleting catalog data.
 - Added unit tests for threshold boundaries, invalid settings and quality-report counts. Final Catalog CI verification is pending.
+
+
+### M08.4 catalog snapshot continuity and quality diagnostics — CI verified (2026-11-02)
+- Added a full-snapshot continuity guard that rejects a normalized product-count drop greater than 50% compared with the last-known-good snapshot, before the new snapshot can replace it.
+- Added a quality report covering total products/variants, product-only coverage, zero-price/zero-stock products, missing descriptions and uncategorized products.
+- Diagnostic metrics do not fabricate inventory or auto-delete data; product-only sources are valid.
+- Verification: Catalog CI push run [41355552153](https://github.com/pooya16pg-spec/globalcart/actions/runs/41355552153) and PR run [41355595494](https://github.com/pooya16pg-spec/globalcart/actions/runs/41355595494) passed. Backend CI PR run [41355595650](https://github.com/pooya16pg-spec/globalcart/actions/runs/41355595650) also passed SQL generation, Go/PostgreSQL tests, builds, Docker image build and cleanup.
