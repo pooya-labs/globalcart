@@ -52,3 +52,9 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - The Go importer upserts only variant rows actually supplied, then synchronizes the platform offer from all persisted variants for that product. Consequently, an omitted variant remains present with its previous state until a future explicit and authorized retirement protocol is designed.
 - This is intentionally conservative: a partial page, temporary source omission or feed schema regression must not destroy stock or seller offers. Future source adapters must declare whether they provide a complete variant set and must provide a documented retirement signal before destructive reconciliation can be considered.
 - M08.5 adds PostgreSQL regression coverage for retained source variants, retained platform offer values/status, independent merchant offer isolation and unchanged audit-event counts.
+
+
+## Variant source identity ownership (M08.6)
+- A variant's `(source, source_id)` pair is an ownership key. If an existing pair is presented under a different product, the importer rejects the transaction rather than moving the row.
+- The M08.6 PostgreSQL test also verifies batch atomicity: an otherwise valid product earlier in the same batch must not persist when a later variant identity conflict aborts the import.
+- Original variant ownership and mutable catalog fields remain unchanged after rejection.
