@@ -358,5 +358,12 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Apply coupon redemption once at parent level and allocate discounts across child orders with cent-exact reconciliation.
 - [x] Propagate simulated payment, cancellation and reservation expiry to child order states.
 - [x] Add PostgreSQL integration coverage for split totals, idempotency, coupon allocation, simulated payment and competing checkouts.
-- [ ] Add split-order detail reads and vendor-specific internal query methods.
+- [x] Add owner-scoped split-order detail reads and vendor-specific internal query methods (CI verification pending).
 - [ ] Add seller authorization/membership model before any seller-facing APIs.
+
+
+### M09.3 — Owner-scoped vendor child-order reads
+- [x] Add `GetVendorOrder` to retrieve one vendor child order and its immutable item snapshots using the owning cart capability digest.
+- [x] Conceal cross-owner child-order existence behind the same `ErrOrderNotFound` result used for unknown IDs.
+- [x] Add PostgreSQL integration coverage for child/parent identity, vendor metadata, exact totals, item ownership, invalid capabilities and cross-owner isolation.
+- [ ] Run backend CI and verify the new integration test before marking this slice complete.
