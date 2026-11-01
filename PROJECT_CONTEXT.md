@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M09.4.1 public API surface regression guards (CI verification pending)  
+**Active stage:** M08.1 platform catalog importer synchronization (CI verification pending)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -279,3 +279,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - PR #1 remains Draft/open/unmerged. No production hosting, payment provider or paid infrastructure enabled.
 
 - Follow-up hardening: CORS no longer advertises the `Authorization` request header before an authenticated API exists; regression test asserts the restricted header policy. Code commits: `6d3f1f2` and `05e1442`. CI verification pending for the latest code head.
+
+
+## Platform importer synchronization — 2026-11-02 (CI pending)
+- `database.UpsertProducts` now synchronizes each imported base product into the seeded active `globalcart-direct` platform vendor within the same PostgreSQL transaction.
+- New platform offers receive initial price-history and opening-inventory audit rows. Existing offers update price/stock only when the catalog source changes; price and inventory audit events are appended only for actual changes.
+- Re-importing unchanged products is idempotent and does not duplicate audit events. Uncategorized products still synchronize their platform offer.
+- PostgreSQL integration test covers initial import, unchanged re-import and changed price/stock updates.
+- Code commits: `686c567` (implementation), `bd7d006` (integration coverage), `2a04bf3` (uncategorized-product edge case). CI verification pending.
+- M09.4.1 public API regression guards are verified in Actions run `41353463006` (success). Seller routes and commerce write endpoints remain intentionally unexposed.
