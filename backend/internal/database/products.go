@@ -76,7 +76,6 @@ func UpsertProducts(ctx context.Context, pool *pgxpool.Pool, products []catalog.
 	return tx.Commit(ctx)
 }
 
-
 func upsertProductVariants(ctx context.Context, tx pgx.Tx, p catalog.Product) error {
 	for i, variant := range p.Variants {
 		source := strings.TrimSpace(variant.Source)

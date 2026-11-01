@@ -60,7 +60,7 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		Variants: []catalog.Variant{{
 			SKU: "GC-INT-987654321-BLK-M", Title: "Black / Medium", Price: 13.99, Stock: 2,
 			Attributes: map[string]any{"color": "black", "size": "M"},
-			Source: "integration-test", SourceID: "variant-1", IsActive: true,
+			Source:     "integration-test", SourceID: "variant-1", IsActive: true,
 		}},
 	}
 	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
