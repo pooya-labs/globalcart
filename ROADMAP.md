@@ -278,4 +278,16 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add idempotent replay test: repeated checkout returns the original order without duplicate reservations.
 - [x] Implement and integration-test idempotent expiry cleanup for pending demo orders and their active reservations.
 - [x] CI run 41346127244 passed sqlc generation, formatting, vet, PostgreSQL-backed tests (including reservation-expiry cleanup), API/importer builds and Docker image build.
-- [ ] Implement cart lifecycle operations and safe demo order read APIs after authorization boundary is ready.
+- [x] Implement internal guest cart lifecycle operations (create, add/increment, set quantity, remove, read) with catalog price revalidation.
+- [ ] Implement safe demo order read APIs after authorization boundary is ready.
+
+
+### M05 guest cart lifecycle service — 2026-11-01
+- [x] Implement internal cart creation using 32-byte SHA-256 capability digests; never persist raw bearer tokens.
+- [x] Implement add/increment, set quantity, remove line and retrieve cart operations.
+- [x] Serialize mutations per cart using row locks; validate lifecycle state and expiry.
+- [x] Read canonical product/variant title, price and stock from PostgreSQL; never trust client-supplied prices.
+- [x] Explicitly constrain carts to USD until catalog currency/FX support is designed.
+- [x] Add PostgreSQL integration tests for cart creation, add/increment, quantity updates, stock bounds, removal, variants and expired-cart rejection.
+- [x] CI push run 41346723656 passed sqlc generation, formatting, vet, PostgreSQL-backed tests, API/importer builds and Docker image build.
+- [ ] Keep all cart operations internal until same-site HTTPS, CSRF and identity/authorization prerequisites are approved.
