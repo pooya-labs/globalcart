@@ -271,3 +271,33 @@ test("the shared snapshot assertion rejects invalid data before publication", as
     validSnapshotProduct({ price: 19.99, stock: 4 })
   ])));
 });
+
+
+test("snapshot validation rejects duplicate non-empty variant SKUs", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-variant-sku-"));
+  const outputFile = join(directory, "catalog.json");
+  const variant = {
+    sku: "GC-SHARED-SKU",
+    title: "Variant",
+    price: 12.5,
+    stock: 3,
+    attributes: {},
+    source: "supplier-fixture",
+    sourceId: "variant-1",
+    isActive: true
+  };
+  try {
+    await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+      validSnapshotProduct({ variants: [variant] }),
+      validSnapshotProduct({
+        id: 11,
+        sourceId: "product-11",
+        variants: [{ ...variant, sourceId: "variant-2" }]
+      })
+    ])), "utf8");
+    await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

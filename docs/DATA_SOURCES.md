@@ -123,3 +123,5 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - Variant `(source, source_id)` identity must be unique across all products, matching the PostgreSQL unique index and importer ownership rule.
 - Prices must be non-negative, fit the current PostgreSQL `NUMERIC(12,2)` range and have no more than two fractional decimal places. Product discounts are limited to 0–100, ratings to 0–5, and stock values to non-negative PostgreSQL 32-bit integers. Product IDs must remain JavaScript-safe integers.
 - Invalid snapshots are rejected without modifying, deduplicating or fabricating records.
+
+- Non-empty trimmed variant SKUs are also unique across the snapshot, matching the PostgreSQL unique SKU index. The full contract is asserted before publication and when reading the previous snapshot.

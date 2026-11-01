@@ -370,3 +370,5 @@
 - Added PostgreSQL-compatible validation for ID safety, price precision/range, discount/rating bounds and integer stock limits.
 - Added regression tests for duplicate identities, wrong source attribution and invalid numeric/stock values.
 - CI verification is pending.
+
+- Refinement: validate the newly built snapshot before writing it and reject duplicate non-empty variant SKUs, matching the PostgreSQL partial unique index. CI verification is pending.

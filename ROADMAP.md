@@ -560,3 +560,6 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [ ] Verify Catalog CI, production build and Backend CI on the same final head.
 
 **Safety note:** validation mirrors the current PostgreSQL schema and importer identity keys; it rejects a snapshot rather than mutating, deduplicating or fabricating supplier data.
+
+
+**M08.8.4 implementation refinement:** the same contract is asserted immediately before the snapshot is published, not only when the previous snapshot is read. Non-empty variant SKUs are also unique across the snapshot, matching the PostgreSQL partial unique SKU index. CI verification is pending for this refinement.

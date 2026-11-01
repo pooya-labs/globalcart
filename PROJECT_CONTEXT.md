@@ -444,3 +444,6 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added database-bound numeric validation: safe integer product IDs, non-negative two-decimal prices within NUMERIC(12,2), two-decimal discount/rating limits, percentage range 0–100, rating range 0–5 and non-negative 32-bit integer stock. Variant prices and stock use the corresponding database constraints.
 - Added regression cases for product/variant identity conflicts, source mismatch, numeric precision and database range violations.
 - Catalog CI and Backend CI verification are pending.
+
+- The shared `assertCatalogSnapshot` contract runs before atomic publication as well as when reading the previous snapshot, so newly mapped invalid data is never written as the next last-known-good file.
+- Non-empty trimmed variant SKUs are unique across the full snapshot, matching the PostgreSQL unique SKU index in addition to source-identity uniqueness.

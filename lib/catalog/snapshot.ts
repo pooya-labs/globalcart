@@ -156,6 +156,7 @@ function isCatalogSnapshot(value: unknown): value is CatalogSnapshot {
   const productIDs = new Set<number>();
   const productIdentities = new Set<string>();
   const variantIdentities = new Set<string>();
+  const variantSKUs = new Set<string>();
 
   for (const product of value.products) {
     if (product.source !== value.source) return false;
@@ -169,6 +170,10 @@ function isCatalogSnapshot(value: unknown): value is CatalogSnapshot {
       const identity = JSON.stringify([variant.source, variant.sourceId]);
       if (variantIdentities.has(identity)) return false;
       variantIdentities.add(identity);
+
+      const sku = variant.sku.trim();
+      if (sku && variantSKUs.has(sku)) return false;
+      if (sku) variantSKUs.add(sku);
     }
   }
 
