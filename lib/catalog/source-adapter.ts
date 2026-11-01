@@ -46,16 +46,16 @@ export async function loadCatalogFromSource(
     if (product) mapped.push(product);
   }
 
+  if (mapped.length === 0) {
+    throw new Error(`${source} did not return any mappable product records`);
+  }
+
   const unmappedCount = records.length - mapped.length;
   const unmappedFraction = unmappedCount / records.length;
   if (unmappedFraction > maxUnmappedFraction) {
     throw new Error(
       `${source} rejected ${unmappedCount}/${records.length} source records during mapping (${(unmappedFraction * 100).toFixed(1)}%); maximum allowed is ${(maxUnmappedFraction * 100).toFixed(1)}%`
     );
-  }
-
-  if (mapped.length === 0) {
-    throw new Error(`${source} did not return any mappable product records`);
   }
 
   const importedAt = options.importedAt ?? new Date().toISOString();
