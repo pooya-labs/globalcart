@@ -133,4 +133,4 @@
 - Category filtering now matches normalized category names case-insensitively and ignores surrounding whitespace.
 - Added a typed total-count query sharing the same search and category predicates as product listing.
 - Product list response now includes `total` for pagination while `count` continues to report items in the returned page.
-- Added PostgreSQL integration coverage for category normalization and total count; CI pending.
+- Added PostgreSQL integration coverage for category normalization and total count. Pull-request CI run 41303108214 passed sqlc generation, formatting, vet, race-enabled PostgreSQL tests, API/importer builds and Docker image build.
