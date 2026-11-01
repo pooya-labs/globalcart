@@ -129,10 +129,10 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [ ] Add authorization integration tests after the authentication boundary exists.
 
 ## M05 — Commerce simulation
-- [ ] Persistent demo cart and checkout draft.
+- [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
 - [ ] Multi-step checkout with validation and demo address book.
-- [ ] Simulated payment outcomes; never contact a real payment provider.
-- [ ] Persistent demo order history and printable receipt.
+- [x] Define demo-only order states and reservation release semantics; no payment provider is contacted.
+- [x] Add demo order ledger, immutable line snapshots, per-cart idempotency and append-oriented events (schema only; API not exposed).
 - [ ] Coupons and promotions.
 - [ ] Returns/refund simulation.
 
@@ -259,3 +259,12 @@ Category API CI verification: run 41302783939 passed sqlc generation, formatting
 
 
 Catalog pagination CI verification: pull-request run 41303108214 passed sqlc generation, formatting, vet, PostgreSQL-backed race tests, API/importer builds and Docker image build. Push run 41303144768 also successfully generated and persisted the updated typed query files; final image build is completing.
+
+
+### M05 commerce schema foundation — 2026-11-01
+- [x] Add migration 003 for guest carts, cart items, demo orders, immutable order lines, inventory reservations and order events.
+- [x] Enforce digest lengths, bounded quantities, nonnegative price snapshots, valid statuses, variant/product ownership and cart-scoped idempotency.
+- [x] Specify transactional checkout locking, server-side price revalidation, reservation expiry and replay semantics in `docs/COMMERCE_DESIGN.md`.
+- [ ] Verify migration 003 and PostgreSQL integration tests in CI.
+- [ ] Implement typed commerce queries and domain transaction service after schema verification.
+- [ ] Expose persistent cart/order endpoints only after same-site HTTPS, identity/authorization and CSRF prerequisites are approved.
