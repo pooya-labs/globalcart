@@ -2,8 +2,8 @@
 
 > The single source of truth. A stage is complete only after implementation and verification.
 
-**Current release:** 0.1.4  
-**Active stage:** M02 — Automated catalog pipeline  
+**Current release:** 0.2.1-dev  
+**Active stage:** M01.5 — Marketplace redesign and UX foundation  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -70,8 +70,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Rebuild the storefront shell around category-first discovery, prominent search and shopping utilities.
 - [x] Add a responsive category mega-menu generated from the live catalog, with product counts and direct category filtering.
 - [ ] Add marketplace-grade home modules: curated collections, trending products, deals and category rails.
-- [ ] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
-- [ ] Add dedicated product detail, gallery and comparison flows.
+- [x] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
+- [x] Add dedicated static product detail routes for the imported catalog, image gallery, product information and related products.
+- [ ] Add comparison flows.
 - [ ] Verify desktop, tablet, mobile, RTL/LTR, keyboard and reduced-motion behavior.
 - [ ] Confirm all controls remain functional and demo-only disclosures are clear.
 
@@ -161,4 +162,5 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 | 0.1.0 | M00 + M01 | Implemented | Initial independent storefront |
 | 0.1.1 | Pricing foundation | Implemented | Integer-cent and fixed-point demo pricing |
 | 0.1.4 | M02 catalog pipeline | Implemented | Catalog import and snapshot pipeline; translation bridge parked and removed from CI |
-| 0.2.0-dev | M01.5 marketplace redesign | In progress | Amazon-like discovery and shopping flows with an independent premium visual system |
+| 0.2.0-dev | M01.5 marketplace redesign | In progress | Category-first shell and updated marketplace visual system |
+| 0.2.1-dev | M03 product experience | In progress | Static product detail routes, gallery, buy box and related products added; verification pending |
