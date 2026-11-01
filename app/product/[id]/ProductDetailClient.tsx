@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
 
@@ -41,12 +41,22 @@ export default function ProductDetailClient({product,related}:Props) {
   const [quantity,setQuantity]=useState(1);
   const [added,setAdded]=useState(false);
   const [saved,setSaved]=useState(false);
+  const [rate,setRate]=useState(69000);
   const rtl=locale==="fa";
   const images=useMemo(()=>Array.from(new Set([product.thumbnail,...(product.images||[])].filter(Boolean))),[product]);
   const image=images[Math.min(activeImage,images.length-1)]||product.thumbnail;
   const discounted=product.price*(1-product.discountPercentage/100);
+  useEffect(()=>{
+    try{
+      const raw=localStorage.getItem("globalcart-state-v1");
+      if(!raw)return;
+      const state=JSON.parse(raw);
+      if(Number.isFinite(state.rate)&&state.rate>0)setRate(state.rate);
+      if(Array.isArray(state.favorites))setSaved(state.favorites.includes(product.id));
+    }catch{/* Ignore invalid local demo state. */}
+  },[product.id]);
   const format=(value:number)=>rtl
-    ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(value*69000)+" تومان"
+    ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(value*rate)+" تومان"
     : "$"+value.toFixed(2);
   const category=categoryNames[product.category]||{fa:product.category,en:product.category.replaceAll("-"," ")};
   const addToCart=()=>{
