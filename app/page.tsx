@@ -163,7 +163,7 @@ export default function Home() {
   const filtered=useMemo(()=>{
     const displayProducts=products.map(p=>{
       const translation=locale==="fa"&&p.localization?.status==="translated"?p.localization.fields:null;
-      return translation?{...p,title:translation.title,description:translation.description,category:translation.category,brand:translation.brand}:p;
+      return translation?{...p,title:translation.title,description:translation.description}:p;
     });
     let list=displayProducts.filter(p=>{
       const text=(p.title+" "+p.description+" "+(p.brand||"")+" "+p.category).toLocaleLowerCase();
