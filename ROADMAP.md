@@ -516,10 +516,12 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - Keep credentials server-side; do not scrape or invent live inventory.
 
 
-## M08.8.1 — Source-agnostic feed import diagnostics
+## M08.8.1 — Source-agnostic feed import diagnostics — CI verified
 - [x] Expose aggregate fetched, mapped, rejected, normalized and post-normalization-discard counts without retaining raw supplier payloads.
 - [x] Include source name, snapshot mode, import timestamp and the configured mapping rejection threshold.
 - [x] Preserve the existing products-only loader API for backward compatibility.
 - [x] Emit the aggregate report during scheduled catalog snapshot generation.
 - [x] Add regression coverage for mapper rejection, malformed normalized rows and duplicate product IDs.
 - [x] Verify Catalog CI and Backend CI on the same code head.
+
+**Verification:** Catalog CI [41359432556](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432659) succeeded on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.

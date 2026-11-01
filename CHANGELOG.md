@@ -343,8 +343,9 @@
 - M08.9 authorized supplier onboarding remains blocked pending explicit owner approval of a named source and usage rights.
 
 
-### M08.8.1 source-agnostic feed import diagnostics — implementation in progress (2026-11-02)
+### M08.8.1 source-agnostic feed import diagnostics — CI verified (2026-11-02)
 - Added a structured import result with aggregate source, snapshot mode, timestamp, fetched/mapped/unmapped counts, mapping rejection rate, normalized product count and records discarded during normalization.
 - Kept the original products-only loader API unchanged for existing consumers.
 - Scheduled catalog sync now emits the aggregate report without logging raw source records.
-- Added a regression test covering mapper rejection, malformed normalized products and duplicate identities. CI verification pending.
+- Added a regression test covering mapper rejection, malformed normalized products and duplicate identities.
+- Catalog CI [41359432556](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432659) passed on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.

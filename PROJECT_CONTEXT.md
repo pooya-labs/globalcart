@@ -413,7 +413,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M08.9 remains blocked until owner approval of a named supplier/API/feed and data/image/price reuse rights.
 
 
-### M08.8.1 source-agnostic feed import diagnostics — CI verification pending
+### M08.8.1 source-agnostic feed import diagnostics — CI verified
 - Added `loadCatalogFromSourceWithReport`, returning normalized products plus safe aggregate counters: fetched, mapped, unmapped, normalized and discarded after normalization.
 - Report also carries source, snapshot mode, import timestamp and mapping threshold. It does not include raw supplier records or sensitive payload fields.
 - The existing `loadCatalogFromSource` remains backward-compatible and returns only products.

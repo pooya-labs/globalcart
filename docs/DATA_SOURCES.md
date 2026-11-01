@@ -101,3 +101,4 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - The report contains counts and metadata only, never raw supplier payloads.
 - The scheduled snapshot sync logs this report after a successful atomic snapshot write, next to the existing catalog-quality report.
 - `loadCatalogFromSource` remains available as a backwards-compatible products-only API.
+- **Verification:** Catalog CI [41359432556](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432659) passed on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.
