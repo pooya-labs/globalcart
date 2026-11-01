@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 var (
@@ -100,12 +101,13 @@ func (s *Service) ApplyCoupon(ctx context.Context, ownerTokenHash []byte, code s
 	var couponID int64
 	var active bool
 	var startsAt, endsAt time.Time
-	var usageLimit *int64
+	var usageLimit pgtype.Int8
+	var dbNow time.Time
 	var perCustomerLimit int32
-	err = tx.QueryRow(ctx, `SELECT id,is_active,starts_at,ends_at,usage_limit,per_customer_limit
+	err = tx.QueryRow(ctx, `SELECT id,is_active,starts_at,ends_at,usage_limit,per_customer_limit,now()
 		FROM coupons WHERE code_hash=$1 FOR UPDATE`, digest[:]).
-		Scan(&couponID, &active, &startsAt, &endsAt, &usageLimit, &perCustomerLimit)
-	if errors.Is(err, pgx.ErrNoRows) || (err == nil && (!active || time.Now().Before(startsAt) || !time.Now().Before(endsAt))) {
+		Scan(&couponID, &active, &startsAt, &endsAt, &usageLimit, &perCustomerLimit, &dbNow)
+	if errors.Is(err, pgx.ErrNoRows) || (err == nil && (!active || dbNow.Before(startsAt) || !dbNow.Before(endsAt))) {
 		return ErrCouponUnavailable
 	}
 	if err != nil {
@@ -118,7 +120,7 @@ func (s *Service) ApplyCoupon(ctx context.Context, ownerTokenHash []byte, code s
 	if err := tx.QueryRow(ctx, "SELECT count(*) FROM coupon_redemptions WHERE coupon_id=$1 AND owner_token_hash=$2", couponID, ownerTokenHash).Scan(&ownerUses); err != nil {
 		return fmt.Errorf("count owner coupon redemptions: %w", err)
 	}
-	if (usageLimit != nil && globalUses >= *usageLimit) || ownerUses >= int64(perCustomerLimit) {
+	if (usageLimit.Valid && globalUses >= usageLimit.Int64) || ownerUses >= int64(perCustomerLimit) {
 		return ErrCouponUnavailable
 	}
 	if _, err := tx.Exec(ctx, "UPDATE carts SET coupon_id=$2,updated_at=now() WHERE id=$1", cartID, couponID); err != nil {
