@@ -54,4 +54,3 @@ func TestVendorAwareCartLifecycle(t *testing.T) {
   t.Fatalf("add beyond offer stock error=%v, want ErrInsufficientStock",err)
  }
 }
-}
