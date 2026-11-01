@@ -1,3 +1,12 @@
+export type CatalogLocalization = {
+  locale: "fa";
+  status: "translated" | "error";
+  provider: string;
+  sourceHash: string;
+  translatedAt: string | null;
+  fields: { title: string; description: string; category: string; brand: string } | null;
+};
+
 export type CatalogProduct = {
   id: number;
   title: string;
@@ -14,6 +23,7 @@ export type CatalogProduct = {
   sourceId: string;
   sourceUrl: string;
   importedAt: string;
+  localization?: CatalogLocalization;
 };
 
 export type CatalogResult = {
