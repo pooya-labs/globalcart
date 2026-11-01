@@ -741,10 +741,12 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	validRating := product
 	validRating.ID = 987654324
 	validRating.SourceID = "fixture-rating-valid"
+	validRating.Variants = nil
 	invalidRating := product
 	invalidRating.ID = 987654325
 	invalidRating.SourceID = "fixture-rating-invalid"
 	invalidRating.Rating = 5.01
+	invalidRating.Variants = nil
 	if err := UpsertProducts(ctx, pool, []catalog.Product{validRating, invalidRating}); err == nil {
 		t.Fatal("expected PostgreSQL rating upper-bound constraint to reject rating above five")
 	}
