@@ -316,3 +316,10 @@
 
 ### M08.7 explicit feed completeness semantics — implementation in progress
 - Next adapter hardening will distinguish complete supplier snapshots from incremental/delta feeds and prevent deltas from replacing the last-known-good full catalog.
+
+
+### M08.7 explicit feed completeness semantics — implementation in progress (2026-11-02)
+- Added a required `snapshotMode` declaration to the source adapter contract: `full` or `incremental`.
+- Classified DummyJSON as a full-snapshot source and required full mode in the scheduled static snapshot writer.
+- Feed-mode mismatches are rejected before fetching records, preserving the last-known-good snapshot.
+- Added a test proving an incremental feed can be normalized for a future merger but cannot enter the full snapshot path. Catalog CI verification is pending.
