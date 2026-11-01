@@ -546,6 +546,6 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add regression tests for missing files, malformed JSON, count mismatch and malformed product rows.
 - [x] Verify Catalog CI, production build and Backend CI on the same code head.
 
-**Verification:** Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) all succeeded on code head `ff5cf42cc094bc4e35d317ad52f970762280ba2f`.
+**Verification on implementation commit `ff5cf42cc094bc4e35d317ad52f970762280ba2f`:** Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) all succeeded.
 
 **Safety note:** a missing snapshot may use the documented first-import behavior; an existing but invalid snapshot now fails closed and requires repair rather than being silently discarded.
