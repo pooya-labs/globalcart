@@ -19,6 +19,7 @@ var (
 	ErrUnavailable       = errors.New("item is unavailable")
 	ErrInsufficientStock = errors.New("insufficient demo stock")
 	ErrInvalidLifetime   = errors.New("reservation lifetime must be positive")
+	ErrVendorCheckoutNotReady = errors.New("vendor cart checkout is not available yet")
 )
 
 type Order struct {
@@ -88,6 +89,16 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	}
 	if cartExpired {
 		return Order{}, ErrCartExpired
+	}
+
+	// Never process vendor offers through the legacy single-catalog stock path.
+	// Vendor-aware split checkout is deliberately introduced as a separate step.
+	var vendorLines int64
+	if err := tx.QueryRow(ctx, "SELECT count(*) FROM cart_items WHERE cart_id=$1 AND vendor_product_id IS NOT NULL", cartID).Scan(&vendorLines); err != nil {
+		return Order{}, fmt.Errorf("check vendor cart lines: %w", err)
+	}
+	if vendorLines > 0 {
+		return Order{}, ErrVendorCheckoutNotReady
 	}
 
 	rows, err := tx.Query(ctx, `SELECT product_id, variant_id, quantity
