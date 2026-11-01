@@ -242,3 +242,26 @@ body{background:#f4f6f9;color:#172033}
 .merchandising-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.merchandising-panel{background:#fff;border:1px solid #e4eaf0;border-radius:15px;padding:17px;min-width:0;box-shadow:0 4px 15px rgba(20,35,58,.025)}.merchandising-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.merchandising-panel-head small{font-size:8px;letter-spacing:1px;color:#176b55;font-weight:850}.merchandising-panel-head h3{font-size:15px;margin:5px 0 0;color:#1c2b40}.merchandising-panel-head>span{font-size:24px;font-weight:900;color:#e6edf0}.merchandising-items{display:grid;grid-template-columns:1fr 1fr;gap:9px}.merchandising-item{min-width:0;display:flex;flex-direction:column;gap:7px;text-decoration:none;color:#2c3a4f;border:1px solid #edf0f3;border-radius:10px;padding:8px;transition:border-color .18s,transform .18s}.merchandising-item:hover{border-color:#cbded5;transform:translateY(-2px)}.merchandising-item img{width:100%;height:105px;object-fit:contain;background:#f7f9fa;border-radius:7px;mix-blend-mode:multiply}.merchandising-item>span{display:flex;flex-direction:column;gap:5px;min-width:0}.merchandising-item b{font-size:9px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:30px}.merchandising-item small{display:flex;align-items:center;gap:5px;font-size:8px;color:#176b55;white-space:nowrap}.merchandising-item small svg{color:#b27b2b}
 @media(max-width:1000px){.merchandising-grid{grid-template-columns:1fr 1fr}.merchandising-panel:last-child{grid-column:1/-1}.merchandising-panel:last-child .merchandising-items{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:650px){.merchandising-section{padding:39px 4% 48px}.merchandising-intro{align-items:flex-start;flex-direction:column;gap:10px}.merchandising-grid{grid-template-columns:1fr;gap:10px}.merchandising-panel:last-child{grid-column:auto}.merchandising-panel:last-child .merchandising-items{grid-template-columns:1fr 1fr}.merchandising-item img{height:110px}}
+
+
+/* Recently viewed — browser-local browsing continuity */
+.recently-viewed-section{padding:34px clamp(16px,4.5vw,76px) 42px;background:#fff;border-top:1px solid #edf0f3;border-bottom:1px solid #edf0f3}
+.recently-viewed-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:16px}
+.recently-viewed-head h2{font-size:clamp(20px,2vw,27px);margin:7px 0;color:#172238}
+.recently-viewed-head p{font-size:10px;color:#7d8998;margin:0;line-height:1.8}
+.recently-viewed-head>button{border:1px solid #e1e7ed;background:#fff;color:#687789;border-radius:8px;padding:9px 12px;font-size:10px;font-weight:750;white-space:nowrap}
+.recently-viewed-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.recently-viewed-item{display:flex;align-items:center;gap:11px;min-width:0;padding:9px;border:1px solid #e9edf1;border-radius:11px;text-decoration:none;color:#26364b;background:#fff;transition:border-color .18s,transform .18s}
+.recently-viewed-item:hover{border-color:#bfd5ca;transform:translateY(-2px)}
+.recently-viewed-item img{width:58px;height:58px;object-fit:contain;background:#f6f8f9;border-radius:7px;flex:0 0 58px}
+.recently-viewed-item>span{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.recently-viewed-item b{font-size:10px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.recently-viewed-item small{font-size:9px;color:#176b55;font-weight:800}
+.recently-viewed-item>svg{flex:0 0 15px;color:#98a5b1}
+.price-breakdown{margin:13px 0 3px;border:1px solid #e8edf1;border-radius:9px;padding:10px 11px;background:#fafcfc}
+.price-breakdown summary{cursor:pointer;color:#176b55;font-size:10px;font-weight:800;list-style-position:inside}
+.price-breakdown>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #edf0f2;font-size:10px;color:#718092}
+.price-breakdown>div b{color:#29384c;text-align:end}
+.price-breakdown>small{display:block;padding-top:9px;color:#8793a1;font-size:9px;line-height:1.8}
+@media(max-width:900px){.recently-viewed-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.recently-viewed-section{padding:28px 4% 32px}.recently-viewed-head{align-items:flex-start}.recently-viewed-grid{grid-template-columns:1fr}.recently-viewed-item img{width:52px;height:52px;flex-basis:52px}}
