@@ -35,14 +35,6 @@ type Cart struct {
 	Items []CartItem
 }
 
-type CartSummary struct {
-	ID string
-	Status string
-	Currency string
-	ExpiresAt time.Time
-	Items []CartItem
-}
-
 func (s *Service) CreateCart(ctx context.Context, ownerTokenHash []byte, currency string, ttl time.Duration) (Cart, error) {
 	if len(ownerTokenHash) != 32 { return Cart{}, errors.New("cart capability digest must be 32 bytes") }
 	if currency != "USD" { return Cart{}, ErrUnsupportedCurrency }
@@ -145,12 +137,6 @@ func (s *Service) SetItemQuantity(ctx context.Context, ownerTokenHash []byte, pr
 	if errors.Is(err,pgx.ErrNoRows){return Cart{},ErrInvalidProduct}
 	if err!=nil{return Cart{},fmt.Errorf("read current catalog item: %w",err)}
 	if quantity>stock{return Cart{},ErrInsufficientStock}
-	var tag pgconnCommandTag
-	_ = tag
-	var result pgx.Rows
-	_ = result
-	var command pgconnCommandTag
-	_ = command
 	var affected int64
 	if variantID==nil {
 		ct,execErr:=tx.Exec(ctx,`UPDATE cart_items SET quantity=$3,unit_price_snapshot=$4::numeric,
@@ -182,8 +168,6 @@ func (s *Service) RemoveItem(ctx context.Context, ownerTokenHash []byte, product
 	if err!=nil{return Cart{},fmt.Errorf("lock cart: %w",err)}
 	if status!="open"{return Cart{},ErrCartClosed}
 	if expired{return Cart{},ErrCartExpired}
-	var ct pgconnCommandTag
-	_ = ct
 	var affected int64
 	if variantID==nil {
 		tag,e:=tx.Exec(ctx,`DELETE FROM cart_items WHERE cart_id=$1 AND product_id=$2 AND variant_id IS NULL`,cartID,productID)
