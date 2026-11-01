@@ -105,7 +105,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Dedicated static product details for the imported catalog, responsive image gallery and related products.
 - [ ] Attributes, ratings context and source provenance.
 - [x] Product comparison modal and persistent comparison shortlist.
-- [x] Recently viewed product rail and browser-local visit history; a dedicated history page remains future scope.
+- [x] Dedicated recently viewed page, homepage rail and browser-local visit history.
 
 ## M04 — Backend and database platform
 - [ ] Owner enables Go runtime and approves separate API hosting.

@@ -85,3 +85,10 @@
 ### Verification
 - Actions run 41299322140 (Run #126) passed catalog refresh, TypeScript validation, unit tests, production build, Pages artifact upload and deployment.
 - Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41299322140
+
+
+### Recently viewed page follow-up
+- Added a dedicated /recently-viewed route with empty state, clear-history action and Persian/English layout.
+- Added a permanent footer entry so the history page remains discoverable even before the first product visit.
+- Actions run 41299677941 (Run #135) passed TypeScript validation, unit tests, production build, Pages artifact upload and deployment.
+- Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941

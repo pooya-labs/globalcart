@@ -27,6 +27,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `app/page.tsx` — bilingual storefront, catalog search/filter/sort, category mega-menu, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
 - `app/product/[id]/page.tsx` — statically generated product routes from the current catalog snapshot.
 - `app/product/[id]/ProductDetailClient.tsx` — product gallery, illustrative price breakdown, product facts, browser-local visit tracking, local cart/favorite actions and related products.
+- `app/recently-viewed/page.tsx` — static-exportable history page reading and clearing browser-local recent product IDs.
 - `app/globals.css` — responsive marketplace design system, product detail, price breakdown, recently viewed rail, mega-menu, comparison and Amazon intake styling.
 - `app/layout.tsx` — metadata and global styles.
 - `data/catalog.json` — generated 100-product sample catalog snapshot.
@@ -46,7 +47,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Keyboard support includes Escape dismissal for overlays, dialog semantics, visible focus styles and live announcements for key feedback states.
 - Comparison supports up to four products and is persisted in browser local storage.
 - Homepage merchandising rails are derived from the current sample catalog (discounts, ratings and discovery).
-- Recently viewed product IDs are stored in browser local storage and shown in a homepage rail; there is no server-side account history.
+- Recently viewed product IDs are stored in browser local storage, shown in a homepage rail and on /recently-viewed; the footer links to the history page. There is no server-side account history.
 - Product detail pages expose source USD price, sample discount, illustrative user-configured FX rate and converted demo price. No live FX provider is connected.
 - Amazon URL intake validates supported Amazon domains and ASINs, then saves requests in browser local storage. Live Amazon data is not fetched.
 - Translation is out of scope and removed from the active CI pipeline.
@@ -55,8 +56,8 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
 
-Actions run 41299322140 (Run #126) passed catalog refresh, snapshot persistence, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment. This run includes dynamic merchandising, browser-local recently viewed history and the illustrative product price breakdown.
-https://github.com/pooya16pg-spec/globalcart/actions/runs/41299322140
+Actions run 41299677941 (Run #135) passed catalog refresh, snapshot persistence, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment. This run includes the dedicated recently viewed page, homepage history rail and browser-local history controls.
+https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 ## Immediate next actions
 1. Complete responsive, RTL/LTR, keyboard, screen-reader, reduced-motion and published deep-link QA.
