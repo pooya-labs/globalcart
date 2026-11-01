@@ -219,6 +219,86 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	cartOwner := make([]byte, 32)
 	cartOwner[0] = 77
 	cartService := commerce.New(pool)
+
+	// Coupon values are recalculated from canonical checkout prices and snapshotted.
+	var couponOwner [32]byte
+	couponOwner[0] = 70
+	if _, err := cartService.CreateCart(ctx, couponOwner[:], "USD", time.Hour); err != nil {
+		t.Fatalf("create coupon cart: %v", err)
+	}
+	if _, err := cartService.AddItem(ctx, couponOwner[:], product.ID, nil, 1); err != nil {
+		t.Fatalf("add item to coupon cart: %v", err)
+	}
+	maxDiscount := "5.00"
+	globalCouponUses := int64(1)
+	if err := cartService.CreateCoupon(ctx, "SAVE10", commerce.CouponSpec{
+		DiscountType: "percentage", DiscountValue: "10", MinimumSubtotal: "10.00",
+		MaximumDiscount: &maxDiscount, StartsAt: time.Now().UTC().Add(-time.Hour),
+		EndsAt: time.Now().UTC().Add(time.Hour), UsageLimit: &globalCouponUses,
+		PerCustomerLimit: 1,
+	}); err != nil {
+		t.Fatalf("create percentage coupon: %v", err)
+	}
+	if err := cartService.ApplyCoupon(ctx, couponOwner[:], " save10 "); err != nil {
+		t.Fatalf("apply normalized coupon code: %v", err)
+	}
+	couponKey := make([]byte, 32)
+	couponKey[0] = 71
+	couponOrder, err := cartService.Checkout(ctx, couponOwner[:], couponKey, 15*time.Minute)
+	if err != nil {
+		t.Fatalf("checkout with coupon: %v", err)
+	}
+	if couponOrder.Subtotal != "12.34" || couponOrder.DiscountAmount != "1.23" || couponOrder.Total != "11.11" {
+		t.Fatalf("coupon order totals: subtotal=%s discount=%s total=%s, want 12.34 / 1.23 / 11.11",
+			couponOrder.Subtotal, couponOrder.DiscountAmount, couponOrder.Total)
+	}
+	var couponRedemptions int
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM coupon_redemptions WHERE order_id=$1", couponOrder.ID).Scan(&couponRedemptions); err != nil {
+		t.Fatalf("read coupon redemption: %v", err)
+	}
+	if couponRedemptions != 1 {
+		t.Fatalf("coupon redemption rows = %d, want 1", couponRedemptions)
+	}
+	var secondCouponOwner [32]byte
+	secondCouponOwner[0] = 72
+	if _, err := cartService.CreateCart(ctx, secondCouponOwner[:], "USD", time.Hour); err != nil {
+		t.Fatalf("create second coupon cart: %v", err)
+	}
+	if err := cartService.ApplyCoupon(ctx, secondCouponOwner[:], "SAVE10"); !errors.Is(err, commerce.ErrCouponUnavailable) {
+		t.Fatalf("apply globally exhausted coupon error = %v, want unavailable", err)
+	}
+
+	// Minimum subtotal is enforced again against canonical checkout prices.
+	var minimumOwner [32]byte
+	minimumOwner[0] = 73
+	if _, err := cartService.CreateCart(ctx, minimumOwner[:], "USD", time.Hour); err != nil {
+		t.Fatalf("create minimum-subtotal cart: %v", err)
+	}
+	if _, err := cartService.AddItem(ctx, minimumOwner[:], product.ID, nil, 1); err != nil {
+		t.Fatalf("add item to minimum-subtotal cart: %v", err)
+	}
+	if err := cartService.CreateCoupon(ctx, "MIN20", commerce.CouponSpec{
+		DiscountType: "fixed", DiscountValue: "3.00", MinimumSubtotal: "20.00",
+		StartsAt: time.Now().UTC().Add(-time.Hour), EndsAt: time.Now().UTC().Add(time.Hour),
+		PerCustomerLimit: 1,
+	}); err != nil {
+		t.Fatalf("create minimum-subtotal coupon: %v", err)
+	}
+	if err := cartService.ApplyCoupon(ctx, minimumOwner[:], "MIN20"); err != nil {
+		t.Fatalf("apply minimum-subtotal coupon: %v", err)
+	}
+	minimumKey := make([]byte, 32)
+	minimumKey[0] = 74
+	if _, err := cartService.Checkout(ctx, minimumOwner[:], minimumKey, 15*time.Minute); !errors.Is(err, commerce.ErrCouponMinimum) {
+		t.Fatalf("checkout below coupon minimum error = %v, want minimum-subtotal error", err)
+	}
+	minimumCart, err := cartService.GetCart(ctx, minimumOwner[:])
+	if err != nil || minimumCart.Status != "open" {
+		t.Fatalf("cart after rejected minimum coupon checkout = %+v, err=%v; want open", minimumCart, err)
+	}
+	if err := cartService.RemoveCoupon(ctx, minimumOwner[:]); err != nil {
+		t.Fatalf("remove coupon from open cart: %v", err)
+	}
 	createdCart, err := cartService.CreateCart(ctx, cartOwner, "USD", time.Hour)
 	if err != nil {
 		t.Fatalf("create guest cart through service: %v", err)
