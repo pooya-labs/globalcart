@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.3 — Supplier adapter contract and fixture-backed variant ingestion (implementation in progress)  
+**Active stage:** M08.4 — Authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -418,7 +418,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Keep variant ingestion optional for product-only sources; DummyJSON remains a sample feed without variants, and no live supplier inventory is claimed.
 
 
-## M08.3 — Supplier adapter contract and fixture-backed variant ingestion (in progress)
+## M08.3 — Supplier adapter contract and fixture-backed variant ingestion (CI verified)
 - [x] Define a shared source adapter contract: each adapter fetches its own raw records and maps each record into the canonical catalog input shape.
 - [x] Add a reusable ingestion boundary that rejects empty, invalid and wholly unmappable feeds before snapshot replacement.
 - [x] Route the existing DummyJSON adapter and scheduled snapshot sync through the shared ingestion boundary while preserving retries and last-known-good behavior.
@@ -426,7 +426,18 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add a clearly synthetic supplier fixture with base product and variant mapping, including attributes, SKU, stock and inactive state.
 - [x] Add tests for adapter mapping, provenance, source-scoped identity and empty/unmappable feeds.
 - [x] Add a dedicated Catalog CI workflow for TypeScript validation, unit tests and production build on pushes and pull requests.
-- [ ] Verify the complete Catalog CI workflow on the current branch head.
-- [ ] Add a real supplier-specific adapter only after an authorized API/feed and usage rights are selected; do not manufacture data or add credentials.
+- [x] Verify the complete Catalog CI workflow on the feature branch and pull-request head.
+- [x] Keep live supplier onboarding gated; do not manufacture data or add credentials without owner-approved API/feed access.
 
-**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
+**M08.3 verification:** Catalog CI push run `41355090849` and PR run `41355095558` both passed on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`, including TypeScript validation, all unit tests and production build.\n\n**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
+
+
+## M08.4 — Authorized supplier onboarding (blocked pending owner decision)
+- [ ] Select a supplier and confirm the account has documented API/feed access rights and permitted catalog/image/price reuse.
+- [ ] Review supplier API documentation, rate limits, pagination, delta/full-snapshot semantics and variant identity guarantees.
+- [ ] Implement the supplier-specific fetch and mapping adapter using the M08.3 shared contract.
+- [ ] Add source-specific fixture and contract tests for pagination, partial failures, duplicate IDs, SKU changes, inactive variants and omitted variants.
+- [ ] Verify end-to-end ingestion through snapshot generation, Go importer, PostgreSQL variant persistence and platform offer audit events.
+- [ ] Store credentials only in an approved server-side secret store; never commit credentials or expose them to the browser.
+
+**Gate:** do not connect a real supplier, scrape retail pages, generate placeholder inventory or treat the synthetic M08.3 fixture as live data until the owner approves a named supplier and its authorized feed/API.
