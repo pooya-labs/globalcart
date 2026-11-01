@@ -71,3 +71,17 @@ Protected endpoints must use explicit route policy metadata. Registration/login/
 ## 8. Explicitly out of scope
 
 No production hosting, paid email provider, payment integration, real order fulfillment, seller payouts, external identity provider or user data collection is authorized by this design.
+
+
+## 9. Interim seller-service boundary (before identity implementation)
+
+The current commerce package contains vendor-scoped operations that accept a `vendorID` as an internal selector. That selector is **not proof of caller authorization**. Until session authentication and active seller memberships are implemented:
+
+- Do not expose `CreateVendor`, `UpsertVendorProduct`, `UpdateVendorPrice`, `AdjustVendorInventory` or seller order reads through public HTTP routes.
+- Do not copy a `vendor_id`, role, owner ID or membership ID from request JSON and treat it as trusted authority.
+- A future authenticated handler must resolve the current user from the verified server-side session, load the active seller membership from PostgreSQL, and derive the vendor scope server-side.
+- Pass the resolved scope through a narrow application authorization boundary; keep the membership check and protected mutation in one transaction where practical.
+- Keep customer cart capability operations separate from seller identity. A cart capability authorizes only that cart and must never imply seller privileges.
+- Every seller read/write must constrain the target by the resolved vendor scope and have negative cross-vendor tests. Missing and foreign resources should use a non-enumerating response policy appropriate to the endpoint.
+
+This interim restriction is intentional: internal service methods are not yet safe to publish as seller APIs merely because they accept a vendor ID or enforce a SQL `vendor_id` predicate.
