@@ -369,3 +369,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Catalog CI PR run `41356442235` also passed TypeScript validation, all unit tests and production build on head `3c9a01787420d56b281bae6f271eddbc56d3c57a`.
 - A GitHub Actions formatting bot commit `259cd66e7b846e9e14c3baeeaa53b6cf19d94e72` applied the Go formatting changes produced by the successful push workflow; no behavior change was introduced.
 - M08.7 now adds an explicit full-snapshot vs incremental-feed declaration to the adapter contract before any real supplier is connected. M08.8 real supplier onboarding remains blocked pending owner approval and authorized source access.
+
+
+## M08.7 implementation checkpoint — 2026-11-02
+- Added `CatalogSnapshotMode = "full" | "incremental"`; every `CatalogSourceAdapter` must now declare its feed completeness mode.
+- DummyJSON is explicitly marked as a full snapshot source.
+- `loadCatalogFromSource` supports an optional required mode and rejects mismatches before calling the source fetcher.
+- Scheduled `scripts/sync-catalog.ts` now explicitly requires `full`; incremental adapters can still normalize records for a future dedicated merger, but cannot feed the static full-snapshot writer.
+- Added a regression test that verifies an incremental adapter is rejected before fetch when full data is required, while the same records can be normalized through the generic loader without asserting any merge or persistence behavior.
+- Catalog CI verification is pending.
