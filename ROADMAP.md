@@ -265,6 +265,6 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add migration 003 for guest carts, cart items, demo orders, immutable order lines, inventory reservations and order events.
 - [x] Enforce digest lengths, bounded quantities, nonnegative price snapshots, valid statuses, variant/product ownership and cart-scoped idempotency.
 - [x] Specify transactional checkout locking, server-side price revalidation, reservation expiry and replay semantics in `docs/COMMERCE_DESIGN.md`.
-- [ ] Verify migration 003 and PostgreSQL integration tests in CI.
+- [x] Verify migration 003 and PostgreSQL integration tests in CI (run 41345512979).
 - [ ] Implement typed commerce queries and domain transaction service after schema verification.
 - [ ] Expose persistent cart/order endpoints only after same-site HTTPS, identity/authorization and CSRF prerequisites are approved.
