@@ -100,9 +100,7 @@ export default function Home() {
   const [category,setCategory]=useState("all");
   const [sort,setSort]=useState("popular");
   const [cart,setCart]=useState<CartLine[]>([]);
-  const [favorites,setFavorites]=useState<number[]>([]);
-  const [compareIds,setCompareIds]=useState<number[]>([]);
-  const [compareOpen,setCompareOpen]=useState(false);
+  const [favorites,setFavorites]=useState<number[]>([]);\n  const [compareIds,setCompareIds]=useState<number[]>([]);\n  const [compareOpen,setCompareOpen]=useState(false);
   const [recent,setRecent]=useState<number[]>([]);
   const [cartOpen,setCartOpen]=useState(false);
   const [favoriteOpen,setFavoriteOpen]=useState(false);
@@ -151,8 +149,7 @@ export default function Home() {
       if(!raw)return;
       const saved=JSON.parse(raw);
       if(Array.isArray(saved.cart))setCart(saved.cart);
-      if(Array.isArray(saved.favorites))setFavorites(saved.favorites);
-      if(Array.isArray(saved.compareIds))setCompareIds(saved.compareIds.slice(0,4));
+      if(Array.isArray(saved.favorites))setFavorites(saved.favorites);\n      if(Array.isArray(saved.compareIds))setCompareIds(saved.compareIds.slice(0,4));
       if(Array.isArray(saved.recent))setRecent(saved.recent);
       if(Number.isFinite(saved.rate)&&saved.rate>0)setRate(saved.rate);
     }catch{/* Ignore invalid local demo state. */}
@@ -188,15 +185,9 @@ export default function Home() {
   const openProduct=(p:Product)=>{setQuick(p);setRecent(old=>[p.id,...old.filter(id=>id!==p.id)].slice(0,8));};
   const toggleFavorite=(id:number)=>setFavorites(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);
   const placeDemoOrder=()=>{setOrder("GC-"+Math.random().toString(36).slice(2,8).toUpperCase());setCart([]);setCheckout(false);};
-  const favoriteProducts=products.filter(p=>favorites.includes(p.id));
-  const compareProducts=products.filter(p=>compareIds.includes(p.id));
-  const toggleCompare=(id:number)=>{
-    if(compareIds.includes(id)){setCompareIds(old=>old.filter(x=>x!==id));return;}
-    if(compareIds.length>=4){notify(locale==="fa"?"حداکثر چهار محصول قابل مقایسه است":"You can compare up to four products");return;}
-    setCompareIds(old=>[...old,id]);
-  };
+  const favoriteProducts=products.filter(p=>favorites.includes(p.id));\n  const compareProducts=products.filter(p=>compareIds.includes(p.id));\n  const toggleCompare=(id:number)=>setCompareIds(old=>{\n    if(old.includes(id))return old.filter(x=>x!==id);\n    if(old.length>=4){notify(locale==="fa"?"حداکثر چهار محصول قابل مقایسه است":"You can compare up to four products");return old;}\n    return [...old,id];\n  });
   const catalogCategories=useMemo(()=>Array.from(new Set(products.map(p=>p.category).filter(Boolean))).sort((a,b)=>a.localeCompare(b)),[products]);
-  const categoryLabel=(id:string)=>{const known=categories.find(c=>c.id===id);return known?(rtl?known.fa:known.en):id.split("-").map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(" ");};
+  const categoryLabel=(id:string)=>{const known=categories.find(c=>c.id===id);return known?(rtl?known.fa:known.en):id.replace(/-/g," ").replace(/\\b\\w/g,c=>c.toUpperCase());};
   const selectCategory=(id:string)=>{setCategory(id);setCategoryMenu(false);setMobileMenu(false);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});};
 
   return (
