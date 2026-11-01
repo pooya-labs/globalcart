@@ -67,7 +67,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M01.5 — Marketplace redesign and UX foundation
 - [x] Re-scope reference to a broad Amazon-style marketplace information architecture without copying proprietary code, branding or assets.
 - [x] Pause translation and remove it from the deployment pipeline.
-- [ ] Rebuild the storefront shell around category-first discovery, prominent search and shopping utilities.
+- [x] Rebuild the storefront shell around category-first discovery, prominent search and shopping utilities.
+- [x] Add a responsive category mega-menu generated from the live catalog, with product counts and direct category filtering.
 - [ ] Add marketplace-grade home modules: curated collections, trending products, deals and category rails.
 - [ ] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
 - [ ] Add dedicated product detail, gallery and comparison flows.
