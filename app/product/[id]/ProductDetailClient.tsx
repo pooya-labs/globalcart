@@ -31,8 +31,7 @@ const categoryNames:Record<string,{fa:string;en:string}> = {
   "womens-jewellery":{fa:"زیورآلات",en:"Women's jewellery"},
   "womens-shoes":{fa:"کفش زنانه",en:"Women's shoes"},
   "mens-shirts":{fa:"پیراهن مردانه",en:"Men's shirts"},
-  "mens-shoes":{fa:"کفش مردانه",en:"Men's shoes"},
-  "mens-watches":{fa:"ساعت مردانه",en:"Men's watches"}
+  "mens-shoes":{fa:"کفش مردانه",en:"Men's shoes"}
 };
 
 export default function ProductDetailClient({product,related}:Props) {
