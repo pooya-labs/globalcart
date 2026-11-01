@@ -214,3 +214,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Integration coverage checks platform vendor backfill, two vendors offering the same variant with independent stock, audit records and duplicate-offer rejection.
 - Critical: cart and checkout still use legacy products/product_variants stock and prices. Vendor offers are not yet wired to cart or checkout; no vendor order split exists.
 - No seller membership, seller HTTP API, dashboard, payout, commission, shipment or production resource is enabled. Membership waits for verified identity and authorization.
+
+
+## M09 — Vendor-aware cart foundation
+- Migration 006 adds vendor_product_id to cart lines, child vendor-order structure, and vendor-aware order-item/reservation references.
+- Added internal AddVendorItem, SetVendorItemQuantity and RemoveVendorItem methods with active vendor/offer checks, canonical snapshots and row locks.
+- GetCart now returns vendor offer identity and display name; legacy cart methods explicitly scope to non-vendor rows.
+- Legacy Checkout rejects vendor lines with ErrVendorCheckoutNotReady so vendor stock cannot be processed against legacy product inventory.
+- Added PostgreSQL integration coverage for vendor cart lifecycle and this checkout guard.
+- Split checkout and vendor child-order state propagation are not implemented yet.
