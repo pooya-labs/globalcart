@@ -2,7 +2,7 @@
 
 > The single source of truth. A stage is complete only after implementation and verification.
 
-**Current release:** 0.1.3  
+**Current release:** 0.1.4  
 **Active stage:** M02 — Automated catalog pipeline  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
@@ -73,8 +73,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Retry-capable static snapshot generator with last-known-good protection.
 - [x] Storefront initializes from generated snapshot and keeps it if live refresh fails.
 - [x] Verify snapshot generation (100 products), TypeScript, unit tests, production build and Pages deployment in Actions run 41295039930.
-- [x] Add a server-side Gemini translation adapter and scheduled catalog translation job (credential-gated).
-- [ ] Configure GEMINI_API_KEY as a GitHub Actions secret and verify a live Persian translation run.
+- [x] Add a Google Apps Script Language Service translation bridge using Google Translate (no Gemini).
+- [ ] Deploy the Google Apps Script bridge and configure GOOGLE_TRANSLATE_ENDPOINT / GOOGLE_TRANSLATE_TOKEN secrets; verify live Persian translation.
 - [x] Translate title, description, category and brand while preserving original source fields and provenance.
 - [x] Translation cache via source-content fingerprints, sequential throttling, bounded retries and per-product error reporting.
 - [ ] Catalog freshness and source diagnostics.
@@ -149,4 +149,4 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 |---|---|---|---|
 | 0.1.0 | M00 + M01 | Implemented | Initial independent storefront |
 | 0.1.1 | Pricing foundation | Implemented | Integer-cent and fixed-point demo pricing |
-| 0.1.3 | M02 catalog pipeline | In progress | Snapshot pipeline and optional Gemini translation job; live translation awaits secret |
+| 0.1.4 | M02 catalog pipeline | In progress | Free Google Translate bridge implemented; deployment and live translation verification pending |
