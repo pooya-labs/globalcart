@@ -12,7 +12,11 @@ GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate p
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
 - Responsive marketplace storefront with Persian RTL and English LTR, category-first navigation and refreshed retail design system.
-- Dedicated statically generated product detail pages for all imported catalog entries, including gallery, pricing panel, product facts and related products.
+- Catalog-driven category mega-menu and quick-category navigation with live category counts.
+- Dedicated statically generated product detail pages for imported catalog entries, including image gallery, pricing panel, product facts and related products.
+- Persistent side-by-side comparison for up to four products.
+- Amazon product-link intake demo with domain and ASIN validation; requests are stored locally and do not fetch live Amazon data.
+- Marketplace service shortcuts and a transparent FAQ covering product sourcing, demo limits and support.
 - Typed catalog import foundation plus a scheduled/manual snapshot generator with retry and last-known-good fallback (100 products imported; CI, tests, build and deployment passed in run 41295039930).
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
@@ -25,12 +29,13 @@ Implemented:
 
 In progress / not yet claimed as complete:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
-- Production-grade FX feed, price history and product detail pages.
-- Compare, admin/seller workspaces, order history and advanced search.
+- Live Amazon product retrieval, price/stock synchronization and a production FX feed require authorized provider access.
+- Seller/admin workspaces, persistent order history and advanced search remain planned.
 - Expanded domain unit tests; accessibility and browser tests remain pending.
 - Visual/accessibility QA and browser tests; deployment is now successful.
 
-\n## Demo boundaries
+
+## Demo boundaries
 
 | Area | Current behavior |
 |---|---|
@@ -41,7 +46,8 @@ In progress / not yet claimed as complete:
 | Cart / favorites | Local browser state |
 | Checkout | Local simulation; never contacts a payment provider |
 | Inventory / shipping | Not real, not reserved, not fulfilled |
-| Amazon | No scraping; future integration only through authorized access and current terms |
+| Amazon links | Domain/ASIN validation and local demo request storage; no live product retrieval |
+| Amazon catalog | No scraping; future integration only through authorized access and current terms |
 
 Amazon's public storefront must not be scraped or bulk-copied. Any future adapter requires verified program/API eligibility and compliance with current content, image, price-refresh, attribution and linking rules. Affiliate product discovery is not an unrestricted catalog feed.
 
