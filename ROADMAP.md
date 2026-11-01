@@ -168,7 +168,7 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 | 0.1.1 | Pricing foundation | Implemented | Integer-cent and fixed-point demo pricing |
 | 0.1.4 | M02 catalog pipeline | Implemented | Catalog import and snapshot pipeline; translation bridge parked and removed from CI |
 | 0.2.0-dev | M01.5 marketplace redesign | In progress | Category-first shell and updated marketplace visual system |
-| 0.2.1-dev | M03 product experience | In progress | Static product detail routes, gallery, buy box and related products added; verification pending |
+| 0.2.1-dev | M03 product experience | In progress | Static product detail routes, gallery, buy box and related products added; follow-up features verified in 0.2.3-dev |
 
 
 ## 0.2.3-dev verification update — 2026-11-01
@@ -186,5 +186,8 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Exposed selected product-gallery thumbnail state to assistive technology.
 - [x] Added keyboard focus trapping and focus restoration for modal dialogs.
 - [ ] Manual keyboard, screen-reader and browser QA remains open.
+- [x] Latest CI run 41300273671 (Run #141) passed after modal focus trapping and focus restoration; published-site manual QA is still pending.
 
 - [x] Focus is moved into each modal on open, trapped while active and returned to the invoking control on close.
+
+| 0.2.3-dev | M01.5 + M03 | In progress | Verified accessibility interaction pass; responsive/manual QA remains open |
