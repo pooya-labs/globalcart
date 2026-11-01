@@ -47,6 +47,9 @@ func UpsertProducts(ctx context.Context, pool *pgxpool.Pool, products []catalog.
 			if err := upsertPlatformOffer(ctx, tx, platformVendorID, p); err != nil {
 				return fmt.Errorf("sync platform offer for product %d: %w", p.ID, err)
 			}
+			if err := syncPlatformVariantOffers(ctx, tx, platformVendorID, p.ID); err != nil {
+				return fmt.Errorf("sync platform variant offers for product %d: %w", p.ID, err)
+			}
 			continue
 		}
 		var categoryID int64
@@ -109,38 +112,52 @@ func upsertPlatformOffer(ctx context.Context, tx pgx.Tx, vendorID int64, p catal
 }
 
 func syncPlatformVariantOffers(ctx context.Context, tx pgx.Tx, vendorID, productID int64) error {
+	type variant struct {
+		id int64
+		sku string
+		price string
+		stock int32
+		active bool
+	}
 	rows, err := tx.Query(ctx, `SELECT id, sku, price::text, stock, is_active
 		FROM product_variants WHERE product_id=$1 ORDER BY id`, productID)
 	if err != nil {
 		return fmt.Errorf("list product variants: %w", err)
 	}
-	defer rows.Close()
+	var variants []variant
 	for rows.Next() {
-		var variantID int64
-		var sku, sourcePrice string
-		var sourceStock int32
-		var active bool
-		if err := rows.Scan(&variantID, &sku, &sourcePrice, &sourceStock, &active); err != nil {
+		var item variant
+		if err := rows.Scan(&item.id, &item.sku, &item.price, &item.stock, &item.active); err != nil {
+			rows.Close()
 			return fmt.Errorf("scan product variant: %w", err)
 		}
+		variants = append(variants, item)
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return fmt.Errorf("iterate product variants: %w", err)
+	}
+	rows.Close()
+
+	for _, item := range variants {
 		var offerID int64
 		var oldPrice string
 		var oldStock int32
 		err := tx.QueryRow(ctx, `SELECT id,price::text,stock FROM vendor_products
-			WHERE vendor_id=$1 AND variant_id=$2 FOR UPDATE`, vendorID, variantID).
+			WHERE vendor_id=$1 AND variant_id=$2 FOR UPDATE`, vendorID, item.id).
 			Scan(&offerID, &oldPrice, &oldStock)
 		status := "paused"
-		if active {
+		if item.active {
 			status = "active"
 		}
 		if errors.Is(err, pgx.ErrNoRows) {
 			err = tx.QueryRow(ctx, `INSERT INTO vendor_products
 				(vendor_id,product_id,variant_id,seller_sku,price,currency,stock,status)
 				VALUES($1,$2,$3,NULLIF($4,''),$5,'USD',$6,$7)
-				RETURNING id,price::text,stock`, vendorID, productID, variantID, sku, sourcePrice, sourceStock, status).
+				RETURNING id,price::text,stock`, vendorID, productID, item.id, item.sku, item.price, item.stock, status).
 				Scan(&offerID, &oldPrice, &oldStock)
 			if err != nil {
-				return fmt.Errorf("insert variant offer %d: %w", variantID, err)
+				return fmt.Errorf("insert variant offer %d: %w", item.id, err)
 			}
 			if _, err := tx.Exec(ctx, `INSERT INTO vendor_price_history
 				(vendor_product_id,old_price,new_price,currency,change_source)
@@ -155,15 +172,15 @@ func syncPlatformVariantOffers(ctx context.Context, tx pgx.Tx, vendorID, product
 			continue
 		}
 		if err != nil {
-			return fmt.Errorf("read variant offer %d: %w", variantID, err)
+			return fmt.Errorf("read variant offer %d: %w", item.id, err)
 		}
 		var newPrice string
 		var newStock int32
 		if err := tx.QueryRow(ctx, `UPDATE vendor_products
 			SET seller_sku=NULLIF($2,''),price=$3,currency='USD',stock=$4,status=$5,updated_at=now()
-			WHERE id=$1 RETURNING price::text,stock`, offerID, sku, sourcePrice, sourceStock, status).
+			WHERE id=$1 RETURNING price::text,stock`, offerID, item.sku, item.price, item.stock, status).
 			Scan(&newPrice, &newStock); err != nil {
-			return fmt.Errorf("update variant offer %d: %w", variantID, err)
+			return fmt.Errorf("update variant offer %d: %w", item.id, err)
 		}
 		if oldPrice != newPrice {
 			if _, err := tx.Exec(ctx, `INSERT INTO vendor_price_history
@@ -180,9 +197,6 @@ func syncPlatformVariantOffers(ctx context.Context, tx pgx.Tx, vendorID, product
 				return fmt.Errorf("record variant inventory change: %w", err)
 			}
 		}
-	}
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("iterate product variants: %w", err)
 	}
 	return nil
 }
