@@ -103,6 +103,7 @@ export default function Home() {
   const [mobileMenu,setMobileMenu]=useState(false);
   const [toast,setToast]=useState("");
   const [rate,setRate]=useState(69000);
+  const [hydrated,setHydrated]=useState(false);
   const [minPrice,setMinPrice]=useState(0);
   const [maxPrice,setMaxPrice]=useState(1000);
   const [showFilters,setShowFilters]=useState(false);
@@ -138,11 +139,13 @@ export default function Home() {
       if(Array.isArray(saved.recent))setRecent(saved.recent);
       if(Number.isFinite(saved.rate)&&saved.rate>0)setRate(saved.rate);
     }catch{/* Ignore invalid local demo state. */}
+    finally{setHydrated(true);}
   },[]);
 
   useEffect(()=>{
+    if(!hydrated)return;
     try{localStorage.setItem("globalcart-state-v1",JSON.stringify({cart,favorites,recent,rate}));}catch{/* Storage can be unavailable. */}
-  },[cart,favorites,recent,rate]);
+  },[hydrated,cart,favorites,recent,rate]);
 
   const filtered=useMemo(()=>{
     let list=products.filter(p=>{
@@ -158,7 +161,7 @@ export default function Home() {
 
   const count=cart.reduce((sum,line)=>sum+line.quantity,0);
   const subtotal=cart.reduce((sum,line)=>sum+line.product.price*rate*line.quantity,0);
-  const formatPrice=(p:Product)=>rtl?money(p.price*rate,locale)+" تومان":usd(p.price);
+  const formatPrice=(p:Product)=>rtl?money(p.price*(1-p.discountPercentage/100)*rate,locale)+" تومان":usd(p.price*(1-p.discountPercentage/100));
   const notify=(message:string)=>{setToast(message);window.setTimeout(()=>setToast(""),2100);};
   const addToCart=(product:Product)=>{
     setCart(old=>{const found=old.find(x=>x.product.id===product.id);return found?old.map(x=>x.product.id===product.id?{...x,quantity:x.quantity+1}:x):[...old,{product,quantity:1}];});
@@ -183,7 +186,7 @@ export default function Home() {
           <a href="#about" onClick={()=>setMobileMenu(false)}>{t.nav4}</a>
         </nav>
         <div className="header-actions">
-          <label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search}/><kbd>⌘ K</kbd></label>
+          <label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search}/></label>
           <button className="locale-button" onClick={()=>setLocale(rtl?"en":"fa")}>{rtl?"EN":"فا"}</button>
           <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites}><Heart size={19}/><span>{favorites.length}</span></button>
           <button className="bag-button" onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
