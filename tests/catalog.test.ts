@@ -27,3 +27,28 @@ test("deduplicates by source ID and ignores malformed records", () => {
   assert.equal(result.length, 2);
   assert.equal(result[0].title, "A");
 });
+
+test("normalizes optional variants with stable source identity and safe defaults", () => {
+  const result = normalizeProduct({
+    id: 8,
+    title: "Configurable item",
+    thumbnail: "https://cdn.example/item.jpg",
+    variants: [
+      { id: "red-s", sku: "ITEM-RED-S", title: "Red / Small", price: 15.25, stock: 4, attributes: { color: "red", size: "S" } },
+      { id: "red-s", sku: "DUPLICATE", price: 99, stock: 99 },
+      { sku: "BLUE-M", price: -2, stock: -1, isActive: false },
+      { title: "Missing identity", price: 1, stock: 1 },
+      null
+    ]
+  }, "fixture", "now");
+  assert.ok(result);
+  assert.equal(result.variants?.length, 2);
+  assert.equal(result.variants?.[0].source, "fixture");
+  assert.equal(result.variants?.[0].sourceId, "red-s");
+  assert.equal(result.variants?.[0].attributes.color, "red");
+  assert.equal(result.variants?.[0].isActive, true);
+  assert.equal(result.variants?.[1].sourceId, "BLUE-M");
+  assert.equal(result.variants?.[1].price, 0);
+  assert.equal(result.variants?.[1].stock, 0);
+  assert.equal(result.variants?.[1].isActive, false);
+});
