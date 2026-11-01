@@ -277,3 +277,5 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - New in-progress regression tests in `backend/internal/httpapi/handler_test.go` assert that seller/order/cart/checkout write routes are not exposed and catalog routes reject mutation methods. Commit: `e91132997a9053943bc2e6c3f8dbe82d59f7d9b5`. CI pending.
 - Latest roadmap checkpoint: `ROADMAP.md`, stage M09.4.1. Do not treat the new HTTP guard tests as verified until their CI run completes.
 - PR #1 remains Draft/open/unmerged. No production hosting, payment provider or paid infrastructure enabled.
+
+- Follow-up hardening: CORS no longer advertises the `Authorization` request header before an authenticated API exists; regression test asserts the restricted header policy. Code commits: `6d3f1f2` and `05e1442`. CI verification pending for the latest code head.
