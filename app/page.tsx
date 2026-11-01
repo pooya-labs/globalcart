@@ -221,6 +221,9 @@ export default function Home() {
   const placeDemoOrder=()=>{setOrder("GC-"+Math.random().toString(36).slice(2,8).toUpperCase());setCart([]);setCheckout(false);};
   const favoriteProducts=products.filter(p=>favorites.includes(p.id));
   const compareProducts=products.filter(p=>compareIds.includes(p.id));
+  const dealPicks=useMemo(()=>[...products].filter(p=>p.discountPercentage>0).sort((a,b)=>b.discountPercentage-a.discountPercentage).slice(0,4),[products]);
+  const topRatedPicks=useMemo(()=>[...products].sort((a,b)=>b.rating-a.rating).slice(0,4),[products]);
+  const discoveryPicks=useMemo(()=>[...products].slice(0,4),[products]);
   const toggleCompare=(id:number)=>{
     if(compareIds.includes(id)){setCompareIds(old=>old.filter(x=>x!==id));return;}
     if(compareIds.length>=4){notify(locale==="fa"?"حداکثر چهار محصول قابل مقایسه است":"You can compare up to four products");return;}
@@ -303,6 +306,13 @@ export default function Home() {
         <div className="section-heading"><div><span className="section-kicker">01 / FIND YOUR INTEREST</span><h2>{t.categories}</h2><p>{t.categoriesDesc}</p></div><a href="#catalog">{t.all}<ArrowLeft size={15}/></a></div>
         <div className="category-strip">
           {categories.slice(1,9).map((c,i)=><button key={c.id} className={"category-tile tile-"+i} onClick={()=>{setCategory(c.id);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});}}><span className="category-symbol">{c.symbol}</span><span>{rtl?c.fa:c.en}</span><ArrowLeft size={14}/></button>)}
+        </div>
+      </section>
+
+      <section className="merchandising-section">
+        <div className="merchandising-intro"><div><span className="section-kicker">02 / THE GLOBAL EDIT</span><h2>{rtl?"انتخاب‌های هوشمندانه، یک‌جا":"A better way to discover"}</h2><p>{rtl?"پیشنهادها و محصولات برتر بر اساس داده‌های کاتالوگ فعلی.":"Curated product rails powered by the current sample catalog."}</p></div><a href="#catalog">{rtl?"دیدن همه محصولات":"Explore all products"} <ArrowLeft size={15}/></a></div>
+        <div className="merchandising-grid">
+          {[{id:"deals",title:rtl?"فرصت‌های جذاب":"Deals worth a look",label:rtl?"بیشترین تخفیف":"TOP DISCOUNTS",items:dealPicks},{id:"rated",title:rtl?"محبوب‌ترین‌ها":"Top-rated picks",label:rtl?"امتیازهای برتر":"HIGHLY RATED",items:topRatedPicks},{id:"discover",title:rtl?"تازه‌های ویترین":"Fresh discoveries",label:rtl?"برای کشف بیشتر":"EDITOR'S EDIT",items:discoveryPicks}].map(group=><section className="merchandising-panel" key={group.id}><div className="merchandising-panel-head"><div><small>{group.label}</small><h3>{group.title}</h3></div><span>0{group.id==="deals"?1:group.id==="rated"?2:3}</span></div><div className="merchandising-items">{group.items.map(p=><Link href={`/product/${p.id}`} className="merchandising-item" key={p.id}><img src={p.thumbnail} alt={p.title} loading="lazy"/><span><b>{p.title}</b><small><Star size={11} fill="currentColor"/>{p.rating.toFixed(1)} · {formatPrice(p)}</small></span></Link>)}</div></section>)}
         </div>
       </section>
 
