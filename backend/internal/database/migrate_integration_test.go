@@ -815,7 +815,6 @@ func TestCatalogImportSynchronizesPlatformOfferIdempotently(t *testing.T) {
 	}
 }
 
-
 // TestVariantSourceIdentityCannotMoveBetweenProducts proves that a supplier
 // source identity is permanently scoped to its first product and that a failed
 // multi-product import rolls back every earlier write in the same batch.
@@ -850,7 +849,7 @@ func TestVariantSourceIdentityCannotMoveBetweenProducts(t *testing.T) {
 		Variants: []catalog.Variant{{
 			SKU: "IDENTITY-ORIGINAL", Title: "Original variant", Price: 21.50, Stock: 5,
 			Attributes: map[string]any{"color": "blue"},
-			Source: source, SourceID: sourceID, IsActive: true,
+			Source:     source, SourceID: sourceID, IsActive: true,
 		}},
 	}
 	if err := UpsertProducts(ctx, pool, []catalog.Product{original}); err != nil {
@@ -871,7 +870,7 @@ func TestVariantSourceIdentityCannotMoveBetweenProducts(t *testing.T) {
 		Variants: []catalog.Variant{{
 			SKU: "IDENTITY-REASSIGNED", Title: "Wrong product", Price: 99, Stock: 99,
 			Attributes: map[string]any{"color": "red"},
-			Source: source, SourceID: sourceID, IsActive: true,
+			Source:     source, SourceID: sourceID, IsActive: true,
 		}},
 	}
 
