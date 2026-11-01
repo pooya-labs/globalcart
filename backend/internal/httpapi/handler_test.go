@@ -87,3 +87,19 @@ func TestMapProductPreservesCatalogJSONShape(t *testing.T) {
 		t.Fatal("expected invalid images JSON to fail")
 	}
 }
+
+func TestMapProductVariant(t *testing.T) {
+	sku := "GC-BLK-M"
+	got, err := mapProductVariant(9, 7, &sku, "Black / Medium", 13.99, 2,
+		[]byte(`{"color":"black","size":"M"}`))
+	if err != nil {
+		t.Fatalf("mapProductVariant: %v", err)
+	}
+	if got.ID != 9 || got.ProductID != 7 || got.SKU == nil || *got.SKU != sku ||
+		got.Price != 13.99 || got.Stock != 2 || got.Attributes["color"] != "black" {
+		t.Fatalf("unexpected mapped variant: %+v", got)
+	}
+	if _, err := mapProductVariant(9, 7, nil, "Default", 1, 1, []byte("[]")); err == nil {
+		t.Fatal("expected non-object variant attributes to fail")
+	}
+}
