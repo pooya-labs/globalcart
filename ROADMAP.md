@@ -1,99 +1,129 @@
-# GlobalCart Roadmap
+# GlobalCart — Master Roadmap
 
-**Source of truth:** this file. Check an item only after implementation and verification. Every release also updates CHANGELOG.md, PROJECT_CONTEXT.md, and package.json.
+> This is the authoritative progress ledger. Never mark work complete because a file was merely created: implementation and verification are both required.
 
-- Current version: 0.1.0
-- Current milestone: M01 — foundation and storefront
-- Hosting: GitHub Pages static export
-- Product type: portfolio simulation; no real commerce.
+**Current release:** 0.1.0  
+**Active milestone:** M02 — Catalog intelligence foundations  
+**Repository:** pooya16pg-spec/globalcart  
+**Product boundary:** independent portfolio simulation; no real commerce.
+
+## Release and milestone map
+
+| Milestone | Target release | Scope | Status |
+|---|---:|---|---|
+| M00 | 0.1.0 | Product definition, independence, governance, handoff docs | Complete |
+| M01 | 0.1.0 | Storefront, responsive UI, bilingual shell, demo cart/checkout | Implemented; CI/deploy and accessibility verification pending |
+| M02 | 0.2.0 | Typed connectors, normalization, dedupe, translation pipeline, scheduled catalog | Foundations implemented; provider/scheduler/tests pending |
+| M03 | 0.3.0 | Pricing engine, FX provenance, product details, compare | Not started |
+| M04 | 0.4.0 | Full commerce simulation, order history, coupons, returns | Not started |
+| M05 | 0.5.0 | Admin and seller workspaces, catalog operations, analytics | Not started |
+| M06 | 0.6.0 | Advanced search, facets, recommendations, saved searches | Not started |
+| M07 | 0.7.0 | Automated tests, accessibility, performance, security, CI gates | Not started |
+| M08 | 1.0.0 | Portfolio case study, release, final QA and public demo | Not started |
 
 ## M00 — Product definition and governance
-- [x] Define portfolio/demo scope and non-production boundaries.
-- [x] Define owner attribution and repository identity.
-- [x] Define source connector approach; prohibit unauthorized scraping.
-- [x] Establish versioned roadmap, changelog, and AI handoff protocol.
-Acceptance: a new contributor understands intent, boundaries, and continuation steps.
+- [x] Define the product as a portfolio-grade simulation, not a live store.
+- [x] Establish independent repository and owner attribution.
+- [x] Define safe source policy; prohibit unauthorized scraping.
+- [x] Establish semantic versioning and AI handoff requirements.
+- [x] Record architecture and product decisions.
 
-## M01 — Foundation and storefront (v0.1.x)
-- [x] Next.js App Router, React, TypeScript foundation.
-- [x] GitHub Pages static export and deployment workflow.
-- [x] Responsive retail-inspired storefront.
-- [x] Persian RTL and English LTR locale switch.
-- [x] Demo catalog source adapter and local fallback.
-- [x] Search, category filters, sorting, quick view.
-- [x] Favorites and cart interactions.
-- [x] Simulated checkout with explicit demo label.
-- [x] Illustrative USD-to-Toman price calculation.
-- [ ] Keyboard accessibility and reduced-motion audit.
-- [ ] Verify first GitHub Actions deployment.
-Acceptance: usable storefront on mobile/desktop; data provenance visible; no fake real-payment claims.
+## M01 — Foundation and storefront
+- [x] Next.js App Router, React and TypeScript foundation.
+- [x] Static export configuration and Pages deployment workflow.
+- [x] Responsive editorial retail storefront.
+- [x] Persian-first RTL and English LTR switch.
+- [x] Demo catalog API with local fallback.
+- [x] Search, category filters, price range and sorting.
+- [x] Product quick view, favorites and recently viewed state.
+- [x] Cart quantity controls, removal and local persistence.
+- [x] Demo checkout with generated reference; no payment API.
+- [x] Configurable illustrative USD/Toman conversion.
+- [x] Discount-aware product and cart totals.
+- [x] Owner attribution and demo/source disclosure.
+- [ ] Confirm clean Actions build after CI workflow repair.
+- [ ] Verify published Pages URL and deep-link behavior.
+- [ ] Keyboard, focus, screen-reader and reduced-motion audit.
+- [ ] Mobile/tablet/desktop visual QA.
+**Acceptance:** complete storefront browsing and simulated cart journey; no real-commerce claims.
 
-## M02 — Catalog intelligence (v0.2.x)
-- [ ] Typed connector interface and source registry.
-- [ ] Product normalization, stable source IDs, deduplication, category mapping.
-- [ ] Image provenance and resilient fallback.
-- [ ] Translation provider adapter with caching/retries.
-- [ ] Persian title, description, category, and attribute localization.
-- [ ] Preserve original text and translation provenance.
-- [ ] Import timestamps, diagnostics, and error reporting.
-- [ ] Scheduled Actions catalog refresh into generated JSON.
-- [ ] Fixture tests for malformed, partial, duplicate records.
-Acceptance: repeatable catalog sync; no manual per-product entry; unavailable translation is not falsely presented as translated.
+## M02 — Catalog intelligence (active)
+- [x] Typed catalog product/result contracts.
+- [x] Normalization and basic malformed-record rejection.
+- [x] Source identity, import timestamp and duplicate suppression.
+- [x] DummyJSON adapter separated from storefront UI.
+- [x] Translation provider interface and explicit unavailable/error states.
+- [ ] Add provider implementation (server-side only; no browser secrets).
+- [ ] Translate title, description, category and attributes to Persian.
+- [ ] Preserve original text, translated text, provider, locale and timestamp.
+- [ ] Translation cache, retries, throttling and failure reporting.
+- [ ] Add Amazon connector only after authorization/eligibility review.
+- [ ] Add source adapters and fixtures for partial/invalid records.
+- [ ] Generate a versioned static catalog JSON artifact.
+- [ ] Scheduled GitHub Actions catalog refresh and manual dispatch.
+- [ ] Catalog import summary and source diagnostics page.
+**Acceptance:** repeatable automatic import and honest localization status; no manual product-by-product entry.
 
-## M03 — Pricing and product detail (v0.3.x)
-- [ ] Safe decimal/integer currency model.
-- [ ] Configurable demo USD-to-Toman FX source and timestamp.
-- [ ] Margin, shipping, illustrative fees, and stale-rate guard.
-- [ ] Product detail routes, gallery, specs, reviews, source disclosure.
-- [ ] Product comparison and recently viewed items.
-- [ ] Unit tests for conversion, rounding, and edge cases.
-Acceptance: displayed converted price includes demo rate and assumptions.
+## M03 — Pricing and product details
+- [ ] Use integer minor units/decimal-safe arithmetic.
+- [ ] Unit-tested pricing function for discounts, FX and rounding.
+- [ ] FX adapter with source, timestamp and stale-rate behavior.
+- [ ] Clearly configurable demo markup/shipping/tax assumptions.
+- [ ] Dedicated product detail routes and image gallery.
+- [ ] Specs, review summaries, source links and stock disclaimers.
+- [ ] Product comparison and recently viewed page.
+**Acceptance:** every displayed price is traceable to source price, rate and assumptions.
 
-## M04 — Commerce simulation (v0.4.x)
-- [ ] Persistent local cart, favorites, and checkout draft.
-- [ ] Multi-step checkout validation and demo address book.
-- [ ] Simulated payment outcomes; no payment network calls.
-- [ ] Order confirmation and local order history.
-- [ ] Coupon/promotion simulation.
-- [ ] Returns/refund workflow simulation.
-Acceptance: complete demo journey without sending money or placing a real order.
+## M04 — Commerce simulation
+- [ ] Persistent cart, favorites and checkout draft.
+- [ ] Multi-step checkout with validation and demo address book.
+- [ ] Simulated payment success/failure/decline states.
+- [ ] Local order history and printable demo receipt.
+- [ ] Coupons and promotions.
+- [ ] Returns/refund simulation.
+**Acceptance:** full testable journey without collecting payment data or creating real orders.
 
-## M05 — Admin and seller workspaces (v0.5.x)
-- [ ] Admin overview with catalog/import/price diagnostics.
-- [ ] Product CRUD against local demo state.
-- [ ] Supplier connector configuration using non-secret demo settings.
-- [ ] Seller profile and product-management simulation.
-- [ ] Order management and demo analytics.
-- [ ] Clearly simulated role states.
-Acceptance: admin/seller flows work locally and do not imply server persistence.
+## M05 — Admin and seller workspaces
+- [ ] Demo role switcher with clearly simulated permissions.
+- [ ] Admin overview and import/translation/price diagnostics.
+- [ ] Product create/edit/archive against local demo state.
+- [ ] Supplier connector configuration (no secret values).
+- [ ] Seller profile and product management.
+- [ ] Order operations and demo analytics.
+**Acceptance:** meaningful admin/seller interactions, explicitly local and simulated.
 
-## M06 — Search and discovery (v0.6.x)
-- [ ] Faceted filters, price range, brand, rating, availability.
-- [ ] Search suggestions and keyboard command palette.
-- [ ] Explainable ranking and recommendations.
-- [ ] Saved searches and personalization preferences.
-- [ ] Search empty/error states and local analytics.
-Acceptance: keyboard-accessible discovery with visible data provenance.
+## M06 — Search and discovery
+- [ ] Faceted filters: brand, rating, price and category.
+- [ ] Search suggestions and keyboard-accessible command palette.
+- [ ] Explainable ranking and recommendation modules.
+- [ ] Saved searches and preference controls.
+- [ ] Empty, loading, offline and error states.
+**Acceptance:** fast and accessible discovery on the full sample catalog.
 
-## M07 — Quality and release hardening (v0.7.x)
-- [ ] Unit/component tests and Playwright critical path.
-- [ ] Accessibility audit: keyboard, labels, contrast, focus, RTL.
+## M07 — Quality and release hardening
+- [ ] Unit tests for normalization, pricing, translation and state.
+- [ ] Playwright tests for critical shopping paths.
+- [ ] Accessibility audit for RTL/LTR, focus, labels and contrast.
 - [ ] Performance and image-loading audit.
-- [ ] Dependency and secret scan.
-- [ ] CI quality gates and release notes.
-- [ ] Verify clean build and GitHub Pages deployment.
-Acceptance: reproducible build, passing checks, known limitations documented.
+- [ ] Dependency, secret and static-analysis checks.
+- [ ] CI gates for typecheck, tests and production build.
+- [ ] Confirm reproducible build and deployed site.
+**Acceptance:** documented, reproducible, passing quality checks.
 
-## M08 — Portfolio release (v1.0.0)
-- [ ] English case study and Persian overview.
-- [ ] Screenshots, feature tour, architecture diagrams.
-- [ ] Versioned release and reviewed changelog.
-- [ ] README matches actual implementation.
-- [ ] Cross-link from Pooya.OS portfolio.
+## M08 — Portfolio release
+- [ ] Persian and English case study.
+- [ ] Screenshots, architecture diagrams and feature tour.
+- [ ] Versioned 1.0.0 release and complete changelog.
+- [ ] README verified against actual behavior.
 - [ ] Final public demo smoke test.
-Acceptance: reviewer can understand, inspect, and try the project.
+**Acceptance:** a reviewer can understand the engineering, inspect source and use the demo.
+
+## AI/developer handoff rule
+
+Before any code change, read PROJECT_CONTEXT.md, this roadmap, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md, docs/DECISIONS.md and the latest CHANGELOG.md. Inspect the actual tree and Actions status. Work on the earliest incomplete acceptance item. At the end of each coherent task, update the exact checkboxes and PROJECT_CONTEXT.md. Never guess that a previous AI finished something.
 
 ## Release ledger
-| Version | Milestone | Status | Evidence |
+
+| Version | Milestone | Status | Notes |
 |---|---|---|---|
-| 0.1.0 | M00 + M01 | In progress | Initial scaffold commit; Actions pending |
+| 0.1.0 | M00 + M01 | Implemented; verification pending | Storefront and deployment workflow committed |

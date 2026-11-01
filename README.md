@@ -1,88 +1,89 @@
 # GlobalCart — Intelligent Global Marketplace
 
-**Project 06 · Independent Portfolio Engineering Project**  
-**Owner & maintainer:** [Pooya Goodarzi](https://github.com/pooya16pg-spec)  
-**Repository:** https://github.com/pooya16pg-spec/globalcart  
-**Live preview:** https://pooya16pg-spec.github.io/globalcart/
+**Portfolio project 06 · Independent repository**  
+**Owner / product engineer:** [Pooya Goodarzi](https://github.com/pooya16pg-spec)  
+**Source repository:** https://github.com/pooya16pg-spec/globalcart  
+**Public preview:** https://pooya16pg-spec.github.io/globalcart/
 
-GlobalCart is an independent, commerce-grade marketplace demonstration. It showcases product engineering, catalog ingestion, localization, pricing, search and realistic shopping workflows. It is **not a live store**: no real products are sold and no payment, shipment, inventory reservation or seller payout is performed.
+GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no payment, inventory reservation, shipment, seller payout or refund is processed.
 
-## Current release — v0.1.0
+## Current status — v0.1.0 + M02 foundations
 
-The first storefront foundation is implemented:
-- Editorial retail design system with responsive desktop and mobile layouts.
-- Persian RTL as the default language and English LTR language switch.
-- Product catalog imported automatically from the DummyJSON public demo API, with a local fallback fixture.
-- Product search, category navigation and filtering, price range, sorting and product quick view.
-- Favorites and recently viewed state; cart quantity controls and removal.
-- Simulated checkout with generated demo order reference.
-- Configurable illustrative USD-to-Toman conversion; discount is applied consistently in product and cart totals.
-- Explicit demo/source labels and owner attribution.
+Implemented:
+- Next.js 15 App Router, React 19 and TypeScript.
+- Responsive editorial marketplace storefront with Persian RTL and English LTR.
+- Automatically imported sample catalog from DummyJSON, with a local fallback.
+- Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
+- Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
+- Browser-local cart, quantity changes, removal and simulated checkout.
+- Configurable illustrative USD-to-Toman rate; discounted prices are reflected in cart totals.
+- Source/demo disclosures and visible owner attribution.
+- GitHub Pages deployment workflow and project handoff documentation.
 
-**Not implemented yet:** automatic AI translation pipeline, scheduled catalog generation, live FX provider, product detail routes, compare workflow, admin/seller dashboards, and automated browser/accessibility tests. These are tracked in ROADMAP.md. The current Persian UI shell does not mean every imported English product description has already been translated.
+In progress / not yet claimed as complete:
+- AI-backed Persian product translation and scheduled catalog publishing.
+- Production-grade FX feed, price history and product detail pages.
+- Compare, admin/seller workspaces, order history and advanced search.
+- Automated unit, accessibility and browser tests.
+- Verified public deployment after the CI workflow repair.
 
-## Demo boundaries and source policy
+## Demo boundaries
 
-| Capability | Current behavior |
+| Area | Current behavior |
 |---|---|
-| Catalog | DummyJSON public sample catalog, up to 100 records; local fallback |
-| Product images | Image URLs provided by the selected data source |
-| Persian translation | Planned for M02; original source text is retained for now |
-| FX | User-configurable illustrative USD-to-Toman rate; not a live quote |
-| Cart and favorites | Browser-local demo state |
-| Checkout | Simulation only; no payment provider is contacted |
-| Inventory and shipping | Illustrative only; no stock or shipment is promised |
-| Amazon | No scraping. Authorized connector only if eligibility and current terms permit |
+| Product catalog | DummyJSON public sample API; local fixtures if unavailable |
+| Images | Source-provided remote image URLs |
+| Translation | Adapter contract exists; provider integration is pending |
+| Currency | User-configurable illustrative rate; not a live exchange quote |
+| Cart / favorites | Local browser state |
+| Checkout | Local simulation; never contacts a payment provider |
+| Inventory / shipping | Not real, not reserved, not fulfilled |
+| Amazon | No scraping; future integration only through authorized access and current terms |
 
-**Amazon note:** GlobalCart must not scrape Amazon pages or bulk-copy its catalog. Any future Amazon integration requires eligible authorized API/program access and compliance with current rules for product content, images, price refresh, attribution and linking. Affiliate discovery is not a wholesale inventory feed.
+Amazon's public storefront must not be scraped or bulk-copied. Any future adapter requires verified program/API eligibility and compliance with current content, image, price-refresh, attribution and linking rules. Affiliate product discovery is not an unrestricted catalog feed.
 
 ## Technology
 
-- Next.js 15 App Router
-- React 19
-- TypeScript 5
-- Custom responsive CSS design system
-- Lucide React icons
-- GitHub Actions + GitHub Pages static export
+- **Languages:** TypeScript and CSS (plus HTML through React).
+- **Framework:** Next.js 15 / React 19.
+- **UI:** custom responsive design system, Lucide icons.
+- **Hosting:** GitHub Actions + Next.js static export on GitHub Pages.
+- **State:** React state and browser localStorage for demo-only preferences.
 
-The current deployment target is static hosting. Do not add server-only behavior or expose provider secrets in browser code. Future ingestion/translation automation is planned as a controlled GitHub Actions build step that generates a static catalog artifact.
+This repository is deliberately independent. It has no runtime, deployment or package dependency on any other portfolio project.
 
 ## Run locally
 
 Requirements: Node.js 20.9+ and npm.
 
-~~~bash
+```bash
 git clone https://github.com/pooya16pg-spec/globalcart.git
 cd globalcart
-npm ci
+npm install
 npm run dev
-~~~
+```
 
 Open http://localhost:3000.
 
-Useful commands:
-
-~~~bash
-npm run dev
+```bash
 npm run typecheck
 npm run build
-~~~
+```
 
-## Documentation — read these before changing code
+## Documentation and handoff
 
-- ROADMAP.md — milestone checklist, acceptance criteria and release ledger.
-- PROJECT_CONTEXT.md — authoritative state and AI/developer handoff.
-- CHANGELOG.md — version history.
-- docs/ARCHITECTURE.md — system boundaries and data flow.
-- docs/DATA_SOURCES.md — catalog, images, translation and FX provenance.
-- docs/DECISIONS.md — accepted architecture decisions.
-- docs/RELEASE_PROCESS.md — verification and versioning.
-- CONTRIBUTING.md — engineering workflow.
+- [ROADMAP.md](ROADMAP.md) — milestone checklist, acceptance criteria and release ledger.
+- [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) — current implementation state and next action.
+- [docs/AI_HANDOFF.md](docs/AI_HANDOFF.md) — mandatory instructions for a replacement AI/developer.
+- [CHANGELOG.md](CHANGELOG.md) — version history.
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system boundaries and data flow.
+- [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
+- [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
+- [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) — verification and semantic versioning.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — engineering rules.
 
-## Versioning and AI handoff
+## Versioning
 
-GlobalCart uses semantic versioning. Every release must update package.json, CHANGELOG.md, ROADMAP.md and PROJECT_CONTEXT.md together. A roadmap item is complete only when its implementation exists and the relevant checks pass.
+GlobalCart follows semantic versioning. Every release must update package.json, CHANGELOG.md, ROADMAP.md and PROJECT_CONTEXT.md in the same release commit. A roadmap checkbox is only marked complete after implementation and verification. The repository is the source of truth; chat history is not.
 
-A new AI assistant or developer must read PROJECT_CONTEXT.md, ROADMAP.md, CHANGELOG.md, docs/ARCHITECTURE.md and docs/DECISIONS.md before editing. The repository is the source of truth, not chat history.
-
-GlobalCart is an independent portfolio project authored and maintained by **Pooya Goodarzi**. Third-party product content and images remain subject to their source terms.
+**Built and maintained independently by Pooya Goodarzi.**
