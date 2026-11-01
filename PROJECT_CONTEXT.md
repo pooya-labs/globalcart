@@ -162,6 +162,6 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added `backend/internal/commerce/checkout.go`: internal-only transactional checkout; not wired to HTTP.
 - Locks cart and stock rows, reads canonical current catalog prices/titles, accounts for unexpired reservations, and atomically creates order snapshots, reservation rows and order event.
 - Idempotency replay returns the original order before cart lifecycle checks. Cart expiry uses PostgreSQL's clock.
-- Integration tests exercise two guest carts competing for limited product stock (one succeeds, one is rejected) and successful checkout replay.
-- CI run 41345901209 passed all stages including PostgreSQL-backed tests and Docker image build.
+- Integration tests exercise two guest carts competing for limited product stock (one succeeds, one is rejected), successful checkout replay, and idempotent expiry of pending orders/reservations.
+- CI run 41346127244 passed all stages including PostgreSQL-backed concurrency/expiry tests and Docker image build.
 - No cart/order write endpoint, payment provider, live stock mutation, or browser cookie flow is enabled.
