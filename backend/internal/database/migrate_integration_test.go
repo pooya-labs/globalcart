@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"sync"
 	"testing"
@@ -90,8 +91,12 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if err := pool.QueryRow(ctx, "SELECT attributes FROM product_variants WHERE id=$1", variantID).Scan(&storedAttributes); err != nil {
 		t.Fatalf("read product variant attributes: %v", err)
 	}
-	if string(storedAttributes) != string(variantAttributes) {
-		t.Fatalf("variant attributes = %s, want %s", storedAttributes, variantAttributes)
+	var decodedAttributes map[string]string
+	if err := json.Unmarshal(storedAttributes, &decodedAttributes); err != nil {
+		t.Fatalf("decode stored variant attributes: %v", err)
+	}
+	if decodedAttributes["color"] != "black" || decodedAttributes["size"] != "M" {
+		t.Fatalf("variant attributes = %v, want color=black and size=M", decodedAttributes)
 	}
 
 	// A failed item must roll back earlier writes in the same import batch.
