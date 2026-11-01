@@ -291,8 +291,8 @@ export default function Home() {
         <form className="amazon-link-form" onSubmit={submitAmazonLink}>
           <label htmlFor="amazon-product-url">{rtl?"لینک محصول آمازون":"Amazon product URL"}</label>
           <div className="amazon-link-input"><input id="amazon-product-url" type="url" dir="ltr" required value={amazonUrl} onChange={e=>{setAmazonUrl(e.target.value);setAmazonStatus(null);}} placeholder={t.amazonPlaceholder}/><button type="submit"><Package size={16}/>{t.amazonSubmit}<ArrowLeft size={15}/></button></div>
-          {amazonStatus==="success"&&<div className="amazon-link-feedback success"><Check size={15}/>{t.amazonSuccess} · ASIN: <b>{amazonAsin}</b></div>}
-          {amazonStatus==="error"&&<div className="amazon-link-feedback error"><CircleHelp size={15}/>{t.amazonInvalid}</div>}
+          {amazonStatus==="success"&&<div className="amazon-link-feedback success" role="status" aria-live="polite"><Check size={15}/>{t.amazonSuccess} · ASIN: <b>{amazonAsin}</b></div>}
+          {amazonStatus==="error"&&<div className="amazon-link-feedback error" role="alert"><CircleHelp size={15}/>{t.amazonInvalid}</div>}
         </form>
       </section>
 
@@ -330,7 +330,7 @@ export default function Home() {
           </aside>
           <div className="product-area">
             {(loading||usingFallback)&&<div className="catalog-status">{loading?<><span className="loader"></span>{t.loading}</>:<><InfoIcon/>{t.sourceFallback}</>}</div>}
-            {order&&<div className="order-success"><Check size={17}/>{t.success} · {t.order}: {order}<button onClick={()=>setOrder("")}><X size={15}/></button></div>}
+            {order&&<div className="order-success" role="status"><Check size={17}/>{t.success} · {t.order}: {order}<button onClick={()=>setOrder("")}><X size={15}/></button></div>}
             {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);}}>{t.clear}</button></div>:<div className="product-grid">
               {filtered.map((p,index)=><article className="product-card" key={p.id}>
                 <div className="product-media"><Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy"/></Link><span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
@@ -380,7 +380,7 @@ export default function Home() {
 
             {checkout&&<div className="overlay modal-overlay"><div className="checkout-modal"><button className="modal-close icon-button" onClick={()=>setCheckout(false)}><X/></button><span className="section-kicker">GLOBALCART / DEMO FLOW</span><h2>{t.demoCheckout}</h2><p>{t.demoText}</p><div className="checkout-total"><span>{t.subtotal}</span><b>{rtl?money(subtotal,locale)+" تومان":usd(subtotal/rate)}</b></div><div className="checkout-warning"><ShieldCheck size={17}/>{t.noPayment}</div><button className="button-primary full-button" onClick={placeDemoOrder}>{t.confirm}<ArrowLeft size={16}/></button></div></div>}
 
-      {toast&&<div className="toast"><Check size={15}/>{toast}</div>}
+      {toast&&<div className="toast" role="status" aria-live="polite"><Check size={15}/>{toast}</div>}
       <div className="demo-ribbon">{t.demo}</div>
     </main>
   );
