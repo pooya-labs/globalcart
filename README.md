@@ -7,11 +7,12 @@
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no payment, inventory reservation, shipment, seller payout or refund is processed.
 
-## Current status — v0.1.4 + M02 catalog pipeline
+## Current status — v0.2.1-dev · marketplace redesign
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
-- Responsive editorial marketplace storefront with Persian RTL and English LTR.
+- Responsive marketplace storefront with Persian RTL and English LTR, category-first navigation and refreshed retail design system.
+- Dedicated statically generated product detail pages for all imported catalog entries, including gallery, pricing panel, product facts and related products.
 - Typed catalog import foundation plus a scheduled/manual snapshot generator with retry and last-known-good fallback (100 products imported; CI, tests, build and deployment passed in run 41295039930).
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
@@ -23,19 +24,19 @@ Implemented:
 - Target architecture: Go REST/OpenAPI, PostgreSQL + sqlc, Python workers and optional Redis at the backend milestone.
 
 In progress / not yet claimed as complete:
-- Google Translate bridge via Apps Script Language Service is implemented. Live translation requires a one-time Apps Script deployment and two GitHub Actions Secrets.
+- Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Production-grade FX feed, price history and product detail pages.
 - Compare, admin/seller workspaces, order history and advanced search.
 - Expanded domain unit tests; accessibility and browser tests remain pending.
 - Visual/accessibility QA and browser tests; deployment is now successful.
 
-## Google Translate setup\n\n1. Open [Google Apps Script](https://script.google.com/) and create a project.\n2. Paste `google-apps-script/Code.gs` into the editor.\n3. In Project Settings → Script Properties, add `GLOBALCART_TOKEN` with a randomly generated secret of at least 24 characters.\n4. Deploy → New deployment → Web app; execute as your account and allow access to anyone. Copy the `/exec` URL.\n5. In GitHub repository Settings → Secrets and variables → Actions, add `GOOGLE_TRANSLATE_ENDPOINT` (the `/exec` URL) and `GOOGLE_TRANSLATE_TOKEN` (the exact same token). Never commit or paste the token into chat.\n\nThe Apps Script Language Service has a published quota of 5,000 translation calls/day for consumer accounts and 20,000/day for Workspace accounts. Quotas can change; GlobalCart sends requests sequentially and caches completed translations.\n\n## Demo boundaries
+\n## Demo boundaries
 
 | Area | Current behavior |
 |---|---|
 | Product catalog | DummyJSON public sample API; local fixtures if unavailable |
 | Images | Source-provided remote image URLs |
-| Translation | Google Translate via Apps Script; inactive until endpoint and token secrets are configured |
+| Translation | Paused; source text is preserved |
 | Currency | User-configurable illustrative rate; not a live exchange quote |
 | Cart / favorites | Local browser state |
 | Checkout | Local simulation; never contacts a payment provider |
