@@ -303,7 +303,7 @@
 ### M08.6 variant source identity ownership — implementation in progress (2026-11-02)
 - Added a PostgreSQL regression test for attempted reassignment of a supplier's existing variant source identity to a different product.
 - The test checks that the whole multi-product import batch rolls back and the original variant owner, SKU, price and stock remain intact.
-- Backend CI verification is pending.
+- Catalog CI PR run [41363342797](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342797), Backend CI PR run [41363342758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342758), and Backend CI push run [41363337241](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363337241) passed on implementation commit `cc36339bcac77d08abc37af3f88f08607a090367`.
 
 
 ### M08.5 variant omission and inventory retention — CI verified
@@ -374,7 +374,7 @@
 - Refinement: validate the newly built snapshot before writing it and reject duplicate non-empty variant SKUs, matching the PostgreSQL partial unique index.
 
 
-### M08.8.5 PostgreSQL rating domain constraint — implementation (2026-11-02)
+### M08.8.5 PostgreSQL rating domain constraint — CI verified (2026-11-02)
 - Added migration 007 enforcing the canonical maximum product rating of 5 at the database boundary.
 - Added a PostgreSQL batch-rollback regression for an out-of-range 5.01 rating.
 - Backend CI verification is pending.

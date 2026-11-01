@@ -449,8 +449,8 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Non-empty trimmed variant SKUs are unique across the full snapshot, matching the PostgreSQL unique SKU index in addition to source-identity uniqueness.
 
 
-## M08.8.5 — PostgreSQL rating domain constraint (implementation, 2026-11-02)
+## M08.8.5 — PostgreSQL rating domain constraint (CI verified, 2026-11-02)
 - Added migration 007 with a database-level `rating <= 5` check so direct importer/API writes cannot bypass the canonical snapshot rating rule.
 - Added PostgreSQL integration coverage using rating 5.01 in a multi-product import batch; the test asserts the earlier valid product is rolled back too.
 - The migration is additive and forward-only; it does not rewrite existing ratings.
-- Backend CI verification is pending.
+- Catalog CI PR run [41363342797](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342797), Backend CI PR run [41363342758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342758), and Backend CI push run [41363337241](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363337241) all passed on implementation commit `cc36339bcac77d08abc37af3f88f08607a090367`. PostgreSQL migrations, integration tests (including the isolated 5.01 rating rollback case), Go builds and Docker image build succeeded.
