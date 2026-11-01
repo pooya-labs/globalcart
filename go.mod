@@ -1,4 +1,4 @@
-module github.com/pooya16pg-spec/globalcart/backend
+module github.com/pooya16pg-spec/globalcart
 
 go 1.23
 
