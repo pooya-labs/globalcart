@@ -102,3 +102,6 @@ Until M04/M05, cart, favorites and checkout are browser-local. Future persisted 
 - `GET /api/v1/categories` — normalized categories with parent IDs and product counts.
 
 All endpoints are read-only. Authentication, user data and write operations are not yet implemented.
+
+
+Product list pagination returns both `count` (items in the current page) and `total` (all matching products before limit/offset). Category filters match normalized category names case-insensitively and trim surrounding whitespace. Both list and count use the same search/category predicates.
