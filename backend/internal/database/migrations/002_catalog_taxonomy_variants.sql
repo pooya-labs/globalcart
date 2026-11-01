@@ -31,8 +31,8 @@ CREATE TABLE product_variants (
     source_id TEXT NOT NULL DEFAULT '',
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT product_variants_source_identity_unique UNIQUE (source, source_id)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE UNIQUE INDEX product_variants_source_identity_uidx ON product_variants(source, source_id) WHERE source <> '' AND source_id <> '';
 CREATE UNIQUE INDEX product_variants_sku_uidx ON product_variants(sku) WHERE sku IS NOT NULL AND sku <> '';
 CREATE INDEX product_variants_product_id_idx ON product_variants(product_id);
