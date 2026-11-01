@@ -17,6 +17,8 @@ Shared adapter mapping + typed normalization + validation + deduplication
         +----> source identity / URL / import timestamp
         |
         v
+unique same-directory temp file + atomic rename
+        v
 data/catalog.json (static snapshot)
         |
         v

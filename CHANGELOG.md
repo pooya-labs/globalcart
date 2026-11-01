@@ -349,3 +349,10 @@
 - Scheduled catalog sync now emits the aggregate report without logging raw source records.
 - Added a regression test covering mapper rejection, malformed normalized products and duplicate identities.
 - Catalog CI [41359432556](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432659) passed on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.
+
+
+### M08.8.2 collision-safe atomic snapshot publication — implementation (2026-11-02)
+- Extracted static snapshot persistence into a reusable helper using a unique, exclusively-created temporary file in the destination directory.
+- Serialize before touching disk; rename only after the full JSON file has been written, then clean up the invocation's temp file on success or failure.
+- Added tests for concurrent publication, rename failure cleanup, and preserving the previous snapshot when serialization fails.
+- CI verification is pending.

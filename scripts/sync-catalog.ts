@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { dummyJsonCatalogAdapter } from "../lib/catalog/dummyjson";
 import { loadCatalogFromSourceWithReport } from "../lib/catalog/source-adapter";
+import { writeCatalogSnapshotAtomically } from "../lib/catalog/snapshot";
 import { assertCatalogSnapshotContinuity, summarizeCatalogQuality } from "../lib/catalog/quality";
 import type { CatalogProduct } from "../lib/catalog/types";
 
@@ -16,7 +17,6 @@ type CatalogSnapshot = {
 
 const outputDirectory = join(process.cwd(), "data");
 const outputFile = join(outputDirectory, "catalog.json");
-const temporaryFile = join(outputDirectory, "catalog.json.tmp");
 
 async function readLastKnownGood(): Promise<CatalogSnapshot | null> {
   try {
@@ -27,7 +27,6 @@ async function readLastKnownGood(): Promise<CatalogSnapshot | null> {
 }
 
 async function main(): Promise<void> {
-  await mkdir(outputDirectory, { recursive: true });
   const previous = await readLastKnownGood();
 
   try {
@@ -59,8 +58,7 @@ async function main(): Promise<void> {
       products
     };
 
-    await writeFile(temporaryFile, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
-    await rename(temporaryFile, outputFile);
+    await writeCatalogSnapshotAtomically(snapshot, outputFile);
     console.log("Catalog snapshot generated:", products.length, "products at", importedAt);
     console.log("Catalog feed import report:", JSON.stringify(importResult.report));
     console.log("Catalog quality report:", JSON.stringify(quality));

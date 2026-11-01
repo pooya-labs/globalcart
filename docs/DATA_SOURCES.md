@@ -102,3 +102,11 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - The scheduled snapshot sync logs this report after a successful atomic snapshot write, next to the existing catalog-quality report.
 - `loadCatalogFromSource` remains available as a backwards-compatible products-only API.
 - **Verification:** Catalog CI [41359432556](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432659) passed on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.
+
+
+## Atomic snapshot publication (M08.8.2)
+- The scheduled writer serializes the full snapshot before touching the destination, then writes to a unique temporary file in the destination directory.
+- Temporary files use an exclusive create flag and a process/random identifier; concurrent invocations do not share a temporary path.
+- The completed temporary file is renamed over the destination only after the write succeeds. Readers therefore see the previous complete snapshot or one complete new snapshot, not partially-written JSON.
+- Failed writes/renames trigger best-effort cleanup of that invocation's temporary file. Serialization failures happen before the destination is changed.
+- This protects file integrity, not source ordering: if independent processes publish different valid snapshots, the final successful rename wins. The existing Pages workflow still serializes its own scheduled/manual runs.

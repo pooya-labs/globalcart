@@ -419,3 +419,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The existing `loadCatalogFromSource` remains backward-compatible and returns only products.
 - Scheduled catalog sync logs the feed report alongside the existing catalog-quality summary.
 - Tests verify mapping rejection counts and that malformed and duplicate records contribute to post-normalization discards.
+
+
+## M08.8.2 — collision-safe atomic catalog publication (implementation, 2026-11-02)
+- Extracted writeCatalogSnapshotAtomically from the sync script. It serializes the complete snapshot before creating any temporary file, writes with exclusive-create semantics to a unique same-directory path, then renames it over the destination.
+- Each invocation uses a process identifier plus a random UUID, preventing concurrent sync processes from sharing the same temporary path.
+- Temporary files are removed in a finally cleanup after write/rename errors. A serialization error occurs before the existing destination is touched.
+- Added regression tests for 12 simultaneous publishers, rename failure cleanup and preservation of an existing last-known-good file on serialization failure.
+- Atomic rename guarantees complete-file visibility; it does not order source freshness across independent writers. The existing Pages workflow continues to serialize its scheduled/manual runs.
+- Catalog CI and Backend CI verification are pending on the final commit.
