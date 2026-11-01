@@ -131,3 +131,9 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 ### M04 product variants API — verified
 - CI run 41302565323 passed sqlc generation, go vet, race-enabled unit/PostgreSQL integration tests, API/importer builds and Docker image build.
 - Generated variant query returns typed float64 price; handler validates parent product existence and returns only active variants.
+
+
+### M04 normalized category read API — implementation in progress
+- Added `GET /api/v1/categories` backed by generated sqlc query.
+- Response includes category ID/name, optional parent ID and product count.
+- PostgreSQL integration test now executes generated category listing query after migration/backfill. CI run pending.
