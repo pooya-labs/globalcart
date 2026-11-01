@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.6 variant source identity ownership and batch rollback (CI verification pending)  
+**Active stage:** M08.7 explicit feed completeness semantics (implementation in progress)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -361,3 +361,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M08.6 adds `TestVariantSourceIdentityCannotMoveBetweenProducts`: it imports an original source variant, attempts to reassign the same `(source, source_id)` to a second product in a multi-product batch, and verifies the conflict rejects the batch, rolls back the earlier row, and leaves the original variant's owner/SKU/price/stock intact.
 - Latest test commit for M08.6: `499d76129d12f7af3fe3a030d37d15a78ba1a0da`. Backend CI verification pending.
 - M08.7 real supplier onboarding remains blocked until a named supplier/feed and authorized data reuse are approved.
+
+
+## M08.5 and M08.6 verification — 2026-11-02
+- M08.5 product-only snapshot omission retention passed Backend CI PR run `41356201201` on head `eca6f936d99582a83930f2040a46b912bba57225`.
+- M08.6 variant source identity ownership and batch rollback passed Backend CI push run `41356390061` on code head `499d76129d12f7af3fe3a030d37d15a78ba1a0da` and Backend CI PR run `41356442182` on head `3c9a01787420d56b281bae6f271eddbc56d3c57a`. Both runs passed Go vet, PostgreSQL race-enabled tests, API/importer builds and Docker image build.
+- Catalog CI PR run `41356442235` also passed TypeScript validation, all unit tests and production build on head `3c9a01787420d56b281bae6f271eddbc56d3c57a`.
+- A GitHub Actions formatting bot commit `259cd66e7b846e9e14c3baeeaa53b6cf19d94e72` applied the Go formatting changes produced by the successful push workflow; no behavior change was introduced.
+- M08.7 now adds an explicit full-snapshot vs incremental-feed declaration to the adapter contract before any real supplier is connected. M08.8 real supplier onboarding remains blocked pending owner approval and authorized source access.
