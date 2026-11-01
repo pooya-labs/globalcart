@@ -130,7 +130,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
-- [ ] Multi-step checkout with validation and demo address book.
+- [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).
 - [x] Define demo-only order states and reservation release semantics; no payment provider is contacted.
 - [x] Add demo order ledger, immutable line snapshots, per-cart idempotency and append-oriented events (schema only; API not exposed).
 - [ ] Coupons and promotions.
@@ -301,3 +301,13 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add PostgreSQL integration coverage for order ownership, snapshots, event history, cancellation, reservation release and replay.
 - [x] CI push run 41347325289 passed sqlc generation, formatting, vet, PostgreSQL-backed tests, API/importer builds and Docker image build.
 - [ ] Keep order read/cancel methods internal until same-site HTTPS, CSRF and identity/authorization prerequisites are approved.
+
+
+### M05 simulated payment lifecycle — 2026-11-02
+- [x] Add internal `CompleteDemoPayment` transition from `awaiting_demo_payment` to `paid_simulated`.
+- [x] Require the owning cart capability; unknown and wrong-owner order IDs share the same not-found response.
+- [x] Require a live reservation before simulated completion; expired or non-pending orders cannot be completed.
+- [x] Atomically release demo reservations, update order state and append one simulation event.
+- [x] Make repeat completion idempotent; no payment provider, credentials, webhook or real-money flow exists.
+- [ ] Add/verify PostgreSQL integration coverage and CI for this slice.
+- [ ] Keep all payment/order operations internal until the deployment, identity and CSRF gates are approved.
