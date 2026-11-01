@@ -260,3 +260,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Roadmap updated to show the cross-vendor isolation slice implemented; CI verification is pending.
 
 - Security guardrail added in `docs/SECURITY_AUTH_DESIGN.md`: internal `vendorID` parameters are selectors, not caller authorization; seller operations must not be exposed as HTTP routes until the server resolves a verified session and active seller membership. Roadmap records this design checkpoint.
+
+
+## Latest checkpoint — 2026-11-02: M09.4 verified
+- Cross-vendor isolation assertions in `backend/internal/commerce/vendors_integration_test.go` passed Backend CI run `41353137589` on code commit `e18a01d1a9414520334ceb312c2207990ccc71d5`.
+- All CI steps passed, including vet, race-enabled tests, API/importer builds and Docker image build.
+- Security design prohibits public seller routes until the handler resolves a verified session and active seller membership.
+- PR #1 remains Draft, open and unmerged. See `ROADMAP.md` for the next checkpoint.
+- M09.5 is blocked pending approval of same-site HTTPS hosting, runtime, secret management and email provider. No deployment or paid service was enabled.
