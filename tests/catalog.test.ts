@@ -230,6 +230,48 @@ test("incremental feeds cannot replace a complete catalog snapshot", async () =>
   assert.equal(incrementalRecords[0].title, "Changed record");
 });
 
+test("rejects feeds whose source records mostly fail mapping", async () => {
+  let mapCalls = 0;
+  const adapter: CatalogSourceAdapter = {
+    source: "Partially Broken Fixture",
+    snapshotMode: "full",
+    fetchRecords: async () => [1, 2, 3, 4, 5],
+    mapProduct: record => {
+      mapCalls += 1;
+      if (record === 1 || record === 2) return null;
+      return { id: record, title: `Product ${record}`, thumbnail: `https://cdn.example/${record}.jpg` };
+    }
+  };
+  await assert.rejects(() => loadCatalogFromSource(adapter), /rejected 2\/5 source records.*40\.0%.*maximum allowed is 20\.0%/);
+  assert.equal(mapCalls, 5);
+});
+
+test("allows a small mapping rejection rate and supports an explicit threshold", async () => {
+  const adapter: CatalogSourceAdapter = {
+    source: "Mostly Valid Fixture",
+    snapshotMode: "full",
+    fetchRecords: async () => [1, 2, 3, 4, 5],
+    mapProduct: record => record === 1 ? null : ({
+      id: record, title: `Product ${record}`, thumbnail: `https://cdn.example/${record}.jpg`
+    })
+  };
+  const products = await loadCatalogFromSource(adapter);
+  assert.equal(products.length, 4);
+  await assert.rejects(() => loadCatalogFromSource(adapter, { maxUnmappedFraction: 0.1 }), /rejected 1\/5 source records/);
+  await assert.doesNotReject(() => loadCatalogFromSource(adapter, { maxUnmappedFraction: 0.2 }));
+});
+
+test("validates the source mapping rejection threshold", async () => {
+  const adapter: CatalogSourceAdapter = {
+    source: "Threshold Fixture", snapshotMode: "full",
+    fetchRecords: async () => [{ id: 1, title: "A", thumbnail: "https://cdn.example/a.jpg" }],
+    mapProduct: record => record as CatalogSourceRecord
+  };
+  for (const value of [-0.1, 1, Number.NaN, Number.POSITIVE_INFINITY]) {
+    await assert.rejects(() => loadCatalogFromSource(adapter, { maxUnmappedFraction: value }), RangeError);
+  }
+});
+
 test("supplier adapter rejects empty or wholly unmappable feeds", async () => {
   const emptyAdapter: CatalogSourceAdapter = {
     source: "Empty Fixture",
