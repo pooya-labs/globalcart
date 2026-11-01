@@ -91,3 +91,14 @@ GitHub Pages serves the Next.js export under /globalcart. No secrets or server-o
 
 ## Commerce simulation
 Until M04/M05, cart, favorites and checkout are browser-local. Future persisted payment/order records remain simulated and never trigger real payment or fulfillment.
+
+
+## Current backend read API
+- `GET /healthz` — process liveness.
+- `GET /readyz` — PostgreSQL readiness.
+- `GET /api/v1/products` — bounded, searchable and category-filtered product list.
+- `GET /api/v1/products/{id}` — product detail.
+- `GET /api/v1/products/{id}/variants` — active variants with stock and JSON attributes.
+- `GET /api/v1/categories` — normalized categories with parent IDs and product counts.
+
+All endpoints are read-only. Authentication, user data and write operations are not yet implemented.
