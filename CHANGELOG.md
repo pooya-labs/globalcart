@@ -254,3 +254,16 @@
 - Corrected variant de-duplication to use the same source/source-ID identity pair enforced by PostgreSQL.
 - Added synthetic supplier fixture coverage and dedicated Catalog CI for typecheck, tests and production build.
 - No real supplier feed is connected; current verification is pending the new Catalog CI run.
+
+
+### M08.3 supplier adapter contract — CI verified (2026-11-02)
+- Added the shared `CatalogSourceAdapter` interface and `loadCatalogFromSource` ingestion boundary.
+- Refactored DummyJSON and scheduled snapshot sync to use the shared adapter while retaining retries and last-known-good snapshot protection.
+- Aligned variant deduplication with the database's `(source, source_id)` identity pair.
+- Added a synthetic-only supplier fixture with two variants and tests for source mapping, provenance, SKU, attributes, inactive state, source-scoped identity and empty/unmappable feed rejection.
+- Added dedicated Catalog CI for TypeScript validation, catalog/domain unit tests and production build.
+- Verification: Catalog CI push run [41355090849](https://github.com/pooya16pg-spec/globalcart/actions/runs/41355090849) and PR run [41355095558](https://github.com/pooya16pg-spec/globalcart/actions/runs/41355095558) both succeeded on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`.
+
+### M08.4 authorized supplier onboarding — blocked
+- Next integration requires a named supplier and owner-approved API/feed access and usage rights.
+- No real supplier connection, credentials, scraped inventory or fabricated live variants are included pending that decision.
