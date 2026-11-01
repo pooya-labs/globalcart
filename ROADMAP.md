@@ -483,9 +483,9 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 
 ## M08.7 — Explicit feed completeness semantics (in progress)
 - [ ] Require every source adapter to declare whether it provides a complete snapshot or incremental/delta records.
-- [ ] Keep the static catalog snapshot writer restricted to complete snapshots; reject incremental feeds before replacing the last-known-good file.
-- [ ] Add contract tests proving incremental records can be normalized for a merger but cannot be written as a full snapshot.
-- [ ] Verify Catalog CI and production build on the final branch head.
+- [x] Keep the static catalog snapshot writer restricted to complete snapshots; reject incremental feeds before fetching or replacing the last-known-good file.
+- [x] Add contract tests proving incremental records can be normalized for a merger but cannot be written as a full snapshot.
+- [ ] Verify Catalog CI, TypeScript validation, unit tests and production build on the final branch head.
 
 **M08.7 safety boundary:** no automatic merging or deletion is implied by an incremental feed declaration. A source-specific delta merger must be designed and tested before incremental records can change the canonical snapshot.
 
