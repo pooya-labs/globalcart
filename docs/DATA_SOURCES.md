@@ -67,3 +67,6 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 
 
 **M08.7 implementation detail:** `CatalogSourceAdapter.snapshotMode` is mandatory. The current scheduled snapshot writer passes `requiredSnapshotMode: "full"`, so an incremental/delta adapter is rejected before its fetch method runs. The generic loader may normalize incremental records for a separately designed merger, but this implementation does not merge or persist delta feeds.
+
+
+**M08.7 verification:** Catalog CI run `41356770768` and Backend CI run `41356770801` both passed on the same PR head. A full-snapshot writer cannot fetch or consume an incremental adapter; a dedicated delta merger is still required before incremental records can affect the canonical snapshot.
