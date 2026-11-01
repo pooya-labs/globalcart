@@ -75,8 +75,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
 - [x] Add dedicated static product detail routes for the imported catalog, image gallery, product information and related products.
 - [x] Add side-by-side comparison for up to four products, with price, rating, discount, brand and source-stock context.
-- [x] Add keyboard dialog semantics, Escape dismissal, visible focus indicators and status announcements.
-- [ ] Verify desktop, tablet, mobile, RTL/LTR, screen-reader and reduced-motion behavior.
+- [ ] Verify desktop, tablet, mobile, RTL/LTR, keyboard and reduced-motion behavior.
 - [x] Add clear demo disclosures for Amazon link intake, seller tools and support paths.
 - [ ] Confirm all controls remain functional across the full site.
 

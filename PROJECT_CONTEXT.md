@@ -43,7 +43,6 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Catalog snapshot pipeline imports 100 sample products and preserves a last-known-good snapshot.
 - The storefront supports Persian RTL and English LTR, category navigation, search, filters, sorting, favorites, recently viewed, local cart and simulated checkout.
 - Product detail routes are statically generated for products in the snapshot and include gallery, pricing, facts and related products.
-- Keyboard support includes Escape dismissal for overlays, dialog semantics, visible focus styles and live announcements for key feedback states.
 - Comparison supports up to four products and is persisted in browser local storage.
 - Homepage merchandising rails are derived from the current sample catalog (discounts, ratings and discovery).
 - Recently viewed product IDs are stored in browser local storage and shown in a homepage rail; there is no server-side account history.
