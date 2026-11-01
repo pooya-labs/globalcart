@@ -72,7 +72,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Scheduled and manual catalog refresh trigger.
 - [x] Retry-capable static snapshot generator with last-known-good protection.
 - [x] Storefront initializes from generated snapshot and keeps it if live refresh fails.
-- [ ] Verify snapshot generation, tests and build in the new Actions run.
+- [x] Verify snapshot generation (100 products), TypeScript, unit tests, production build and Pages deployment in Actions run 41295039930.
 - [ ] Add an approved translation provider; no credential is configured yet.
 - [ ] Translate title, description, category and attributes while preserving originals/provenance.
 - [ ] Translation cache, throttling, retries and quota/error reporting.
