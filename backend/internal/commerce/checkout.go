@@ -294,6 +294,12 @@ func (s *Service) ExpirePendingOrders(ctx context.Context) (int64, error) {
 		FROM expired_orders AS o
 		WHERE r.order_id=o.id AND r.status='active'
 		RETURNING r.order_id
+	), expired_vendor_orders AS (
+		UPDATE demo_vendor_orders AS vo
+		SET status='expired',updated_at=now()
+		FROM expired_orders AS o
+		WHERE vo.order_id=o.id AND vo.status='awaiting_demo_payment'
+		RETURNING vo.id
 	), events AS (
 		INSERT INTO demo_order_events(order_id,event_type,payload)
 		SELECT DISTINCT order_id,'demo_order_expired','{"reason":"reservation_timeout"}'::jsonb
