@@ -267,3 +267,9 @@
 ### M08.4 authorized supplier onboarding — blocked
 - Next integration requires a named supplier and owner-approved API/feed access and usage rights.
 - No real supplier connection, credentials, scraped inventory or fabricated live variants are included pending that decision.
+
+
+### Variant identity collision hardening — 2026-11-02
+- Replaced delimiter-concatenated variant identity keys with an unambiguous tuple encoding of `(source, sourceId)`.
+- Added a regression test proving that pairs such as `("supplier:one", "id")` and `("supplier", "one:id")` remain distinct.
+- Catalog CI run `41355272122` passed TypeScript validation, all unit tests and production build on head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`.
