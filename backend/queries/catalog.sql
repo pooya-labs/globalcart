@@ -3,7 +3,11 @@ SELECT id, title, description, category, price::float8 AS price,
        discount_percentage::float8 AS discount_percentage, rating::float8 AS rating,
        stock, brand, thumbnail, images, source, source_id, source_url, imported_at
 FROM products
-WHERE (sqlc.arg(category)::text = '' OR category = sqlc.arg(category)::text)
+WHERE (sqlc.arg(category)::text = '' OR EXISTS (
+    SELECT 1 FROM categories AS c
+    WHERE c.id = products.category_id
+      AND lower(btrim(c.name)) = lower(btrim(sqlc.arg(category)::text))
+  ))
   AND (sqlc.arg(query)::text = '' OR
        to_tsvector('simple', title || ' ' || description) @@
        plainto_tsquery('simple', sqlc.arg(query)::text))
@@ -34,3 +38,16 @@ FROM categories AS c
 LEFT JOIN products AS p ON p.category_id = c.id
 GROUP BY c.id
 ORDER BY lower(c.name), c.id;
+
+
+-- name: CountProducts :one
+SELECT count(*)::bigint
+FROM products
+WHERE (sqlc.arg(category)::text = '' OR EXISTS (
+    SELECT 1 FROM categories AS c
+    WHERE c.id = products.category_id
+      AND lower(btrim(c.name)) = lower(btrim(sqlc.arg(category)::text))
+  ))
+  AND (sqlc.arg(query)::text = '' OR
+       to_tsvector('simple', title || ' ' || description) @@
+       plainto_tsquery('simple', sqlc.arg(query)::text));
