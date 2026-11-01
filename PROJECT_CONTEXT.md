@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.4 authorized supplier onboarding (blocked pending owner-approved source/feed)  
+**Active stage:** M08.4 catalog snapshot continuity and quality diagnostics (CI verification pending)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -329,3 +329,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added regression coverage for the former delimiter-collision shape.
 - Latest Catalog CI run `41355272122` succeeded on code head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`: dependency install, TypeScript validation, all unit tests and production build passed.
 - Latest Backend CI for this exact head is running; the backend code was unchanged by this normalization-only hardening. Recheck its final Docker image result before recording the full cross-workflow checkpoint.
+
+
+## Latest continuation checkpoint — 2026-11-02: M08.4 snapshot integrity guard in progress
+- Added `lib/catalog/quality.ts` with `assertCatalogSnapshotContinuity` and `summarizeCatalogQuality`.
+- The scheduled catalog snapshot sync compares the new full snapshot count with the previous known-good snapshot before writing. A drop greater than 50% is rejected and the existing snapshot is preserved by the established error path.
+- The threshold helper validates counts and its configured drop fraction; tests cover boundary acceptance, suspicious shrinkage, invalid settings and product/variant quality counters.
+- Quality reporting is diagnostic only: product-only sources, zero-stock items, missing descriptions and uncategorized products are reported but not automatically deleted or fabricated.
+- The continuity guard is intentionally attached to the current full-snapshot sync only. Future supplier adapters must distinguish complete snapshots from incremental/delta feeds before applying this policy.
+- Catalog CI for the current implementation is pending. M08.5 real supplier onboarding remains blocked until a named, authorized supplier/feed and usage rights are approved.
