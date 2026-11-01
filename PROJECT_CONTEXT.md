@@ -145,7 +145,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Authentication/session/RBAC architecture is documented in `docs/SECURITY_AUTH_DESIGN.md` and ADR-010. No authentication code or user tables are implemented; implementation waits for owner approval of same-site HTTPS hosting, email delivery and secret management.
 
 
-### M04 catalog pagination — implementation in progress
-- Product list filtering now resolves normalized categories case-insensitively and ignores surrounding whitespace.
-- Added generated `CountProducts` query with matching search/category predicates; list response adds `total` while retaining `count` as current-page item count.
-- PostgreSQL integration test covers normalized category filter and count. CI verification pending.
+### M04 catalog pagination — verified
+- Product list filtering resolves normalized categories case-insensitively and ignores surrounding whitespace.
+- Generated `CountProducts` query uses matching search/category predicates; list response adds `total` while retaining `count` as current-page item count.
+- PostgreSQL integration test covers normalized category filter and count. Pull-request CI run 41303108214 passed all stages including Docker build.
