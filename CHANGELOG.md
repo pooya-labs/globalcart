@@ -37,3 +37,9 @@
 
 ### Verification
 - Actions run 41294484252 passed dependency installation, TypeScript validation, unit tests, production build, artifact upload and Pages deployment.
+
+## [0.2.0-dev] - 2026-11-01
+### Changed
+- Re-scoped the storefront toward a full marketplace experience inspired by common Amazon-style discovery and shopping patterns, with an independent GlobalCart identity.
+- Paused translation and removed the translation job and credentials from the GitHub Pages deployment workflow.
+- Added a dedicated quick-category navigation rail and began the visual-system migration toward a cleaner, denser marketplace layout.
