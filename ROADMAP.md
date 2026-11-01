@@ -33,9 +33,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | Stage | Target | Scope | Status |
 |---|---:|---|---|
 | M00 | 0.1.0 | Product definition, independence, governance and handoff | Complete |
-| M01 | 0.1.x | Premium storefront, bilingual UX, responsive behavior and deployment | Implemented; visual/accessibility QA pending |
-| M02 | 0.2.0 | Automated catalog import, normalization, translation and snapshots | Active |
-| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Pricing core implemented; product UX pending |
+| M01 | 0.1.x | Storefront foundation, bilingual shell and deployment | Implemented; redesign supersedes original visual direction |
+| M02 | 0.2.x | Automated catalog import, normalization and snapshots | Catalog sync active; translation paused |
+| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Next after marketplace shell |
 | M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Planned; owner runtime/hosting gate |
 | M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Planned |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
@@ -64,6 +64,16 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [ ] Keyboard, focus, screen-reader, contrast and reduced-motion audit.
 - [ ] Verify published URL, base-path assets and deep links.
 
+## M01.5 — Marketplace redesign and UX foundation
+- [x] Re-scope reference to a broad Amazon-style marketplace information architecture without copying proprietary code, branding or assets.
+- [x] Pause translation and remove it from the deployment pipeline.
+- [ ] Rebuild the storefront shell around category-first discovery, prominent search and shopping utilities.
+- [ ] Add marketplace-grade home modules: curated collections, trending products, deals and category rails.
+- [ ] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
+- [ ] Add dedicated product detail, gallery and comparison flows.
+- [ ] Verify desktop, tablet, mobile, RTL/LTR, keyboard and reduced-motion behavior.
+- [ ] Confirm all controls remain functional and demo-only disclosures are clear.
+
 ## M02 — Automated catalog pipeline (active)
 - [x] Typed catalog contracts and normalization.
 - [x] Invalid-record rejection, source identity and duplicate suppression.
@@ -74,12 +84,12 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Storefront initializes from generated snapshot and keeps it if live refresh fails.
 - [x] Verify snapshot generation (100 products), TypeScript, unit tests, production build and Pages deployment in Actions run 41295039930.
 - [x] Add a Google Apps Script Language Service translation bridge using Google Translate (no Gemini).
-- [ ] Deploy the Google Apps Script bridge and configure GOOGLE_TRANSLATE_ENDPOINT / GOOGLE_TRANSLATE_TOKEN secrets; verify live Persian translation.
+- [x] Translation intentionally paused; no translation secrets or external translation service required for CI.
 - [x] Translate title, description, category and brand while preserving original source fields and provenance.
 - [x] Translation cache via source-content fingerprints, sequential throttling, bounded retries and per-product error reporting.
 - [ ] Catalog freshness and source diagnostics.
 - [ ] Add other suppliers only through authorized APIs/feeds.
-**Acceptance:** products import automatically, the storefront survives source outages, and untranslated text is never mislabeled.
+**Acceptance:** products import automatically, the storefront survives source outages, and original source text remains intact. Translation is out of scope until explicitly reactivated.
 
 ## M03 — Pricing and product experience
 - [x] Integer-cent pricing, fixed-point FX and BigInt intermediate arithmetic.
@@ -149,4 +159,5 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 |---|---|---|---|
 | 0.1.0 | M00 + M01 | Implemented | Initial independent storefront |
 | 0.1.1 | Pricing foundation | Implemented | Integer-cent and fixed-point demo pricing |
-| 0.1.4 | M02 catalog pipeline | In progress | Free Google Translate bridge implemented; deployment and live translation verification pending |
+| 0.1.4 | M02 catalog pipeline | Implemented | Catalog import and snapshot pipeline; translation bridge parked and removed from CI |
+| 0.2.0-dev | M01.5 marketplace redesign | In progress | Amazon-like discovery and shopping flows with an independent premium visual system |
