@@ -87,6 +87,6 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Product listing supports bounded limit/offset, category and full-text query parameters.
 - A one-shot CLI imports the current normalized catalog snapshot; it refuses empty or incomplete imports.
 - OpenAPI 3.1 contract is in `backend/openapi.yaml`.
-- Backend CI covers gofmt, go vet, race-enabled unit tests, Go builds and Docker image build.
+- Backend CI run #22 passed gofmt, go vet, race-enabled unit and PostgreSQL integration tests, Go binary builds and Docker image build.\n- Integration coverage verifies concurrent/idempotent migration startup, product upsert and transaction rollback after a database constraint violation.\n- Verified run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41301389812
 - No authentication, user/order writes, payment, seller APIs or production deployment exists yet.
 - Local Docker Compose is development scaffolding only; no cloud resources or paid services were created.
