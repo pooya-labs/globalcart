@@ -34,3 +34,11 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - A source that does not provide variants remains a valid product-only source. The importer must not invent variants, zero stock, or retire records merely because a later snapshot omits them.
 - `tests/fixtures/synthetic-supplier-records.ts` is synthetic test data used only to verify mapping. It is not a supplier connection or live commercial inventory.
 - A real supplier adapter requires explicit authorization, reviewed API/feed terms and a confirmed field mapping. Credentials must remain server-side and are not part of this implementation.
+
+
+## Snapshot integrity and quality diagnostics (M08.4)
+- The current scheduled DummyJSON job is a full-snapshot importer. Before replacing the last-known-good snapshot, it rejects a refresh whose normalized product count is more than 50% below the previous snapshot.
+- A rejected refresh follows the existing safe error path and preserves the previous file. It does not publish a partial catalog.
+- The 50% threshold is a conservative guardrail for the current full-feed job, not a universal supplier rule. Any future incremental/delta source must document completeness semantics and use source-appropriate continuity checks instead.
+- The quality report records product count, variant count, products with/without variants, zero-price/zero-stock products, missing descriptions and uncategorized products. These are diagnostics, not synthetic corrections.
+- Product-only catalogs are valid. Missing variants in a source response do not imply deleting variants or vendor offers already stored in PostgreSQL.
