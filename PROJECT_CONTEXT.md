@@ -3,7 +3,7 @@
 **Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main  
-**Package version:** 0.2.2 (next development increment: 0.2.3-dev)  
+**Package version:** 0.2.3-dev  
 **Active stage:** M01.5 marketplace redesign / M03 product experience  
 **Last updated:** 2026-11-01
 
@@ -57,12 +57,14 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
 
-Actions run 41299677941 (Run #135) passed catalog refresh, snapshot persistence, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment. This run includes the dedicated recently viewed page, homepage history rail and browser-local history controls.
-https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
+Actions run 41300273671 (Run #141) passed after the modal focus-trap and focus-restoration changes. Catalog refresh, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment completed successfully.
+https://github.com/pooya16pg-spec/globalcart/actions/runs/41300273671
+
+The main branch also contains the follow-up catalog snapshot commit `b6cdb8bd` (2026-11-01 11:05 UTC). The published URL is configured, but a manual cross-device/browser smoke test has not yet been recorded.
 
 ## Immediate next actions
-1. Complete responsive, RTL/LTR, keyboard, screen-reader, reduced-motion and published deep-link QA.
-2. Add an authorized FX provider with source timestamp and stale-rate policy; keep the current rate clearly illustrative until then.
+1. Complete manual responsive, RTL/LTR, keyboard, screen-reader, reduced-motion and published deep-link QA; record tested browsers and viewport sizes.
+2. Keep the current FX rate illustrative until an authorized provider and source timestamp/staleness policy are approved.
 3. Improve source attributes, rating context and catalog freshness diagnostics.
 4. Build seller/admin workspaces only after the catalog UX and role boundaries are defined.
 5. Defer live Amazon product retrieval until approved API/feed credentials and usage rights are available.
