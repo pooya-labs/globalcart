@@ -184,6 +184,8 @@ test("snapshot validation enforces PostgreSQL numeric and integer bounds", async
     { price: 10_000_000_000 },
     { price: 1.001 },
     { discountPercentage: 100.01 },
+    { discountPercentage: "10" },
+    { rating: "4.5" },
     { discountPercentage: 1.001 },
     { rating: 5.01 },
     { rating: 4.501 },

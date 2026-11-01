@@ -89,7 +89,7 @@ function isCatalogProduct(value: unknown): value is CatalogProduct {
     !Number.isSafeInteger(value.id) ||
     (value.id as number) < 0 ||
     !isDatabasePrice(value.price) ||
-    !numericFields.slice(1).every(field => typeof field === "number" && Number.isFinite(field)) ||
+    !numericFields.every(field => typeof field === "number" && Number.isFinite(field)) ||
     (value.discountPercentage as number) < 0 ||
     (value.discountPercentage as number) > 100 ||
     !hasAtMostTwoDecimalPlaces(value.discountPercentage as number) ||
