@@ -51,7 +51,8 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
 
-The last fully verified feature run before the Amazon intake and FAQ additions is recorded in the repository's Actions history. Do not claim the newest commit is deployed until its matching Actions run completes successfully.
+Actions run 41299130540 (Run #121) passed catalog refresh, snapshot persistence, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment. This run includes the Amazon link intake, marketplace services/FAQ, comparison, product detail pages and dynamic homepage merchandising.
+https://github.com/pooya16pg-spec/globalcart/actions/runs/41299130540
 
 ## Immediate next actions
 1. Verify the latest Amazon-link intake, service/FAQ and comparison changes through TypeScript, unit tests, static export and Pages deployment.
