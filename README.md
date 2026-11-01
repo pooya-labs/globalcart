@@ -101,4 +101,4 @@ GlobalCart follows semantic versioning. Every release must update package.json, 
 ## Backend foundation (local development)
 The M04 backend starter is available on the `feat/m04-go-postgres-foundation` branch. It includes a Go REST API, PostgreSQL 17 Docker Compose setup, versioned SQL migrations, catalog snapshot importer and OpenAPI 3.1 contract. It is a local development environment only; the public GitHub Pages demo remains static and no cloud database or API has been provisioned.
 
-See [backend/README.md](backend/README.md) for setup instructions and [backend/openapi.yaml](backend/openapi.yaml) for the initial API contract.
+Backend CI run #22 passed, including PostgreSQL integration tests and Docker image build. See [backend/README.md](backend/README.md) for setup instructions and [backend/openapi.yaml](backend/openapi.yaml) for the initial API contract.
