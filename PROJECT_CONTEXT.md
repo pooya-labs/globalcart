@@ -149,3 +149,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Product list filtering resolves normalized categories case-insensitively and ignores surrounding whitespace.
 - Generated `CountProducts` query uses matching search/category predicates; list response adds `total` while retaining `count` as current-page item count.
 - PostgreSQL integration test covers normalized category filter and count. Pull-request CI run 41303108214 passed all stages including Docker build.
+
+
+### M05 demo commerce schema — implementation in progress
+- Migration `003_demo_commerce.sql` adds guest cart capability digests, cart item snapshots, demo order/idempotency records, immutable order lines, expiring inventory reservations and order events.
+- Raw cart tokens and idempotency keys are never stored; the schema stores fixed-length SHA-256 digests only.
+- `docs/COMMERCE_DESIGN.md` defines transaction locking, stock reservation, price revalidation, replay behavior and demo-only state transitions.
+- No commerce write endpoints, customer accounts, payment integration or live inventory mutation are enabled. CI verification pending.
