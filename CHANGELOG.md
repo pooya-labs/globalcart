@@ -138,5 +138,5 @@
 
 ### Demo checkout service — 2026-11-01
 - Added an internal Go transaction service for demo checkout with canonical catalog revalidation, row-level stock locks, expiring reservations, immutable order snapshots and idempotent replay.
-- Added PostgreSQL integration coverage for competing carts and replay; CI run 41345901209 passed.
+- Added PostgreSQL integration coverage for competing carts, replay and idempotent reservation expiry; CI run 41346127244 passed.
 - Service is not exposed as an HTTP endpoint; no real payments or live stock adjustments are performed.
