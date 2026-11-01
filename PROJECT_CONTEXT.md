@@ -290,3 +290,13 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M09.4.1 public API regression guards are verified in Actions run `41353463006` (success). Seller routes and commerce write endpoints remain intentionally unexposed.
 
 - Variant follow-up: importer synchronization now creates/updates `GlobalCart Direct` offers for each `product_variants` row, syncing SKU, price, stock and active/paused status. Variant reads are fully collected and closed before offer writes within the transaction. Integration coverage checks creation, unchanged re-import, price/stock change audit events, inactive pausing and fixture restoration. Commits: `5574937`, `58eaa21`, `a7eed9d`, `9eb5671`. CI pending.
+
+
+## Latest continuation checkpoint — 2026-11-02: platform sync verified; source variant ingestion in progress
+- M08.1 base-product and existing-database-variant synchronization passed Backend CI run `41354208659` on code head `5198c5f452b03920bc90fa1eec0a5b6e83dadd70`; all steps succeeded, including sqlc generation, formatting, vet, tests, API/importer builds and Docker image build.
+- New M08.2 work adds optional `variants` to the TypeScript catalog contract and Go `catalog.Product` model. Normalization retains variant source identity, SKU, title, price, stock, object attributes and active state.
+- `database.UpsertProducts` now upserts supplied variants in the same transaction before platform-offer synchronization. Source identity collisions cannot silently move a variant to another product; malformed price/stock/identity is rejected.
+- PostgreSQL integration fixture now supplies the variant through the imported product payload rather than manually inserting it. Catalog unit tests cover variant normalization and safe defaults.
+- Current DummyJSON sample feed does not provide variants; this is backward-compatible optional ingestion support, not a claim that live variant records are arriving. An authorized supplier feed/adapter is still needed to exercise real source variants.
+- New code commits: `34e0883`, `a9eeef5`, `e925313`, `26d6e1f`, `26c8a1f`, `ee46960`. CI for this new end-to-end ingestion slice is pending.
+- Active branch remains `feat/m04-go-postgres-foundation`; PR #1 remains Draft/open/unmerged. Do not merge or deploy.
