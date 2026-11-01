@@ -156,3 +156,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Raw cart tokens and idempotency keys are never stored; the schema stores fixed-length SHA-256 digests only.
 - `docs/COMMERCE_DESIGN.md` defines transaction locking, stock reservation, price revalidation, replay behavior and demo-only state transitions.
 - No commerce write endpoints, customer accounts, payment integration or live inventory mutation are enabled. CI run 41345512979 passed sqlc generation, Go formatting, vet, PostgreSQL-backed race tests, API/importer builds and Docker image build.
+
+
+### M05 transactional checkout service — verified
+- Added `backend/internal/commerce/checkout.go`: internal-only transactional checkout; not wired to HTTP.
+- Locks cart and stock rows, reads canonical current catalog prices/titles, accounts for unexpired reservations, and atomically creates order snapshots, reservation rows and order event.
+- Idempotency replay returns the original order before cart lifecycle checks. Cart expiry uses PostgreSQL's clock.
+- Integration tests exercise two guest carts competing for limited product stock (one succeeds, one is rejected) and successful checkout replay.
+- CI run 41345901209 passed all stages including PostgreSQL-backed tests and Docker image build.
+- No cart/order write endpoint, payment provider, live stock mutation, or browser cookie flow is enabled.
