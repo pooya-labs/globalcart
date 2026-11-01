@@ -39,6 +39,8 @@ paths:
       responses:
         '200':
           description: Product page
+        '400':
+          description: Invalid limit, offset, query or category parameter
   /api/v1/products/{id}:
     get:
       summary: Get a catalog product
@@ -51,3 +53,13 @@ paths:
         '200': { description: Product }
         '400': { description: Invalid product identifier }
         '404': { description: Product not found }
+
+components:
+  schemas:
+    ApiError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Stable machine-readable error code
