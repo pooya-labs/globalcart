@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.4 — Catalog snapshot continuity and quality diagnostics (implementation in progress)  
+**Active stage:** M08.5 — Authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -444,12 +444,12 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Gate:** do not connect a real supplier, scrape retail pages, generate placeholder inventory or treat the synthetic M08.3 fixture as live data until the owner approves a named supplier and its authorized feed/API.
 
 
-## M08.4 — Catalog snapshot continuity and quality diagnostics (in progress)
+## M08.4 — Catalog snapshot continuity and quality diagnostics (CI verified)
 - [x] Add a full-snapshot continuity guard: reject a refresh that loses more than 50% of the previous known-good product count.
 - [x] Run the guard before writing the new snapshot so the existing last-known-good file is retained on suspicious drops.
 - [x] Add a compact quality report for product/variant counts, products without variants, zero price/stock, missing descriptions and uncategorized items.
 - [x] Add unit tests for exact threshold behavior, invalid thresholds and quality report counts.
-- [ ] Verify TypeScript validation, all unit tests and production build in Catalog CI on the final branch head.
+- [x] Verify TypeScript validation, all unit tests and production build in Catalog CI PR run `41355595494` on head `0df4c5485e4a2eb391b61e13c52047ed4631942a`.
 - [ ] Revisit source-specific continuity policy when a real supplier is approved; incremental/delta feeds must declare their semantics and must not use the full-snapshot drop guard blindly.
 
-**M08.4 safety boundary:** this guard applies to the current full-snapshot catalog sync. Product-only feeds remain valid; absence of variants is not treated as a catalog failure and does not delete previously imported variants/offers.
+**M08.4 verification:** Catalog CI PR run `41355595494` and push run `41355552153` passed TypeScript validation, all unit tests and production build. Backend CI PR run `41355595650` also passed SQL generation, formatting, vet, tests, API/importer build, Docker image build and cleanup on the documented branch head.\n\n**M08.4 safety boundary:** this guard applies to the current full-snapshot catalog sync. Product-only feeds remain valid; absence of variants is not treated as a catalog failure and does not delete previously imported variants/offers.
