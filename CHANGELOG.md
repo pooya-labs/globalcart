@@ -304,3 +304,15 @@
 - Added a PostgreSQL regression test for attempted reassignment of a supplier's existing variant source identity to a different product.
 - The test checks that the whole multi-product import batch rolls back and the original variant owner, SKU, price and stock remain intact.
 - Backend CI verification is pending.
+
+
+### M08.5 variant omission and inventory retention — CI verified
+- Backend CI PR run [41356201201](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356201201) passed the PostgreSQL regression proving product-only refreshes do not delete stored variants, alter platform/merchant offers, or append duplicate audit events.
+
+### M08.6 variant source identity ownership and batch rollback — CI verified (2026-11-02)
+- Added PostgreSQL integration coverage proving a source variant identity cannot be reassigned to a different product.
+- Verified that the entire multi-product import rolls back on identity conflict and the original variant owner/SKU/price/stock remain unchanged.
+- Backend CI push run [41356390061](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356390061) and PR run [41356442182](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356442182) passed, including race-enabled PostgreSQL tests and Docker image build.
+
+### M08.7 explicit feed completeness semantics — implementation in progress
+- Next adapter hardening will distinguish complete supplier snapshots from incremental/delta feeds and prevent deltas from replacing the last-known-good full catalog.
