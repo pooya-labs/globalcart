@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
+	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
 )
 
 func TestMigrationsAndCatalogUpsert(t *testing.T) {
@@ -77,6 +78,24 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	}
 	if categoryName != product.Category {
 		t.Fatalf("category = %q, want %q", categoryName, product.Category)
+	}
+
+	// Exercise the generated category query against PostgreSQL.
+	categoryRows, err := dbgen.New(pool).ListCategories(ctx)
+	if err != nil {
+		t.Fatalf("list categories through sqlc: %v", err)
+	}
+	foundCategory := false
+	for _, row := range categoryRows {
+		if row.ID == categoryID {
+			foundCategory = true
+			if row.Name != product.Category || row.ProductCount < 1 {
+				t.Fatalf("unexpected category row: %+v", row)
+			}
+		}
+	}
+	if !foundCategory {
+		t.Fatalf("category %d missing from generated listing", categoryID)
 	}
 	variantAttributes := []byte(`{"color":"black","size":"M"}`)
 	var variantID int64
