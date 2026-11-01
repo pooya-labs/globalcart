@@ -120,7 +120,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Validate catalog pagination bounds and query/category lengths with stable 400 error codes.
 - [x] Document the API error response shape and list endpoint validation in OpenAPI.
 - [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
-- [x] Add sqlc configuration, parameterized catalog/variant query definitions and CI code generation for pgx/v5.\n- [ ] Wire generated sqlc queries into API and importer, replacing handwritten SQL.
+- [x] Add sqlc configuration, parameterized catalog/variant query definitions and CI code generation for pgx/v5.\n- [x] Wire generated sqlc queries into product list/detail API handlers; importer remains transaction-oriented and uses explicit upsert SQL.
 - [ ] Design authentication/session and role-based authorization.
 - [ ] Add idempotent Python ingestion/translation workers.
 - [ ] Add Redis only for measured cache/queue requirements.
@@ -210,7 +210,7 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Reject malformed/out-of-range limit and offset values instead of silently replacing them.
 - [x] Bound free-text query and category filter lengths.
 - [x] Add HTTP tests proving invalid requests return 400 before database access.
-- [ ] Run backend CI for the validation changes before marking verified.
+- [x] Run backend CI for the validation changes before marking verified.
 
 
 ### M04 typed SQL generation — 2026-11-01
@@ -218,3 +218,11 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Define typed list/detail product queries and active product-variant query with parameterized inputs.
 - [x] Add deterministic sqlc generation to backend CI.
 - [ ] Verify generated package compiles in CI and wire it into API/database code.
+
+
+### M04 sqlc API integration — 2026-11-01
+- [x] Replace handwritten product list/detail read queries in HTTP handlers with generated pgx/v5 sqlc methods.
+- [x] Keep the external catalog JSON response shape stable through an explicit database-row mapper.
+- [x] Add mapper tests for JSON images and catalog field mapping.
+- [x] Verify sqlc generation, go vet, race-enabled unit/integration tests and Go builds in CI.
+- [ ] Complete read API for active product variants and category navigation.
