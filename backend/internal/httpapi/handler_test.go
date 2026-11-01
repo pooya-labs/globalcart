@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -101,5 +102,25 @@ func TestMapProductVariant(t *testing.T) {
 	}
 	if _, err := mapProductVariant(9, 7, nil, "Default", 1, 1, []byte("[]")); err == nil {
 		t.Fatal("expected non-object variant attributes to fail")
+	}
+}
+
+func TestCategoryResponseOmitsRootParent(t *testing.T) {
+	item := categoryResponse{ID: 3, Name: "Electronics", ProductCount: 12}
+	raw, err := json.Marshal(item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), "parentId") {
+		t.Fatalf("root category should omit parentId: %s", raw)
+	}
+	parent := int64(3)
+	item.ParentID = &parent
+	raw, err = json.Marshal(item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(raw), `"parentId":3`) {
+		t.Fatalf("child category parentId missing: %s", raw)
 	}
 }
