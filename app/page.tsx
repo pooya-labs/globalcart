@@ -224,6 +224,7 @@ export default function Home() {
   const dealPicks=useMemo(()=>[...products].filter(p=>p.discountPercentage>0).sort((a,b)=>b.discountPercentage-a.discountPercentage).slice(0,4),[products]);
   const topRatedPicks=useMemo(()=>[...products].sort((a,b)=>b.rating-a.rating).slice(0,4),[products]);
   const discoveryPicks=useMemo(()=>[...products].slice(0,4),[products]);
+  const recentProducts=useMemo(()=>recent.map(id=>products.find(p=>p.id===id)).filter((p):p is Product=>Boolean(p)),[recent,products]);
   const toggleCompare=(id:number)=>{
     if(compareIds.includes(id)){setCompareIds(old=>old.filter(x=>x!==id));return;}
     if(compareIds.length>=4){notify(locale==="fa"?"حداکثر چهار محصول قابل مقایسه است":"You can compare up to four products");return;}
@@ -315,6 +316,8 @@ export default function Home() {
           {[{id:"deals",title:rtl?"فرصت‌های جذاب":"Deals worth a look",label:rtl?"بیشترین تخفیف":"TOP DISCOUNTS",items:dealPicks},{id:"rated",title:rtl?"محبوب‌ترین‌ها":"Top-rated picks",label:rtl?"امتیازهای برتر":"HIGHLY RATED",items:topRatedPicks},{id:"discover",title:rtl?"تازه‌های ویترین":"Fresh discoveries",label:rtl?"برای کشف بیشتر":"EDITOR'S EDIT",items:discoveryPicks}].map(group=><section className="merchandising-panel" key={group.id}><div className="merchandising-panel-head"><div><small>{group.label}</small><h3>{group.title}</h3></div><span>0{group.id==="deals"?1:group.id==="rated"?2:3}</span></div><div className="merchandising-items">{group.items.map(p=><Link href={`/product/${p.id}`} className="merchandising-item" key={p.id}><img src={p.thumbnail} alt={p.title} loading="lazy"/><span><b>{p.title}</b><small><Star size={11} fill="currentColor"/>{p.rating.toFixed(1)} · {formatPrice(p)}</small></span></Link>)}</div></section>)}
         </div>
       </section>
+
+      {recentProducts.length>0&&<section className="recently-viewed-section"><div className="recently-viewed-head"><div><span className="section-kicker">03 / PICK UP WHERE YOU LEFT OFF</span><h2>{rtl?"بازدیدهای اخیر":"Recently viewed"}</h2><p>{rtl?"محصولاتی که اخیراً بررسی کرده‌ای؛ ذخیره‌شده فقط در همین مرورگر.":"Products you opened recently, stored only in this browser."}</p></div><button onClick={()=>setRecent([])}>{rtl?"پاک کردن تاریخچه":"Clear history"}</button></div><div className="recently-viewed-grid">{recentProducts.map(p=><Link href={`/product/${p.id}`} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></Link>)}</div></section>}
 
       <section className="section catalog-section" id="catalog">
         <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p></div><div className="catalog-tools"><button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select value={sort} onChange={e=>setSort(e.target.value)}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
