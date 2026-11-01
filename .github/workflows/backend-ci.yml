@@ -25,6 +25,7 @@ jobs:
           go mod tidy
           gofmt -w backend
       - name: Persist Go module checksums and formatting
+        if: github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
