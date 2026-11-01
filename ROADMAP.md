@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.5 — Seller membership implementation readiness (blocked on deployment prerequisites)  
+**Active stage:** M09.4.1 — Public API surface regression guards (CI verification pending)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -358,7 +358,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Apply coupon redemption once at parent level and allocate discounts across child orders with cent-exact reconciliation.
 - [x] Propagate simulated payment, cancellation and reservation expiry to child order states.
 - [x] Add PostgreSQL integration coverage for split totals, idempotency, coupon allocation, simulated payment and competing checkouts.
-- [ ] Add owner-scoped split-order detail reads and vendor-specific internal query methods (implementation committed; CI verification pending).
+- [x] Add owner-scoped split-order detail reads and vendor-specific internal query methods (verified in M09.3).
 - [ ] Add seller authorization/membership model before any seller-facing APIs.
 
 
@@ -366,15 +366,15 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add `GetVendorOrder` to retrieve one vendor child order and its immutable item snapshots using the owning cart capability digest.
 - [x] Conceal cross-owner child-order existence behind the same `ErrOrderNotFound` result used for unknown IDs.
 - [x] Add PostgreSQL integration coverage for child/parent identity, vendor metadata, exact totals, item ownership, invalid capabilities and cross-owner isolation.
-- [ ] Run backend CI and verify the new integration test before marking this slice complete.
+- [x] Backend CI run `41352898725` passed the vendor child-order integration tests and Docker image build.
 
 
 ### M09.3 CI correction checkpoint — 2026-11-02
 - [x] Inspect failed Backend CI run 41352752412 and retrieve the exact job log.
 - [x] Identify the blocking `go vet` error: unused `time` import in `backend/internal/commerce/vendor_orders.go`.
 - [x] Remove the unused import in commit `cb0f20816afdbf3f2dc23628e8a5bd4b7d1bce46`.
-- [ ] Obtain a fresh CI run for the corrected branch head; the failed run tested the previous commit and does not verify this fix.
-- [ ] Only after CI passes, mark M09.3 complete and proceed to seller membership/auth implementation planning.
+- [x] Fresh Backend CI run `41352898725` on corrected code passed; the earlier failed run tested the previous commit only.
+- [x] M09.3 marked complete after fresh CI verification; seller membership implementation remains gated by deployment prerequisites.
 
 
 ## M09.4 — Seller authorization boundary and vendor ownership hardening — CI verified
@@ -388,3 +388,9 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [ ] Approve runtime/hosting, region, budget and secret-management approach.
 - [ ] Select and approve email delivery provider before verification/reset flows.
 - [ ] Then implement users, seller memberships, role grants, sessions, CSRF and audit events according to `docs/SECURITY_AUTH_DESIGN.md`.
+
+
+## M09.4.1 — Public API surface regression guards (in progress)
+- [x] Add handler tests proving seller order/product routes, cart writes and checkout writes remain unavailable over HTTP.
+- [x] Add tests proving catalog routes reject mutation methods and allowed CORS origins receive only GET/OPTIONS.
+- [ ] Verify these new handler tests in Backend CI before marking the guardrail complete.
