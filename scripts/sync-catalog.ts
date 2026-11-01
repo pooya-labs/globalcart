@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { dummyJsonCatalogAdapter } from "../lib/catalog/dummyjson";
 import { loadCatalogFromSourceWithReport } from "../lib/catalog/source-adapter";
-import { readCatalogSnapshot, writeCatalogSnapshotAtomically } from "../lib/catalog/snapshot";
+import { readCatalogSnapshot, writeCatalogSnapshotAtomically, type CatalogSnapshot } from "../lib/catalog/snapshot";
 import { assertCatalogSnapshotContinuity, summarizeCatalogQuality } from "../lib/catalog/quality";
 
 const outputDirectory = join(process.cwd(), "data");
