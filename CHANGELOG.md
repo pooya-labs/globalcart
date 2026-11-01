@@ -92,3 +92,10 @@
 - Added a permanent footer entry so the history page remains discoverable even before the first product visit.
 - Actions run 41299677941 (Run #135) passed TypeScript validation, unit tests, production build, Pages artifact upload and deployment.
 - Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
+
+
+### Accessibility interaction pass
+- Added Escape-key dismissal across homepage overlays and navigation menus.
+- Added dialog roles, modal semantics and accessible title associations to cart, favorites, quick view, comparison and demo checkout.
+- Added aria-expanded/aria-controls relationships for mobile and category navigation; gallery thumbnails now expose aria-pressed.
+- Full focus trapping/restoration and manual assistive-technology QA remain open.

@@ -93,7 +93,7 @@ export default function ProductDetailClient({product,related}:Props) {
     <section className="product-detail-layout">
       <div className="detail-gallery">
         <div className="detail-main-image"><img src={image} alt={product.title}/><span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span></div>
-        <div className="detail-thumbnails">{images.map((src,index)=><button key={src} className={activeImage===index?"active":""} onClick={()=>setActiveImage(index)} aria-label={rtl?`تصویر ${index+1}`:`Image ${index+1}`}><img src={src} alt=""/></button>)}</div>
+        <div className="detail-thumbnails">{images.map((src,index)=><button key={src} className={activeImage===index?"active":""} onClick={()=>setActiveImage(index)} aria-label={rtl?`تصویر ${index+1}`:`Image ${index+1}`} aria-pressed={activeImage===index}><img src={src} alt=""/></button>)}</div>
       </div>
       <div className="detail-information">
         <span className="detail-brand">{product.brand||"GLOBAL SELECT"}</span>

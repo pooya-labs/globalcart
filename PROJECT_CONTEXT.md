@@ -47,6 +47,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Keyboard support includes Escape dismissal for overlays, dialog semantics, visible focus styles and live announcements for key feedback states.
 - Comparison supports up to four products and is persisted in browser local storage.
 - Homepage merchandising rails are derived from the current sample catalog (discounts, ratings and discovery).
+- Homepage overlay interactions support Escape dismissal; major drawers/modals expose dialog semantics and labelled headings. Focus trapping and focus restoration remain outstanding.
 - Recently viewed product IDs are stored in browser local storage, shown in a homepage rail and on /recently-viewed; the footer links to the history page. There is no server-side account history.
 - Product detail pages expose source USD price, sample discount, illustrative user-configured FX rate and converted demo price. No live FX provider is connected.
 - Amazon URL intake validates supported Amazon domains and ASINs, then saves requests in browser local storage. Live Amazon data is not fetched.

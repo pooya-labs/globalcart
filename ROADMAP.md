@@ -177,3 +177,11 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Product price breakdown using the existing fixed-point pricing helper.
 - [x] GitHub Actions run 41299322140 passed catalog refresh, TypeScript, unit tests, production build, Pages artifact upload and deployment.
 - [ ] Full manual responsive, accessibility and published deep-link QA remains open.
+
+
+## Accessibility follow-up — 2026-11-01
+- [x] Added Escape-key dismissal for the homepage drawers, quick view, comparison, checkout, category menu and mobile navigation.
+- [x] Added dialog semantics, modal state and heading associations for cart, favorites, quick view, compare and demo checkout.
+- [x] Added expanded/control relationships for mobile navigation and category navigation.
+- [x] Exposed selected product-gallery thumbnail state to assistive technology.
+- [ ] Focus trapping and focus restoration inside modal dialogs still require a dedicated implementation and manual keyboard/screen-reader QA.
