@@ -71,3 +71,7 @@ The internal Go service at `backend/internal/commerce/checkout.go` implements th
 
 
 The service also provides `ExpirePendingOrders`, an idempotent database operation that marks awaiting-demo-payment orders expired when an active reservation deadline passes, transitions their active reservations to `expired`, and appends a timeout event. It does not alter imported product/variant stock.
+
+
+## 9. Implemented guest cart service boundary
+The internal Go service in `backend/internal/commerce/cart.go` implements cart creation, line add/increment, quantity setting, line removal and cart retrieval. It accepts only a 32-byte SHA-256 capability digest, locks the cart row for mutations, checks open/unexpired state, and re-reads canonical product/variant price, title and stock from PostgreSQL. Cart quantities are bounded to 1–99 and current catalog stock. The current catalog has no currency column, so this service explicitly supports USD only rather than implying FX support. PostgreSQL integration tests cover lifecycle operations, stock bounds, variant handling and expiry. These methods are not exposed over HTTP.
