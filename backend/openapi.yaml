@@ -20,6 +20,15 @@ paths:
           description: Database is reachable
         '503':
           description: Database is unavailable
+  /api/v1/categories:
+    get:
+      summary: List normalized catalog categories
+      responses:
+        '200':
+          description: Categories with product counts and parent relationships
+        '500':
+          description: Category query failed
+
   /api/v1/products:
     get:
       summary: List catalog products
