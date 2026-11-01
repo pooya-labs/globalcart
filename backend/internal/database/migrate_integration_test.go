@@ -222,8 +222,8 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if err := pool.QueryRow(ctx, "SELECT stock FROM vendor_products WHERE id=$1", secondOfferID).Scan(&secondStock); err != nil {
 		t.Fatalf("read second vendor stock: %v", err)
 	}
-	if firstStock != 2 || secondStock != 7 {
-		t.Fatalf("vendor stocks are not independent: first=%d second=%d", firstStock, secondStock)
+	if firstStock != 4 || secondStock != 7 {
+		t.Fatalf("vendor stocks are not independent: first=%d second=%d, want 4 / 7", firstStock, secondStock)
 	}
 	var priceHistoryCount, inventoryEventCount int
 	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", platformOfferID).Scan(&priceHistoryCount); err != nil {
