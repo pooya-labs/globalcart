@@ -117,7 +117,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add embedded, versioned SQL migrations and transactional migration ledger for the initial catalog schema.
 - [ ] Define reviewed rollback/forward-fix policy for shared environments.
 - [x] Add Go REST API foundation, OpenAPI 3.1 contract, health/readiness probes, CORS allow-list and read-only catalog list/detail endpoints.
-- [ ] Expand request validation and API error contract.\n- [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
+- [x] Validate catalog pagination bounds and query/category lengths with stable 400 error codes.\n- [x] Document the API error response shape and list endpoint validation in OpenAPI.\n- [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
 - [ ] Add sqlc typed query layer and parameterized SQL.
 - [ ] Design authentication/session and role-based authorization.
 - [ ] Add idempotent Python ingestion/translation workers.
@@ -202,3 +202,10 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Enforce non-negative variant price/stock, object-shaped JSONB attributes, product ownership, optional unique SKU and source identity.
 - [x] Extend PostgreSQL integration tests to verify category backfill and variant attribute persistence.
 - [ ] Run the backend CI for this migration before marking the slice verified.
+
+
+### M04 API validation pass — 2026-11-01
+- [x] Reject malformed/out-of-range limit and offset values instead of silently replacing them.
+- [x] Bound free-text query and category filter lengths.
+- [x] Add HTTP tests proving invalid requests return 400 before database access.
+- [ ] Run backend CI for the validation changes before marking verified.
