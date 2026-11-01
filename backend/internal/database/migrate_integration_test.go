@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -27,12 +28,22 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		t.Fatalf("connect to test PostgreSQL: %v", err)
 	}
 
-	// Migrations must be safe to apply more than once.
-	if err := Migrate(ctx, pool); err != nil {
-		t.Fatalf("first migration: %v", err)
+	// Concurrent startup attempts must serialize and remain idempotent.
+	var wg sync.WaitGroup
+	errs := make(chan error, 2)
+	for range 2 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errs <- Migrate(ctx, pool)
+		}()
 	}
-	if err := Migrate(ctx, pool); err != nil {
-		t.Fatalf("second migration: %v", err)
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("concurrent migration: %v", err)
+		}
 	}
 
 	product := catalog.Product{
