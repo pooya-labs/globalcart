@@ -352,6 +352,32 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if paidReleased != 1 || paymentEvents != 1 {
 		t.Fatalf("simulated payment side effects: released=%d events=%d, want 1 each", paidReleased, paymentEvents)
 	}
+
+	// Payment completion must reject a multi-line order if even one hold expired.
+	var partialExpiryOwner [32]byte
+	partialExpiryOwner[0] = 84
+	if _, err := cartService.CreateCart(ctx, partialExpiryOwner[:], "USD", time.Hour); err != nil {
+		t.Fatalf("create partial-expiry cart: %v", err)
+	}
+	if _, err := cartService.AddItem(ctx, partialExpiryOwner[:], product.ID, nil, 1); err != nil {
+		t.Fatalf("add base product to partial-expiry cart: %v", err)
+	}
+	if _, err := cartService.AddItem(ctx, partialExpiryOwner[:], product.ID, &variantID, 1); err != nil {
+		t.Fatalf("add variant to partial-expiry cart: %v", err)
+	}
+	partialExpiryKey := make([]byte, 32)
+	partialExpiryKey[0] = 85
+	partialExpiryOrder, err := cartService.Checkout(ctx, partialExpiryOwner[:], partialExpiryKey, 15*time.Minute)
+	if err != nil {
+		t.Fatalf("checkout partial-expiry cart: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `UPDATE inventory_reservations SET expires_at=now()-interval '1 second'
+		WHERE order_id=$1 AND product_id=$2 AND variant_id IS NULL`, partialExpiryOrder.ID, product.ID); err != nil {
+		t.Fatalf("expire one order-line reservation: %v", err)
+	}
+	if _, err := cartService.CompleteDemoPayment(ctx, partialExpiryOwner[:], partialExpiryOrder.ID); !errors.Is(err, commerce.ErrDemoPaymentWindowExpired) {
+		t.Fatalf("complete partially expired order error = %v, want expired payment window", err)
+	}
 	var expiredCartOwner [32]byte
 	expiredCartOwner[0] = 78
 	if _, err := pool.Exec(ctx, `INSERT INTO carts(owner_token_hash,currency,expires_at)
