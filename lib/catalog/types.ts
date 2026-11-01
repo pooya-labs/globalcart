@@ -48,12 +48,16 @@ export type CatalogResult = {
 /** Canonical-but-untrusted product-shaped record emitted by a source mapper. */
 export type CatalogSourceRecord = Record<string, unknown>;
 
+/** Describes whether a feed is complete or contains only incremental changes. */
+export type CatalogSnapshotMode = "full" | "incremental";
+
 /**
  * Supplier-specific adapters fetch their own payload shape and map each
  * record into the shared catalog input contract before normalization.
  */
 export type CatalogSourceAdapter = {
   readonly source: string;
+  readonly snapshotMode: CatalogSnapshotMode;
   fetchRecords(signal?: AbortSignal): Promise<unknown[]>;
   mapProduct(record: unknown): CatalogSourceRecord | null;
 };
