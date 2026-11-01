@@ -147,6 +147,56 @@ test("supplier adapter maps its own payload into the canonical variant contract"
   assert.equal(products[0].importedAt, "2026-11-02T00:00:00.000Z");
 });
 
+
+test("rejects suspicious full-snapshot shrinkage but allows an approved threshold", async () => {
+  const { assertCatalogSnapshotContinuity } = await import("../lib/catalog/quality");
+
+  assert.doesNotThrow(() => assertCatalogSnapshotContinuity(50, 100));
+  assert.doesNotThrow(() => assertCatalogSnapshotContinuity(75, 100, 0.25));
+  assert.throws(
+    () => assertCatalogSnapshotContinuity(49, 100),
+    /product count dropped from 100 to 49; minimum accepted is 50/
+  );
+  assert.doesNotThrow(() => assertCatalogSnapshotContinuity(1, 0));
+});
+
+test("validates the configured catalog continuity threshold", async () => {
+  const { assertCatalogSnapshotContinuity } = await import("../lib/catalog/quality");
+  assert.throws(() => assertCatalogSnapshotContinuity(10, 10, -0.1), RangeError);
+  assert.throws(() => assertCatalogSnapshotContinuity(10, 10, 1), RangeError);
+  assert.throws(() => assertCatalogSnapshotContinuity(-1, 10), RangeError);
+  assert.throws(() => assertCatalogSnapshotContinuity(1.5, 10), RangeError);
+});
+
+test("reports catalog completeness without treating product-only feeds as invalid", async () => {
+  const { summarizeCatalogQuality } = await import("../lib/catalog/quality");
+  const products = normalizeCatalog([
+    {
+      id: 21, title: "Variant item", description: "Configured", category: "accessories",
+      price: 10, stock: 4, thumbnail: "https://cdn.example/variant.jpg",
+      variants: [
+        { id: "v1", sku: "V-1", price: 10, stock: 2 },
+        { id: "v2", sku: "V-2", price: 11, stock: 2 }
+      ]
+    },
+    {
+      id: 22, title: "Product-only item", description: "", category: "uncategorized",
+      price: 0, stock: 0, thumbnail: "https://cdn.example/simple.jpg"
+    }
+  ], "quality-fixture", "now");
+
+  assert.deepEqual(summarizeCatalogQuality(products), {
+    productCount: 2,
+    variantCount: 2,
+    productsWithVariants: 1,
+    productsWithoutVariants: 1,
+    zeroPriceProducts: 1,
+    zeroStockProducts: 1,
+    missingDescriptionProducts: 1,
+    uncategorizedProducts: 1
+  });
+});
+
 test("supplier adapter rejects empty or wholly unmappable feeds", async () => {
   const emptyAdapter: CatalogSourceAdapter = {
     source: "Empty Fixture",
