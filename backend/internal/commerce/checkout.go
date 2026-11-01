@@ -134,8 +134,8 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 		}
 		if _, err := tx.Exec(ctx, `INSERT INTO inventory_reservations
 			(order_id, product_id, variant_id, quantity, expires_at)
-			VALUES($1,$2,$3,$4,now()+$5::interval)`,
-			orderID, it.productID, variantArg, it.quantity, reservationTTL.String()); err != nil {
+			VALUES($1,$2,$3,$4,now()+make_interval(secs => $5::double precision))`,
+			orderID, it.productID, variantArg, it.quantity, reservationTTL.Seconds()); err != nil {
 			return Order{}, fmt.Errorf("reserve demo stock: %w", err)
 		}
 	}
