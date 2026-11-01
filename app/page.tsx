@@ -196,7 +196,7 @@ export default function Home() {
     setCompareIds(old=>[...old,id]);
   };
   const catalogCategories=useMemo(()=>Array.from(new Set(products.map(p=>p.category).filter(Boolean))).sort((a,b)=>a.localeCompare(b)),[products]);
-  const categoryLabel=(id:string)=>{const known=categories.find(c=>c.id===id);return known?(rtl?known.fa:known.en):id.replace(/-/g," ").replace(/\\b\\w/g,c=>c.toUpperCase());};
+  const categoryLabel=(id:string)=>{const known=categories.find(c=>c.id===id);return known?(rtl?known.fa:known.en):id.split("-").map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(" ");};
   const selectCategory=(id:string)=>{setCategory(id);setCategoryMenu(false);setMobileMenu(false);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});};
 
   return (
