@@ -228,3 +228,5 @@
 - Added append-only price and inventory audit events for initial offers and subsequent source changes; unchanged imports remain idempotent.
 - Added PostgreSQL integration coverage for initial, repeated and changed catalog imports. CI verification pending.
 - Verified public API regression guards and pre-auth CORS restrictions in Backend CI run `41353463006`.
+
+- Platform catalog synchronization now includes product variants, mapping source SKU, price, stock and active/paused state into vendor offers. Added PostgreSQL regression coverage for idempotency and price/inventory audit events. CI verification pending.
