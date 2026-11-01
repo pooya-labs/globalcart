@@ -256,6 +256,11 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		t.Fatalf("coupon order totals: subtotal=%s discount=%s total=%s, want 12.34 / 1.23 / 11.11",
 			couponOrder.Subtotal, couponOrder.DiscountAmount, couponOrder.Total)
 	}
+	couponDetail, err := cartService.GetOrder(ctx, couponOwner[:], couponOrder.ID)
+	if err != nil || couponDetail.Subtotal != couponOrder.Subtotal ||
+		couponDetail.DiscountAmount != couponOrder.DiscountAmount || couponDetail.Total != couponOrder.Total {
+		t.Fatalf("coupon order detail totals = %+v, err=%v; want checkout totals", couponDetail.Order, err)
+	}
 	var couponRedemptions int
 	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM coupon_redemptions WHERE order_id=$1", couponOrder.ID).Scan(&couponRedemptions); err != nil {
 		t.Fatalf("read coupon redemption: %v", err)
