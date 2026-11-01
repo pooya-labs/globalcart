@@ -171,9 +171,9 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if initialVariantPriceEvents != 1 || initialVariantInventoryEvents != 1 {
 		t.Fatalf("unchanged variant import duplicated audit events: price=%d inventory=%d", initialVariantPriceEvents, initialVariantInventoryEvents)
 	}
-	if _, err := pool.Exec(ctx, "UPDATE product_variants SET price=15.25,stock=4,is_active=false WHERE id=$1", variantID); err != nil {
-		t.Fatalf("change source variant: %v", err)
-	}
+	product.Variants[0].Price = 15.25
+	product.Variants[0].Stock = 4
+	product.Variants[0].IsActive = false
 	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
 		t.Fatalf("sync changed variant: %v", err)
 	}
@@ -194,9 +194,7 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if changedVariantPriceEvents != 2 || changedVariantInventoryEvents != 2 {
 		t.Fatalf("changed variant import audit counts: price=%d inventory=%d, want 2 each", changedVariantPriceEvents, changedVariantInventoryEvents)
 	}
-	if _, err := pool.Exec(ctx, "UPDATE product_variants SET is_active=true WHERE id=$1", variantID); err != nil {
-		t.Fatalf("restore active variant fixture: %v", err)
-	}
+	product.Variants[0].IsActive = true
 	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
 		t.Fatalf("restore active platform variant offer: %v", err)
 	}
