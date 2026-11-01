@@ -1,5 +1,5 @@
 import { normalizeCatalog } from "./normalize";
-import type { CatalogProduct, CatalogSnapshotMode, CatalogSourceAdapter, CatalogSourceRecord } from "./types";
+import type { CatalogFeedImportResult, CatalogProduct, CatalogSnapshotMode, CatalogSourceAdapter, CatalogSourceRecord } from "./types";
 
 export type CatalogImportOptions = {
   signal?: AbortSignal;
@@ -17,10 +17,10 @@ export type CatalogImportOptions = {
  * Adapters must map supplier records to the canonical raw product shape.
  * They must never fabricate variant records when the upstream feed omits them.
  */
-export async function loadCatalogFromSource(
+export async function loadCatalogFromSourceWithReport(
   adapter: CatalogSourceAdapter,
   options: CatalogImportOptions = {}
-): Promise<CatalogProduct[]> {
+): Promise<CatalogFeedImportResult> {
   const source = adapter.source.trim();
   if (!source) throw new Error("Catalog source adapter requires a non-empty source name");
 
@@ -64,5 +64,28 @@ export async function loadCatalogFromSource(
     throw new Error(`${source} returned no valid products after normalization`);
   }
 
-  return products;
+  return {
+    products,
+    report: {
+      source,
+      snapshotMode: adapter.snapshotMode,
+      importedAt,
+      fetchedRecordCount: records.length,
+      mappedRecordCount: mapped.length,
+      unmappedRecordCount: unmappedCount,
+      unmappedFraction,
+      maxUnmappedFraction,
+      normalizedProductCount: products.length,
+      discardedAfterNormalizationCount: mapped.length - products.length
+    }
+  };
+}
+
+/** Backward-compatible convenience API for callers that only need products. */
+export async function loadCatalogFromSource(
+  adapter: CatalogSourceAdapter,
+  options: CatalogImportOptions = {}
+): Promise<CatalogProduct[]> {
+  const result = await loadCatalogFromSourceWithReport(adapter, options);
+  return result.products;
 }

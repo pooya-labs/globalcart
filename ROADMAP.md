@@ -514,3 +514,12 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - Review authentication, rate limits, pagination, full-vs-delta semantics, stable product/variant identity and retirement signals.
 - Implement only the approved adapter and source-specific failure/identity tests.
 - Keep credentials server-side; do not scrape or invent live inventory.
+
+
+## M08.8.1 — Source-agnostic feed import diagnostics
+- [x] Expose aggregate fetched, mapped, rejected, normalized and post-normalization-discard counts without retaining raw supplier payloads.
+- [x] Include source name, snapshot mode, import timestamp and the configured mapping rejection threshold.
+- [x] Preserve the existing products-only loader API for backward compatibility.
+- [x] Emit the aggregate report during scheduled catalog snapshot generation.
+- [x] Add regression coverage for mapper rejection, malformed normalized rows and duplicate product IDs.
+- [x] Verify Catalog CI and Backend CI on the same code head.

@@ -93,3 +93,11 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - Network failures and request timeouts, plus HTTP 408, 429 and 5xx statuses, are retried up to three total attempts with bounded backoff.
 - Permanent 4xx statuses other than 408/429, malformed JSON/schema and empty collections fail immediately; they are not retried as transient network faults.
 - **Verification:** Catalog CI run `41358956297` and Backend CI run `41358956380` passed on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`.
+
+
+## Aggregate feed import diagnostics (M08.8.1)
+- The shared loader can return an aggregate report containing source name, snapshot mode, import timestamp, fetched/mapped/unmapped record counts, mapping rejection fraction and threshold, normalized product count and the count not retained after normalization.
+- The post-normalization discard count combines invalid canonical product rows and duplicate source identities; it intentionally does not mislabel duplicates as mapper failures.
+- The report contains counts and metadata only, never raw supplier payloads.
+- The scheduled snapshot sync logs this report after a successful atomic snapshot write, next to the existing catalog-quality report.
+- `loadCatalogFromSource` remains available as a backwards-compatible products-only API.

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { normalizeCatalog, normalizeProduct } from "../lib/catalog/normalize";
-import { loadCatalogFromSource } from "../lib/catalog/source-adapter";
+import { loadCatalogFromSource, loadCatalogFromSourceWithReport } from "../lib/catalog/source-adapter";
 import { dummyJsonCatalogAdapter } from "../lib/catalog/dummyjson";
 import type { CatalogSourceAdapter, CatalogSourceRecord } from "../lib/catalog/types";
 import { syntheticSupplierRecords } from "./fixtures/synthetic-supplier-records";
@@ -98,6 +98,40 @@ test("variant tuple identity cannot collide when source or source ID contains a 
     ["supplier:one", "id"],
     ["supplier", "one:id"]
   ]);
+});
+
+test("returns aggregate feed diagnostics without exposing source records", async () => {
+  const adapter: CatalogSourceAdapter = {
+    source: "Diagnostics Fixture",
+    snapshotMode: "full",
+    fetchRecords: async () => [
+      { id: 1, title: "First", thumbnail: "https://cdn.example/1.jpg" },
+      { id: 1, title: "Duplicate", thumbnail: "https://cdn.example/duplicate.jpg" },
+      { id: 2, title: "Missing image" },
+      null,
+      { id: 3, title: "Third", thumbnail: "https://cdn.example/3.jpg" }
+    ],
+    mapProduct: record => record && typeof record === "object" && !Array.isArray(record)
+      ? record as CatalogSourceRecord
+      : null
+  };
+  const result = await loadCatalogFromSourceWithReport(adapter, {
+    importedAt: "2026-11-02T00:00:00.000Z"
+  });
+  assert.deepEqual(result.products.map(product => product.sourceId), ["1", "3"]);
+  assert.deepEqual(result.report, {
+    source: "Diagnostics Fixture",
+    snapshotMode: "full",
+    importedAt: "2026-11-02T00:00:00.000Z",
+    fetchedRecordCount: 5,
+    mappedRecordCount: 4,
+    unmappedRecordCount: 1,
+    unmappedFraction: 0.2,
+    maxUnmappedFraction: 0.2,
+    normalizedProductCount: 2,
+    discardedAfterNormalizationCount: 2
+  });
+  assert.equal("records" in result.report, false);
 });
 
 test("supplier adapter maps its own payload into the canonical variant contract", async () => {

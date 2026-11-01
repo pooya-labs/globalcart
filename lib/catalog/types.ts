@@ -61,3 +61,24 @@ export type CatalogSourceAdapter = {
   fetchRecords(signal?: AbortSignal): Promise<unknown[]>;
   mapProduct(record: unknown): CatalogSourceRecord | null;
 };
+
+
+/** Aggregate counters for one ingestion attempt; contains no raw supplier payload. */
+export type CatalogFeedImportReport = {
+  source: string;
+  snapshotMode: CatalogSnapshotMode;
+  importedAt: string;
+  fetchedRecordCount: number;
+  mappedRecordCount: number;
+  unmappedRecordCount: number;
+  unmappedFraction: number;
+  maxUnmappedFraction: number;
+  normalizedProductCount: number;
+  discardedAfterNormalizationCount: number;
+};
+
+/** Normalized products plus a safe, source-agnostic import diagnostics summary. */
+export type CatalogFeedImportResult = {
+  products: CatalogProduct[];
+  report: CatalogFeedImportReport;
+};

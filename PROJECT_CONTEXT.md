@@ -411,3 +411,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added tests for permanent 404 no-retry and transient 503 recovery within the bounded attempt count.
 - Verification on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`: Catalog CI run `41358956297` and Backend CI run `41358956380` both succeeded.
 - M08.9 remains blocked until owner approval of a named supplier/API/feed and data/image/price reuse rights.
+
+
+### M08.8.1 source-agnostic feed import diagnostics — CI verification pending
+- Added `loadCatalogFromSourceWithReport`, returning normalized products plus safe aggregate counters: fetched, mapped, unmapped, normalized and discarded after normalization.
+- Report also carries source, snapshot mode, import timestamp and mapping threshold. It does not include raw supplier records or sensitive payload fields.
+- The existing `loadCatalogFromSource` remains backward-compatible and returns only products.
+- Scheduled catalog sync logs the feed report alongside the existing catalog-quality summary.
+- Tests verify mapping rejection counts and that malformed and duplicate records contribute to post-normalization discards.
