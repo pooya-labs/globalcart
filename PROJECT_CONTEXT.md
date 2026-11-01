@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.3 supplier adapter contract and fixture-backed variant ingestion (CI verification pending)  
+**Active stage:** M08.4 authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -311,3 +311,14 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added a synthetic-only supplier fixture and tests for mapping two variants, source provenance, SKU, attributes, inactive status, source-scoped identity and empty/unmappable feed rejection.
 - Added `.github/workflows/catalog-ci.yml` to run npm install, TypeScript validation, unit tests and a production build for relevant pushes and pull requests. Its result is the remaining M08.3 verification gate.
 - No real supplier API/feed, credentials, live supplier inventory, hosting, secrets, merge or deployment were added. PR #1 remains Draft/open/unmerged.
+
+
+## Latest continuation checkpoint — 2026-11-02: M08.3 CI verified
+- M08.2 source variant ingestion was verified by Backend CI run `41354535515` on head `11132964594083998362a8ef1e35e646524b7e6f`.
+- M08.3 supplier adapter contract is implemented and verified. Catalog CI push run `41355090849` and PR run `41355095558` both succeeded on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`; TypeScript validation, all catalog/domain unit tests and production build passed.
+- A first M08.3 run exposed only an overly narrow test-message regex (14/15 tests passed); the assertion was corrected and the fresh runs passed. No production code workaround or skipped test was used.
+- Shared types: `CatalogSourceAdapter` / `CatalogSourceRecord`; shared loader: `loadCatalogFromSource`; DummyJSON now goes through the shared boundary.
+- Variant de-duplication follows the database identity pair `(source, source_id)`. A synthetic-only supplier fixture validates mapping of two variants, provenance, SKU, attributes and inactive state. Empty and unmappable feeds are rejected.
+- The snapshot sync continues to preserve its last-known-good snapshot on failed ingestion. Product-only sources remain valid; absence of variants in a feed is not a command to delete existing database variants or offers.
+- M08.4 is blocked on the owner selecting and approving a named supplier/feed and its rights. No real supplier connection, API key, live inventory, hosting, secrets or deployment was introduced.
+- Branch head at this checkpoint: `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. PR #1 remains Draft/open/unmerged.
