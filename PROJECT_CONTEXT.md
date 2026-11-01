@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.8 authorized supplier onboarding (blocked pending owner-approved source/feed)  
+**Active stage:** M08.8 feed mapping quality guard (implementation in progress)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -385,3 +385,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Backend CI PR run `41356770801` passed on the same head: SQL generation, Go formatting/module checks, vet, PostgreSQL-backed race tests, API/importer builds, Docker image build and cleanup succeeded.
 - All source adapters must now declare `snapshotMode: "full" | "incremental"`. The scheduled snapshot writer requires `full` and rejects a mode mismatch before calling the source fetcher. The generic loader can normalize incremental records for a future merger, but there is no delta merger or persistence path.
 - M08.8 authorized supplier onboarding is the next gated item; no live supplier endpoint, credential, or external commercial inventory feed has been connected.
+
+
+### M08.8 feed mapping quality guard — implementation
+- loadCatalogFromSource now rejects a feed when more than 20% of raw source records fail the adapter mapper by default.
+- CatalogImportOptions.maxUnmappedFraction allows a source-specific override, validated as a finite value in [0, 1).
+- The guard runs after fetching/mapping but before normalization; empty collections, wholly unmappable feeds and zero-valid-product feeds remain rejected.
+- This protects against major schema drift or partial mapper failure without treating duplicate product identities as mapping failures.
+- Authorized supplier onboarding is now M08.9 and remains blocked pending owner approval of a named source and usage rights.
