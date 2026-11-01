@@ -15,6 +15,19 @@ import (
 var migrationFiles embed.FS
 
 func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
+	// Serialize startup migrations across API replicas and one-shot import jobs.
+	lockConn, err := pool.Acquire(ctx)
+	if err != nil {
+		return fmt.Errorf("acquire migration lock connection: %w", err)
+	}
+	defer lockConn.Release()
+	const migrationLockID int64 = 7142032601
+	if _, err := lockConn.Exec(ctx, "SELECT pg_advisory_lock($1)", migrationLockID); err != nil {
+		return fmt.Errorf("acquire migration advisory lock: %w", err)
+	}
+	defer func() {
+		_, _ = lockConn.Exec(context.Background(), "SELECT pg_advisory_unlock($1)", migrationLockID)
+	}()
 	if _, err := pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS schema_migrations (
 		version TEXT PRIMARY KEY,
 		applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
