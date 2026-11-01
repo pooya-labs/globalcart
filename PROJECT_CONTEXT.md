@@ -4,8 +4,8 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M01.5 marketplace redesign / M03 product experience  
-**Last updated:** 2026-11-01
+**Active stage:** M09.3 owner-scoped vendor child-order reads (CI verification pending)  
+**Last updated:** 2026-11-02
 
 ## Product definition
 GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, orders, inventory reservations, fulfillment, seller payouts or refunds occur.
@@ -239,5 +239,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M09.2 vendor split checkout is implemented: one parent order, one child per vendor, per-offer reservations, parent coupon redemption with exact child allocation, and lifecycle propagation for simulated payment/cancellation/expiry.
 - Latest implementation adds `GetVendorOrder`, an owner-capability-scoped read for a single vendor child order with immutable item snapshots. Unknown IDs and wrong-owner IDs return the same not-found error.
 - Added `vendor_orders_integration_test.go` for PostgreSQL-backed ownership and snapshot assertions.
-- **Immediate next action:** inspect and verify the backend CI triggered by commits `8f7164c` and `b940878`; fix any compile/test failures before advancing the roadmap.
+- Backend CI run `41352752412` failed at `go vet` because `vendor_orders.go` imported unused `time`; the exact failure is recorded in its job log.
+- Removed the unused import in commit `cb0f20816afdbf3f2dc23628e8a5bd4b7d1bce46`.
+- **Immediate next action:** obtain a fresh CI run for the corrected branch head. The earlier failed run does not verify the fix; do not mark M09.3 complete until a fresh run passes sqlc generation, vet, PostgreSQL-backed race tests, builds and Docker image build.
 - No public commerce or seller HTTP routes, browser session flow, real payments, hosted API/database, or production secrets are enabled.
