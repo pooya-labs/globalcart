@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.2 — End-to-end source variant ingestion (implementation and CI verification pending)  
+**Active stage:** M08.3 — Supplier adapter contract and fixture-backed variant ingestion (implementation in progress)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -396,7 +396,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Verify these handler tests and pre-auth CORS restrictions in Backend CI run `41353463006` (success).
 
 
-## M08.1 — Platform catalog importer synchronization (in progress)
+## M08.1 — Platform catalog importer synchronization (CI verified)
 - [x] Extend the existing catalog upsert transaction to create/update the `GlobalCart Direct` base-product offer.
 - [x] Synchronize every imported product variant into a matching platform vendor offer, including SKU, price, stock and active/paused state.
 - [x] Record initial price and opening inventory audit events; record subsequent price/stock changes with `system_sync` / `correction` audit reasons.
@@ -404,15 +404,29 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Make repeated imports idempotent without duplicate offer or audit rows.
 - [x] Add PostgreSQL integration coverage for base-product initial import, unchanged re-import and changed price/stock synchronization.
 - [x] Add PostgreSQL integration coverage for variant offer creation, idempotent re-import, price/stock changes and inactive-variant pausing.
-- [ ] Verify the importer integration slice in Backend CI, including Docker image build.
+- [x] Verify the importer integration slice in Backend CI, including Docker image build.
 
 - [x] Verify base-product and existing-variant offer synchronization in Backend CI run `41354208659` (all steps passed, including PostgreSQL tests and Docker image build).
 
 
-## M08.2 — End-to-end source variant ingestion (in progress)
+## M08.2 — End-to-end source variant ingestion (CI verified)
 - [x] Extend the TypeScript catalog contract and normalization layer to retain optional source variants, stable source identity, SKU, attributes, price, stock and active state.
 - [x] Extend the Go catalog model and PostgreSQL importer to upsert supplied variants transactionally before synchronizing platform offers.
 - [x] Enforce source identity ownership so an existing variant identity cannot silently move to another product; reject invalid prices, negative stock and missing identity.
 - [x] Add catalog normalization and PostgreSQL integration coverage using variants supplied in the imported product snapshot.
-- [ ] Verify the complete TypeScript and Go workflows, PostgreSQL integration tests and Docker image build in CI.
-- [ ] Add an authorized supplier adapter that actually supplies variant data; current DummyJSON sample feed does not expose variant records, so existing snapshots continue to import products without variants.
+- [x] Verify the complete Go workflow, PostgreSQL integration tests and Docker image build in Backend CI run `41354535515`.
+- [x] Keep variant ingestion optional for product-only sources; DummyJSON remains a sample feed without variants, and no live supplier inventory is claimed.
+
+
+## M08.3 — Supplier adapter contract and fixture-backed variant ingestion (in progress)
+- [x] Define a shared source adapter contract: each adapter fetches its own raw records and maps each record into the canonical catalog input shape.
+- [x] Add a reusable ingestion boundary that rejects empty, invalid and wholly unmappable feeds before snapshot replacement.
+- [x] Route the existing DummyJSON adapter and scheduled snapshot sync through the shared ingestion boundary while preserving retries and last-known-good behavior.
+- [x] Scope variant deduplication to the database identity pair `(source, source_id)`, allowing equal IDs from different suppliers without dropping valid rows.
+- [x] Add a clearly synthetic supplier fixture with base product and variant mapping, including attributes, SKU, stock and inactive state.
+- [x] Add tests for adapter mapping, provenance, source-scoped identity and empty/unmappable feeds.
+- [x] Add a dedicated Catalog CI workflow for TypeScript validation, unit tests and production build on pushes and pull requests.
+- [ ] Verify the complete Catalog CI workflow on the current branch head.
+- [ ] Add a real supplier-specific adapter only after an authorized API/feed and usage rights are selected; do not manufacture data or add credentials.
+
+**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
