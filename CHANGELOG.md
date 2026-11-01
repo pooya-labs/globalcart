@@ -323,3 +323,11 @@
 - Classified DummyJSON as a full-snapshot source and required full mode in the scheduled static snapshot writer.
 - Feed-mode mismatches are rejected before fetching records, preserving the last-known-good snapshot.
 - Added a test proving an incremental feed can be normalized for a future merger but cannot enter the full snapshot path. Catalog CI verification is pending.
+
+
+### M08.7 explicit feed completeness semantics — CI verified (2026-11-02)
+- Added required `snapshotMode` metadata (`full` or `incremental`) to every catalog source adapter.
+- Classified DummyJSON as a full snapshot and made the scheduled snapshot writer explicitly require that mode.
+- Mode mismatches are rejected before fetching, protecting the last-known-good catalog from accidentally replacing it with a delta batch.
+- Generic ingestion may normalize incremental records for a future dedicated merger, but this change does not merge or persist delta records.
+- Verification: Catalog CI PR run [41356770768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770768) and Backend CI PR run [41356770801](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770801) both passed on the same branch head, including production and Docker builds.
