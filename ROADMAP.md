@@ -255,4 +255,7 @@ Category API CI verification: run 41302783939 passed sqlc generation, formatting
 - [x] Add generated `CountProducts` query using the same category and full-text predicates as the product list.
 - [x] Return `total` independently from the current page's `count`.
 - [x] Add PostgreSQL integration coverage for normalized category matching and total count.
-- [ ] Verify generated count query and API pagination changes in CI.
+- [x] Verify generated count query and API pagination changes in CI.
+
+
+Catalog pagination CI verification: pull-request run 41303108214 passed sqlc generation, formatting, vet, PostgreSQL-backed race tests, API/importer builds and Docker image build. Push run 41303144768 also successfully generated and persisted the updated typed query files; final image build is completing.
