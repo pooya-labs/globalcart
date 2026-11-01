@@ -202,3 +202,9 @@
 - Inspected Backend CI run 41352752412 and identified the exact `go vet` failure: an unused `time` import in `backend/internal/commerce/vendor_orders.go`.
 - Removed the unused import in commit `cb0f20816afdbf3f2dc23628e8a5bd4b7d1bce46`.
 - The original failed run predates the correction. A fresh CI run is still required; M09.3 remains unverified until it passes.
+
+
+## 0.2.3-dev — 2026-11-02
+- M09.3 owner-scoped vendor child-order retrieval is CI-verified in Backend CI run `41352898725` (head `1234d02`).
+- The vendor child-order read requires the guest capability digest and masks cross-owner IDs as not found.
+- Authentication and seller RBAC remain gated by same-site HTTPS, approved email delivery and secret-management prerequisites; no public seller endpoints were added.
