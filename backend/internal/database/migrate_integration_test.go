@@ -215,6 +215,64 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 			t.Fatalf("add competing cart item %d: %v", i, err)
 		}
 	}
+	// Exercise the internal guest cart lifecycle using only a SHA-256 capability digest.
+	cartOwner := make([]byte, 32)
+	cartOwner[0] = 77
+	cartService := commerce.New(pool)
+	createdCart, err := cartService.CreateCart(ctx, cartOwner, "USD", time.Hour)
+	if err != nil {
+		t.Fatalf("create guest cart through service: %v", err)
+	}
+	if createdCart.ID == "" || createdCart.Status != "open" || createdCart.Currency != "USD" {
+		t.Fatalf("unexpected created cart: %+v", createdCart)
+	}
+	cartAfterAdd, err := cartService.AddItem(ctx, cartOwner, product.ID, nil, 1)
+	if err != nil {
+		t.Fatalf("add base product to guest cart: %v", err)
+	}
+	if len(cartAfterAdd.Items) != 1 || cartAfterAdd.Items[0].Quantity != 1 || cartAfterAdd.Items[0].UnitPrice != "12.34" {
+		t.Fatalf("unexpected cart after first add: %+v", cartAfterAdd)
+	}
+	cartAfterIncrement, err := cartService.AddItem(ctx, cartOwner, product.ID, nil, 1)
+	if err != nil {
+		t.Fatalf("increment guest cart line: %v", err)
+	}
+	if len(cartAfterIncrement.Items) != 1 || cartAfterIncrement.Items[0].Quantity != 2 {
+		t.Fatalf("cart line was not incremented: %+v", cartAfterIncrement)
+	}
+	cartAfterSet, err := cartService.SetItemQuantity(ctx, cartOwner, product.ID, nil, 3)
+	if err != nil {
+		t.Fatalf("set guest cart quantity: %v", err)
+	}
+	if len(cartAfterSet.Items) != 1 || cartAfterSet.Items[0].Quantity != 3 {
+		t.Fatalf("cart quantity was not set: %+v", cartAfterSet)
+	}
+	if _, err := cartService.SetItemQuantity(ctx, cartOwner, product.ID, nil, 4); !errors.Is(err, commerce.ErrInsufficientStock) {
+		t.Fatalf("setting quantity beyond stock error = %v, want insufficient stock", err)
+	}
+	cartAfterRemove, err := cartService.RemoveItem(ctx, cartOwner, product.ID, nil)
+	if err != nil {
+		t.Fatalf("remove guest cart line: %v", err)
+	}
+	if len(cartAfterRemove.Items) != 0 {
+		t.Fatalf("cart should be empty after removal: %+v", cartAfterRemove.Items)
+	}
+	if _, err := cartService.AddItem(ctx, cartOwner, product.ID, &variantID, 1); err != nil {
+		t.Fatalf("add active variant to guest cart: %v", err)
+	}
+	var expiredCartOwner [32]byte
+	expiredCartOwner[0] = 78
+	if _, err := pool.Exec(ctx, `INSERT INTO carts(owner_token_hash,currency,expires_at)
+		VALUES($1,'USD',now()-interval '1 second')`, expiredCartOwner[:]); err != nil {
+		t.Fatalf("create expired guest cart fixture: %v", err)
+	}
+	if _, err := cartService.AddItem(ctx, expiredCartOwner[:], product.ID, nil, 1); !errors.Is(err, commerce.ErrCartExpired) {
+		t.Fatalf("adding to expired cart error = %v, want cart expired", err)
+	}
+	if _, err := cartService.CreateCart(ctx, make([]byte, 32), "EUR", time.Hour); !errors.Is(err, commerce.ErrUnsupportedCurrency) {
+		t.Fatalf("unsupported currency error = %v, want unsupported currency", err)
+	}
+
 	service := commerce.New(pool)
 	var checkoutWG sync.WaitGroup
 	for i := range attempts {
