@@ -20,6 +20,7 @@ var (
 	ErrInsufficientStock      = errors.New("insufficient demo stock")
 	ErrInvalidLifetime        = errors.New("reservation lifetime must be positive")
 	ErrVendorCheckoutNotReady = errors.New("vendor cart checkout is not available yet")
+	ErrMixedCartNotSupported = errors.New("mixed legacy and vendor cart lines are not supported")
 )
 
 type Order struct {
