@@ -551,15 +551,16 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Safety note:** a missing snapshot may use the documented first-import behavior; an existing but invalid snapshot now fails closed and requires repair rather than being silently discarded.
 
 
-## M08.8.4 — Snapshot identity and database-bound validation (implementation)
+## M08.8.4 — Snapshot identity and database-bound validation — CI verified
 - [x] Validate product IDs and source identities are unique across the complete snapshot.
 - [x] Require all product records to match the snapshot's declared source.
 - [x] Reject duplicate variant `(source, source_id)` identities across products before the PostgreSQL importer can encounter a batch conflict.
+- [x] Reject duplicate non-empty variant SKUs across the snapshot, matching PostgreSQL's partial unique SKU index.
 - [x] Enforce database-compatible product/variant price precision and bounds, percentage/rating ranges, safe product IDs and PostgreSQL integer stock bounds.
-- [x] Add regression tests for cross-product identity collisions and invalid numeric values.
-- [ ] Verify Catalog CI, production build and Backend CI on the same final head.
+- [x] Assert the complete contract before publishing a new snapshot and when reading the previous snapshot.
+- [x] Add regression tests for cross-product identity collisions, SKU conflicts, source mismatch and invalid numeric values.
+- [x] Verify Catalog CI and Backend CI on the same code head.
 
-**Safety note:** validation mirrors the current PostgreSQL schema and importer identity keys; it rejects a snapshot rather than mutating, deduplicating or fabricating supplier data.
+**Verification on implementation commit `e9d864f6bdbf0013137929e02b6258007200db29`:** Catalog CI PR run [41362606331](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606331), Catalog CI push run [41362602994](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362602994), and Backend CI PR run [41362606267](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606267) all succeeded.
 
-
-**M08.8.4 implementation refinement:** the same contract is asserted immediately before the snapshot is published, not only when the previous snapshot is read. Non-empty variant SKUs are also unique across the snapshot, matching the PostgreSQL partial unique SKU index. CI verification is pending for this refinement.
+**Safety note:** validation mirrors the PostgreSQL identity and numeric constraints plus the catalog's 0–5 rating domain; it rejects a snapshot rather than mutating, deduplicating or fabricating supplier data.

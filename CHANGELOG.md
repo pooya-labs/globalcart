@@ -365,10 +365,10 @@
 - On implementation commit `ff5cf42cc094bc4e35d317ad52f970762280ba2f`, Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) passed.
 
 
-### M08.8.4 snapshot identity and database-bound validation — implementation (2026-11-02)
+### M08.8.4 snapshot identity and database-bound validation — CI verified (2026-11-02)
 - Snapshot validation now checks global product identity and variant source-identity uniqueness, and requires each product to match the declared snapshot source.
 - Added PostgreSQL-compatible validation for ID safety, price precision/range, discount/rating bounds and integer stock limits.
 - Added regression tests for duplicate identities, wrong source attribution and invalid numeric/stock values.
-- CI verification is pending.
+- Catalog CI PR run [41362606331](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606331), Catalog CI push run [41362602994](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362602994), and Backend CI PR run [41362606267](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606267) passed on implementation commit `e9d864f6bdbf0013137929e02b6258007200db29`.
 
-- Refinement: validate the newly built snapshot before writing it and reject duplicate non-empty variant SKUs, matching the PostgreSQL partial unique index. CI verification is pending.
+- Refinement: validate the newly built snapshot before writing it and reject duplicate non-empty variant SKUs, matching the PostgreSQL partial unique index.
