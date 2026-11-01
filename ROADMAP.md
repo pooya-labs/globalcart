@@ -423,13 +423,14 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add a reusable ingestion boundary that rejects empty, invalid and wholly unmappable feeds before snapshot replacement.
 - [x] Route the existing DummyJSON adapter and scheduled snapshot sync through the shared ingestion boundary while preserving retries and last-known-good behavior.
 - [x] Scope variant deduplication to the database identity pair `(source, source_id)`, allowing equal IDs from different suppliers without dropping valid rows.
+- [x] Encode the source/ID tuple unambiguously and add a regression test for delimiter-containing values; verified by Catalog CI run `41355272122`.
 - [x] Add a clearly synthetic supplier fixture with base product and variant mapping, including attributes, SKU, stock and inactive state.
 - [x] Add tests for adapter mapping, provenance, source-scoped identity and empty/unmappable feeds.
 - [x] Add a dedicated Catalog CI workflow for TypeScript validation, unit tests and production build on pushes and pull requests.
 - [x] Verify the complete Catalog CI workflow on the feature branch and pull-request head.
 - [x] Keep live supplier onboarding gated; do not manufacture data or add credentials without owner-approved API/feed access.
 
-**M08.3 verification:** Catalog CI push run `41355090849` and PR run `41355095558` both passed on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`, including TypeScript validation, all unit tests and production build.\n\n**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
+**M08.3 verification:** Catalog CI push run `41355090849` and PR run `41355095558` passed on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. Follow-up collision-hardening run `41355272122` also passed on latest code head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`, including TypeScript validation, all unit tests and production build.\n\n**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
 
 
 ## M08.4 — Authorized supplier onboarding (blocked pending owner decision)
