@@ -50,10 +50,10 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	defer func() { _ = tx.Rollback(context.Background()) }()
 
 	var cartID, currency, cartStatus string
-	var expiresAt time.Time
-	err = tx.QueryRow(ctx, `SELECT id::text, currency, status, expires_at
+	var cartExpired bool
+	err = tx.QueryRow(ctx, `SELECT id::text, currency, status, expires_at <= now()
 		FROM carts WHERE owner_token_hash=$1 FOR UPDATE`, ownerTokenHash).
-		Scan(&cartID, &currency, &cartStatus, &expiresAt)
+		Scan(&cartID, &currency, &cartStatus, &cartExpired)
 	if errors.Is(err, pgx.ErrNoRows) { return Order{}, ErrCartNotFound }
 	if err != nil { return Order{}, fmt.Errorf("lock cart: %w", err) }
 
@@ -70,7 +70,7 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	}
 	if !errors.Is(err, pgx.ErrNoRows) { return Order{}, fmt.Errorf("lookup idempotent order: %w", err) }
 	if cartStatus != "open" { return Order{}, ErrCartClosed }
-	if !expiresAt.After(time.Now()) { return Order{}, ErrCartExpired }
+	if cartExpired { return Order{}, ErrCartExpired }
 
 	rows, err := tx.Query(ctx, `SELECT product_id, variant_id, quantity
 		FROM cart_items WHERE cart_id=$1 ORDER BY product_id, variant_id NULLS FIRST, id FOR UPDATE`, cartID)
