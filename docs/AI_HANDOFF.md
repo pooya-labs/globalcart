@@ -8,7 +8,8 @@ Mandatory reading for every assistant, coding agent or human contributor taking 
 3. CHANGELOG.md — implementation history.
 4. docs/ARCHITECTURE.md — current and target architecture.
 5. docs/DECISIONS.md — accepted decisions.
-6. package.json and relevant source files.
+6. docs/SECURITY_AUTH_DESIGN.md before identity/session/RBAC implementation.
+7. package.json and relevant source files.
 
 ## Non-negotiable requirements
 - Work only in pooya16pg-spec/globalcart; keep it independent from other portfolio projects.
