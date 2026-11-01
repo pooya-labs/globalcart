@@ -208,3 +208,5 @@
 - M09.3 owner-scoped vendor child-order retrieval is CI-verified in Backend CI run `41352898725` (head `1234d02`).
 - The vendor child-order read requires the guest capability digest and masks cross-owner IDs as not found.
 - Authentication and seller RBAC remain gated by same-site HTTPS, approved email delivery and secret-management prerequisites; no public seller endpoints were added.
+
+- Added PostgreSQL integration coverage for cross-vendor offer reads, price updates and inventory adjustments; verifies a foreign vendor scope cannot mutate the owning vendor's stock. CI verification pending.
