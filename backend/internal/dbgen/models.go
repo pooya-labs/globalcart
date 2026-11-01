@@ -8,11 +8,79 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Cart struct {
+	ID             pgtype.UUID        `json:"id"`
+	OwnerTokenHash []byte             `json:"owner_token_hash"`
+	Status         string             `json:"status"`
+	Currency       string             `json:"currency"`
+	ExpiresAt      pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
+type CartItem struct {
+	ID                   int64              `json:"id"`
+	CartID               pgtype.UUID        `json:"cart_id"`
+	ProductID            int64              `json:"product_id"`
+	VariantID            *int64             `json:"variant_id"`
+	Quantity             int32              `json:"quantity"`
+	UnitPriceSnapshot    pgtype.Numeric     `json:"unit_price_snapshot"`
+	Currency             string             `json:"currency"`
+	ProductTitleSnapshot string             `json:"product_title_snapshot"`
+	VariantTitleSnapshot string             `json:"variant_title_snapshot"`
+	CreatedAt            pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt            pgtype.Timestamptz `json:"updated_at"`
+}
+
 type Category struct {
 	ID        int64              `json:"id"`
 	Name      string             `json:"name"`
 	ParentID  *int64             `json:"parent_id"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type DemoOrder struct {
+	ID                 pgtype.UUID        `json:"id"`
+	CartID             pgtype.UUID        `json:"cart_id"`
+	IdempotencyKeyHash []byte             `json:"idempotency_key_hash"`
+	Status             string             `json:"status"`
+	Currency           string             `json:"currency"`
+	Subtotal           pgtype.Numeric     `json:"subtotal"`
+	Total              pgtype.Numeric     `json:"total"`
+	CreatedAt          pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
+}
+
+type DemoOrderEvent struct {
+	ID        int64              `json:"id"`
+	OrderID   pgtype.UUID        `json:"order_id"`
+	EventType string             `json:"event_type"`
+	Payload   []byte             `json:"payload"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type DemoOrderItem struct {
+	ID                   int64          `json:"id"`
+	OrderID              pgtype.UUID    `json:"order_id"`
+	ProductID            int64          `json:"product_id"`
+	VariantID            *int64         `json:"variant_id"`
+	Quantity             int32          `json:"quantity"`
+	UnitPriceSnapshot    pgtype.Numeric `json:"unit_price_snapshot"`
+	Currency             string         `json:"currency"`
+	ProductTitleSnapshot string         `json:"product_title_snapshot"`
+	VariantTitleSnapshot string         `json:"variant_title_snapshot"`
+}
+
+type InventoryReservation struct {
+	ID        pgtype.UUID        `json:"id"`
+	OrderID   pgtype.UUID        `json:"order_id"`
+	ProductID int64              `json:"product_id"`
+	VariantID *int64             `json:"variant_id"`
+	Quantity  int32              `json:"quantity"`
+	Status    string             `json:"status"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Product struct {
