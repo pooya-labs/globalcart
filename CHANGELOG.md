@@ -182,3 +182,10 @@
 - Added additive vendor-specific cart line and parent/child vendor-order schema.
 - Added internal vendor-aware cart operations and legacy-checkout safety guard.
 - Added integration coverage and architecture notes; split checkout remains pending.
+
+
+### M09.2 — Vendor split checkout
+- Implemented atomic parent/child order creation and per-vendor reservations.
+- Added parent-level coupon redemption with exact child allocation.
+- Propagated simulated payment, cancellation and expiry to child orders.
+- Added PostgreSQL integration tests for checkout and inventory contention.
