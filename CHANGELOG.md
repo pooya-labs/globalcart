@@ -43,3 +43,7 @@
 - Re-scoped the storefront toward a full marketplace experience inspired by common Amazon-style discovery and shopping patterns, with an independent GlobalCart identity.
 - Paused translation and removed the translation job and credentials from the GitHub Pages deployment workflow.
 - Added a dedicated quick-category navigation rail and began the visual-system migration toward a cleaner, denser marketplace layout.
+
+### Added
+- Responsive catalog-driven category mega-menu with live category counts, direct filtering, backdrop dismissal and mobile layout.
+- Quick category rail now reflects categories present in the current catalog rather than only the initial hand-picked list.
