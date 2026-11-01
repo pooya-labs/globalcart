@@ -61,7 +61,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (GetProductRow, erro
 }
 
 const listProductVariants = `-- name: ListProductVariants :many
-SELECT id, product_id, sku, title, price, stock, attributes, source, source_id,
+SELECT id, product_id, sku, title, price::float8 AS price, stock, attributes, source, source_id,
        is_active, created_at, updated_at
 FROM product_variants
 WHERE product_id = $1::bigint
@@ -69,15 +69,30 @@ WHERE product_id = $1::bigint
 ORDER BY id
 `
 
-func (q *Queries) ListProductVariants(ctx context.Context, productID int64) ([]ProductVariant, error) {
+type ListProductVariantsRow struct {
+	ID         int64              `json:"id"`
+	ProductID  int64              `json:"product_id"`
+	Sku        *string            `json:"sku"`
+	Title      string             `json:"title"`
+	Price      float64            `json:"price"`
+	Stock      int32              `json:"stock"`
+	Attributes []byte             `json:"attributes"`
+	Source     string             `json:"source"`
+	SourceID   string             `json:"source_id"`
+	IsActive   bool               `json:"is_active"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) ListProductVariants(ctx context.Context, productID int64) ([]ListProductVariantsRow, error) {
 	rows, err := q.db.Query(ctx, listProductVariants, productID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ProductVariant{}
+	items := []ListProductVariantsRow{}
 	for rows.Next() {
-		var i ProductVariant
+		var i ListProductVariantsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ProductID,
