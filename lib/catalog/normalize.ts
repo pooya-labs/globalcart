@@ -1,4 +1,4 @@
-import type { CatalogProduct } from "./types";
+import type { CatalogProduct, CatalogVariant } from "./types";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -9,6 +9,35 @@ const numberOr = (value: unknown, fallback = 0): number => {
 
 const stringOr = (value: unknown, fallback = ""): string =>
   typeof value === "string" ? value.trim() : fallback;
+
+function normalizeVariants(raw: unknown, source: string): CatalogVariant[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  const variants: CatalogVariant[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const record = item as UnknownRecord;
+    const sku = stringOr(record.sku);
+    const explicitID = stringOr(record.sourceId) || stringOr(record.id);
+    const sourceId = explicitID || sku;
+    if (!sourceId || seen.has(sourceId)) continue;
+    const attributes = record.attributes && typeof record.attributes === "object" && !Array.isArray(record.attributes)
+      ? record.attributes as Record<string, unknown>
+      : {};
+    variants.push({
+      sku,
+      title: stringOr(record.title),
+      price: Math.max(0, numberOr(record.price)),
+      stock: Math.max(0, Math.floor(numberOr(record.stock))),
+      attributes,
+      source: stringOr(record.source, source),
+      sourceId,
+      isActive: typeof record.isActive === "boolean" ? record.isActive : true
+    });
+    seen.add(sourceId);
+  }
+  return variants;
+}
 
 export function normalizeProduct(raw: UnknownRecord, source: string, importedAt: string): CatalogProduct | null {
   const id = numberOr(raw.id, -1);
@@ -28,14 +57,15 @@ export function normalizeProduct(raw: UnknownRecord, source: string, importedAt:
     price: Math.max(0, numberOr(raw.price)),
     discountPercentage: Math.min(100, Math.max(0, numberOr(raw.discountPercentage))),
     rating: Math.max(0, numberOr(raw.rating)),
-    stock: Math.max(0, numberOr(raw.stock)),
+    stock: Math.max(0, Math.floor(numberOr(raw.stock))),
     brand: stringOr(raw.brand, "GLOBAL"),
     thumbnail,
     images,
     source,
     sourceId: String(id),
     sourceUrl: stringOr(raw.url),
-    importedAt
+    importedAt,
+    variants: normalizeVariants(raw.variants, source)
   };
 }
 
