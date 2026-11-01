@@ -5,7 +5,7 @@ This is the first runnable backend slice. It is deliberately separate from the N
 ## Included
 - Go 1.23 REST API using the standard HTTP mux.
 - PostgreSQL 17 as the system of record.
-- Embedded, versioned SQL migrations applied at API startup.
+- Embedded, versioned SQL migrations applied at API startup.\n- Catalog taxonomy with normalized category records and a backward-compatible product category link.\n- Product variants with constrained price/stock, optional unique SKU, source identity and JSONB attributes.
 - Read-only catalog endpoints with bounded pagination and category/text filters.
 - Liveness and database readiness probes.
 - Explicit CORS origin allow-list.
