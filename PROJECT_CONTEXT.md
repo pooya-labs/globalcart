@@ -32,8 +32,7 @@ GlobalCart is an independent, high-fidelity marketplace portfolio simulation. Th
 - lib/catalog/normalize.ts — validation, normalization and deduplication.
 - lib/catalog/dummyjson.ts — live demo source adapter.
 - lib/pricing.ts — integer-cent/fixed-point demo pricing with BigInt.
-- lib/translation/* — provider contract and Google Apps Script Language Service adapter with response validation.
-- scripts/translate-catalog.ts — optional Persian localization via Google Apps Script, with source fingerprints, cache, sequential throttling and per-product failure records.\n- google-apps-script/Code.gs — authenticated Google Translate bridge; requires one-time owner deployment and script property setup.
+- Translation integration is paused and excluded from the storefront and CI pipeline; original source text is retained.
 - tests/*.test.ts — catalog, pricing and translation tests.
 - .github/workflows/deploy.yml — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - ROADMAP.md — single authoritative roadmap.
@@ -70,8 +69,9 @@ CI verification passed for the previous release in Actions run 41295683515. The 
 GitHub Pages is static and cannot host a persistent Go API, Python worker or PostgreSQL database. M04 is gated on owner enabling Go/Python runtimes and approving separate API/database hosting. Do not claim static frontend has backend persistence.
 
 ## Immediate next actions
-1. Deploy google-apps-script/Code.gs as a web app, set GLOBALCART_TOKEN in Script Properties, then add GOOGLE_TRANSLATE_ENDPOINT and GOOGLE_TRANSLATE_TOKEN as GitHub Actions Secrets.
-2. Perform visual/mobile/accessibility QA on the published site.
-3. Add an approved translation provider; keep credentials server-side.
-4. Continue M03 traceable pricing and product details.
-5. Request Go/Python and hosted PostgreSQL access when M04 is reached.
+1. Redesign the storefront into a category-led, Amazon-style marketplace experience with an original visual identity.
+2. Add full product detail, image gallery, comparison and transparent price breakdown.
+3. Perform visual/mobile/accessibility QA on the published site.
+4. Continue M04 only after the owner approves separate Go/Python runtime and PostgreSQL hosting.
+
+Translation is explicitly out of scope and must not block any milestone unless the owner reactivates it.
