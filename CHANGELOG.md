@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.3 — 2026-11-01
+
+### Added
+- Server-side Gemini 2.5 Flash product translation adapter with strict JSON validation.
+- Optional scheduled Persian catalog localization job, safely skipped when GEMINI_API_KEY is absent.
+- Per-product translation provenance, source-content fingerprint caching, sequential throttling, bounded retries and error states.
+- Storefront uses verified Persian product fields when available while preserving original English fields.
+
+### Verification
+- CI run 41295491772 passed catalog sync, optional translation step (skipped because no key is configured), TypeScript validation, unit tests and production build. Pages deployment is pending at this documentation update.
+
 ## 0.1.2 — 2026-11-01
 
 ### Added

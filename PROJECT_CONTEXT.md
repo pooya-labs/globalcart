@@ -3,7 +3,7 @@
 **Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main  
-**Current release:** 0.1.2  
+**Current release:** 0.1.3  
 **Active stage:** M02 — Automated catalog pipeline  
 **Last updated:** 2026-11-01
 
@@ -32,7 +32,8 @@ GlobalCart is an independent, high-fidelity marketplace portfolio simulation. Th
 - lib/catalog/normalize.ts — validation, normalization and deduplication.
 - lib/catalog/dummyjson.ts — live demo source adapter.
 - lib/pricing.ts — integer-cent/fixed-point demo pricing with BigInt.
-- lib/translation/* — provider contract and honest unavailable/error states; no real provider configured yet.
+- lib/translation/* — provider contract, Gemini API adapter, strict JSON response validation and honest unavailable/error states.
+- scripts/translate-catalog.ts — optional server-side Persian localization with source fingerprints, cache, sequential throttling and per-product failure records.
 - tests/*.test.ts — catalog, pricing and translation tests.
 - .github/workflows/deploy.yml — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - ROADMAP.md — single authoritative roadmap.
@@ -69,7 +70,7 @@ CI verification passed in Actions run 41295039930: the sync imported 100 product
 GitHub Pages is static and cannot host a persistent Go API, Python worker or PostgreSQL database. M04 is gated on owner enabling Go/Python runtimes and approving separate API/database hosting. Do not claim static frontend has backend persistence.
 
 ## Immediate next actions
-1. Continue M02 with an approved server-side translation provider; translation is not implemented yet.
+1. Add GEMINI_API_KEY as a GitHub Actions secret and run the workflow to verify live Persian catalog translations.
 2. Perform visual/mobile/accessibility QA on the published site.
 3. Add an approved translation provider; keep credentials server-side.
 4. Continue M03 traceable pricing and product details.

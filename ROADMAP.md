@@ -2,7 +2,7 @@
 
 > The single source of truth. A stage is complete only after implementation and verification.
 
-**Current release:** 0.1.2  
+**Current release:** 0.1.3  
 **Active stage:** M02 — Automated catalog pipeline  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
@@ -73,9 +73,10 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Retry-capable static snapshot generator with last-known-good protection.
 - [x] Storefront initializes from generated snapshot and keeps it if live refresh fails.
 - [x] Verify snapshot generation (100 products), TypeScript, unit tests, production build and Pages deployment in Actions run 41295039930.
-- [ ] Add an approved translation provider; no credential is configured yet.
+- [x] Add a server-side Gemini translation adapter and scheduled catalog translation job (credential-gated).
+- [ ] Configure GEMINI_API_KEY as a GitHub Actions secret and verify a live Persian translation run.
 - [ ] Translate title, description, category and attributes while preserving originals/provenance.
-- [ ] Translation cache, throttling, retries and quota/error reporting.
+- [x] Translation cache via source-content fingerprints, sequential throttling, bounded retries and per-product error reporting.
 - [ ] Catalog freshness and source diagnostics.
 - [ ] Add other suppliers only through authorized APIs/feeds.
 **Acceptance:** products import automatically, the storefront survives source outages, and untranslated text is never mislabeled.
@@ -148,4 +149,4 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 |---|---|---|---|
 | 0.1.0 | M00 + M01 | Implemented | Initial independent storefront |
 | 0.1.1 | Pricing foundation | Implemented | Integer-cent and fixed-point demo pricing |
-| 0.1.2 | M02 catalog pipeline | In progress | Scheduled snapshot pipeline; CI verification pending |
+| 0.1.3 | M02 catalog pipeline | In progress | Snapshot pipeline and optional Gemini translation job; live translation awaits secret |
