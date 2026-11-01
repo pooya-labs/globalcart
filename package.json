@@ -10,8 +10,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "catalog:sync": "tsx scripts/sync-catalog.ts",
-    "catalog:translate": "tsx scripts/translate-catalog.ts"
+    "catalog:sync": "tsx scripts/sync-catalog.ts"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
