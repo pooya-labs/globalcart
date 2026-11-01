@@ -11,6 +11,31 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countProducts = `-- name: CountProducts :one
+SELECT count(*)::bigint
+FROM products
+WHERE ($1::text = '' OR EXISTS (
+    SELECT 1 FROM categories AS c
+    WHERE c.id = products.category_id
+      AND lower(btrim(c.name)) = lower(btrim($1::text))
+  ))
+  AND ($2::text = '' OR
+       to_tsvector('simple', title || ' ' || description) @@
+       plainto_tsquery('simple', $2::text))
+`
+
+type CountProductsParams struct {
+	Category string `json:"category"`
+	Query    string `json:"query"`
+}
+
+func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countProducts, arg.Category, arg.Query)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const getProduct = `-- name: GetProduct :one
 SELECT id, title, description, category, price::float8 AS price,
        discount_percentage::float8 AS discount_percentage, rating::float8 AS rating,
@@ -163,7 +188,11 @@ SELECT id, title, description, category, price::float8 AS price,
        discount_percentage::float8 AS discount_percentage, rating::float8 AS rating,
        stock, brand, thumbnail, images, source, source_id, source_url, imported_at
 FROM products
-WHERE ($1::text = '' OR category = $1::text)
+WHERE ($1::text = '' OR EXISTS (
+    SELECT 1 FROM categories AS c
+    WHERE c.id = products.category_id
+      AND lower(btrim(c.name)) = lower(btrim($1::text))
+  ))
   AND ($2::text = '' OR
        to_tsvector('simple', title || ' ' || description) @@
        plainto_tsquery('simple', $2::text))
