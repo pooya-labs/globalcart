@@ -66,3 +66,6 @@ go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0 generate
 ```
 
 CI regenerates and formats the typed package before tests/builds. The first pass defines product listing/detail and active variant reads; handlers will be switched to this layer in the next slice.
+
+
+The public product list and detail read handlers use the generated sqlc query package. The importer intentionally retains explicit transactional upsert statements because it performs a multi-step product/category transaction rather than a simple generated read query.
