@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, Heart, Home, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
+import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
 
 type Product = {
   id:number; title:string; description:string; category:string; price:number;
