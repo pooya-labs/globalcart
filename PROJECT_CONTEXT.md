@@ -137,3 +137,9 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added `GET /api/v1/categories` backed by generated sqlc query.
 - Response includes category ID/name, optional parent ID and product count.
 - PostgreSQL integration test now executes generated category listing query after migration/backfill. CI run pending.
+
+
+### M04 category API and auth design — 2026-11-01
+- `GET /api/v1/categories` is implemented with generated sqlc query and product counts.
+- PostgreSQL integration coverage exercises the generated category query after migrations/backfill. CI run 41302783939 passed sqlc generation, formatting, vet, unit/integration tests, API/importer builds and Docker image build.
+- Authentication/session/RBAC architecture is documented in `docs/SECURITY_AUTH_DESIGN.md` and ADR-010. No authentication code or user tables are implemented; implementation waits for owner approval of same-site HTTPS hosting, email delivery and secret management.
