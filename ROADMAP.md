@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.7 — Explicit feed completeness semantics (implementation in progress)  
+**Active stage:** M08.8 — Authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -481,13 +481,16 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **M08.7 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
 
 
-## M08.7 — Explicit feed completeness semantics (in progress)
+## M08.7 — Explicit feed completeness semantics (CI verified)
 - [ ] Require every source adapter to declare whether it provides a complete snapshot or incremental/delta records.
 - [x] Keep the static catalog snapshot writer restricted to complete snapshots; reject incremental feeds before fetching or replacing the last-known-good file.
 - [x] Add contract tests proving incremental records can be normalized for a merger but cannot be written as a full snapshot.
-- [ ] Verify Catalog CI, TypeScript validation, unit tests and production build on the final branch head.
+- [x] Verify Catalog CI PR run `41356770768` and Backend CI PR run `41356770801` on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`; both passed all jobs.
 
 **M08.7 safety boundary:** no automatic merging or deletion is implied by an incremental feed declaration. A source-specific delta merger must be designed and tested before incremental records can change the canonical snapshot.
 
 
 **M08.8 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
+
+
+**M08.7 verification:** Catalog CI PR run `41356770768` and Backend CI PR run `41356770801` both passed on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`. TypeScript validation, unit tests, production build, sqlc generation, Go vet, PostgreSQL race tests, API/importer builds and Docker image build all succeeded.
