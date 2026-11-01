@@ -50,14 +50,17 @@ func (s *Service) CompleteDemoPayment(ctx context.Context, ownerTokenHash []byte
 		return Order{}, ErrOrderNotCancellable
 	}
 
-	var hasLiveReservation bool
-	if err := tx.QueryRow(ctx, `SELECT EXISTS (
-		SELECT 1 FROM inventory_reservations
-		WHERE order_id=$1 AND status='active' AND expires_at > now()
-	)`, orderID).Scan(&hasLiveReservation); err != nil {
-		return Order{}, fmt.Errorf("check simulated payment reservation: %w", err)
+	var itemCount, liveReservationCount int64
+	if err := tx.QueryRow(ctx, `SELECT count(*) FROM demo_order_items WHERE order_id=$1`, orderID).Scan(&itemCount); err != nil {
+		return Order{}, fmt.Errorf("count simulated order items: %w", err)
 	}
-	if !hasLiveReservation {
+	if err := tx.QueryRow(ctx, `SELECT count(*) FROM inventory_reservations
+		WHERE order_id=$1 AND status='active' AND expires_at > now()`, orderID).Scan(&liveReservationCount); err != nil {
+		return Order{}, fmt.Errorf("count live simulated reservations: %w", err)
+	}
+	// Every order line must still have its own live hold. A single live hold
+	// must never allow completion when another line's reservation has expired.
+	if itemCount == 0 || liveReservationCount != itemCount {
 		return Order{}, ErrDemoPaymentWindowExpired
 	}
 	if _, err := tx.Exec(ctx, `UPDATE inventory_reservations
