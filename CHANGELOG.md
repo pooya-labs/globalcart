@@ -9,7 +9,8 @@
 - Storefront uses verified Persian product fields when available while preserving original English fields.
 
 ### Verification
-- CI run 41295491772 passed catalog sync, optional translation step (skipped because no key is configured), TypeScript validation, unit tests and production build. Pages deployment is pending at this documentation update.
+- CI run 41295683515 passed catalog sync, optional translation step (safely skipped because no key is configured), TypeScript validation, unit tests, production build and GitHub Pages deployment.
+- Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41295683515
 
 ## 0.1.2 — 2026-11-01
 

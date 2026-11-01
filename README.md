@@ -23,7 +23,7 @@ Implemented:
 - Target architecture: Go REST/OpenAPI, PostgreSQL + sqlc, Python workers and optional Redis at the backend milestone.
 
 In progress / not yet claimed as complete:
-- Gemini-backed Persian catalog translation adapter and CI job are implemented; live translation requires the GEMINI_API_KEY GitHub Actions secret.
+- Gemini-backed Persian catalog translation adapter and CI job are implemented; CI build/deploy passed in run 41295683515. Live translation requires the GEMINI_API_KEY GitHub Actions secret.
 - Production-grade FX feed, price history and product detail pages.
 - Compare, admin/seller workspaces, order history and advanced search.
 - Expanded domain unit tests; accessibility and browser tests remain pending.

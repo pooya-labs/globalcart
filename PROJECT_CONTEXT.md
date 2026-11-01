@@ -55,7 +55,7 @@ Version 0.1.2 adds:
 - data/catalog.json: generated static snapshot.
 - GitHub Actions schedule and manual trigger.
 - Storefront initializes from snapshot and preserves it if live refresh fails.
-CI verification passed in Actions run 41295039930: the sync imported 100 products, TypeScript validation passed, all unit tests passed, production static export passed and Pages deployment succeeded. Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41295039930
+CI verification passed in Actions run 41295683515: catalog sync, optional translation step (safely skipped without GEMINI_API_KEY), TypeScript validation, unit tests, production static export and Pages deployment all succeeded. Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41295683515
 
 ## Target backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript.

@@ -75,7 +75,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify snapshot generation (100 products), TypeScript, unit tests, production build and Pages deployment in Actions run 41295039930.
 - [x] Add a server-side Gemini translation adapter and scheduled catalog translation job (credential-gated).
 - [ ] Configure GEMINI_API_KEY as a GitHub Actions secret and verify a live Persian translation run.
-- [ ] Translate title, description, category and attributes while preserving originals/provenance.
+- [x] Translate title, description, category and brand while preserving original source fields and provenance.
 - [x] Translation cache via source-content fingerprints, sequential throttling, bounded retries and per-product error reporting.
 - [ ] Catalog freshness and source diagnostics.
 - [ ] Add other suppliers only through authorized APIs/feeds.
