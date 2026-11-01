@@ -1,33 +1,15 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { dummyJsonCatalogAdapter } from "../lib/catalog/dummyjson";
 import { loadCatalogFromSourceWithReport } from "../lib/catalog/source-adapter";
-import { writeCatalogSnapshotAtomically } from "../lib/catalog/snapshot";
+import { readCatalogSnapshot, writeCatalogSnapshotAtomically } from "../lib/catalog/snapshot";
 import { assertCatalogSnapshotContinuity, summarizeCatalogQuality } from "../lib/catalog/quality";
-import type { CatalogProduct } from "../lib/catalog/types";
-
-type CatalogSnapshot = {
-  schemaVersion: 1;
-  source: string;
-  generatedAt: string;
-  productCount: number;
-  products: CatalogProduct[];
-};
 
 const outputDirectory = join(process.cwd(), "data");
 const outputFile = join(outputDirectory, "catalog.json");
 
-async function readLastKnownGood(): Promise<CatalogSnapshot | null> {
-  try {
-    return JSON.parse(await readFile(outputFile, "utf8")) as CatalogSnapshot;
-  } catch {
-    return null;
-  }
-}
-
 async function main(): Promise<void> {
-  const previous = await readLastKnownGood();
+  const previous = await readCatalogSnapshot(outputFile);
 
   try {
     const importedAt = new Date().toISOString();

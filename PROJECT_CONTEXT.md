@@ -428,3 +428,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added regression tests for 12 simultaneous publishers, rename failure cleanup and preservation of an existing last-known-good file on serialization failure.
 - Atomic rename guarantees complete-file visibility; it does not order source freshness across independent writers. The existing Pages workflow continues to serialize its scheduled/manual runs.
 - Catalog CI [41360183218](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183218) and Backend CI [41360183283](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183283) both passed on code head `062aabdf563626116a50ecba0d7f534e6af3f260`, including TypeScript validation, unit tests, production build, Go vet/tests/builds and Docker image build.
+
+
+## M08.8.3 — last-known-good snapshot validation (implementation, 2026-11-02)
+- Added readCatalogSnapshot to distinguish a genuinely missing file (ENOENT) from permission/I/O errors, malformed JSON and invalid snapshot schema.
+- Snapshot validation checks versioned metadata, valid timestamp, exact product count, normalized product fields, optional variants and localization structure before the file is trusted as last-known-good.
+- Invalid existing snapshots fail before a new feed fetch or fallback decision; only a genuinely absent snapshot follows first-import fixture behavior.
+- Added regression coverage for missing file, malformed JSON, count mismatch and malformed normalized product.
+- Catalog CI and Backend CI verification are pending on the final commit.

@@ -61,3 +61,49 @@ test("non-serializable snapshots fail before touching the last-known-good file",
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+
+test("a missing previous snapshot is treated as a first import", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-snapshot-missing-"));
+  try {
+    assert.equal(await readCatalogSnapshot(join(directory, "catalog.json")), null);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("malformed JSON is not silently treated as a missing snapshot", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-snapshot-malformed-"));
+  const outputFile = join(directory, "catalog.json");
+  try {
+    await writeFile(outputFile, '{"schemaVersion":', "utf8");
+    await assert.rejects(() => readCatalogSnapshot(outputFile), /not valid JSON/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("snapshot validation rejects count mismatches and malformed products", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-snapshot-schema-"));
+  const outputFile = join(directory, "catalog.json");
+  const metadata = {
+    schemaVersion: 1,
+    source: "fixture",
+    generatedAt: "2026-11-02T00:00:00.000Z"
+  };
+  try {
+    await writeFile(outputFile, JSON.stringify({ ...metadata, productCount: 1, products: [] }), "utf8");
+    await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+    await writeFile(outputFile, JSON.stringify({
+      ...metadata,
+      productCount: 1,
+      products: [{ id: 1, title: "incomplete" }]
+    }), "utf8");
+    await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

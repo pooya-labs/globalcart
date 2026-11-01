@@ -356,3 +356,10 @@
 - Serialize before touching disk; rename only after the full JSON file has been written, then clean up the invocation's temp file on success or failure.
 - Added tests for concurrent publication, rename failure cleanup, and preserving the previous snapshot when serialization fails.
 - Catalog CI [41360183218](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183218) and Backend CI [41360183283](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183283) passed on code head `062aabdf563626116a50ecba0d7f534e6af3f260`.
+
+
+### M08.8.3 last-known-good snapshot validation — implementation (2026-11-02)
+- Added strict runtime validation for the versioned catalog snapshot and its normalized product records before reusing it as last-known-good data.
+- Only ENOENT is treated as a first-run missing snapshot; JSON corruption, schema mismatch and other filesystem errors now fail closed rather than silently triggering fixture fallback.
+- Added tests for missing, malformed and structurally inconsistent snapshots.
+- CI verification is pending.

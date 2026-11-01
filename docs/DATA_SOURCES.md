@@ -110,3 +110,9 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - The completed temporary file is renamed over the destination only after the write succeeds. Readers therefore see the previous complete snapshot or one complete new snapshot, not partially-written JSON.
 - Failed writes/renames trigger best-effort cleanup of that invocation's temporary file. Serialization failures happen before the destination is changed.
 - This protects file integrity, not source ordering: if independent processes publish different valid snapshots, the final successful rename wins. The existing Pages workflow still serializes its own scheduled/manual runs.
+
+
+## Last-known-good snapshot validation (M08.8.3)
+- Before a previous snapshot is used for continuity checks or localization preservation, its schema version, source/timestamp metadata, product count and normalized product records are validated at runtime.
+- A missing path with ENOENT is the only condition treated as a first import. Malformed JSON, count mismatch, invalid product structure, permission errors and other I/O failures abort the sync rather than silently dropping the previous snapshot.
+- This is intentionally fail-closed: an existing corrupt snapshot must be repaired explicitly instead of being mistaken for an empty catalog and replaced or hidden by fixture fallback.
