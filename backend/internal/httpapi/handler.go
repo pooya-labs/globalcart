@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,16 +12,18 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
 )
 
 type Handler struct {
 	db      *pgxpool.Pool
 	origins map[string]bool
+	queries *dbgen.Queries
 }
 
 func New(db *pgxpool.Pool, origins map[string]bool) http.Handler {
-	h := &Handler{db: db, origins: origins}
+	h := &Handler{db: db, origins: origins, queries: dbgen.New(db)}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", h.health)
 	mux.HandleFunc("GET /readyz", h.ready)
@@ -83,27 +86,24 @@ func (h *Handler) listProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), 4*time.Second)
 	defer cancel()
-	rows, err := h.db.Query(ctx, `SELECT id,title,description,category,price::float8,discount_percentage::float8,
-		rating::float8,stock,brand,thumbnail,images,source,source_id,source_url,imported_at
-		FROM products WHERE ($1='' OR category=$1) AND ($2='' OR to_tsvector('simple', title || ' ' || description) @@ plainto_tsquery('simple',$2))
-		ORDER BY id LIMIT $3 OFFSET $4`, category, q, limit, offset)
+	rows, err := h.queries.ListProducts(ctx, dbgen.ListProductsParams{
+		Category: category, Query: q, PageLimit: int32(limit), PageOffset: int32(offset),
+	})
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "catalog_query_failed")
 		return
 	}
-	defer rows.Close()
-	products := make([]catalog.Product, 0)
-	for rows.Next() {
-		var p catalog.Product
-		if err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.Category, &p.Price, &p.DiscountPercentage, &p.Rating, &p.Stock, &p.Brand, &p.Thumbnail, &p.Images, &p.Source, &p.SourceID, &p.SourceURL, &p.ImportedAt); err != nil {
+	products := make([]catalog.Product, 0, len(rows))
+	for _, row := range rows {
+		product, err := mapProduct(row.ID, row.Title, row.Description, row.Category,
+			row.Price, row.DiscountPercentage, row.Rating, row.Stock, row.Brand,
+			row.Thumbnail, row.Images, row.Source, row.SourceID, row.SourceUrl,
+			row.ImportedAt.Time)
+		if err != nil {
 			writeError(w, http.StatusInternalServerError, "catalog_read_failed")
 			return
 		}
-		products = append(products, p)
-	}
-	if rows.Err() != nil {
-		writeError(w, http.StatusInternalServerError, "catalog_read_failed")
-		return
+		products = append(products, product)
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": products, "limit": limit, "offset": offset, "count": len(products)})
 }
@@ -116,10 +116,7 @@ func (h *Handler) getProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 	defer cancel()
-	var p catalog.Product
-	err = h.db.QueryRow(ctx, `SELECT id,title,description,category,price::float8,discount_percentage::float8,
-		rating::float8,stock,brand,thumbnail,images,source,source_id,source_url,imported_at
-		FROM products WHERE id=$1`, id).Scan(&p.ID, &p.Title, &p.Description, &p.Category, &p.Price, &p.DiscountPercentage, &p.Rating, &p.Stock, &p.Brand, &p.Thumbnail, &p.Images, &p.Source, &p.SourceID, &p.SourceURL, &p.ImportedAt)
+	row, err := h.queries.GetProduct(ctx, id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		writeError(w, http.StatusNotFound, "product_not_found")
 		return
@@ -128,7 +125,33 @@ func (h *Handler) getProduct(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "catalog_read_failed")
 		return
 	}
-	writeJSON(w, http.StatusOK, p)
+	product, err := mapProduct(row.ID, row.Title, row.Description, row.Category,
+		row.Price, row.DiscountPercentage, row.Rating, row.Stock, row.Brand,
+		row.Thumbnail, row.Images, row.Source, row.SourceID, row.SourceUrl,
+		row.ImportedAt.Time)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "catalog_read_failed")
+		return
+	}
+	writeJSON(w, http.StatusOK, product)
+}
+
+
+func mapProduct(id int64, title, description, category string, price, discount, rating float64,
+	stock int32, brand, thumbnail string, rawImages []byte, source, sourceID, sourceURL string,
+	importedAt time.Time) (catalog.Product, error) {
+	images := make([]string, 0)
+	if len(rawImages) > 0 {
+		if err := json.Unmarshal(rawImages, &images); err != nil {
+			return catalog.Product{}, err
+		}
+	}
+	return catalog.Product{
+		ID: id, Title: title, Description: description, Category: category,
+		Price: price, DiscountPercentage: discount, Rating: rating, Stock: int(stock),
+		Brand: brand, Thumbnail: thumbnail, Images: images, Source: source,
+		SourceID: sourceID, SourceURL: sourceURL, ImportedAt: importedAt,
+	}, nil
 }
 
 func parseBoundedInt(raw string, fallback, min, max int) (int, bool) {
