@@ -217,7 +217,7 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Add root sqlc v2 configuration targeting PostgreSQL and pgx/v5.
 - [x] Define typed list/detail product queries and active product-variant query with parameterized inputs.
 - [x] Add deterministic sqlc generation to backend CI.
-- [ ] Verify generated package compiles in CI and wire it into API/database code.
+- [x] Verify generated package compiles in CI and wire it into API/database code.
 
 
 ### M04 sqlc API integration — 2026-11-01
@@ -248,3 +248,11 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 
 
 Category API CI verification: run 41302783939 passed sqlc generation, formatting, vet, unit and PostgreSQL integration tests, API/importer builds, and Docker image build.
+
+
+### M04 catalog pagination and normalized filtering — 2026-11-01
+- [x] Normalize category filters against the category table using case-insensitive, whitespace-trimmed matching.
+- [x] Add generated `CountProducts` query using the same category and full-text predicates as the product list.
+- [x] Return `total` independently from the current page's `count`.
+- [x] Add PostgreSQL integration coverage for normalized category matching and total count.
+- [ ] Verify generated count query and API pagination changes in CI.
