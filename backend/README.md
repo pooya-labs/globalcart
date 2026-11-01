@@ -55,3 +55,14 @@ Keep the database volume by default. To delete local development data permanentl
 3. Add identity/session and role/permission model before any admin/seller write endpoints.
 4. Add deployment manifests and managed PostgreSQL only after the owner selects/approves a hosting provider, region, budget and secret-management approach.
 5. Connect the frontend to the API only after a hosted HTTPS endpoint and CORS origins are approved.
+
+
+## Typed SQL layer
+
+The root `sqlc.yaml` defines generated pgx/v5 query code from `backend/queries` and the embedded migration schema. Run:
+
+```sh
+go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0 generate
+```
+
+CI regenerates and formats the typed package before tests/builds. The first pass defines product listing/detail and active variant reads; handlers will be switched to this layer in the next slice.
