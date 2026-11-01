@@ -322,3 +322,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The snapshot sync continues to preserve its last-known-good snapshot on failed ingestion. Product-only sources remain valid; absence of variants in a feed is not a command to delete existing database variants or offers.
 - M08.4 is blocked on the owner selecting and approving a named supplier/feed and its rights. No real supplier connection, API key, live inventory, hosting, secrets or deployment was introduced.
 - Branch head at this checkpoint: `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. PR #1 remains Draft/open/unmerged.
+
+
+## Follow-up hardening — 2026-11-02
+- Variant de-duplication now encodes the source and source ID as an unambiguous JSON tuple rather than joining two strings with a delimiter. This prevents collisions when either value itself contains a colon.
+- Added regression coverage for the former delimiter-collision shape.
+- Latest Catalog CI run `41355272122` succeeded on code head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`: dependency install, TypeScript validation, all unit tests and production build passed.
+- Latest Backend CI for this exact head is running; the backend code was unchanged by this normalization-only hardening. Recheck its final Docker image result before recording the full cross-workflow checkpoint.
