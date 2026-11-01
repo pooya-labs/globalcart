@@ -7,7 +7,7 @@ import catalogSnapshot from "../data/catalog.json";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, Check, ChevronDown, ChevronLeft,
   ChevronRight, CircleHelp, Heart, LayoutGrid, Menu, Minus, Package, Plus,
-  Search, ShieldCheck, ShoppingBag, SlidersHorizontal, Sparkles, Star, Truck,
+  Search, ShieldCheck, ShoppingBag, SlidersHorizontal, Sparkles, Star, Truck, GitCompareArrows,
   X, Zap
 } from "lucide-react";
 
@@ -38,7 +38,7 @@ const copy = {
     feature1: "کشف هوشمند", feature1d: "جست‌وجو و فیلتر سریع", feature2: "اطلاعات شفاف", feature2d: "نمایش منبع و قیمت", feature3: "تجربه امن", feature3d: "بدون تراکنش واقعی",
     footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "طراحی و توسعه: پویا گودرزی",
     count: "محصول", menu: "منو", compare: "مقایسه", recently: "تازه بازدیدشده", emptyFav: "هنوز محصولی ذخیره نکرده‌ای.",
-    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", close: "بستن"
+    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه"
   },
   en: {
     top: "A fresh perspective on finding good things", search: "Search products, brands or categories...",
@@ -58,7 +58,7 @@ const copy = {
     feature1: "Smart discovery", feature1d: "Fast search and filters", feature2: "Clear information", feature2d: "Source and price context", feature3: "Safe experience", feature3d: "No real transactions",
     footer: "An independent commerce experience, built to showcase product engineering.", owner: "Designed & engineered by Pooya Goodarzi",
     count: "products", menu: "Menu", compare: "Compare", recently: "Recently viewed", emptyFav: "You have not saved anything yet.",
-    min: "Min price", max: "Max price", result: "Results", close: "Close"
+    min: "Min price", max: "Max price", result: "Results", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison"
   }
 } as const;
 
@@ -100,7 +100,7 @@ export default function Home() {
   const [category,setCategory]=useState("all");
   const [sort,setSort]=useState("popular");
   const [cart,setCart]=useState<CartLine[]>([]);
-  const [favorites,setFavorites]=useState<number[]>([]);
+  const [favorites,setFavorites]=useState<number[]>([]);\n  const [compareIds,setCompareIds]=useState<number[]>([]);\n  const [compareOpen,setCompareOpen]=useState(false);
   const [recent,setRecent]=useState<number[]>([]);
   const [cartOpen,setCartOpen]=useState(false);
   const [favoriteOpen,setFavoriteOpen]=useState(false);
@@ -149,7 +149,7 @@ export default function Home() {
       if(!raw)return;
       const saved=JSON.parse(raw);
       if(Array.isArray(saved.cart))setCart(saved.cart);
-      if(Array.isArray(saved.favorites))setFavorites(saved.favorites);
+      if(Array.isArray(saved.favorites))setFavorites(saved.favorites);\n      if(Array.isArray(saved.compareIds))setCompareIds(saved.compareIds.slice(0,4));
       if(Array.isArray(saved.recent))setRecent(saved.recent);
       if(Number.isFinite(saved.rate)&&saved.rate>0)setRate(saved.rate);
     }catch{/* Ignore invalid local demo state. */}
@@ -158,8 +158,8 @@ export default function Home() {
 
   useEffect(()=>{
     if(!hydrated)return;
-    try{localStorage.setItem("globalcart-state-v1",JSON.stringify({cart,favorites,recent,rate}));}catch{/* Storage can be unavailable. */}
-  },[hydrated,cart,favorites,recent,rate]);
+    try{localStorage.setItem("globalcart-state-v1",JSON.stringify({cart,favorites,recent,rate,compareIds}));}catch{/* Storage can be unavailable. */}
+  },[hydrated,cart,favorites,recent,rate,compareIds]);
 
   const filtered=useMemo(()=>{
     let list=products.filter(p=>{
@@ -185,7 +185,7 @@ export default function Home() {
   const openProduct=(p:Product)=>{setQuick(p);setRecent(old=>[p.id,...old.filter(id=>id!==p.id)].slice(0,8));};
   const toggleFavorite=(id:number)=>setFavorites(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);
   const placeDemoOrder=()=>{setOrder("GC-"+Math.random().toString(36).slice(2,8).toUpperCase());setCart([]);setCheckout(false);};
-  const favoriteProducts=products.filter(p=>favorites.includes(p.id));
+  const favoriteProducts=products.filter(p=>favorites.includes(p.id));\n  const compareProducts=products.filter(p=>compareIds.includes(p.id));\n  const toggleCompare=(id:number)=>setCompareIds(old=>{\n    if(old.includes(id))return old.filter(x=>x!==id);\n    if(old.length>=4){notify(locale==="fa"?"حداکثر چهار محصول قابل مقایسه است":"You can compare up to four products");return old;}\n    return [...old,id];\n  });
   const catalogCategories=useMemo(()=>Array.from(new Set(products.map(p=>p.category).filter(Boolean))).sort((a,b)=>a.localeCompare(b)),[products]);
   const categoryLabel=(id:string)=>{const known=categories.find(c=>c.id===id);return known?(rtl?known.fa:known.en):id.replace(/-/g," ").replace(/\\b\\w/g,c=>c.toUpperCase());};
   const selectCategory=(id:string)=>{setCategory(id);setCategoryMenu(false);setMobileMenu(false);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});};
@@ -270,7 +270,7 @@ export default function Home() {
             {order&&<div className="order-success"><Check size={17}/>{t.success} · {t.order}: {order}<button onClick={()=>setOrder("")}><X size={15}/></button></div>}
             {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);}}>{t.clear}</button></div>:<div className="product-grid">
               {filtered.map((p,index)=><article className="product-card" key={p.id}>
-                <div className="product-media"><Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy"/></Link><span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
+                <div className="product-media"><Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy"/></Link><span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
                 <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating"><span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span><small>{t.inStock}</small></div><div className="product-price"><div><b>{formatPrice(p)}</b><small>{usd(p.price)}</small></div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
               </article>)}
             </div>}
@@ -291,7 +291,11 @@ export default function Home() {
 
       {quick&&<div className="overlay modal-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setQuick(null);}}><div className="quick-modal"><button className="modal-close icon-button" onClick={()=>setQuick(null)}><X/></button><div className="quick-image"><img src={(quick.images&&quick.images[0])||quick.thumbnail} alt={quick.title}/></div><div className="quick-content"><span className="section-kicker">{quick.brand||"GLOBAL SELECT"} / PRODUCT DETAIL</span><h2>{quick.title}</h2><span className="quick-rating"><Star size={14} fill="currentColor"/>{quick.rating.toFixed(1)} · {quick.stock} {t.inStock}</span><p>{quick.description}</p><div className="quick-price"><b>{formatPrice(quick)}</b><small>{usd(quick.price)}</small></div><small className="source-label">{t.source}: {quick.source||"DummyJSON public demo API"}</small><button className="button-primary full-button" onClick={()=>{addToCart(quick);setQuick(null);}}>{t.add}<Plus size={17}/></button></div></div></div>}
 
-      {checkout&&<div className="overlay modal-overlay"><div className="checkout-modal"><button className="modal-close icon-button" onClick={()=>setCheckout(false)}><X/></button><span className="section-kicker">GLOBALCART / DEMO FLOW</span><h2>{t.demoCheckout}</h2><p>{t.demoText}</p><div className="checkout-total"><span>{t.subtotal}</span><b>{rtl?money(subtotal,locale)+" تومان":usd(subtotal/rate)}</b></div><div className="checkout-warning"><ShieldCheck size={17}/>{t.noPayment}</div><button className="button-primary full-button" onClick={placeDemoOrder}>{t.confirm}<ArrowLeft size={16}/></button></div></div>}
+      {compareIds.length>0&&<div className="compare-tray"><div><GitCompareArrows size={17}/><b>{rtl?"مقایسه محصولات":"Product comparison"}</b><span>{compareIds.length}/4</span></div><button className="compare-tray-open" disabled={compareIds.length<2} onClick={()=>setCompareOpen(true)}>{rtl?"مقایسه":"Compare"} <ArrowLeft size={15}/></button><button className="compare-tray-clear" onClick={()=>setCompareIds([])}>{rtl?"پاک کردن":"Clear"}</button></div>}
+
+      {compareOpen&&<div className="overlay modal-overlay compare-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setCompareOpen(false);}}><section className="compare-modal"><div className="compare-modal-head"><div><span className="section-kicker">GLOBALCART / SIDE BY SIDE</span><h2>{t.compareTitle}</h2></div><button className="icon-button" onClick={()=>setCompareOpen(false)}><X/></button></div><div className="compare-table-wrap"><table className="compare-table"><thead><tr><th>{rtl?"مشخصات":"Details"}</th>{compareProducts.map(p=><th key={p.id}><img src={p.thumbnail} alt=""/><b>{p.title}</b><button onClick={()=>toggleCompare(p.id)}>{rtl?"حذف":"Remove"}</button></th>)}</tr></thead><tbody><tr><th>{rtl?"قیمت فعلی":"Current price"}</th>{compareProducts.map(p=><td key={p.id}>{formatPrice(p)}</td>)}</tr><tr><th>{rtl?"قیمت اصلی":"Original price"}</th>{compareProducts.map(p=><td key={p.id}>{rtl?money(p.price*rate,locale)+" تومان":usd(p.price)}</td>)}</tr><tr><th>{rtl?"امتیاز":"Rating"}</th>{compareProducts.map(p=><td key={p.id}><span className="compare-rating"><Star size={13} fill="currentColor"/>{p.rating.toFixed(1)}</span></td>)}</tr><tr><th>{rtl?"تخفیف":"Discount"}</th>{compareProducts.map(p=><td key={p.id}>{Math.round(p.discountPercentage)}%</td>)}</tr><tr><th>{rtl?"برند":"Brand"}</th>{compareProducts.map(p=><td key={p.id}>{p.brand||"—"}</td>)}</tr><tr><th>{rtl?"موجودی منبع نمونه":"Source stock"}</th>{compareProducts.map(p=><td key={p.id}>{p.stock}</td>)}</tr></tbody></table></div><div className="compare-modal-foot"><span>{rtl?"اطلاعات برای مقایسه نمایشی هستند.":"Figures are provided for demo comparison only."}</span><button onClick={()=>{setCompareIds([]);setCompareOpen(false);}}>{t.compareClear}</button></div></section></div>}
+
+            {checkout&&<div className="overlay modal-overlay"><div className="checkout-modal"><button className="modal-close icon-button" onClick={()=>setCheckout(false)}><X/></button><span className="section-kicker">GLOBALCART / DEMO FLOW</span><h2>{t.demoCheckout}</h2><p>{t.demoText}</p><div className="checkout-total"><span>{t.subtotal}</span><b>{rtl?money(subtotal,locale)+" تومان":usd(subtotal/rate)}</b></div><div className="checkout-warning"><ShieldCheck size={17}/>{t.noPayment}</div><button className="button-primary full-button" onClick={placeDemoOrder}>{t.confirm}<ArrowLeft size={16}/></button></div></div>}
 
       {toast&&<div className="toast"><Check size={15}/>{toast}</div>}
       <div className="demo-ribbon">{t.demo}</div>
