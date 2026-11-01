@@ -126,3 +126,8 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added read-only `GET /api/v1/products/{id}/variants` endpoint, backed by sqlc-generated product existence and active variant queries.
 - Variant response exposes ID, product ID, optional SKU, title, price, stock and JSON attributes; malformed attributes produce a stable internal catalog error.
 - Added mapping tests and OpenAPI path documentation. CI verification pending.
+
+
+### M04 product variants API — verified
+- CI run 41302565323 passed sqlc generation, go vet, race-enabled unit/PostgreSQL integration tests, API/importer builds and Docker image build.
+- Generated variant query returns typed float64 price; handler validates parent product existence and returns only active variants.
