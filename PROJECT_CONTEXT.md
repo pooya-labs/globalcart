@@ -436,3 +436,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Invalid existing snapshots fail before a new feed fetch or fallback decision; only a genuinely absent snapshot follows first-import fixture behavior.
 - Added regression coverage for missing file, malformed JSON, count mismatch and malformed normalized product.
 - On implementation commit `ff5cf42cc094bc4e35d317ad52f970762280ba2f`, Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) all passed, including TypeScript validation, unit tests, production build, Go vet/tests/builds and Docker image build.
+
+
+## M08.8.4 — snapshot identity and database-bound validation (implementation, 2026-11-02)
+- Strengthened runtime snapshot validation to enforce source consistency, unique product IDs and unique product source identities across the entire snapshot.
+- Added cross-product uniqueness checks for variant `(source, source_id)`, matching the PostgreSQL partial unique index and preventing an import batch from failing after snapshot publication.
+- Added database-bound numeric validation: safe integer product IDs, non-negative two-decimal prices within NUMERIC(12,2), two-decimal discount/rating limits, percentage range 0–100, rating range 0–5 and non-negative 32-bit integer stock. Variant prices and stock use the corresponding database constraints.
+- Added regression cases for product/variant identity conflicts, source mismatch, numeric precision and database range violations.
+- Catalog CI and Backend CI verification are pending.

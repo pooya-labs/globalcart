@@ -116,3 +116,10 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - Before a previous snapshot is used for continuity checks or localization preservation, its schema version, source/timestamp metadata, product count and normalized product records are validated at runtime.
 - A missing path with ENOENT is the only condition treated as a first import. Malformed JSON, count mismatch, invalid product structure, permission errors and other I/O failures abort the sync rather than silently dropping the previous snapshot.
 - This is intentionally fail-closed: an existing corrupt snapshot must be repaired explicitly instead of being mistaken for an empty catalog and replaced or hidden by fixture fallback.
+
+
+## Snapshot identity and database-bound validation (M08.8.4)
+- Product IDs and `(source, source_id)` keys must be unique across the whole snapshot; every product source must equal the snapshot source.
+- Variant `(source, source_id)` identity must be unique across all products, matching the PostgreSQL unique index and importer ownership rule.
+- Prices must be non-negative, fit the current PostgreSQL `NUMERIC(12,2)` range and have no more than two fractional decimal places. Product discounts are limited to 0–100, ratings to 0–5, and stock values to non-negative PostgreSQL 32-bit integers. Product IDs must remain JavaScript-safe integers.
+- Invalid snapshots are rejected without modifying, deduplicating or fabricating records.

@@ -363,3 +363,10 @@
 - Only ENOENT is treated as a first-run missing snapshot; JSON corruption, schema mismatch and other filesystem errors now fail closed rather than silently triggering fixture fallback.
 - Added tests for missing, malformed and structurally inconsistent snapshots.
 - On implementation commit `ff5cf42cc094bc4e35d317ad52f970762280ba2f`, Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) passed.
+
+
+### M08.8.4 snapshot identity and database-bound validation — implementation (2026-11-02)
+- Snapshot validation now checks global product identity and variant source-identity uniqueness, and requires each product to match the declared snapshot source.
+- Added PostgreSQL-compatible validation for ID safety, price precision/range, discount/rating bounds and integer stock limits.
+- Added regression tests for duplicate identities, wrong source attribution and invalid numeric/stock values.
+- CI verification is pending.

@@ -549,3 +549,14 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on implementation commit `ff5cf42cc094bc4e35d317ad52f970762280ba2f`:** Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) all succeeded.
 
 **Safety note:** a missing snapshot may use the documented first-import behavior; an existing but invalid snapshot now fails closed and requires repair rather than being silently discarded.
+
+
+## M08.8.4 — Snapshot identity and database-bound validation (implementation)
+- [x] Validate product IDs and source identities are unique across the complete snapshot.
+- [x] Require all product records to match the snapshot's declared source.
+- [x] Reject duplicate variant `(source, source_id)` identities across products before the PostgreSQL importer can encounter a batch conflict.
+- [x] Enforce database-compatible product/variant price precision and bounds, percentage/rating ranges, safe product IDs and PostgreSQL integer stock bounds.
+- [x] Add regression tests for cross-product identity collisions and invalid numeric values.
+- [ ] Verify Catalog CI, production build and Backend CI on the same final head.
+
+**Safety note:** validation mirrors the current PostgreSQL schema and importer identity keys; it rejects a snapshot rather than mutating, deduplicating or fabricating supplier data.

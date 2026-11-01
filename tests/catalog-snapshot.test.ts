@@ -107,3 +107,153 @@ test("snapshot validation rejects count mismatches and malformed products", asyn
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+
+function validSnapshotProduct(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    id: 10,
+    title: "Snapshot product",
+    description: "Valid fixture product",
+    category: "accessories",
+    price: 19.99,
+    discountPercentage: 10,
+    rating: 4.5,
+    stock: 12,
+    brand: "Fixture",
+    thumbnail: "https://cdn.example/product.jpg",
+    images: [],
+    source: "fixture",
+    sourceId: "product-10",
+    sourceUrl: "",
+    importedAt: "2026-11-02T00:00:00.000Z",
+    ...overrides
+  };
+}
+
+function wrapSnapshot(products: Record<string, unknown>[]) {
+  return {
+    schemaVersion: 1,
+    source: "fixture",
+    generatedAt: "2026-11-02T00:00:00.000Z",
+    productCount: products.length,
+    products
+  };
+}
+
+test("snapshot validation rejects duplicate product IDs and source identities", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-product-identity-"));
+  const outputFile = join(directory, "catalog.json");
+  try {
+    await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+      validSnapshotProduct({ id: 10, sourceId: "first" }),
+      validSnapshotProduct({ id: 10, sourceId: "second" })
+    ])), "utf8");
+    await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+
+    await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+      validSnapshotProduct({ id: 10, sourceId: "shared" }),
+      validSnapshotProduct({ id: 11, sourceId: "shared" })
+    ])), "utf8");
+    await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("snapshot validation rejects products attributed to a different source", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-product-source-"));
+  const outputFile = join(directory, "catalog.json");
+  try {
+    await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+      validSnapshotProduct({ source: "another-source" })
+    ])), "utf8");
+    await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("snapshot validation enforces PostgreSQL numeric and integer bounds", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-db-bounds-"));
+  const outputFile = join(directory, "catalog.json");
+  const invalidProducts = [
+    { price: -0.01 },
+    { price: 10_000_000_000 },
+    { price: 1.001 },
+    { discountPercentage: 100.01 },
+    { discountPercentage: 1.001 },
+    { rating: 5.01 },
+    { rating: 4.501 },
+    { stock: 1.5 },
+    { stock: 2_147_483_648 },
+    { id: Number.MAX_SAFE_INTEGER + 1 }
+  ];
+  try {
+    for (const invalid of invalidProducts) {
+      await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+        validSnapshotProduct(invalid)
+      ])), "utf8");
+      await assert.rejects(
+        () => readCatalogSnapshot(outputFile),
+        /schema validation/,
+        "invalid database-bound product values must be rejected"
+      );
+    }
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("snapshot validation rejects duplicate variant source identities across products", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-variant-identity-"));
+  const outputFile = join(directory, "catalog.json");
+  const variant = {
+    sku: "FIXTURE-1",
+    title: "Variant",
+    price: 12.5,
+    stock: 3,
+    attributes: { color: "blue" },
+    source: "supplier-fixture",
+    sourceId: "variant-shared",
+    isActive: true
+  };
+  try {
+    await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+      validSnapshotProduct({ variants: [variant] }),
+      validSnapshotProduct({ id: 11, sourceId: "product-11", variants: [variant] })
+    ])), "utf8");
+    await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("snapshot validation enforces variant price and stock constraints", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-variant-bounds-"));
+  const outputFile = join(directory, "catalog.json");
+  const baseVariant = {
+    sku: "FIXTURE-1",
+    title: "Variant",
+    price: 12.5,
+    stock: 3,
+    attributes: { color: "blue" },
+    source: "supplier-fixture",
+    sourceId: "variant-1",
+    isActive: true
+  };
+  try {
+    for (const overrides of [{ price: -1 }, { price: 1.001 }, { stock: 2.5 }, { stock: 2_147_483_648 }, { sourceId: " " }]) {
+      await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+        validSnapshotProduct({ variants: [{ ...baseVariant, ...overrides }] })
+      ])), "utf8");
+      await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+    }
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

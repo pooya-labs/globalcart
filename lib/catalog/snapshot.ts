@@ -55,19 +55,54 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
+const MAX_DB_INTEGER = 2_147_483_647;
+const MAX_NUMERIC_12_2 = 9_999_999_999.99;
+
+function hasAtMostTwoDecimalPlaces(value: number): boolean {
+  return Math.abs(value * 100 - Math.round(value * 100)) < 1e-7;
+}
+
+function isDatabasePrice(value: unknown): value is number {
+  return typeof value === "number" &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= MAX_NUMERIC_12_2 &&
+    hasAtMostTwoDecimalPlaces(value);
+}
+
+function isDatabaseStock(value: unknown): value is number {
+  return typeof value === "number" &&
+    Number.isSafeInteger(value) &&
+    value >= 0 &&
+    value <= MAX_DB_INTEGER;
+}
+
 function isCatalogProduct(value: unknown): value is CatalogProduct {
   if (!isRecord(value)) return false;
-  const numericFields = [value.id, value.price, value.discountPercentage, value.rating, value.stock];
+  const numericFields = [value.discountPercentage, value.rating];
   const stringFields = [
     value.title, value.description, value.category, value.brand, value.thumbnail,
     value.source, value.sourceId, value.sourceUrl, value.importedAt
   ];
+
   if (
-    !numericFields.every(field => typeof field === "number" && Number.isFinite(field)) ||
+    !Number.isSafeInteger(value.id) ||
     (value.id as number) < 0 ||
+    !isDatabasePrice(value.price) ||
+    !numericFields.slice(1).every(field => typeof field === "number" && Number.isFinite(field)) ||
+    (value.discountPercentage as number) < 0 ||
+    (value.discountPercentage as number) > 100 ||
+    !hasAtMostTwoDecimalPlaces(value.discountPercentage as number) ||
+    (value.rating as number) < 0 ||
+    (value.rating as number) > 5 ||
+    !hasAtMostTwoDecimalPlaces(value.rating as number) ||
+    !isDatabaseStock(value.stock) ||
     !stringFields.every(field => typeof field === "string") ||
     !(value.title as string).trim() ||
     !(value.thumbnail as string).trim() ||
+    !(value.source as string).trim() ||
+    !(value.sourceId as string).trim() ||
+    !Number.isFinite(Date.parse(value.importedAt as string)) ||
     !Array.isArray(value.images) ||
     !value.images.every(image => typeof image === "string")
   ) return false;
@@ -77,11 +112,11 @@ function isCatalogProduct(value: unknown): value is CatalogProduct {
       if (!isRecord(variant)) return false;
       return typeof variant.sku === "string" &&
         typeof variant.title === "string" &&
-        typeof variant.price === "number" && Number.isFinite(variant.price) &&
-        typeof variant.stock === "number" && Number.isFinite(variant.stock) &&
+        isDatabasePrice(variant.price) &&
+        isDatabaseStock(variant.stock) &&
         isRecord(variant.attributes) &&
-        typeof variant.source === "string" &&
-        typeof variant.sourceId === "string" &&
+        typeof variant.source === "string" && variant.source.trim().length > 0 &&
+        typeof variant.sourceId === "string" && variant.sourceId.trim().length > 0 &&
         typeof variant.isActive === "boolean";
     })
   )) return false;
@@ -108,14 +143,36 @@ function isCatalogProduct(value: unknown): value is CatalogProduct {
 }
 
 function isCatalogSnapshot(value: unknown): value is CatalogSnapshot {
-  if (!isRecord(value)) return false;
-  return value.schemaVersion === 1 &&
-    typeof value.source === "string" && value.source.trim().length > 0 &&
-    typeof value.generatedAt === "string" && Number.isFinite(Date.parse(value.generatedAt)) &&
-    Number.isSafeInteger(value.productCount) && (value.productCount as number) >= 0 &&
-    Array.isArray(value.products) &&
-    value.products.length === value.productCount &&
-    value.products.every(isCatalogProduct);
+  if (!isRecord(value) ||
+    value.schemaVersion !== 1 ||
+    typeof value.source !== "string" || value.source.trim().length === 0 ||
+    typeof value.generatedAt !== "string" || !Number.isFinite(Date.parse(value.generatedAt)) ||
+    !Number.isSafeInteger(value.productCount) || (value.productCount as number) < 0 ||
+    !Array.isArray(value.products) ||
+    value.products.length !== value.productCount ||
+    !value.products.every(isCatalogProduct)
+  ) return false;
+
+  const productIDs = new Set<number>();
+  const productIdentities = new Set<string>();
+  const variantIdentities = new Set<string>();
+
+  for (const product of value.products) {
+    if (product.source !== value.source) return false;
+
+    const productIdentity = JSON.stringify([product.source, product.sourceId]);
+    if (productIDs.has(product.id) || productIdentities.has(productIdentity)) return false;
+    productIDs.add(product.id);
+    productIdentities.add(productIdentity);
+
+    for (const variant of product.variants ?? []) {
+      const identity = JSON.stringify([variant.source, variant.sourceId]);
+      if (variantIdentities.has(identity)) return false;
+      variantIdentities.add(identity);
+    }
+  }
+
+  return true;
 }
 
 /**
