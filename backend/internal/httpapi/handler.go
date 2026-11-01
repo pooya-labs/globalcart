@@ -28,6 +28,7 @@ func New(db *pgxpool.Pool, origins map[string]bool) http.Handler {
 	mux.HandleFunc("GET /readyz", h.ready)
 	mux.HandleFunc("GET /api/v1/products", h.listProducts)
 	mux.HandleFunc("GET /api/v1/products/{id}", h.getProduct)
+	mux.HandleFunc("GET /api/v1/products/{id}/variants", h.listProductVariants)
 	return h.cors(mux)
 }
 
@@ -133,6 +134,64 @@ func (h *Handler) getProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, product)
+}
+
+
+func (h *Handler) listProductVariants(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil || id <= 0 {
+		writeError(w, http.StatusBadRequest, "invalid_product_id")
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+	defer cancel()
+	if _, err := h.queries.GetProduct(ctx, id); errors.Is(err, pgx.ErrNoRows) {
+		writeError(w, http.StatusNotFound, "product_not_found")
+		return
+	} else if err != nil {
+		writeError(w, http.StatusInternalServerError, "catalog_read_failed")
+		return
+	}
+	rows, err := h.queries.ListProductVariants(ctx, id)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "catalog_read_failed")
+		return
+	}
+	items := make([]productVariantResponse, 0, len(rows))
+	for _, row := range rows {
+		item, err := mapProductVariant(row.ID, row.ProductID, row.Sku, row.Title,
+			row.Price, row.Stock, row.Attributes)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "catalog_read_failed")
+			return
+		}
+		items = append(items, item)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items, "count": len(items)})
+}
+
+type productVariantResponse struct {
+	ID         int64          `json:"id"`
+	ProductID  int64          `json:"productId"`
+	SKU        *string        `json:"sku,omitempty"`
+	Title      string         `json:"title"`
+	Price      float64        `json:"price"`
+	Stock      int32          `json:"stock"`
+	Attributes map[string]any `json:"attributes"`
+}
+
+func mapProductVariant(id, productID int64, sku *string, title string, price float64,
+	stock int32, rawAttributes []byte) (productVariantResponse, error) {
+	attributes := make(map[string]any)
+	if len(rawAttributes) > 0 {
+		if err := json.Unmarshal(rawAttributes, &attributes); err != nil {
+			return productVariantResponse{}, err
+		}
+	}
+	return productVariantResponse{
+		ID: id, ProductID: productID, SKU: sku, Title: title,
+		Price: price, Stock: stock, Attributes: attributes,
+	}, nil
 }
 
 func mapProduct(id int64, title, description, category string, price, discount, rating float64,
