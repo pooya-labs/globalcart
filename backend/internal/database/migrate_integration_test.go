@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"sync"
 	"testing"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
+	"github.com/pooya16pg-spec/globalcart/backend/internal/commerce"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
 )
 
@@ -188,6 +190,71 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		VALUES($1, $2, $3, 0, 13.99, 'USD', 'Invalid quantity')`,
 		cartID, product.ID, variantID); err == nil {
 		t.Fatal("cart quantity zero should be rejected")
+	}
+
+	// Two guest carts compete for three units of the same base product.
+	// Row locking plus active reservations must allow only one 2-unit checkout.
+	type checkoutAttempt struct {
+		owner [32]byte
+		key [32]byte
+		order commerce.Order
+		err error
+	}
+	attempts := make([]checkoutAttempt, 2)
+	for i := range attempts {
+		attempts[i].owner[0] = byte(10 + i)
+		attempts[i].key[0] = byte(20 + i)
+		var newCartID string
+		if err := pool.QueryRow(ctx, `INSERT INTO carts(owner_token_hash,currency,expires_at)
+			VALUES($1,'USD',now()+interval '1 hour') RETURNING id::text`, attempts[i].owner[:]).Scan(&newCartID); err != nil {
+			t.Fatalf("create competing cart %d: %v", i, err)
+		}
+		if _, err := pool.Exec(ctx, `INSERT INTO cart_items
+			(cart_id,product_id,quantity,unit_price_snapshot,currency,product_title_snapshot)
+			VALUES($1,$2,2,12.34,'USD','Integration fixture')`, newCartID, product.ID); err != nil {
+			t.Fatalf("add competing cart item %d: %v", i, err)
+		}
+	}
+	service := commerce.New(pool)
+	var checkoutWG sync.WaitGroup
+	for i := range attempts {
+		checkoutWG.Add(1)
+		go func(i int) {
+			defer checkoutWG.Done()
+			attempts[i].order, attempts[i].err = service.Checkout(ctx, attempts[i].owner[:], attempts[i].key[:], 15*time.Minute)
+		}(i)
+	}
+	checkoutWG.Wait()
+	successes, stockFailures := 0, 0
+	winner := -1
+	for i := range attempts {
+		switch {
+		case attempts[i].err == nil:
+			successes++
+			winner = i
+		case errors.Is(attempts[i].err, commerce.ErrInsufficientStock):
+			stockFailures++
+		default:
+			t.Fatalf("unexpected checkout result %d: order=%+v err=%v", i, attempts[i].order, attempts[i].err)
+		}
+	}
+	if successes != 1 || stockFailures != 1 {
+		t.Fatalf("concurrent checkout outcomes: successes=%d stock failures=%d, want 1 each", successes, stockFailures)
+	}
+	replayed, err := service.Checkout(ctx, attempts[winner].owner[:], attempts[winner].key[:], 15*time.Minute)
+	if err != nil {
+		t.Fatalf("replay successful checkout: %v", err)
+	}
+	if !replayed.Replayed || replayed.ID != attempts[winner].order.ID {
+		t.Fatalf("idempotent replay = %+v, original = %+v", replayed, attempts[winner].order)
+	}
+	var winnerReservations int
+	if err := pool.QueryRow(ctx, `SELECT COALESCE(sum(quantity),0)::int
+		FROM inventory_reservations WHERE order_id=$1 AND status='active'`, attempts[winner].order.ID).Scan(&winnerReservations); err != nil {
+		t.Fatalf("read winner reservations: %v", err)
+	}
+	if winnerReservations != 2 {
+		t.Fatalf("winner reserved %d units, want 2", winnerReservations)
 	}
 
 	// A failed item must roll back earlier writes in the same import batch.
