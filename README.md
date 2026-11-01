@@ -7,7 +7,7 @@
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no payment, inventory reservation, shipment, seller payout or refund is processed.
 
-## Current status — v0.1.3 + M02 catalog pipeline
+## Current status — v0.1.4 + M02 catalog pipeline
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -23,19 +23,19 @@ Implemented:
 - Target architecture: Go REST/OpenAPI, PostgreSQL + sqlc, Python workers and optional Redis at the backend milestone.
 
 In progress / not yet claimed as complete:
-- Gemini-backed Persian catalog translation adapter and CI job are implemented; CI build/deploy passed in run 41295683515. Live translation requires the GEMINI_API_KEY GitHub Actions secret.
+- Google Translate bridge via Apps Script Language Service is implemented. Live translation requires a one-time Apps Script deployment and two GitHub Actions Secrets.
 - Production-grade FX feed, price history and product detail pages.
 - Compare, admin/seller workspaces, order history and advanced search.
 - Expanded domain unit tests; accessibility and browser tests remain pending.
 - Visual/accessibility QA and browser tests; deployment is now successful.
 
-## Demo boundaries
+## Google Translate setup\n\n1. Open [Google Apps Script](https://script.google.com/) and create a project.\n2. Paste `google-apps-script/Code.gs` into the editor.\n3. In Project Settings → Script Properties, add `GLOBALCART_TOKEN` with a randomly generated secret of at least 24 characters.\n4. Deploy → New deployment → Web app; execute as your account and allow access to anyone. Copy the `/exec` URL.\n5. In GitHub repository Settings → Secrets and variables → Actions, add `GOOGLE_TRANSLATE_ENDPOINT` (the `/exec` URL) and `GOOGLE_TRANSLATE_TOKEN` (the exact same token). Never commit or paste the token into chat.\n\nThe Apps Script Language Service has a published quota of 5,000 translation calls/day for consumer accounts and 20,000/day for Workspace accounts. Quotas can change; GlobalCart sends requests sequentially and caches completed translations.\n\n## Demo boundaries
 
 | Area | Current behavior |
 |---|---|
 | Product catalog | DummyJSON public sample API; local fixtures if unavailable |
 | Images | Source-provided remote image URLs |
-| Translation | Optional server-side Gemini job; inactive until GEMINI_API_KEY secret is configured |
+| Translation | Google Translate via Apps Script; inactive until endpoint and token secrets are configured |
 | Currency | User-configurable illustrative rate; not a live exchange quote |
 | Cart / favorites | Local browser state |
 | Checkout | Local simulation; never contacts a payment provider |
