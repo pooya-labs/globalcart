@@ -25,3 +25,12 @@ FROM product_variants
 WHERE product_id = sqlc.arg(product_id)::bigint
   AND is_active = TRUE
 ORDER BY id;
+
+
+-- name: ListCategories :many
+SELECT c.id, c.name, COALESCE(c.parent_id, 0)::bigint AS parent_id,
+       count(p.id)::bigint AS product_count
+FROM categories AS c
+LEFT JOIN products AS p ON p.category_id = c.id
+GROUP BY c.id
+ORDER BY lower(c.name), c.id;
