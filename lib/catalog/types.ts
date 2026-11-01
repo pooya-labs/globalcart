@@ -7,6 +7,17 @@ export type CatalogLocalization = {
   fields: { title: string; description: string; category: string; brand: string } | null;
 };
 
+export type CatalogVariant = {
+  sku: string;
+  title: string;
+  price: number;
+  stock: number;
+  attributes: Record<string, unknown>;
+  source: string;
+  sourceId: string;
+  isActive: boolean;
+};
+
 export type CatalogProduct = {
   id: number;
   title: string;
@@ -24,6 +35,7 @@ export type CatalogProduct = {
   sourceUrl: string;
   importedAt: string;
   localization?: CatalogLocalization;
+  variants?: CatalogVariant[];
 };
 
 export type CatalogResult = {
