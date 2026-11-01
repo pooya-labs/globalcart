@@ -22,11 +22,13 @@ var (
 )
 
 type Order struct {
-	ID       string
-	Status   string
-	Currency string
-	Total    string
-	Replayed bool
+	ID             string
+	Status         string
+	Currency       string
+	Subtotal       string
+	DiscountAmount string
+	Total          string
+	Replayed       bool
 }
 
 type Service struct {
@@ -53,9 +55,10 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 
 	var cartID, currency, cartStatus string
 	var cartExpired bool
-	err = tx.QueryRow(ctx, `SELECT id::text, currency, status, expires_at <= now()
+	var couponID pgtype.Int8
+	err = tx.QueryRow(ctx, `SELECT id::text, currency, status, expires_at <= now(), coupon_id
 		FROM carts WHERE owner_token_hash=$1 FOR UPDATE`, ownerTokenHash).
-		Scan(&cartID, &currency, &cartStatus, &cartExpired)
+		Scan(&cartID, &currency, &cartStatus, &cartExpired, &couponID)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Order{}, ErrCartNotFound
 	}
@@ -66,9 +69,10 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	// Replay lookup precedes lifecycle checks so a retry after a successful
 	// commit can recover the original order even though the cart is checked out.
 	var replay Order
-	err = tx.QueryRow(ctx, `SELECT id::text, status, currency, total::text
+	err = tx.QueryRow(ctx, `SELECT id::text,status,currency,subtotal::text,discount_amount::text,total::text
 		FROM demo_orders WHERE cart_id=$1 AND idempotency_key_hash=$2`,
-		cartID, idempotencyHash).Scan(&replay.ID, &replay.Status, &replay.Currency, &replay.Total)
+		cartID, idempotencyHash).Scan(&replay.ID, &replay.Status, &replay.Currency,
+		&replay.Subtotal, &replay.DiscountAmount, &replay.Total)
 	if err == nil {
 		replay.Replayed = true
 		if err := tx.Commit(ctx); err != nil {
@@ -178,13 +182,73 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 		}
 	}
 
-	var total string
+	var subtotal string
 	if err := tx.QueryRow(ctx, `SELECT COALESCE(sum(unit_price_snapshot * quantity),0)::numeric(12,2)::text
-		FROM demo_order_items WHERE order_id=$1`, orderID).Scan(&total); err != nil {
-		return Order{}, fmt.Errorf("calculate order total: %w", err)
+		FROM demo_order_items WHERE order_id=$1`, orderID).Scan(&subtotal); err != nil {
+		return Order{}, fmt.Errorf("calculate order subtotal: %w", err)
 	}
-	if _, err := tx.Exec(ctx, `UPDATE demo_orders SET subtotal=$2::numeric,total=$2::numeric,updated_at=now() WHERE id=$1`, orderID, total); err != nil {
-		return Order{}, fmt.Errorf("finalize order total: %w", err)
+	discount := "0.00"
+	if couponID.Valid {
+		var discountType, discountValue, minimumSubtotal string
+		var maximumDiscount pgtype.Text
+		var startsAt, endsAt, dbNow time.Time
+		var usageLimit pgtype.Int8
+		var perCustomerLimit int32
+		var active bool
+		err = tx.QueryRow(ctx, `SELECT discount_type,discount_value::text,minimum_subtotal::text,
+			maximum_discount::text,starts_at,ends_at,usage_limit,per_customer_limit,is_active,now()
+			FROM coupons WHERE id=$1 FOR UPDATE`, couponID.Int64).
+			Scan(&discountType,&discountValue,&minimumSubtotal,&maximumDiscount,&startsAt,&endsAt,
+				&usageLimit,&perCustomerLimit,&active,&dbNow)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return Order{}, ErrCouponUnavailable
+		}
+		if err != nil {
+			return Order{}, fmt.Errorf("lock checkout coupon: %w", err)
+		}
+		if !active || dbNow.Before(startsAt) || !dbNow.Before(endsAt) {
+			return Order{}, ErrCouponUnavailable
+		}
+		var meetsMinimum bool
+		if err := tx.QueryRow(ctx, "SELECT $1::numeric >= $2::numeric", subtotal, minimumSubtotal).Scan(&meetsMinimum); err != nil {
+			return Order{}, fmt.Errorf("validate coupon minimum subtotal: %w", err)
+		}
+		if !meetsMinimum {
+			return Order{}, ErrCouponMinimum
+		}
+		var globalUses, ownerUses int64
+		if err := tx.QueryRow(ctx, "SELECT count(*) FROM coupon_redemptions WHERE coupon_id=$1", couponID.Int64).Scan(&globalUses); err != nil {
+			return Order{}, fmt.Errorf("count global coupon uses: %w", err)
+		}
+		if err := tx.QueryRow(ctx, "SELECT count(*) FROM coupon_redemptions WHERE coupon_id=$1 AND owner_token_hash=$2", couponID.Int64, ownerTokenHash).Scan(&ownerUses); err != nil {
+			return Order{}, fmt.Errorf("count owner coupon uses: %w", err)
+		}
+		if (usageLimit.Valid && globalUses >= usageLimit.Int64) || ownerUses >= int64(perCustomerLimit) {
+			return Order{}, ErrCouponUnavailable
+		}
+		var maxDiscount any
+		if maximumDiscount.Valid {
+			maxDiscount = maximumDiscount.String
+		}
+		if err := tx.QueryRow(ctx, `SELECT LEAST($1::numeric,
+			CASE WHEN $2='percentage' THEN round($1::numeric*$3::numeric/100,2) ELSE $3::numeric END,
+			COALESCE($4::numeric,$1::numeric))::numeric(12,2)::text`,
+			subtotal, discountType, discountValue, maxDiscount).Scan(&discount); err != nil {
+			return Order{}, fmt.Errorf("calculate coupon discount: %w", err)
+		}
+		if _, err := tx.Exec(ctx, `INSERT INTO coupon_redemptions(coupon_id,order_id,owner_token_hash,discount_amount)
+			VALUES($1,$2,$3,$4::numeric)`, couponID.Int64, orderID, ownerTokenHash, discount); err != nil {
+			return Order{}, fmt.Errorf("record coupon redemption: %w", err)
+		}
+	}
+	var total string
+	if err := tx.QueryRow(ctx, "SELECT ($1::numeric-$2::numeric)::numeric(12,2)::text", subtotal, discount).Scan(&total); err != nil {
+		return Order{}, fmt.Errorf("calculate discounted order total: %w", err)
+	}
+	if _, err := tx.Exec(ctx, `UPDATE demo_orders SET coupon_id=$2,subtotal=$3::numeric,
+		discount_amount=$4::numeric,total=$5::numeric,updated_at=now() WHERE id=$1`,
+		orderID, nullableCouponID(couponID), subtotal, discount, total); err != nil {
+		return Order{}, fmt.Errorf("finalize discounted order totals: %w", err)
 	}
 	if _, err := tx.Exec(ctx, `INSERT INTO demo_order_events(order_id,event_type,payload)
 		VALUES($1,'demo_order_created','{"mode":"simulation"}'::jsonb)`, orderID); err != nil {
@@ -196,7 +260,7 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	if err := tx.Commit(ctx); err != nil {
 		return Order{}, fmt.Errorf("commit checkout: %w", err)
 	}
-	return Order{ID: orderID, Status: "awaiting_demo_payment", Currency: currency, Total: total}, nil
+	return Order{ID: orderID, Status: "awaiting_demo_payment", Currency: currency, Subtotal: subtotal, DiscountAmount: discount, Total: total}, nil
 }
 
 // ExpirePendingOrders releases every active reservation belonging to an order
