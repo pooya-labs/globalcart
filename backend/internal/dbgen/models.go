@@ -31,6 +31,7 @@ type CartItem struct {
 	VariantTitleSnapshot string             `json:"variant_title_snapshot"`
 	CreatedAt            pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt            pgtype.Timestamptz `json:"updated_at"`
+	VendorProductID      *int64             `json:"vendor_product_id"`
 }
 
 type Category struct {
@@ -97,18 +98,35 @@ type DemoOrderItem struct {
 	Currency             string         `json:"currency"`
 	ProductTitleSnapshot string         `json:"product_title_snapshot"`
 	VariantTitleSnapshot string         `json:"variant_title_snapshot"`
+	VendorProductID      *int64         `json:"vendor_product_id"`
+	VendorOrderID        pgtype.UUID    `json:"vendor_order_id"`
+}
+
+type DemoVendorOrder struct {
+	ID             pgtype.UUID        `json:"id"`
+	OrderID        pgtype.UUID        `json:"order_id"`
+	VendorID       int64              `json:"vendor_id"`
+	Status         string             `json:"status"`
+	Currency       string             `json:"currency"`
+	Subtotal       pgtype.Numeric     `json:"subtotal"`
+	DiscountAmount pgtype.Numeric     `json:"discount_amount"`
+	Total          pgtype.Numeric     `json:"total"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }
 
 type InventoryReservation struct {
-	ID        pgtype.UUID        `json:"id"`
-	OrderID   pgtype.UUID        `json:"order_id"`
-	ProductID int64              `json:"product_id"`
-	VariantID *int64             `json:"variant_id"`
-	Quantity  int32              `json:"quantity"`
-	Status    string             `json:"status"`
-	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	ID              pgtype.UUID        `json:"id"`
+	OrderID         pgtype.UUID        `json:"order_id"`
+	ProductID       int64              `json:"product_id"`
+	VariantID       *int64             `json:"variant_id"`
+	Quantity        int32              `json:"quantity"`
+	Status          string             `json:"status"`
+	ExpiresAt       pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+	VendorProductID *int64             `json:"vendor_product_id"`
+	VendorOrderID   pgtype.UUID        `json:"vendor_order_id"`
 }
 
 type Product struct {

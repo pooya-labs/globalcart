@@ -18,15 +18,15 @@ var (
 
 type CartItem struct {
 	VendorProductID *int64
-	VendorID     *int64
-	VendorName   string
-	ProductID    int64
-	VariantID    *int64
-	Quantity     int32
-	UnitPrice    string
-	Currency     string
-	ProductTitle string
-	VariantTitle string
+	VendorID        *int64
+	VendorName      string
+	ProductID       int64
+	VariantID       *int64
+	Quantity        int32
+	UnitPrice       string
+	Currency        string
+	ProductTitle    string
+	VariantTitle    string
 }
 
 type Cart struct {
@@ -308,8 +308,14 @@ func (s *Service) GetCart(ctx context.Context, ownerTokenHash []byte) (Cart, err
 			v := variant.Int64
 			item.VariantID = &v
 		}
-		if vendorProduct.Valid { v := vendorProduct.Int64; item.VendorProductID = &v }
-		if vendorID.Valid { v := vendorID.Int64; item.VendorID = &v }
+		if vendorProduct.Valid {
+			v := vendorProduct.Int64
+			item.VendorProductID = &v
+		}
+		if vendorID.Valid {
+			v := vendorID.Int64
+			item.VendorID = &v
+		}
 		cart.Items = append(cart.Items, item)
 	}
 	if err := rows.Err(); err != nil {

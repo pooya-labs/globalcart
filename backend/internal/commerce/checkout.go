@@ -12,13 +12,13 @@ import (
 )
 
 var (
-	ErrCartNotFound      = errors.New("cart not found")
-	ErrCartClosed        = errors.New("cart is not open")
-	ErrCartExpired       = errors.New("cart expired")
-	ErrEmptyCart         = errors.New("cart is empty")
-	ErrUnavailable       = errors.New("item is unavailable")
-	ErrInsufficientStock = errors.New("insufficient demo stock")
-	ErrInvalidLifetime   = errors.New("reservation lifetime must be positive")
+	ErrCartNotFound           = errors.New("cart not found")
+	ErrCartClosed             = errors.New("cart is not open")
+	ErrCartExpired            = errors.New("cart expired")
+	ErrEmptyCart              = errors.New("cart is empty")
+	ErrUnavailable            = errors.New("item is unavailable")
+	ErrInsufficientStock      = errors.New("insufficient demo stock")
+	ErrInvalidLifetime        = errors.New("reservation lifetime must be positive")
 	ErrVendorCheckoutNotReady = errors.New("vendor cart checkout is not available yet")
 )
 
