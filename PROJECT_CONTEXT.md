@@ -232,3 +232,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Simulated payment, cancellation and reservation expiry now propagate state to vendor child orders.
 - Mixed legacy/vendor carts are intentionally rejected. No payment gateway, real stock decrement, HTTP write routes, seller identity or production infrastructure.
 - Integration tests cover two-vendor checkout, coupon totals, idempotent replay, legacy-stock non-mutation, simulated payment propagation and same-offer stock contention.
+
+
+## Latest continuation checkpoint — 2026-11-02
+- Active branch: `feat/m04-go-postgres-foundation` (PR #1 remains draft; do not merge until review and CI verification).
+- M09.2 vendor split checkout is implemented: one parent order, one child per vendor, per-offer reservations, parent coupon redemption with exact child allocation, and lifecycle propagation for simulated payment/cancellation/expiry.
+- Latest implementation adds `GetVendorOrder`, an owner-capability-scoped read for a single vendor child order with immutable item snapshots. Unknown IDs and wrong-owner IDs return the same not-found error.
+- Added `vendor_orders_integration_test.go` for PostgreSQL-backed ownership and snapshot assertions.
+- **Immediate next action:** inspect and verify the backend CI triggered by commits `8f7164c` and `b940878`; fix any compile/test failures before advancing the roadmap.
+- No public commerce or seller HTTP routes, browser session flow, real payments, hosted API/database, or production secrets are enabled.
