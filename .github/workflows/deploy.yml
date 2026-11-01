@@ -25,6 +25,11 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Refresh static catalog snapshot
         run: npm run catalog:sync
+      - name: Translate catalog to Persian (optional; requires GEMINI_API_KEY secret)
+        run: npm run catalog:translate
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash
       - name: TypeScript validation
         run: npm run typecheck
       - name: Unit tests
