@@ -73,7 +73,7 @@ CREATE TABLE inventory_reservations (
     variant_id BIGINT,
     quantity INTEGER NOT NULL CHECK (quantity BETWEEN 1 AND 99),
     status TEXT NOT NULL DEFAULT 'active'
-        CHECK (status IN ('active', 'released', 'consumed', 'expired')),
+        CHECK (status IN ('active', 'released', 'expired')),
     expires_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
