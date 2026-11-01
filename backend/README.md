@@ -69,3 +69,6 @@ CI regenerates and formats the typed package before tests/builds. The first pass
 
 
 The public product list and detail read handlers use the generated sqlc query package. The importer intentionally retains explicit transactional upsert statements because it performs a multi-step product/category transaction rather than a simple generated read query.
+
+
+The read-only catalog API also exposes `GET /api/v1/products/{id}/variants` for active product variants. It returns a 404 when the parent product does not exist.
