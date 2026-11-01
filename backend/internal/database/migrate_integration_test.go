@@ -232,8 +232,8 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id=$1", platformOfferID).Scan(&inventoryEventCount); err != nil {
 		t.Fatalf("read vendor inventory events: %v", err)
 	}
-	if priceHistoryCount != 1 || inventoryEventCount != 1 {
-		t.Fatalf("vendor audit rows: price=%d inventory=%d, want one each", priceHistoryCount, inventoryEventCount)
+	if priceHistoryCount != 2 || inventoryEventCount != 2 {
+		t.Fatalf("vendor audit rows: price=%d inventory=%d, want two each after source variant update", priceHistoryCount, inventoryEventCount)
 	}
 	if _, err := pool.Exec(ctx, `INSERT INTO vendor_products
 		(vendor_id,product_id,variant_id,price,currency,stock,status)
