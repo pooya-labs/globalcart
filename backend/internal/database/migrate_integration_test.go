@@ -57,6 +57,11 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		Images: []string{"https://example.invalid/image.webp"},
 		Source: "integration-test", SourceID: "fixture-1",
 		ImportedAt: time.Now().UTC(),
+		Variants: []catalog.Variant{{
+			SKU: "GC-INT-987654321-BLK-M", Title: "Black / Medium", Price: 13.99, Stock: 2,
+			Attributes: map[string]any{"color": "black", "size": "M"},
+			Source: "integration-test", SourceID: "variant-1", IsActive: true,
+		}},
 	}
 	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
 		t.Fatalf("upsert product: %v", err)
@@ -120,18 +125,10 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if total < 1 {
 		t.Fatalf("normalized category count = %d, want at least one", total)
 	}
-	variantAttributes := []byte(`{"color":"black","size":"M"}`)
 	var variantID int64
-	if err := pool.QueryRow(ctx, `INSERT INTO product_variants
-		(product_id,sku,title,price,stock,attributes,source,source_id)
-		VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
-		product.ID, "GC-INT-987654321-BLK-M", "Black / Medium", 13.99, 2,
-		variantAttributes, "integration-test", "variant-1").Scan(&variantID); err != nil {
-		t.Fatalf("insert product variant: %v", err)
-	}
 	var storedAttributes []byte
-	if err := pool.QueryRow(ctx, "SELECT attributes FROM product_variants WHERE id=$1", variantID).Scan(&storedAttributes); err != nil {
-		t.Fatalf("read product variant attributes: %v", err)
+	if err := pool.QueryRow(ctx, "SELECT id,attributes FROM product_variants WHERE product_id=$1 AND source=$2 AND source_id=$3", product.ID, "integration-test", "variant-1").Scan(&variantID, &storedAttributes); err != nil {
+		t.Fatalf("read imported product variant and attributes: %v", err)
 	}
 	var decodedAttributes map[string]string
 	if err := json.Unmarshal(storedAttributes, &decodedAttributes); err != nil {
