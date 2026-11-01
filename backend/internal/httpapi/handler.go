@@ -114,9 +114,17 @@ func (h *Handler) listProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), 4*time.Second)
 	defer cancel()
-	rows, err := h.queries.ListProducts(ctx, dbgen.ListProductsParams{
+	params := dbgen.ListProductsParams{
 		Category: category, Query: q, PageLimit: int32(limit), PageOffset: int32(offset),
+	}
+	total, err := h.queries.CountProducts(ctx, dbgen.CountProductsParams{
+		Category: category, Query: q,
 	})
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "catalog_query_failed")
+		return
+	}
+	rows, err := h.queries.ListProducts(ctx, params)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "catalog_query_failed")
 		return
@@ -133,7 +141,7 @@ func (h *Handler) listProducts(w http.ResponseWriter, r *http.Request) {
 		}
 		products = append(products, product)
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"items": products, "limit": limit, "offset": offset, "count": len(products)})
+	writeJSON(w, http.StatusOK, map[string]any{"items": products, "limit": limit, "offset": offset, "count": len(products), "total": total})
 }
 
 func (h *Handler) getProduct(w http.ResponseWriter, r *http.Request) {
