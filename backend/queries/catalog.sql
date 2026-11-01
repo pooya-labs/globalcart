@@ -12,7 +12,8 @@ LIMIT sqlc.arg(page_limit)::integer
 OFFSET sqlc.arg(page_offset)::integer;
 
 -- name: GetProduct :one
-SELECT id, title, description, category, price, discount_percentage, rating,
+SELECT id, title, description, category, price::float8 AS price,
+       discount_percentage::float8 AS discount_percentage, rating::float8 AS rating,
        stock, brand, thumbnail, images, source, source_id, source_url, imported_at
 FROM products
 WHERE id = sqlc.arg(id)::bigint;
