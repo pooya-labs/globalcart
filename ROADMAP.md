@@ -225,7 +225,7 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Keep the external catalog JSON response shape stable through an explicit database-row mapper.
 - [x] Add mapper tests for JSON images and catalog field mapping.
 - [x] Verify sqlc generation, go vet, race-enabled unit/integration tests and Go builds in CI.
-- [ ] Complete read API for active product variants and category navigation.
+- [x] Complete read API for active product variants and category listing.
 
 
 ### M04 product variants read API — 2026-11-01
@@ -237,3 +237,11 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 
 
 - CI verification for the product variants read endpoint completed successfully (run 41302565323): sqlc generation, go vet, race-enabled tests, API/importer builds and Docker image build all passed.
+
+
+### M04 normalized category API — 2026-11-01
+- [x] Add generated sqlc category listing query with parent relationship and product counts.
+- [x] Expose `GET /api/v1/categories` as a read-only endpoint.
+- [x] Add OpenAPI documentation and response serialization coverage.
+- [x] Extend PostgreSQL integration tests to exercise the generated category query against migrated schema.
+- [ ] Verify category endpoint and integration test in CI.
