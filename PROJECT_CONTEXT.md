@@ -165,3 +165,13 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Integration tests exercise two guest carts competing for limited product stock (one succeeds, one is rejected), successful checkout replay, and idempotent expiry of pending orders/reservations.
 - CI run 41346127244 passed all stages including PostgreSQL-backed concurrency/expiry tests and Docker image build.
 - No cart/order write endpoint, payment provider, live stock mutation, or browser cookie flow is enabled.
+
+
+### M05 guest cart lifecycle service — CI verified
+- Added `backend/internal/commerce/cart.go` with internal methods: `CreateCart`, `AddItem`, `SetItemQuantity`, `RemoveItem`, `GetCart`.
+- Caller supplies a 32-byte capability digest; raw guest bearer tokens are never accepted or persisted by the service.
+- Cart mutations lock the cart row, enforce open/unexpired lifecycle, read canonical product/variant price/title/stock, and enforce quantity/stock bounds.
+- Currency is explicitly USD-only pending a real catalog currency/FX model.
+- PostgreSQL integration tests cover create/add/increment/set/remove, stock overflow, active variants and expired carts.
+- CI push run 41346723656 passed all stages including PostgreSQL-backed tests and Docker image build. The earlier PR run exposed one unused import; it was removed and the corrected commit passed.
+- No cart HTTP routes, cookies, or cross-origin browser flows were enabled.
