@@ -220,6 +220,53 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if firstStock != 4 || secondStock != 7 {
 		t.Fatalf("vendor stocks are not independent: first=%d second=%d, want 4 / 7", firstStock, secondStock)
 	}
+
+	// A later product-only snapshot must not interpret absent variants as deletions.
+	// Existing source variants and all vendor offers remain intact.
+	productOnlySnapshot := product
+	productOnlySnapshot.Variants = nil
+	if err := UpsertProducts(ctx, pool, []catalog.Product{productOnlySnapshot}); err != nil {
+		t.Fatalf("import product-only snapshot: %v", err)
+	}
+	var retainedVariantCount int
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM product_variants WHERE product_id=$1 AND source=$2 AND source_id=$3",
+		product.ID, "integration-test", "variant-1").Scan(&retainedVariantCount); err != nil {
+		t.Fatalf("count retained source variant: %v", err)
+	}
+	if retainedVariantCount != 1 {
+		t.Fatalf("product-only snapshot retained %d source variants, want 1", retainedVariantCount)
+	}
+	var retainedPlatformStatus, retainedSellerStatus string
+	var retainedPlatformPrice string
+	var retainedPlatformStock, retainedSellerStock int
+	if err := pool.QueryRow(ctx, "SELECT price::text,stock,status FROM vendor_products WHERE id=$1", platformOfferID).
+		Scan(&retainedPlatformPrice, &retainedPlatformStock, &retainedPlatformStatus); err != nil {
+		t.Fatalf("read retained platform variant offer: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT stock,status FROM vendor_products WHERE id=$1", secondOfferID).
+		Scan(&retainedSellerStock, &retainedSellerStatus); err != nil {
+		t.Fatalf("read retained independent seller offer: %v", err)
+	}
+	if retainedPlatformPrice != "15.25" || retainedPlatformStock != 4 || retainedPlatformStatus != "active" {
+		t.Fatalf("product-only snapshot changed platform variant offer: price=%s stock=%d status=%s",
+			retainedPlatformPrice, retainedPlatformStock, retainedPlatformStatus)
+	}
+	if retainedSellerStock != 7 || retainedSellerStatus != "active" {
+		t.Fatalf("product-only snapshot changed independent seller offer: stock=%d status=%s",
+			retainedSellerStock, retainedSellerStatus)
+	}
+	var retainedPriceEvents, retainedInventoryEvents int
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", platformOfferID).Scan(&retainedPriceEvents); err != nil {
+		t.Fatalf("count retained variant price events: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id=$1", platformOfferID).Scan(&retainedInventoryEvents); err != nil {
+		t.Fatalf("count retained variant inventory events: %v", err)
+	}
+	if retainedPriceEvents != 2 || retainedInventoryEvents != 2 {
+		t.Fatalf("product-only snapshot added audit events: price=%d inventory=%d, want 2 each",
+			retainedPriceEvents, retainedInventoryEvents)
+	}
+
 	var priceHistoryCount, inventoryEventCount int
 	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", platformOfferID).Scan(&priceHistoryCount); err != nil {
 		t.Fatalf("read vendor price history: %v", err)
