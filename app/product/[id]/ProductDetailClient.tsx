@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
+import { calculateDemoPrice } from "../../../lib/pricing";
 
 type Product = {
   id:number; title:string; description:string; category:string; price:number;
@@ -45,12 +46,15 @@ export default function ProductDetailClient({product,related}:Props) {
   const images=useMemo(()=>Array.from(new Set([product.thumbnail,...(product.images||[])].filter(Boolean))),[product]);
   const image=images[Math.min(activeImage,images.length-1)]||product.thumbnail;
   const discounted=product.price*(1-product.discountPercentage/100);
+  const priceBreakdown=calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   useEffect(()=>{
     try{
       const raw=localStorage.getItem("globalcart-state-v1");
       if(!raw)return;
       const state=JSON.parse(raw);
       if(Number.isFinite(state.rate)&&state.rate>0)setRate(state.rate);
+      const recentIds:number[]=Array.isArray(state.recent)?state.recent:[];
+      localStorage.setItem("globalcart-state-v1",JSON.stringify({...state,recent:[product.id,...recentIds.filter(id=>id!==product.id)].slice(0,8)}));
       if(Array.isArray(state.favorites))setSaved(state.favorites.includes(product.id));
     }catch{/* Ignore invalid local demo state. */}
   },[product.id]);
@@ -102,8 +106,9 @@ export default function ProductDetailClient({product,related}:Props) {
       </div>
       <aside className="detail-buybox">
         <span className="buybox-kicker">{rtl?"قیمت نمایشی":"ILLUSTRATIVE PRICE"}</span>
-        <div className="detail-price">{format(discounted)}</div>
+        <div className="detail-price">{rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)}</div>
         <div className="detail-old-price"><s>{format(product.price)}</s><span>{rtl?"قیمت قبل از تخفیف":"Before discount"}</span></div>
+        <details className="price-breakdown"><summary>{rtl?"جزئیات محاسبه قیمت":"How this price is calculated"}</summary><div><span>{rtl?"قیمت منبع":"Source price"}</span><b>{format(priceBreakdown.sourcePrice)}</b></div><div><span>{rtl?"تخفیف نمونه":"Catalog discount"}</span><b>− {format(priceBreakdown.sourcePrice-priceBreakdown.discountedUsd)}</b></div>{rtl&&<div><span>{rtl?"نرخ تبدیل نمایشی":"Illustrative FX rate"}</span><b>{new Intl.NumberFormat("fa-IR").format(priceBreakdown.fxRate)} تومان / USD</b></div>}<small>{rtl?"محاسبه بر اساس قیمت نمونه و نرخ دستی مرورگر است؛ نرخ زنده، هزینه ارسال یا مالیات در آن لحاظ نشده است.":"Calculated from sample catalog price and the browser’s illustrative rate. No live FX, shipping or tax is included."}</small></details>
         <div className="buybox-stock"><span/> {rtl?"موجود در کاتالوگ نمونه":"Listed in sample catalog"}</div>
         <div className="buybox-quantity"><span>{rtl?"تعداد":"Quantity"}</span><div><button onClick={()=>setQuantity(q=>Math.max(1,q-1))} aria-label="Decrease quantity"><Minus size={15}/></button><b>{quantity}</b><button onClick={()=>setQuantity(q=>Math.min(10,q+1))} aria-label="Increase quantity"><Plus size={15}/></button></div></div>
         <button className="buybox-add" onClick={addToCart}><ShoppingBag size={17}/>{rtl?"افزودن به سبد خرید":"Add to bag"}</button>
