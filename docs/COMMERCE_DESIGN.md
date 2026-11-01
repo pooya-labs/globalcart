@@ -85,3 +85,6 @@ The internal `CancelOrder` service locks the owned order in a transaction. Only 
 
 ## 11. Simulated payment state transition
 `CompleteDemoPayment` is an internal-only demonstration transition. It requires the cart owner capability, locks the order, accepts only `awaiting_demo_payment` with a still-live reservation, releases active demo reservations, changes the state to `paid_simulated` and appends a `demo_payment_simulated` event in one transaction. Repeated calls after success return the same order without duplicate events. Unknown and wrong-owner IDs return the same not-found error. Cancelled or expired orders cannot be completed. No payment gateway, payment credentials, card data, webhook or actual funds are involved. The method is not exposed through HTTP.
+
+
+Verification: CI run 41348079983 passed the PostgreSQL integration/race test suite, sqlc generation, formatting, vet, API/importer builds and Docker image build. The payment simulation remains an internal service only.

@@ -192,5 +192,5 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The operation requires the owning cart's 32-byte capability digest, locks the order, requires `awaiting_demo_payment` and at least one unexpired active reservation, then atomically releases active holds, sets `paid_simulated` and appends one `demo_payment_simulated` event.
 - Repeated completion returns the existing paid-simulated order without adding duplicate events. Wrong owner/unknown order returns `ErrOrderNotFound`; cancelled/expired states cannot be completed.
 - This is explicitly a local simulation: no payment provider, credentials, webhook, card data or real-money movement.
-- PostgreSQL integration coverage has been added for owner isolation, completion, replay, reservation release and rejection of cancellation after simulated payment. Awaiting CI verification.
+- PostgreSQL integration coverage has been added for owner isolation, completion, replay, reservation release and rejection of cancellation after simulated payment. CI run 41348079983 passed sqlc generation, formatting, vet, race-enabled PostgreSQL tests, API/importer builds and Docker image build.
 - No HTTP routes or browser checkout flow enabled.

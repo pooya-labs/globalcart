@@ -160,4 +160,4 @@
 - Added an owner-scoped, idempotent internal demo payment completion transition.
 - Requires a live stock reservation; atomically releases holds, updates order state and appends a simulation event.
 - Added PostgreSQL integration coverage for ownership, repeat completion, reservation release and invalid post-payment cancellation.
-- No external payment provider or public payment endpoint is involved; CI verification pending.
+- No external payment provider or public payment endpoint is involved; Verified by CI run 41348079983, including PostgreSQL integration/race tests and Docker image build.

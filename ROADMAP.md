@@ -309,5 +309,6 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Require a live reservation before simulated completion; expired or non-pending orders cannot be completed.
 - [x] Atomically release demo reservations, update order state and append one simulation event.
 - [x] Make repeat completion idempotent; no payment provider, credentials, webhook or real-money flow exists.
-- [ ] Add/verify PostgreSQL integration coverage and CI for this slice.
-- [ ] Keep all payment/order operations internal until the deployment, identity and CSRF gates are approved.
+- [x] Add PostgreSQL integration coverage for ownership, payment replay, reservation release and expired-reservation rejection.
+- [x] Verify sqlc generation, formatting, vet, race-enabled PostgreSQL tests, API/importer builds and Docker image build in CI run 41348079983.
+- [x] Keep all payment/order operations internal until the deployment, identity and CSRF gates are approved.
