@@ -2,8 +2,8 @@
 
 **Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
-**Branch:** main  
-**Package version:** 0.2.2 (next development increment: 0.2.3-dev)  
+**Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
+**Package version:** 0.2.3-dev  
 **Active stage:** M01.5 marketplace redesign / M03 product experience  
 **Last updated:** 2026-11-01
 
@@ -37,7 +37,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `lib/translation/*` and `google-apps-script/*` — parked legacy translation implementation; not used by storefront or CI.
 - `tests/*.test.ts` — catalog, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
-- `ROADMAP.md` — authoritative milestone checklist.
+- `ROADMAP.md` — authoritative milestone checklist.\n- `backend/` — Go REST API, PostgreSQL migrations, local Docker Compose, catalog importer and OpenAPI contract.\n- `go.mod` — Go module at repository root.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
 ## Verified behavior
@@ -76,3 +76,17 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Search: PostgreSQL full-text/trigram first.
 - M04 requires owner approval for API hosting, database and worker runtime.
 
+
+
+## M04 backend foundation (branch work; not yet merged)
+- Branch: `feat/m04-go-postgres-foundation`.
+- Go 1.23 API uses the standard HTTP mux and pgx v5.
+- PostgreSQL 17 is the primary system of record; local Compose binds ports to 127.0.0.1 only.
+- Embedded transactional migration ledger creates an initial products table with source provenance, numeric constraints, JSONB image arrays and indexes.
+- Read-only API routes: `GET /healthz`, `GET /readyz`, `GET /api/v1/products`, `GET /api/v1/products/{id}`.
+- Product listing supports bounded limit/offset, category and full-text query parameters.
+- A one-shot CLI imports the current normalized catalog snapshot; it refuses empty or incomplete imports.
+- OpenAPI 3.1 contract is in `backend/openapi.yaml`.
+- Backend CI covers gofmt, go vet, race-enabled unit tests, Go builds and Docker image build.
+- No authentication, user/order writes, payment, seller APIs or production deployment exists yet.
+- Local Docker Compose is development scaffolding only; no cloud resources or paid services were created.
