@@ -27,6 +27,7 @@ func New(db *pgxpool.Pool, origins map[string]bool) http.Handler {
 	mux.HandleFunc("GET /healthz", h.health)
 	mux.HandleFunc("GET /readyz", h.ready)
 	mux.HandleFunc("GET /api/v1/products", h.listProducts)
+	mux.HandleFunc("GET /api/v1/categories", h.listCategories)
 	mux.HandleFunc("GET /api/v1/products/{id}", h.getProduct)
 	mux.HandleFunc("GET /api/v1/products/{id}/variants", h.listProductVariants)
 	return h.cors(mux)
@@ -61,6 +62,34 @@ func (h *Handler) ready(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ready", "database": "connected"})
+}
+
+
+type categoryResponse struct {
+	ID           int64  `json:"id"`
+	Name         string `json:"name"`
+	ParentID     *int64 `json:"parentId,omitempty"`
+	ProductCount int64  `json:"productCount"`
+}
+
+func (h *Handler) listCategories(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+	defer cancel()
+	rows, err := h.queries.ListCategories(ctx)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "category_query_failed")
+		return
+	}
+	items := make([]categoryResponse, 0, len(rows))
+	for _, row := range rows {
+		item := categoryResponse{ID: row.ID, Name: row.Name, ProductCount: row.ProductCount}
+		if row.ParentID != 0 {
+			parentID := row.ParentID
+			item.ParentID = &parentID
+		}
+		items = append(items, item)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items, "count": len(items)})
 }
 
 func (h *Handler) listProducts(w http.ResponseWriter, r *http.Request) {
