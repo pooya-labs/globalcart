@@ -30,7 +30,6 @@ func TestCORSOnlyAllowsConfiguredOrigins(t *testing.T) {
 	}
 }
 
-
 func TestListProductsRejectsInvalidParametersBeforeDatabaseAccess(t *testing.T) {
 	h := New(nil, nil)
 	for _, target := range []string{
@@ -52,9 +51,9 @@ func TestListProductsRejectsInvalidParametersBeforeDatabaseAccess(t *testing.T) 
 
 func TestParseBoundedInt(t *testing.T) {
 	tests := []struct {
-		name, raw string
+		name, raw                string
 		fallback, min, max, want int
-		valid bool
+		valid                    bool
 	}{
 		{name: "default", fallback: 24, min: 1, max: 100, want: 24, valid: true},
 		{name: "valid", raw: "50", min: 1, max: 100, want: 50, valid: true},
