@@ -68,3 +68,6 @@
 ### Notes
 - Amazon link submission is a local demonstration only. Live product details, pricing and availability require authorized Amazon API access.
 - Translation remains paused and excluded from CI.
+### Verification
+- Actions run 41299130540 (Run #121) passed catalog refresh, TypeScript validation, unit tests, production build, Pages artifact upload and deployment.
+- Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41299130540
