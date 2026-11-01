@@ -30,7 +30,7 @@ The browser may attempt a live catalog refresh. If it fails, the storefront keep
 
 ## Backend foundation (M04 branch; local development only)
 
-The branch `feat/m04-go-postgres-foundation` adds a runnable Go API and PostgreSQL 17 Compose environment. The API applies embedded versioned migrations on startup, exposes liveness/readiness probes and read-only catalog list/detail endpoints, and uses a local CLI to import the normalized static catalog snapshot. OpenAPI is maintained in `backend/openapi.yaml`. The Compose ports bind to loopback; this is not a public or production deployment. Authentication, write endpoints, sqlc and hosted infrastructure remain future work. PostgreSQL integration tests currently cover concurrent/idempotent migrations, catalog upserts and transactional rollback.
+The branch `feat/m04-go-postgres-foundation` adds a runnable Go API and PostgreSQL 17 Compose environment. The API applies embedded versioned migrations on startup, exposes liveness/readiness probes and read-only catalog list/detail endpoints, and uses a local CLI to import the normalized static catalog snapshot. OpenAPI is maintained in `backend/openapi.yaml`. The Compose ports bind to loopback; this is not a public or production deployment. The branch now also includes normalized catalog categories and product variants while preserving the current product API shape. Authentication, write endpoints, sqlc and hosted infrastructure remain future work. PostgreSQL integration tests currently cover concurrent/idempotent migrations, catalog upserts and transactional rollback.
 
 ## Target platform architecture (M04+)
 
