@@ -47,7 +47,7 @@ paths:
           schema: { type: integer, minimum: 0, default: 0 }
       responses:
         '200':
-          description: Product page
+          description: Product page with page count and total matching result count
         '400':
           description: Invalid limit, offset, query or category parameter
   /api/v1/products/{id}:
