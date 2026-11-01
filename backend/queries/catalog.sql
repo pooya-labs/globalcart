@@ -19,7 +19,7 @@ FROM products
 WHERE id = sqlc.arg(id)::bigint;
 
 -- name: ListProductVariants :many
-SELECT id, product_id, sku, title, price, stock, attributes, source, source_id,
+SELECT id, product_id, sku, title, price::float8 AS price, stock, attributes, source, source_id,
        is_active, created_at, updated_at
 FROM product_variants
 WHERE product_id = sqlc.arg(product_id)::bigint
