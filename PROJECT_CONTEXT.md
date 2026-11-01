@@ -288,3 +288,5 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - PostgreSQL integration test covers initial import, unchanged re-import and changed price/stock updates.
 - Code commits: `686c567` (implementation), `bd7d006` (integration coverage), `2a04bf3` (uncategorized-product edge case). CI verification pending.
 - M09.4.1 public API regression guards are verified in Actions run `41353463006` (success). Seller routes and commerce write endpoints remain intentionally unexposed.
+
+- Variant follow-up: importer synchronization now creates/updates `GlobalCart Direct` offers for each `product_variants` row, syncing SKU, price, stock and active/paused status. Variant reads are fully collected and closed before offer writes within the transaction. Integration coverage checks creation, unchanged re-import, price/stock change audit events, inactive pausing and fixture restoration. Commits: `5574937`, `58eaa21`, `a7eed9d`, `9eb5671`. CI pending.
