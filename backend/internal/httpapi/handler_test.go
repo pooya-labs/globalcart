@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestHealthIsPublicAndDoesNotNeedDatabase(t *testing.T) {
@@ -68,5 +69,21 @@ func TestParseBoundedInt(t *testing.T) {
 				t.Fatalf("parseBoundedInt() = (%d, %t), want (%d, %t)", got, valid, tt.want, tt.valid)
 			}
 		})
+	}
+}
+
+func TestMapProductPreservesCatalogJSONShape(t *testing.T) {
+	got, err := mapProduct(7, "Phone", "A phone", "Electronics", 99.5, 10, 4.8,
+		12, "Brand", "thumb.jpg", []byte(`["a.jpg","b.jpg"]`),
+		"feed", "source-7", "https://example.test/p/7", time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("mapProduct: %v", err)
+	}
+	if got.ID != 7 || got.Price != 99.5 || got.Stock != 12 || len(got.Images) != 2 || got.SourceURL != "https://example.test/p/7" {
+		t.Fatalf("unexpected mapped product: %+v", got)
+	}
+	if _, err := mapProduct(7, "Phone", "A phone", "Electronics", 99.5, 10, 4.8,
+		12, "Brand", "thumb.jpg", []byte("not-json"), "feed", "source-7", "", time.Time{}); err == nil {
+		t.Fatal("expected invalid images JSON to fail")
 	}
 }
