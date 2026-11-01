@@ -358,8 +358,8 @@
 - Catalog CI [41360183218](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183218) and Backend CI [41360183283](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183283) passed on code head `062aabdf563626116a50ecba0d7f534e6af3f260`.
 
 
-### M08.8.3 last-known-good snapshot validation — implementation (2026-11-02)
+### M08.8.3 last-known-good snapshot validation — CI verified (2026-11-02)
 - Added strict runtime validation for the versioned catalog snapshot and its normalized product records before reusing it as last-known-good data.
 - Only ENOENT is treated as a first-run missing snapshot; JSON corruption, schema mismatch and other filesystem errors now fail closed rather than silently triggering fixture fallback.
 - Added tests for missing, malformed and structurally inconsistent snapshots.
-- CI verification is pending.
+- Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) passed on code head `ff5cf42cc094bc4e35d317ad52f970762280ba2f`.

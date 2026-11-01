@@ -539,11 +539,13 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Safety note:** atomic rename protects readers from partial JSON, but it does not impose freshness ordering between independent writers; the last successful rename wins. The scheduled Pages workflow remains serialized.
 
 
-## M08.8.3 — Last-known-good snapshot validation (implementation)
+## M08.8.3 — Last-known-good snapshot validation — CI verified
 - [x] Treat only ENOENT as a missing first-run snapshot; propagate filesystem permission and I/O failures.
 - [x] Validate snapshot metadata, product count and normalized product structure before using a file as last-known-good data.
 - [x] Reject malformed JSON and structurally invalid snapshots instead of silently treating them as absent and switching to fixtures.
 - [x] Add regression tests for missing files, malformed JSON, count mismatch and malformed product rows.
-- [ ] Verify Catalog CI, production build and Backend CI on the same final head.
+- [x] Verify Catalog CI, production build and Backend CI on the same code head.
+
+**Verification:** Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) all succeeded on code head `ff5cf42cc094bc4e35d317ad52f970762280ba2f`.
 
 **Safety note:** a missing snapshot may use the documented first-import behavior; an existing but invalid snapshot now fails closed and requires repair rather than being silently discarded.
