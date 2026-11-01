@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.1 — 2026-11-01
+
+### Changed
+- Reworked demo pricing to use integer USD cents and fixed-point FX units.
+- Used BigInt intermediate arithmetic to avoid floating-point drift during conversion.
+- Made rounding behavior explicit: discounted USD rounds to cents, then Toman rounds half-up to a whole unit.
+- Rejected non-finite discounts and unsafe input/output ranges.
+- Expanded pricing tests for fractional values, rounding, clamping and invalid inputs.
+- Removed the duplicate Pages starter workflow, which attempted npm ci without a lockfile and competed with the project-owned deployment workflow.
+- Updated project context and roadmap to document that Go/Python services and PostgreSQL require an external runtime/host beyond static GitHub Pages.
+
+### Verification
+- Previous Actions run 41294088588 passed dependency installation, TypeScript validation, its then-current unit tests, production build and Pages artifact upload.
+- The new decimal-pricing tests require a fresh Actions run.
+- GitHub Pages deployment previously returned HTTP 404 because Pages was not enabled/configured for the repository at that time.
+
+# Changelog
+
 ## 0.1.0 — 2026-11-01
 
 ### Added

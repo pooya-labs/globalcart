@@ -54,10 +54,13 @@ Each source adapter must return normalized catalog records with stable source ID
 Translation is a separate pipeline, not an inline browser request per product. Preserve original strings. Store translated value, source locale, target locale, provider, translation status and timestamp. Missing credentials, quotas or provider failures must produce an explicit unavailable/error state and never silently replace source text. Secrets are only available in scheduled/server-side jobs.
 
 ## Pricing contract
-Pricing is a pure deterministic calculation over source price, discount and configured FX assumptions. Current UI FX is illustrative only. The next pricing milestone must add source/timestamp metadata, stale-rate behavior, rounding tests and explicit assumptions.
+Pricing is deterministic over source price, discount and configured FX assumptions. USD is quantized to integer cents, FX is represented in fixed-point micro-units, and BigInt intermediates avoid floating-point drift in the conversion path. The calculation rounds discounted USD to cents, then rounds converted Toman half-up to a whole Toman. Current UI FX is illustrative only; it is not a live quote. Future FX adapters must preserve source, timestamp and stale-rate status.
 
 ## Static hosting
 GitHub Pages serves the Next.js static export under /globalcart. Do not add server-only runtime features to the client bundle. Scheduled ingestion may generate a JSON artifact committed or uploaded as a build artifact; secrets must not be bundled into public JavaScript.
+
+## Backend evolution gate
+Static GitHub Pages cannot run a persistent API server, PostgreSQL instance or Python worker. Keep the current frontend independent from future services through typed API/data contracts. When durable multi-user state, authenticated roles, background translation or SQL-backed search becomes necessary, obtain owner approval for Go/Python runtime access and select a separate API/database host before implementation. Do not simulate server persistence as if it were real.
 
 ## Commerce simulation
 Cart, favorites and checkout are browser-local. Never call payment gateways, reserve inventory, dispatch shipments, create seller payouts or imply a real order.

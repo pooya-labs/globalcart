@@ -2,7 +2,7 @@
 
 > This is the authoritative progress ledger. Never mark work complete because a file was merely created: implementation and verification are both required.
 
-**Current release:** 0.1.0  
+**Current release:** 0.1.1  
 **Active milestone:** M02 — Catalog intelligence foundations  
 **Repository:** pooya16pg-spec/globalcart  
 **Product boundary:** independent portfolio simulation; no real commerce.
@@ -14,7 +14,7 @@
 | M00 | 0.1.0 | Product definition, independence, governance, handoff docs | Complete |
 | M01 | 0.1.0 | Storefront, responsive UI, bilingual shell, demo cart/checkout | Implemented; CI/deploy and accessibility verification pending |
 | M02 | 0.2.0 | Typed connectors, normalization, translation pipeline, scheduled catalog | Foundations implemented; provider/scheduler/tests verification pending |
-| M03 | 0.3.0 | Pricing engine, FX provenance, product details, compare | Not started |
+| M03 | 0.3.0 | Pricing engine, FX provenance, product details, compare | Pricing foundation implemented; product experience pending |
 | M04 | 0.4.0 | Full commerce simulation, order history, coupons, returns | Not started |
 | M05 | 0.5.0 | Admin and seller workspaces, catalog operations, analytics | Not started |
 | M06 | 0.6.0 | Advanced search, facets, recommendations, saved searches | Not started |
@@ -54,7 +54,7 @@
 - [x] DummyJSON adapter separated from storefront UI.
 - [x] Translation provider interface and explicit unavailable/error states.
 - [x] Unit tests authored for normalization, pricing and translation orchestration.
-- [ ] Verify test suite passes in latest Actions run.
+- [ ] Verify expanded test suite passes in the next Actions run.
 - [ ] Add provider implementation (server-side only; no browser secrets).
 - [ ] Translate title, description, category and attributes to Persian.
 - [ ] Preserve original text, translated text, provider, locale and timestamp.
@@ -67,6 +67,8 @@
 
 ## M03 — Pricing and product details
 - [x] Initial pure pricing calculation foundation with input validation.
+- [x] Integer-cent and fixed-point FX arithmetic with explicit rounding.
+- [x] Reject non-finite discounts and unsafe numeric ranges.
 - [ ] Integer minor units/decimal-safe arithmetic and rounding tests.
 - [ ] FX adapter with source, timestamp and stale-rate behavior.
 - [ ] Configurable demo markup/shipping/tax assumptions.
@@ -125,4 +127,5 @@ Before any code change, read PROJECT_CONTEXT.md, this roadmap, docs/AI_HANDOFF.m
 ## Release ledger
 | Version | Milestone | Status | Notes |
 |---|---|---|---|
-| 0.1.0 | M00 + M01 | Implemented; verification pending | Storefront and initial domain foundations committed |
+| 0.1.0 | M00 + M01 | Implemented; deployment/accessibility verification pending | Initial storefront and domain foundations |
+| 0.1.1 | M03 pricing foundation | Implemented; CI verification pending | Integer-cent pricing and fixed-point FX rounding |

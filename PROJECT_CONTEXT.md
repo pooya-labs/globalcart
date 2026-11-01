@@ -3,7 +3,7 @@
 **Owner:** Pooya Goodarzi ([GitHub](https://github.com/pooya16pg-spec))  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main  
-**Current release:** 0.1.0  
+**Current release:** 0.1.1  
 **Active milestone:** M02  
 **Last context update:** 2026-11-01
 
@@ -33,11 +33,11 @@ This repository must remain standalone. Do not add runtime imports, packages, sh
 - lib/catalog/normalize.ts — record validation, normalization and deduplication.
 - lib/catalog/dummyjson.ts — DummyJSON source adapter.
 - lib/catalog/index.ts — catalog public exports.
-- lib/pricing.ts — pure demo price calculation foundation.
+- lib/pricing.ts — decimal-safe demo pricing using integer cents and fixed-point FX arithmetic.
 - lib/translation/types.ts — provider contract and localization provenance.
 - lib/translation/index.ts — safe localization orchestration with honest unavailable/error states.
 - tests/catalog.test.ts — catalog normalization tests.
-- tests/pricing.test.ts — pricing tests.
+- tests/pricing.test.ts — decimal rounding and invalid-input pricing tests.
 - tests/translation.test.ts — translation orchestration tests.
 - .github/workflows/deploy.yml — CI and GitHub Pages deployment.
 - ROADMAP.md — milestone acceptance checklist.
@@ -60,6 +60,9 @@ The original workflow failed because setup-node npm caching expected a lockfile 
 
 The workflow now includes a unit-test step. Verify the latest run to confirm the new tests pass; do not infer success from an earlier run.
 
+## Architecture direction and language gates
+The current public preview is a Next.js static export. Keep the existing Next.js/TypeScript frontend while it remains suitable. Static GitHub Pages cannot host a persistent Go API, Python worker or PostgreSQL database. When the roadmap reaches authenticated APIs, durable multi-user data, background translation jobs or real SQL query workflows, pause before introducing those runtimes and ask the owner to enable the required language/runtime and choose an API/database host. Until then, implement frontend-safe and static-compatible slices without pretending a backend exists.
+
 ## Mandatory continuation protocol
 1. Read this file, ROADMAP.md, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md, docs/DECISIONS.md and CHANGELOG.md.
 2. Inspect current main tree, package.json, relevant source files and latest Actions status.
@@ -71,8 +74,8 @@ The workflow now includes a unit-test step. Verify the latest run to confirm the
 8. State exact completed work, verification evidence, known limitations and next action.
 
 ## Immediate next actions
-1. Verify newest Actions run including unit tests.
-2. Enable GitHub Pages with Source = GitHub Actions, then verify deploy and public URL.
+1. Verify the expanded decimal-pricing tests in the next Actions run.
+2. Confirm GitHub Pages Source = GitHub Actions and verify deploy and public URL.
 3. Generate and commit package-lock.json; return CI to npm ci for deterministic installs.
 4. Add a server-side translation provider adapter and scheduled catalog generation, preserving translation provenance.
 5. Add tests for product localization, API failure, currency rounding and cart state.
