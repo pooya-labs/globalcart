@@ -17,6 +17,9 @@ var (
 )
 
 type CartItem struct {
+	VendorProductID *int64
+	VendorID     *int64
+	VendorName   string
 	ProductID    int64
 	VariantID    *int64
 	Quantity     int32
@@ -107,10 +110,10 @@ func (s *Service) AddItem(ctx context.Context, ownerTokenHash []byte, productID 
 	var existing int32
 	if variantID == nil {
 		err = tx.QueryRow(ctx, `SELECT COALESCE(max(quantity),0) FROM cart_items
-			WHERE cart_id=$1 AND product_id=$2 AND variant_id IS NULL`, cartID, productID).Scan(&existing)
+			WHERE cart_id=$1 AND product_id=$2 AND variant_id IS NULL AND vendor_product_id IS NULL`, cartID, productID).Scan(&existing)
 	} else {
 		err = tx.QueryRow(ctx, `SELECT COALESCE(max(quantity),0) FROM cart_items
-			WHERE cart_id=$1 AND variant_id=$2`, cartID, *variantID).Scan(&existing)
+			WHERE cart_id=$1 AND variant_id=$2 AND vendor_product_id IS NULL`, cartID, *variantID).Scan(&existing)
 	}
 	if err != nil {
 		return Cart{}, fmt.Errorf("read existing cart quantity: %w", err)
@@ -128,14 +131,14 @@ func (s *Service) AddItem(ctx context.Context, ownerTokenHash []byte, productID 
 	if variantID == nil {
 		_, err = tx.Exec(ctx, `INSERT INTO cart_items(cart_id,product_id,quantity,unit_price_snapshot,currency,product_title_snapshot)
 			VALUES($1,$2,$3,$4::numeric,$5,$6)
-			ON CONFLICT (cart_id,product_id) WHERE variant_id IS NULL
+			ON CONFLICT (cart_id,product_id) WHERE vendor_product_id IS NULL AND variant_id IS NULL
 			DO UPDATE SET quantity=cart_items.quantity+EXCLUDED.quantity,unit_price_snapshot=EXCLUDED.unit_price_snapshot,
 			currency=EXCLUDED.currency,product_title_snapshot=EXCLUDED.product_title_snapshot,updated_at=now()`,
 			cartID, productID, quantity, price, currency, title)
 	} else {
 		_, err = tx.Exec(ctx, `INSERT INTO cart_items(cart_id,product_id,variant_id,quantity,unit_price_snapshot,currency,product_title_snapshot,variant_title_snapshot)
 			VALUES($1,$2,$3,$4,$5::numeric,$6,$7,$8)
-			ON CONFLICT (cart_id,variant_id) WHERE variant_id IS NOT NULL
+			ON CONFLICT (cart_id,variant_id) WHERE vendor_product_id IS NULL AND variant_id IS NOT NULL
 			DO UPDATE SET quantity=cart_items.quantity+EXCLUDED.quantity,unit_price_snapshot=EXCLUDED.unit_price_snapshot,
 			currency=EXCLUDED.currency,product_title_snapshot=EXCLUDED.product_title_snapshot,
 			variant_title_snapshot=EXCLUDED.variant_title_snapshot,updated_at=now()`,
@@ -200,14 +203,14 @@ func (s *Service) SetItemQuantity(ctx context.Context, ownerTokenHash []byte, pr
 	var affected int64
 	if variantID == nil {
 		ct, execErr := tx.Exec(ctx, `UPDATE cart_items SET quantity=$3,unit_price_snapshot=$4::numeric,
-			product_title_snapshot=$5,updated_at=now() WHERE cart_id=$1 AND product_id=$2 AND variant_id IS NULL`,
+			product_title_snapshot=$5,updated_at=now() WHERE cart_id=$1 AND product_id=$2 AND variant_id IS NULL AND vendor_product_id IS NULL`,
 			cartID, productID, quantity, price, title)
 		err = execErr
 		affected = ct.RowsAffected()
 	} else {
 		ct, execErr := tx.Exec(ctx, `UPDATE cart_items SET quantity=$4,unit_price_snapshot=$5::numeric,
 			product_title_snapshot=$6,variant_title_snapshot=$7,updated_at=now()
-			WHERE cart_id=$1 AND product_id=$2 AND variant_id=$3`, cartID, productID, *variantID, quantity, price, title, variantTitle)
+			WHERE cart_id=$1 AND product_id=$2 AND variant_id=$3 AND vendor_product_id IS NULL`, cartID, productID, *variantID, quantity, price, title, variantTitle)
 		err = execErr
 		affected = ct.RowsAffected()
 	}
@@ -250,11 +253,11 @@ func (s *Service) RemoveItem(ctx context.Context, ownerTokenHash []byte, product
 	}
 	var affected int64
 	if variantID == nil {
-		tag, e := tx.Exec(ctx, `DELETE FROM cart_items WHERE cart_id=$1 AND product_id=$2 AND variant_id IS NULL`, cartID, productID)
+		tag, e := tx.Exec(ctx, `DELETE FROM cart_items WHERE cart_id=$1 AND product_id=$2 AND variant_id IS NULL AND vendor_product_id IS NULL`, cartID, productID)
 		err = e
 		affected = tag.RowsAffected()
 	} else {
-		tag, e := tx.Exec(ctx, `DELETE FROM cart_items WHERE cart_id=$1 AND product_id=$2 AND variant_id=$3`, cartID, productID, *variantID)
+		tag, e := tx.Exec(ctx, `DELETE FROM cart_items WHERE cart_id=$1 AND product_id=$2 AND variant_id=$3 AND vendor_product_id IS NULL`, cartID, productID, *variantID)
 		err = e
 		affected = tag.RowsAffected()
 	}
@@ -284,8 +287,12 @@ func (s *Service) GetCart(ctx context.Context, ownerTokenHash []byte) (Cart, err
 	if err != nil {
 		return Cart{}, fmt.Errorf("read cart: %w", err)
 	}
-	rows, err := s.pool.Query(ctx, `SELECT product_id,variant_id,quantity,unit_price_snapshot::text,currency,product_title_snapshot,variant_title_snapshot
-		FROM cart_items WHERE cart_id=$1 ORDER BY id`, cart.ID)
+	rows, err := s.pool.Query(ctx, `SELECT ci.product_id,ci.variant_id,ci.quantity,ci.unit_price_snapshot::text,ci.currency,ci.product_title_snapshot,ci.variant_title_snapshot,
+		ci.vendor_product_id,vp.vendor_id,COALESCE(v.display_name,'')
+		FROM cart_items ci
+		LEFT JOIN vendor_products vp ON vp.id=ci.vendor_product_id
+		LEFT JOIN vendors v ON v.id=vp.vendor_id
+		WHERE ci.cart_id=$1 ORDER BY ci.id`, cart.ID)
 	if err != nil {
 		return Cart{}, fmt.Errorf("read cart items: %w", err)
 	}
@@ -293,14 +300,16 @@ func (s *Service) GetCart(ctx context.Context, ownerTokenHash []byte) (Cart, err
 	cart.Items = make([]CartItem, 0)
 	for rows.Next() {
 		var item CartItem
-		var variant pgtype.Int8
-		if err := rows.Scan(&item.ProductID, &variant, &item.Quantity, &item.UnitPrice, &item.Currency, &item.ProductTitle, &item.VariantTitle); err != nil {
+		var variant, vendorProduct, vendorID pgtype.Int8
+		if err := rows.Scan(&item.ProductID, &variant, &item.Quantity, &item.UnitPrice, &item.Currency, &item.ProductTitle, &item.VariantTitle, &vendorProduct, &vendorID, &item.VendorName); err != nil {
 			return Cart{}, fmt.Errorf("scan cart item: %w", err)
 		}
 		if variant.Valid {
 			v := variant.Int64
 			item.VariantID = &v
 		}
+		if vendorProduct.Valid { v := vendorProduct.Int64; item.VendorProductID = &v }
+		if vendorID.Valid { v := vendorID.Int64; item.VendorID = &v }
 		cart.Items = append(cart.Items, item)
 	}
 	if err := rows.Err(); err != nil {
