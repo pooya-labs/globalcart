@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { normalizeCatalog } from "../lib/catalog/normalize";
@@ -55,7 +56,17 @@ async function main(): Promise<void> {
   try {
     const importedAt = new Date().toISOString();
     const rawProducts = await fetchCatalog();
-    const products = normalizeCatalog(rawProducts, "DummyJSON public demo API", importedAt);
+    const importedProducts = normalizeCatalog(rawProducts, "DummyJSON public demo API", importedAt);
+    const previousById = new Map((previous?.products ?? []).map(product => [product.id, product]));
+    const products = importedProducts.map(product => {
+      const prior = previousById.get(product.id);
+      if (!prior?.localization) return product;
+      const sourceFields = { title: product.title, description: product.description, category: product.category, brand: product.brand };
+      const sourceHash = createHash("sha256").update(JSON.stringify(sourceFields)).digest("hex");
+      return prior.localization.sourceHash === sourceHash
+        ? { ...product, localization: prior.localization }
+        : product;
+    });
     if (products.length === 0) throw new Error("All source products were rejected during normalization");
 
     const snapshot: CatalogSnapshot = {
