@@ -101,3 +101,9 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Existing `products.category` remains intact so current read endpoints and imported catalog contract stay backward-compatible.
 - PostgreSQL integration test now checks category backfill and variant attribute round-trip.
 - This change is on `feat/m04-go-postgres-foundation`; CI verification is pending.
+
+
+### M04 API validation pass — implementation in progress
+- Product list endpoint now rejects malformed/out-of-range pagination and oversized query/category filters with stable machine-readable 400 error codes.
+- Added handler tests for invalid requests and pagination parsing, plus OpenAPI 400/error schema documentation.
+- CI verification for this follow-up is pending.
