@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { GeminiProductTranslator, type ProductTranslationFields } from "../lib/translation/gemini";
+import { GoogleAppsScriptTranslator, type ProductTranslationFields } from "../lib/translation/google-apps-script";
 import type { CatalogProduct } from "../lib/catalog/types";
 
 type LocalizedProduct = {
@@ -27,15 +27,16 @@ const hashSource = (fields: ProductTranslationFields) =>
   createHash("sha256").update(JSON.stringify(fields)).digest("hex");
 
 async function main(): Promise<void> {
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
-  if (!apiKey) {
-    console.log("GEMINI_API_KEY is not configured; keeping the catalog snapshot unchanged.");
+  const endpoint = process.env.GOOGLE_TRANSLATE_ENDPOINT?.trim();
+  const token = process.env.GOOGLE_TRANSLATE_TOKEN?.trim();
+  if (!endpoint || !token) {
+    console.log("Google Translate is not configured; keeping the catalog snapshot unchanged.");
     return;
   }
 
   const snapshot = JSON.parse(await readFile(inputFile, "utf8")) as Snapshot;
   if (!Array.isArray(snapshot.products)) throw new Error("Catalog snapshot has no products array");
-  const translator = new GeminiProductTranslator(apiKey, process.env.GEMINI_MODEL || "gemini-2.5-flash");
+  const translator = new GoogleAppsScriptTranslator(endpoint, token);
   let translated = 0;
   let failed = 0;
   let cached = 0;
@@ -77,13 +78,13 @@ async function main(): Promise<void> {
       console.warn(`Translation failed for product ${product.id}:`, error);
     }
 
-    // Sequential requests and a small delay keep the scheduled job gentle on provider quotas.
-    await new Promise(resolve => setTimeout(resolve, 1_200));
+    // Google Apps Script has daily translate-call quotas; requests are deliberately sequential.
+    await new Promise(resolve => setTimeout(resolve, 1_000));
   }
 
   await writeFile(temporaryFile, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
   await rename(temporaryFile, inputFile);
-  console.log(`Persian localization: ${translated} translated, ${cached} cached, ${failed} failed of ${snapshot.products.length} products.`);
+  console.log(`Google Persian localization: ${translated} translated, ${cached} cached, ${failed} failed of ${snapshot.products.length} products.`);
 }
 
 main().catch(error => {
