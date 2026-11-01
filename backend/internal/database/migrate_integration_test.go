@@ -305,6 +305,53 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if _, err := cartService.CancelOrder(ctx, unrelatedOwner[:], cancelledOrder.ID); !errors.Is(err, commerce.ErrOrderNotFound) {
 		t.Fatalf("cancelling another cart's order error = %v, want not found", err)
 	}
+
+	// Simulated payment is owner-scoped, idempotent and never invokes a provider.
+	var paymentOwner [32]byte
+	paymentOwner[0] = 81
+	if _, err := cartService.CreateCart(ctx, paymentOwner[:], "USD", time.Hour); err != nil {
+		t.Fatalf("create simulated payment cart: %v", err)
+	}
+	if _, err := cartService.AddItem(ctx, paymentOwner[:], product.ID, nil, 1); err != nil {
+		t.Fatalf("add item for simulated payment: %v", err)
+	}
+	paymentKey := make([]byte, 32)
+	paymentKey[0] = 82
+	paymentOrder, err := cartService.Checkout(ctx, paymentOwner[:], paymentKey, 15*time.Minute)
+	if err != nil {
+		t.Fatalf("checkout simulated payment cart: %v", err)
+	}
+	var wrongPaymentOwner [32]byte
+	wrongPaymentOwner[0] = 83
+	if _, err := cartService.CompleteDemoPayment(ctx, wrongPaymentOwner[:], paymentOrder.ID); !errors.Is(err, commerce.ErrOrderNotFound) {
+		t.Fatalf("simulated payment by another cart owner error = %v, want not found", err)
+	}
+	paidOrder, err := cartService.CompleteDemoPayment(ctx, paymentOwner[:], paymentOrder.ID)
+	if err != nil {
+		t.Fatalf("complete simulated payment: %v", err)
+	}
+	if paidOrder.Status != "paid_simulated" {
+		t.Fatalf("simulated payment status = %q, want paid_simulated", paidOrder.Status)
+	}
+	paidReplay, err := cartService.CompleteDemoPayment(ctx, paymentOwner[:], paymentOrder.ID)
+	if err != nil || paidReplay.Status != "paid_simulated" {
+		t.Fatalf("repeat simulated payment = %+v, err=%v; want idempotent paid result", paidReplay, err)
+	}
+	if _, err := cartService.CancelOrder(ctx, paymentOwner[:], paymentOrder.ID); !errors.Is(err, commerce.ErrOrderNotCancellable) {
+		t.Fatalf("cancelling simulated-paid order error = %v, want not cancellable", err)
+	}
+	var paidReleased, paymentEvents int
+	if err := pool.QueryRow(ctx, `SELECT count(*)::int FROM inventory_reservations
+		WHERE order_id=$1 AND status='released'`, paymentOrder.ID).Scan(&paidReleased); err != nil {
+		t.Fatalf("read released simulated-payment reservation: %v", err)
+	}
+	if err := pool.QueryRow(ctx, `SELECT count(*)::int FROM demo_order_events
+		WHERE order_id=$1 AND event_type='demo_payment_simulated'`, paymentOrder.ID).Scan(&paymentEvents); err != nil {
+		t.Fatalf("read simulated-payment event: %v", err)
+	}
+	if paidReleased != 1 || paymentEvents != 1 {
+		t.Fatalf("simulated payment side effects: released=%d events=%d, want 1 each", paidReleased, paymentEvents)
+	}
 	var expiredCartOwner [32]byte
 	expiredCartOwner[0] = 78
 	if _, err := pool.Exec(ctx, `INSERT INTO carts(owner_token_hash,currency,expires_at)
