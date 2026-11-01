@@ -312,6 +312,37 @@ test("caller cancellation aborts the request without retrying", async () => {
   }
 });
 
+test("does not retry permanent HTTP errors", async () => {
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = (async () => {
+    calls += 1;
+    return { ok: false, status: 404 } as Response;
+  }) as typeof fetch;
+  try {
+    await assert.rejects(dummyJsonCatalogAdapter.fetchRecords(), /request failed: 404/);
+    assert.equal(calls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("retries transient server errors within the bounded attempt count", async () => {
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = (async () => {
+    calls += 1;
+    if (calls < 3) return { ok: false, status: 503 } as Response;
+    return { ok: true, json: async () => ({ products: [{ id: 42 }] }) } as Response;
+  }) as typeof fetch;
+  try {
+    const records = await dummyJsonCatalogAdapter.fetchRecords();
+    assert.equal(records.length, 1);
+    assert.equal(calls, 3);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
 test("supplier adapter rejects empty or wholly unmappable feeds", async () => {
   const emptyAdapter: CatalogSourceAdapter = {
     source: "Empty Fixture",
