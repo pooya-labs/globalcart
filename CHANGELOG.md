@@ -101,3 +101,11 @@
 - Full focus trapping/restoration and manual assistive-technology QA remain open.
 
 - Added modal focus management: initial focus, Tab/Shift+Tab trapping and focus restoration when dialogs close.
+
+
+### 0.2.3-dev follow-up — 2026-11-01
+- Aligned package metadata and README with the active 0.2.3-dev development line.
+- Recorded the completed modal focus-trap and focus-restoration work.
+- Latest verified GitHub Actions run: #141 (41300273671), successful build, unit tests, static export and Pages deployment.
+- Manual responsive, RTL/LTR, screen-reader and published deep-link QA remains open; a successful CI run is not a substitute for that manual review.
+- Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41300273671
