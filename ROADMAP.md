@@ -69,12 +69,15 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Pause translation and remove it from the deployment pipeline.
 - [x] Rebuild the storefront shell around category-first discovery, prominent search and shopping utilities.
 - [x] Add a responsive category mega-menu generated from the live catalog, with product counts and direct category filtering.
-- [ ] Add marketplace-grade home modules: curated collections, trending products, deals and category rails.
+- [ ] Add marketplace-grade home modules: curated collections, trending products and richer deal rails.
+- [x] Add Amazon product-link intake with domain/ASIN validation and a local-only demo request queue.
+- [x] Add marketplace service shortcuts and a transparent FAQ for sourcing, support and demo boundaries.
 - [x] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
 - [x] Add dedicated static product detail routes for the imported catalog, image gallery, product information and related products.
 - [x] Add side-by-side comparison for up to four products, with price, rating, discount, brand and source-stock context.
 - [ ] Verify desktop, tablet, mobile, RTL/LTR, keyboard and reduced-motion behavior.
-- [ ] Confirm all controls remain functional and demo-only disclosures are clear.
+- [x] Add clear demo disclosures for Amazon link intake, seller tools and support paths.
+- [ ] Confirm all controls remain functional across the full site.
 
 ## M02 — Automated catalog pipeline (active)
 - [x] Typed catalog contracts and normalization.
