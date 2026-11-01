@@ -11,8 +11,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
+	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
 )
 
 type Handler struct {
@@ -134,7 +134,6 @@ func (h *Handler) getProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, product)
 }
-
 
 func mapProduct(id int64, title, description, category string, price, discount, rating float64,
 	stock int32, brand, thumbnail string, rawImages []byte, source, sourceID, sourceURL string,
