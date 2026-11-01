@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.7 explicit feed completeness semantics (implementation in progress)  
+**Active stage:** M08.8 authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -378,3 +378,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Scheduled `scripts/sync-catalog.ts` now explicitly requires `full`; incremental adapters can still normalize records for a future dedicated merger, but cannot feed the static full-snapshot writer.
 - Added a regression test that verifies an incremental adapter is rejected before fetch when full data is required, while the same records can be normalized through the generic loader without asserting any merge or persistence behavior.
 - Catalog CI verification is pending.
+
+
+## M08.7 final verification — 2026-11-02
+- Catalog CI PR run `41356770768` passed on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`: npm dependency installation, TypeScript validation, all catalog/domain unit tests and production build succeeded.
+- Backend CI PR run `41356770801` passed on the same head: SQL generation, Go formatting/module checks, vet, PostgreSQL-backed race tests, API/importer builds, Docker image build and cleanup succeeded.
+- All source adapters must now declare `snapshotMode: "full" | "incremental"`. The scheduled snapshot writer requires `full` and rejects a mode mismatch before calling the source fetcher. The generic loader can normalize incremental records for a future merger, but there is no delta merger or persistence path.
+- M08.8 authorized supplier onboarding is the next gated item; no live supplier endpoint, credential, or external commercial inventory feed has been connected.
