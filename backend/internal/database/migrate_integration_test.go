@@ -64,6 +64,36 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		t.Fatalf("title = %q, want %q", title, product.Title)
 	}
 
+	// The catalog extension backfills a normalized category and supports
+	// constrained product variants without changing the source product record.
+	var categoryID int64
+	if err := pool.QueryRow(ctx, "SELECT category_id FROM products WHERE id=$1", product.ID).Scan(&categoryID); err != nil {
+		t.Fatalf("read backfilled category: %v", err)
+	}
+	var categoryName string
+	if err := pool.QueryRow(ctx, "SELECT name FROM categories WHERE id=$1", categoryID).Scan(&categoryName); err != nil {
+		t.Fatalf("read category: %v", err)
+	}
+	if categoryName != product.Category {
+		t.Fatalf("category = %q, want %q", categoryName, product.Category)
+	}
+	variantAttributes := []byte(`{"color":"black","size":"M"}`)
+	var variantID int64
+	if err := pool.QueryRow(ctx, `INSERT INTO product_variants
+		(product_id,sku,title,price,stock,attributes,source,source_id)
+		VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
+		product.ID, "GC-INT-987654321-BLK-M", "Black / Medium", 13.99, 2,
+		variantAttributes, "integration-test", "variant-1").Scan(&variantID); err != nil {
+		t.Fatalf("insert product variant: %v", err)
+	}
+	var storedAttributes []byte
+	if err := pool.QueryRow(ctx, "SELECT attributes FROM product_variants WHERE id=$1", variantID).Scan(&storedAttributes); err != nil {
+		t.Fatalf("read product variant attributes: %v", err)
+	}
+	if string(storedAttributes) != string(variantAttributes) {
+		t.Fatalf("variant attributes = %s, want %s", storedAttributes, variantAttributes)
+	}
+
 	// A failed item must roll back earlier writes in the same import batch.
 	valid := product
 	valid.ID = 987654322
