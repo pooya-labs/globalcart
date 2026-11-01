@@ -28,7 +28,7 @@ export class GeminiProductTranslator {
   constructor(private readonly apiKey: string, private readonly model = "gemini-2.5-flash") {}
 
   async translate(fields: ProductTranslationFields): Promise<ProductTranslationFields> {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${encodeURIComponent(this.apiKey)}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
     const prompt = [
       "Translate the following product catalog fields from English to natural, fluent Persian (fa-IR).",
       "Return only a valid JSON object with exactly these string keys: title, description, category, brand.",
@@ -43,7 +43,7 @@ export class GeminiProductTranslator {
       try {
         const response = await fetch(endpoint, {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: { "content-type": "application/json", "x-goog-api-key": this.apiKey },
           body: JSON.stringify({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
