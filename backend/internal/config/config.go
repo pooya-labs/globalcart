@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	HTTPAddr     string
-	DatabaseURL  string
+	HTTPAddr      string
+	DatabaseURL   string
 	AllowedOrigin map[string]bool
 }
 
@@ -18,10 +18,14 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("DATABASE_URL is required")
 	}
 	addr := strings.TrimSpace(os.Getenv("HTTP_ADDR"))
-	if addr == "" { addr = ":8080" }
+	if addr == "" {
+		addr = ":8080"
+	}
 	origins := map[string]bool{}
 	for _, item := range strings.Split(os.Getenv("CORS_ORIGINS"), ",") {
-		if origin := strings.TrimSpace(item); origin != "" { origins[origin] = true }
+		if origin := strings.TrimSpace(item); origin != "" {
+			origins[origin] = true
+		}
 	}
 	return Config{HTTPAddr: addr, DatabaseURL: url, AllowedOrigin: origins}, nil
 }

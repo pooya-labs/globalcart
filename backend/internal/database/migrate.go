@@ -18,33 +18,56 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
 	if _, err := pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS schema_migrations (
 		version TEXT PRIMARY KEY,
 		applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
-	)`); err != nil { return fmt.Errorf("create migration ledger: %w", err) }
+	)`); err != nil {
+		return fmt.Errorf("create migration ledger: %w", err)
+	}
 	entries, err := fs.ReadDir(migrationFiles, "migrations")
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	names := make([]string, 0, len(entries))
 	for _, entry := range entries {
-		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".sql") { names = append(names, entry.Name()) }
+		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".sql") {
+			names = append(names, entry.Name())
+		}
 	}
 	sort.Strings(names)
 	for _, name := range names {
 		var exists bool
-		if err := pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM schema_migrations WHERE version=$1)", name).Scan(&exists); err != nil { return err }
-		if exists { continue }
+		if err := pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM schema_migrations WHERE version=$1)", name).Scan(&exists); err != nil {
+			return err
+		}
+		if exists {
+			continue
+		}
 		sqlBytes, err := migrationFiles.ReadFile("migrations/" + name)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		tx, err := pool.Begin(ctx)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		// Execute statements individually: PostgreSQL extended-query mode does not
 		// accept a multi-command prepared statement.
 		for _, statement := range strings.Split(string(sqlBytes), ";") {
-			if strings.TrimSpace(statement) == "" { continue }
-			if _, err = tx.Exec(ctx, statement); err != nil { break }
+			if strings.TrimSpace(statement) == "" {
+				continue
+			}
+			if _, err = tx.Exec(ctx, statement); err != nil {
+				break
+			}
 		}
 		if err == nil {
 			_, err = tx.Exec(ctx, "INSERT INTO schema_migrations(version) VALUES($1)", name)
 		}
-		if err != nil { _ = tx.Rollback(ctx); return fmt.Errorf("apply %s: %w", name, err) }
-		if err = tx.Commit(ctx); err != nil { return fmt.Errorf("commit %s: %w", name, err) }
+		if err != nil {
+			_ = tx.Rollback(ctx)
+			return fmt.Errorf("apply %s: %w", name, err)
+		}
+		if err = tx.Commit(ctx); err != nil {
+			return fmt.Errorf("commit %s: %w", name, err)
+		}
 	}
 	return nil
 }
