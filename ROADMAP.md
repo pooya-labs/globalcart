@@ -120,7 +120,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Validate catalog pagination bounds and query/category lengths with stable 400 error codes.
 - [x] Document the API error response shape and list endpoint validation in OpenAPI.
 - [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
-- [ ] Add sqlc typed query layer and parameterized SQL.
+- [x] Add sqlc configuration, parameterized catalog/variant query definitions and CI code generation for pgx/v5.\n- [ ] Wire generated sqlc queries into API and importer, replacing handwritten SQL.
 - [ ] Design authentication/session and role-based authorization.
 - [ ] Add idempotent Python ingestion/translation workers.
 - [ ] Add Redis only for measured cache/queue requirements.
@@ -211,3 +211,10 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Bound free-text query and category filter lengths.
 - [x] Add HTTP tests proving invalid requests return 400 before database access.
 - [ ] Run backend CI for the validation changes before marking verified.
+
+
+### M04 typed SQL generation — 2026-11-01
+- [x] Add root sqlc v2 configuration targeting PostgreSQL and pgx/v5.
+- [x] Define typed list/detail product queries and active product-variant query with parameterized inputs.
+- [x] Add deterministic sqlc generation to backend CI.
+- [ ] Verify generated package compiles in CI and wire it into API/database code.
