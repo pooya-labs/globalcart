@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.5 authorized supplier onboarding (blocked pending owner-approved source/feed)  
+**Active stage:** M08.5 variant omission and inventory retention semantics (CI verification pending)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -345,3 +345,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Catalog CI PR run `41355595494` passed on PR head `0df4c5485e4a2eb391b61e13c52047ed4631942a`: TypeScript validation, all catalog/domain unit tests and production build succeeded.
 - Backend CI PR run `41355595650` passed on the same PR head: SQL generation, Go formatting/module checks, vet, PostgreSQL tests, API/importer builds, Docker image build and container cleanup all succeeded.
 - M08.4 is complete. The active roadmap stage is M08.5, authorized supplier onboarding; this is blocked on the owner selecting an approved supplier/feed and confirming its usage rights.
+
+
+## Latest continuation checkpoint — 2026-11-02: M08.5 variant omission regression coverage
+- Confirmed in `backend/internal/database/products.go` that `upsertProductVariants` only upserts supplied variants and does not delete database rows when `Product.Variants` is nil/empty. `syncPlatformVariantOffers` then reads existing persisted variants and reconciles the platform offers from those retained rows.
+- Added PostgreSQL integration coverage in `TestMigrationsAndCatalogUpsert`: after a product+variant import, a later product-only snapshot is imported. The test asserts the original source variant remains, the GlobalCart Direct offer retains its price/stock/active status, a separate merchant offer remains active with its independent stock, and audit event counts do not increase.
+- No importer deletion, automatic zero-stock adjustment, or offer archival was introduced. Omission is intentionally treated as “no new variant information,” not “delete.”
+- Backend CI verification for this new regression coverage is pending. Latest code commit: `0288e6f94dc1c0b81cefa9b2ca6a244a92ac51d7`.
+- M08.6 real supplier onboarding remains blocked until a named supplier and authorized API/feed access and reuse terms are approved.
