@@ -4,7 +4,7 @@ on:
     branches: [main, feat/m04-go-postgres-foundation]
     paths: ["backend/**", "go.mod", "go.sum", "sqlc.yaml", ".github/workflows/backend-ci.yml"]
   pull_request:
-    paths: ["backend/**", "go.mod", "go.sum", ".github/workflows/backend-ci.yml"]
+    paths: ["backend/**", "go.mod", "go.sum", "sqlc.yaml", ".github/workflows/backend-ci.yml"]
   workflow_dispatch:
 permissions:
   contents: write
@@ -37,7 +37,7 @@ jobs:
           go-version: "1.23.x"
           cache: true
       - name: Generate typed SQL access layer
-        run: go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0 generate
+        run: docker run --rm -v "$PWD:/src" -w /src sqlc/sqlc:1.29.0 generate
       - name: Resolve modules and format Go sources
         run: |
           go mod tidy
