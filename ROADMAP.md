@@ -500,12 +500,14 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Reject a feed when more than 20% of raw records fail source-specific mapping by default.
 - [x] Allow a source-specific threshold override; validate finite values in [0, 1).
 - [x] Preserve the distinct error for empty feeds and feeds with no mappable records.
-- [x] Enforce a 20-second timeout for every DummyJSON request, including when a caller supplies its own AbortSignal.
+- [x] Enforce a 20-second timeout for each DummyJSON request, including when a caller supplies its own AbortSignal.
 - [x] Propagate caller cancellation immediately and do not retry explicitly cancelled requests.
+- [x] Retry network/time-out failures and HTTP 408, 429 and 5xx responses with a bounded three-attempt policy.
+- [x] Fail fast on permanent HTTP errors, invalid JSON/schema and empty source collections.
 - [x] Verify Catalog CI and Backend CI on the same PR head.
 - [x] Keep supplier onboarding separate and gated by owner approval.
 
-**Verification:** Catalog CI runs [41358732405](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358732405) and [41358736412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358736412), plus Backend CI run [41358736442](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358736442), all succeeded on head `3db5764fa75f9188866392d3d3c874a5cb420684`.
+**Verification:** Catalog CI [41358956297](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358956297) and Backend CI [41358956380](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358956380) succeeded on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`.
 
 ## M08.9 — Authorized supplier onboarding (blocked)
 - Select a named supplier and confirm API/feed access rights and catalog/image/price reuse terms.

@@ -85,3 +85,11 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - Explicit caller cancellation is propagated immediately and is not retried. Other transient failures, including a request deadline expiry, retain the adapter's bounded retry policy.
 - This protects scheduled refreshes from waiting indefinitely while preserving the last-known-good snapshot error path.
 - **Verification:** Catalog CI runs `41358732405` and `41358736412`, and Backend CI run `41358736442`, passed on PR head `3db5764fa75f9188866392d3d3c874a5cb420684`.
+
+
+## Retry classification (M08.8)
+- Each DummyJSON request has a 20-second deadline, combined with any caller-provided AbortSignal.
+- Explicit caller cancellation is propagated immediately and is not retried.
+- Network failures and request timeouts, plus HTTP 408, 429 and 5xx statuses, are retried up to three total attempts with bounded backoff.
+- Permanent 4xx statuses other than 408/429, malformed JSON/schema and empty collections fail immediately; they are not retried as transient network faults.
+- **Verification:** Catalog CI run `41358956297` and Backend CI run `41358956380` passed on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`.

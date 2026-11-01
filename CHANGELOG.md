@@ -336,7 +336,8 @@
 ### M08.8 feed mapping quality and request safety — CI verified (2026-11-02)
 - Added a default 20% maximum mapping-rejection fraction to shared ingestion, with a validated per-source override. Duplicate canonical identities remain handled by normal de-duplication.
 - Preserved distinct errors for empty and wholly unmappable feeds so existing failure semantics remain clear.
-- Combined caller cancellation with a 20-second DummyJSON request timeout; explicitly cancelled requests now stop without retry, while timeout failures retain bounded retry behavior.
-- Added regression tests for mapping thresholds, invalid configuration, combined request signals and cancellation behavior.
-- Verification on head `3db5764fa75f9188866392d3d3c874a5cb420684`: Catalog CI [41358732405](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358732405) and [41358736412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358736412) passed; Backend CI [41358736442](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358736442) passed.
+- Combined caller cancellation with a 20-second per-attempt DummyJSON timeout; explicitly cancelled requests stop immediately and are not retried.
+- Limited retries to transient network/time-out failures and HTTP 408, 429 and 5xx responses, with at most three attempts. Permanent 4xx responses, invalid JSON/schema and empty collections fail fast.
+- Added regression tests for mapping thresholds, invalid configuration, composed request signals, cancellation, permanent HTTP errors and transient 503 recovery.
+- Verification on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`: Catalog CI [41358956297](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358956297) and Backend CI [41358956380](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358956380) both passed.
 - M08.9 authorized supplier onboarding remains blocked pending explicit owner approval of a named source and usage rights.

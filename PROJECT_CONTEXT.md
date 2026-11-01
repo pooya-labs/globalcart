@@ -402,3 +402,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Regression coverage includes mostly-unmappable feeds, boundary overrides, invalid threshold values, preservation of the empty/unmappable errors, composed request signals and cancellation without retry.
 - Verification on head `3db5764fa75f9188866392d3d3c874a5cb420684`: Catalog CI runs `41358732405` and `41358736412` passed; Backend CI run `41358736442` passed.
 - Next stage is M08.9 authorized supplier onboarding. It remains blocked until the owner approves a named source, its API/feed access and catalog/image/price reuse terms.
+
+
+### M08.8 retry policy — CI verified
+- DummyJSON requests combine the caller's AbortSignal with a per-attempt 20-second timeout. Explicit caller cancellation exits immediately and is never retried.
+- The adapter retries network failures/timeouts and HTTP 408, 429 or 5xx responses, with at most three attempts and bounded backoff.
+- Permanent HTTP failures (other 4xx), invalid JSON/schema and empty collections fail fast. Mapping-quality rejection remains a separate shared-ingestion guard.
+- Added tests for permanent 404 no-retry and transient 503 recovery within the bounded attempt count.
+- Verification on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`: Catalog CI run `41358956297` and Backend CI run `41358956380` both succeeded.
+- M08.9 remains blocked until owner approval of a named supplier/API/feed and data/image/price reuse rights.
