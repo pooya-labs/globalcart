@@ -26,7 +26,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **API decision:** REST + OpenAPI first. GraphQL only if real client query patterns justify it. Use versioned migrations and parameterized SQL.
 
-**Runtime gate:** GitHub Pages is static. M04 cannot begin until the owner enables Go/Python runtimes and approves separate API/database hosting.
+**Runtime gate:** Local Go/PostgreSQL development and CI are permitted on the isolated backend branch. Public API/database hosting, Python worker deployment, production secrets and paid services remain gated on explicit owner approval.
 
 ## Release and stage map
 
