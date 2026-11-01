@@ -7,7 +7,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -30,6 +30,17 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-2.5-flash
+      - name: Persist refreshed catalog and translation cache
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/catalog.json
+          if git diff --cached --quiet; then
+            echo "Catalog snapshot is unchanged."
+          else
+            git commit -m "chore(catalog): refresh snapshot [skip ci]"
+            git push origin HEAD:main
+          fi
       - name: TypeScript validation
         run: npm run typecheck
       - name: Unit tests
