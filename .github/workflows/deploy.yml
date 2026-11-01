@@ -2,7 +2,7 @@ name: Deploy GlobalCart to GitHub Pages
 # CI validates the application, runs domain unit tests, and builds the static Pages artifact.
 on:
   schedule:
-    - cron: "17 4 * * *"
+    - cron: "23 4 * * *"
   push:
     branches: [main]
   workflow_dispatch:
