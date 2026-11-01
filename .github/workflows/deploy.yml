@@ -18,13 +18,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run build
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: TypeScript validation
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
         env:
           GITHUB_ACTIONS: "true"
-      - run: touch out/.nojekyll
+      - name: Prepare Pages artifact
+        run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out
