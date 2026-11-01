@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"sync"
 	"testing"
@@ -651,5 +652,83 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	}
 	if exists {
 		t.Fatal("valid row from failed batch should have been rolled back")
+	}
+}
+
+func TestCatalogImportSynchronizesPlatformOfferIdempotently(t *testing.T) {
+	dsn := os.Getenv("TEST_DATABASE_URL")
+	if dsn == "" {
+		t.Skip("TEST_DATABASE_URL is not set; PostgreSQL integration test skipped")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	pool, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		t.Fatalf("create database pool: %v", err)
+	}
+	defer pool.Close()
+	if err := pool.Ping(ctx); err != nil {
+		t.Fatalf("connect to test PostgreSQL: %v", err)
+	}
+	if err := Migrate(ctx, pool); err != nil {
+		t.Fatalf("migrate: %v", err)
+	}
+	product := catalog.Product{
+		ID: time.Now().UnixNano()%7000000000000000000 + 2000000000000000000,
+		Title: "Platform import sync fixture", Description: "Importer integration",
+		Category: "platform-import-test", Price: 21.45, Stock: 8,
+		Images: []string{}, Source: "platform-import-test",
+		SourceID: fmt.Sprintf("platform-%d", time.Now().UnixNano()), ImportedAt: time.Now().UTC(),
+	}
+	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
+		t.Fatalf("initial catalog import: %v", err)
+	}
+	var offerID int64
+	var vendorSlug string
+	var price string
+	var stock int32
+	err = pool.QueryRow(ctx, `SELECT vp.id,v.slug,vp.price::text,vp.stock
+		FROM vendor_products vp JOIN vendors v ON v.id=vp.vendor_id
+		WHERE vp.product_id=$1 AND vp.variant_id IS NULL`, product.ID).
+		Scan(&offerID, &vendorSlug, &price, &stock)
+	if err != nil {
+		t.Fatalf("read imported platform offer: %v", err)
+	}
+	if vendorSlug != "globalcart-direct" || price != "21.45" || stock != 8 {
+		t.Fatalf("platform offer = vendor:%s price:%s stock:%d", vendorSlug, price, stock)
+	}
+	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
+		t.Fatalf("repeat catalog import: %v", err)
+	}
+	var priceEvents, inventoryEvents int
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", offerID).Scan(&priceEvents); err != nil {
+		t.Fatalf("count price events: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id=$1", offerID).Scan(&inventoryEvents); err != nil {
+		t.Fatalf("count inventory events: %v", err)
+	}
+	if priceEvents != 1 || inventoryEvents != 1 {
+		t.Fatalf("idempotent import duplicated audit events: price=%d inventory=%d", priceEvents, inventoryEvents)
+	}
+	product.Price = 24.90
+	product.Stock = 5
+	product.ImportedAt = time.Now().UTC()
+	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
+		t.Fatalf("updated catalog import: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT price::text,stock FROM vendor_products WHERE id=$1", offerID).Scan(&price, &stock); err != nil {
+		t.Fatalf("read updated platform offer: %v", err)
+	}
+	if price != "24.90" || stock != 5 {
+		t.Fatalf("updated platform offer price=%s stock=%d, want 24.90 / 5", price, stock)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", offerID).Scan(&priceEvents); err != nil {
+		t.Fatalf("count updated price events: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id=$1", offerID).Scan(&inventoryEvents); err != nil {
+		t.Fatalf("count updated inventory events: %v", err)
+	}
+	if priceEvents != 2 || inventoryEvents != 2 {
+		t.Fatalf("changed import audit counts: price=%d inventory=%d, want 2 each", priceEvents, inventoryEvents)
 	}
 }
