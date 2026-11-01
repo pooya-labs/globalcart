@@ -10,8 +10,8 @@
 - Target architecture decision: Go REST/OpenAPI, PostgreSQL with SQL migrations/sqlc, Python data workers and optional Redis.
 
 ### Verification
-- Catalog pipeline implementation is committed; the new workflow run must pass before this release slice is marked verified.
-- Last fully successful deployment before these changes: Actions run 41294484252.
+- Actions run 41295039930 passed catalog sync (100 products), TypeScript validation, all unit tests, production build, Pages artifact upload and deployment.
+- Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41295039930
 
 ## 0.1.1 — 2026-11-01
 
