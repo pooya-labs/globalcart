@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.5 variant omission and inventory retention semantics (CI verification pending)  
+**Active stage:** M08.6 variant source identity ownership and batch rollback (CI verification pending)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -353,3 +353,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - No importer deletion, automatic zero-stock adjustment, or offer archival was introduced. Omission is intentionally treated as “no new variant information,” not “delete.”
 - Backend CI verification for this new regression coverage is pending. Latest code commit: `0288e6f94dc1c0b81cefa9b2ca6a244a92ac51d7`.
 - M08.6 real supplier onboarding remains blocked until a named supplier and authorized API/feed access and reuse terms are approved.
+
+
+## M08.5 verification and M08.6 continuation — 2026-11-02
+- M08.5 variant omission and inventory retention is verified by Backend CI PR run `41356201201` on head `eca6f936d99582a83930f2040a46b912bba57225`. The complete PostgreSQL test suite, vet, API/importer build, Docker image build and cleanup passed.
+- The new product-only-snapshot regression confirms that an omitted source variant remains in PostgreSQL, the GlobalCart Direct platform offer retains its price/stock/active state, another merchant's independent offer remains unchanged, and no extra price/inventory audit events are generated.
+- M08.6 adds `TestVariantSourceIdentityCannotMoveBetweenProducts`: it imports an original source variant, attempts to reassign the same `(source, source_id)` to a second product in a multi-product batch, and verifies the conflict rejects the batch, rolls back the earlier row, and leaves the original variant's owner/SKU/price/stock intact.
+- Latest test commit for M08.6: `499d76129d12f7af3fe3a030d37d15a78ba1a0da`. Backend CI verification pending.
+- M08.7 real supplier onboarding remains blocked until a named supplier/feed and authorized data reuse are approved.
