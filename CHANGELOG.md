@@ -110,3 +110,5 @@
 - Added a one-shot CLI to import the existing normalized catalog snapshot into PostgreSQL.
 - Added an OpenAPI 3.1 contract and backend CI for formatting, vet, race-enabled tests, builds and container build.
 - This is local development infrastructure only. No hosted database/API, credentials, paid resources, authentication, real orders or payments were provisioned.
+
+- Backend CI run #22 passed: PostgreSQL service startup, Go formatting, vet, race-enabled unit/integration tests, API/importer builds and Docker image build. Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41301389812
