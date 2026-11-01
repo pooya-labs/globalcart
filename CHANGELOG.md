@@ -101,3 +101,12 @@
 - Full focus trapping/restoration and manual assistive-technology QA remain open.
 
 - Added modal focus management: initial focus, Tab/Shift+Tab trapping and focus restoration when dialogs close.
+
+
+### M04 backend foundation — 2026-11-01
+- Added a Go 1.23 REST API with health/readiness endpoints and read-only catalog list/detail routes.
+- Added PostgreSQL 17 local Docker Compose, loopback-only port bindings and persistent development storage.
+- Added embedded transactional SQL migrations for the initial products catalog schema.
+- Added a one-shot CLI to import the existing normalized catalog snapshot into PostgreSQL.
+- Added an OpenAPI 3.1 contract and backend CI for formatting, vet, race-enabled tests, builds and container build.
+- This is local development infrastructure only. No hosted database/API, credentials, paid resources, authentication, real orders or payments were provisioned.
