@@ -78,3 +78,10 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - The check is based on raw source records, before normalization. Duplicate canonical product IDs are not counted as mapper rejections and continue through normal de-duplication.
 - Empty collections, wholly unmappable collections and collections with no valid normalized products remain errors.
 - This is a defensive default, not a substitute for source-specific completeness semantics or the full-snapshot continuity guard.
+
+
+## Request deadlines and cancellation (M08.8)
+- Every DummyJSON request receives a 20-second timeout. When the caller supplies an AbortSignal, the request uses a combined signal so the caller can cancel it without losing the timeout.
+- Explicit caller cancellation is propagated immediately and is not retried. Other transient failures, including a request deadline expiry, retain the adapter's bounded retry policy.
+- This protects scheduled refreshes from waiting indefinitely while preserving the last-known-good snapshot error path.
+- **Verification:** Catalog CI runs `41358732405` and `41358736412`, and Backend CI run `41358736442`, passed on PR head `3db5764fa75f9188866392d3d3c874a5cb420684`.

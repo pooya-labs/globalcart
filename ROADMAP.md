@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.8 — Feed mapping quality guard (implementation in progress)  
+**Active stage:** M08.9 — Authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -496,12 +496,16 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **M08.7 verification:** Catalog CI PR run `41356770768` and Backend CI PR run `41356770801` both passed on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`. TypeScript validation, unit tests, production build, sqlc generation, Go vet, PostgreSQL race tests, API/importer builds and Docker image build all succeeded.
 
 
-## M08.8 — Feed mapping quality guard
+## M08.8 — Feed mapping quality and request safety — CI verified
 - [x] Reject a feed when more than 20% of raw records fail source-specific mapping by default.
 - [x] Allow a source-specific threshold override; validate finite values in [0, 1).
-- [x] Preserve empty-feed and zero-valid-product rejection behavior.
-- [ ] Verify Catalog CI on the current PR head.
-- [ ] Keep supplier onboarding blocked until the owner approves a named source and its API/feed/data reuse terms.
+- [x] Preserve the distinct error for empty feeds and feeds with no mappable records.
+- [x] Enforce a 20-second timeout for every DummyJSON request, including when a caller supplies its own AbortSignal.
+- [x] Propagate caller cancellation immediately and do not retry explicitly cancelled requests.
+- [x] Verify Catalog CI and Backend CI on the same PR head.
+- [x] Keep supplier onboarding separate and gated by owner approval.
+
+**Verification:** Catalog CI runs [41358732405](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358732405) and [41358736412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358736412), plus Backend CI run [41358736442](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358736442), all succeeded on head `3db5764fa75f9188866392d3d3c874a5cb420684`.
 
 ## M08.9 — Authorized supplier onboarding (blocked)
 - Select a named supplier and confirm API/feed access rights and catalog/image/price reuse terms.

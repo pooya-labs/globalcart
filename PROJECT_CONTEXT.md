@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.8 feed mapping quality guard (implementation in progress)  
+**Active stage:** M08.9 authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -393,3 +393,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The guard runs after fetching/mapping but before normalization; empty collections, wholly unmappable feeds and zero-valid-product feeds remain rejected.
 - This protects against major schema drift or partial mapper failure without treating duplicate product identities as mapping failures.
 - Authorized supplier onboarding is now M08.9 and remains blocked pending owner approval of a named source and usage rights.
+
+
+### M08.8 feed mapping quality and request safety — CI verified
+- `loadCatalogFromSource` rejects a source response when more than 20% of raw records fail source-specific mapping by default. `maxUnmappedFraction` permits a documented per-source override, validated as finite and in [0, 1).
+- Empty collections retain their empty-feed error; wholly unmappable collections retain their dedicated unmappable-feed error.
+- DummyJSON requests now use a 20-second timeout even when a caller provides an AbortSignal. The timeout and caller cancellation are combined; explicit caller cancellation exits immediately without retry.
+- Regression coverage includes mostly-unmappable feeds, boundary overrides, invalid threshold values, preservation of the empty/unmappable errors, composed request signals and cancellation without retry.
+- Verification on head `3db5764fa75f9188866392d3d3c874a5cb420684`: Catalog CI runs `41358732405` and `41358736412` passed; Backend CI run `41358736442` passed.
+- Next stage is M08.9 authorized supplier onboarding. It remains blocked until the owner approves a named source, its API/feed access and catalog/image/price reuse terms.

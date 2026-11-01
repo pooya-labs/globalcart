@@ -333,8 +333,10 @@
 - Verification: Catalog CI PR run [41356770768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770768) and Backend CI PR run [41356770801](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770801) both passed on the same branch head, including production and Docker builds.
 
 
-### M08.8 feed mapping quality guard — implementation in progress (2026-11-02)
-- Added a default 20% maximum mapping-rejection fraction to the shared source adapter.
-- Added a validated per-source override and regression tests for mostly-invalid feeds, acceptable small rejection rates and invalid thresholds.
-- The guard is source-mapping specific; duplicate canonical identities remain handled by normal de-duplication.
-- Catalog CI verification is pending. Real supplier onboarding remains blocked pending explicit owner approval.
+### M08.8 feed mapping quality and request safety — CI verified (2026-11-02)
+- Added a default 20% maximum mapping-rejection fraction to shared ingestion, with a validated per-source override. Duplicate canonical identities remain handled by normal de-duplication.
+- Preserved distinct errors for empty and wholly unmappable feeds so existing failure semantics remain clear.
+- Combined caller cancellation with a 20-second DummyJSON request timeout; explicitly cancelled requests now stop without retry, while timeout failures retain bounded retry behavior.
+- Added regression tests for mapping thresholds, invalid configuration, combined request signals and cancellation behavior.
+- Verification on head `3db5764fa75f9188866392d3d3c874a5cb420684`: Catalog CI [41358732405](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358732405) and [41358736412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358736412) passed; Backend CI [41358736442](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358736442) passed.
+- M08.9 authorized supplier onboarding remains blocked pending explicit owner approval of a named source and usage rights.
