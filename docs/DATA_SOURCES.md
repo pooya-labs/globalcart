@@ -64,3 +64,6 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - A source adapter must declare whether its payload is a complete catalog snapshot or an incremental/delta batch.
 - The scheduled static snapshot writer may consume only complete snapshots. Incremental records require a source-specific merge/reconciliation workflow and must never replace the complete catalog directly.
 - An incremental declaration alone does not authorize deleting products or variants, zeroing stock or archiving offers.
+
+
+**M08.7 implementation detail:** `CatalogSourceAdapter.snapshotMode` is mandatory. The current scheduled snapshot writer passes `requiredSnapshotMode: "full"`, so an incremental/delta adapter is rejected before its fetch method runs. The generic loader may normalize incremental records for a separately designed merger, but this implementation does not merge or persist delta feeds.
