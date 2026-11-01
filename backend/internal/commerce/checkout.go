@@ -198,3 +198,34 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	}
 	return Order{ID: orderID, Status: "awaiting_demo_payment", Currency: currency, Total: total}, nil
 }
+
+
+// ExpirePendingOrders releases every active reservation belonging to an order
+// whose reservation window has elapsed. The operation is safe to run repeatedly.
+func (s *Service) ExpirePendingOrders(ctx context.Context) (int64, error) {
+	var expired int64
+	err := s.pool.QueryRow(ctx, `WITH expired_orders AS (
+		UPDATE demo_orders AS o
+		SET status='expired', updated_at=now()
+		WHERE o.status='awaiting_demo_payment'
+		  AND EXISTS (
+			SELECT 1 FROM inventory_reservations AS r
+			WHERE r.order_id=o.id AND r.status='active' AND r.expires_at <= now()
+		  )
+		RETURNING o.id
+	), expired_reservations AS (
+		UPDATE inventory_reservations AS r
+		SET status='expired', updated_at=now()
+		FROM expired_orders AS o
+		WHERE r.order_id=o.id AND r.status='active'
+		RETURNING r.order_id
+	), events AS (
+		INSERT INTO demo_order_events(order_id,event_type,payload)
+		SELECT DISTINCT order_id,'demo_order_expired','{"reason":"reservation_timeout"}'::jsonb
+		FROM expired_reservations
+		RETURNING id
+	)
+	SELECT count(*)::bigint FROM expired_orders`).Scan(&expired)
+	if err != nil { return 0, fmt.Errorf("expire demo orders and reservations: %w", err) }
+	return expired, nil
+}
