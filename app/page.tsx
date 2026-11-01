@@ -114,10 +114,7 @@ export default function Home() {
   const [cart,setCart]=useState<CartLine[]>([]);
   const [favorites,setFavorites]=useState<number[]>([]);
   const [compareIds,setCompareIds]=useState<number[]>([]);
-  const [compareOpen,setCompareOpen]=useState(false);
-  const [amazonUrl,setAmazonUrl]=useState("");
-  const [amazonStatus,setAmazonStatus]=useState<"success"|"error"|null>(null);
-  const [amazonAsin,setAmazonAsin]=useState("");
+  const [compareOpen,setCompareOpen]=useState(false);\n  const [amazonUrl,setAmazonUrl]=useState("");\n  const [amazonStatus,setAmazonStatus]=useState<"success"|"error"|null>(null);\n  const [amazonAsin,setAmazonAsin]=useState("");
   const [recent,setRecent]=useState<number[]>([]);
   const [cartOpen,setCartOpen]=useState(false);
   const [favoriteOpen,setFavoriteOpen]=useState(false);
