@@ -353,7 +353,7 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		t.Fatalf("simulated payment side effects: released=%d events=%d, want 1 each", paidReleased, paymentEvents)
 	}
 
-	// Payment completion must reject a multi-line order if even one hold expired.
+	// Payment completion must reject an order whose reservation has expired.
 	var partialExpiryOwner [32]byte
 	partialExpiryOwner[0] = 84
 	if _, err := cartService.CreateCart(ctx, partialExpiryOwner[:], "USD", time.Hour); err != nil {
