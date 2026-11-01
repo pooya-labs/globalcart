@@ -81,23 +81,7 @@ func (s *Service) CheckoutVendorCart(ctx context.Context, ownerTokenHash, idempo
  var total string
  if err=tx.QueryRow(ctx,"SELECT ($1::numeric-$2::numeric)::numeric(12,2)::text",subtotal,discount).Scan(&total);err!=nil{return Order{},fmt.Errorf("calculate parent total: %w",err)}
  if _,err=tx.Exec(ctx,`UPDATE demo_orders SET coupon_id=$2,subtotal=$3::numeric,discount_amount=$4::numeric,total=$5::numeric,updated_at=now() WHERE id=$1`,orderID,nullableCouponID(couponID),subtotal,discount,total);err!=nil{return Order{},fmt.Errorf("finalize parent order totals: %w",err)}
- // Allocate discount proportionally to child subtotals. Round all but the
- // final child to cents; the final child receives the exact remainder.
- _,err=tx.Exec(ctx,`WITH amounts AS (
-  SELECT id,subtotal, row_number() OVER(ORDER BY vendor_id,id) AS rn,count(*) OVER() AS n,
-         sum(subtotal) OVER() AS all_subtotal
-  FROM demo_vendor_orders WHERE order_id=$1
- ), rounded AS (
-  SELECT id,rn,n,round($2::numeric*subtotal/NULLIF(all_subtotal,0),2) AS share
-  FROM amounts
- ), allocated AS (
-  SELECT id,CASE WHEN rn=n THEN $2::numeric-COALESCE(sum(share) OVER(ORDER BY rn ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING),0) ELSE share END AS discount
-  FROM rounded
- )
- UPDATE demo_vendor_orders d SET discount_amount=a.discount,total=d.subtotal-a.discount,updated_at=now()
- FROM allocated a WHERE d.id=a.id`,orderID,discount)
- if err!=nil{return Order{},fmt.Errorf("allocate coupon across vendor orders: %w",err)}
- if _,err=tx.Exec(ctx,`UPDATE demo_vendor_orders d SET subtotal=x.subtotal,updated_at=now()
+ if _,err=tx.Exec(ctx,`UPDATE demo_vendor_orders d SET subtotal=x.subtotal,total=x.subtotal-d.discount_amount,updated_at=now()
  FROM (SELECT vendor_order_id,sum(unit_price_snapshot*quantity)::numeric(12,2) AS subtotal FROM demo_order_items WHERE order_id=$1 GROUP BY vendor_order_id) x
  WHERE d.id=x.vendor_order_id`,orderID);err!=nil{return Order{},fmt.Errorf("finalize vendor subtotals: %w",err)}
  // Reapply allocation after exact child subtotals have been materialized.
