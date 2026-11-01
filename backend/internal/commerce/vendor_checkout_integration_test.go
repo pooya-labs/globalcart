@@ -107,7 +107,9 @@ func TestVendorSplitCheckoutAndCouponAllocation(t *testing.T) {
 		t.Fatalf("idempotent replay=%+v err=%v", replay, err)
 	}
 	detail, err := svc.GetOrder(ctx, owner[:], order.ID)
-	if err != nil { t.Fatalf("read split order: %v", err) }
+	if err != nil {
+		t.Fatalf("read split order: %v", err)
+	}
 	if len(detail.VendorOrders) != 2 || len(detail.Items) != 2 {
 		t.Fatalf("order detail child count=%d item count=%d", len(detail.VendorOrders), len(detail.Items))
 	}
