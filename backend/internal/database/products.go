@@ -113,10 +113,10 @@ func upsertPlatformOffer(ctx context.Context, tx pgx.Tx, vendorID int64, p catal
 
 func syncPlatformVariantOffers(ctx context.Context, tx pgx.Tx, vendorID, productID int64) error {
 	type variant struct {
-		id int64
-		sku string
-		price string
-		stock int32
+		id     int64
+		sku    string
+		price  string
+		stock  int32
 		active bool
 	}
 	rows, err := tx.Query(ctx, `SELECT id, sku, price::text, stock, is_active
