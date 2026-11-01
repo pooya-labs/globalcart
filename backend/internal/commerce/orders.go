@@ -47,10 +47,10 @@ type OrderEvent struct {
 
 type OrderDetail struct {
 	Order
-	CreatedAt   time.Time
-	Items       []OrderItem
+	CreatedAt    time.Time
+	Items        []OrderItem
 	VendorOrders []VendorOrderDetail
-	Events      []OrderEvent
+	Events       []OrderEvent
 }
 
 // GetOrder reads an order only through the guest capability that owns its cart.
@@ -104,10 +104,22 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 			rows.Close()
 			return OrderDetail{}, fmt.Errorf("scan order item: %w", err)
 		}
-		if variant.Valid { id := variant.Int64; item.VariantID = &id }
-		if vendorProduct.Valid { id := vendorProduct.Int64; item.VendorProductID = &id }
-		if vendorOrder.Valid { id := vendorOrder.String; item.VendorOrderID = &id }
-		if vendorID.Valid { id := vendorID.Int64; item.VendorID = &id }
+		if variant.Valid {
+			id := variant.Int64
+			item.VariantID = &id
+		}
+		if vendorProduct.Valid {
+			id := vendorProduct.Int64
+			item.VendorProductID = &id
+		}
+		if vendorOrder.Valid {
+			id := vendorOrder.String
+			item.VendorOrderID = &id
+		}
+		if vendorID.Valid {
+			id := vendorID.Int64
+			item.VendorID = &id
+		}
 		detail.Items = append(detail.Items, item)
 	}
 	if err := rows.Err(); err != nil {
@@ -120,16 +132,22 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 		vo.subtotal::text,vo.discount_amount::text,vo.total::text,vo.created_at
 		FROM demo_vendor_orders vo JOIN vendors v ON v.id=vo.vendor_id
 		WHERE vo.order_id=$1 ORDER BY vo.vendor_id,vo.id`, orderID)
-	if err != nil { return OrderDetail{}, fmt.Errorf("read vendor child orders: %w", err) }
+	if err != nil {
+		return OrderDetail{}, fmt.Errorf("read vendor child orders: %w", err)
+	}
 	detail.VendorOrders = make([]VendorOrderDetail, 0)
 	for vendorRows.Next() {
 		var child VendorOrderDetail
-		if err := vendorRows.Scan(&child.ID,&child.VendorID,&child.VendorName,&child.Status,&child.Currency,&child.Subtotal,&child.DiscountAmount,&child.Total,&child.CreatedAt); err != nil {
-			vendorRows.Close(); return OrderDetail{}, fmt.Errorf("scan vendor child order: %w", err)
+		if err := vendorRows.Scan(&child.ID, &child.VendorID, &child.VendorName, &child.Status, &child.Currency, &child.Subtotal, &child.DiscountAmount, &child.Total, &child.CreatedAt); err != nil {
+			vendorRows.Close()
+			return OrderDetail{}, fmt.Errorf("scan vendor child order: %w", err)
 		}
 		detail.VendorOrders = append(detail.VendorOrders, child)
 	}
-	if err := vendorRows.Err(); err != nil { vendorRows.Close(); return OrderDetail{}, fmt.Errorf("iterate vendor child orders: %w", err) }
+	if err := vendorRows.Err(); err != nil {
+		vendorRows.Close()
+		return OrderDetail{}, fmt.Errorf("iterate vendor child orders: %w", err)
+	}
 	vendorRows.Close()
 
 	eventRows, err := tx.Query(ctx, `SELECT event_type,payload,created_at FROM demo_order_events
