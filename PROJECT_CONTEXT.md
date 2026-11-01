@@ -94,3 +94,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Verified run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41301389812
 - No authentication, user/order writes, payment, seller APIs or production deployment exists yet.
 - Local Docker Compose is development scaffolding only; no cloud resources or paid services were created.
+
+
+### M04 catalog schema extension — implementation in progress
+- Added `002_catalog_taxonomy_variants.sql`: normalized category table with parent relationship, product category foreign key/backfill, and product_variants with SKU/source identity, price/stock checks and JSONB attributes.
+- Existing `products.category` remains intact so current read endpoints and imported catalog contract stay backward-compatible.
+- PostgreSQL integration test now checks category backfill and variant attribute round-trip.
+- This change is on `feat/m04-go-postgres-foundation`; CI verification is pending.
