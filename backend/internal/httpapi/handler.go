@@ -63,8 +63,24 @@ func (h *Handler) ready(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) listProducts(w http.ResponseWriter, r *http.Request) {
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	category := strings.TrimSpace(r.URL.Query().Get("category"))
-	limit := parseBoundedInt(r.URL.Query().Get("limit"), 24, 1, 100)
-	offset := parseBoundedInt(r.URL.Query().Get("offset"), 0, 0, 100000)
+	limit, validLimit := parseBoundedInt(r.URL.Query().Get("limit"), 24, 1, 100)
+	if !validLimit {
+		writeError(w, http.StatusBadRequest, "invalid_limit")
+		return
+	}
+	offset, validOffset := parseBoundedInt(r.URL.Query().Get("offset"), 0, 0, 100000)
+	if !validOffset {
+		writeError(w, http.StatusBadRequest, "invalid_offset")
+		return
+	}
+	if len(q) > 200 {
+		writeError(w, http.StatusBadRequest, "query_too_long")
+		return
+	}
+	if len(category) > 120 {
+		writeError(w, http.StatusBadRequest, "category_too_long")
+		return
+	}
 	ctx, cancel := context.WithTimeout(r.Context(), 4*time.Second)
 	defer cancel()
 	rows, err := h.db.Query(ctx, `SELECT id,title,description,category,price::float8,discount_percentage::float8,
@@ -115,18 +131,15 @@ func (h *Handler) getProduct(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, p)
 }
 
-func parseBoundedInt(raw string, fallback, min, max int) int {
+func parseBoundedInt(raw string, fallback, min, max int) (int, bool) {
 	if raw == "" {
-		return fallback
+		return fallback, true
 	}
 	n, err := strconv.Atoi(raw)
-	if err != nil || n < min {
-		return fallback
+	if err != nil || n < min || n > max {
+		return 0, false
 	}
-	if n > max {
-		return max
-	}
-	return n
+	return n, true
 }
 
 func writeJSON(w http.ResponseWriter, status int, value any) {
