@@ -273,3 +273,10 @@
 - Replaced delimiter-concatenated variant identity keys with an unambiguous tuple encoding of `(source, sourceId)`.
 - Added a regression test proving that pairs such as `("supplier:one", "id")` and `("supplier", "one:id")` remain distinct.
 - Catalog CI run `41355272122` passed TypeScript validation, all unit tests and production build on head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`.
+
+
+### M08.4 catalog snapshot integrity — implementation in progress (2026-11-02)
+- Added a conservative full-snapshot continuity guard that rejects a product-count drop greater than 50% compared with the last-known-good snapshot.
+- The guard executes before atomic snapshot replacement, so suspiciously incomplete refreshes preserve the existing catalog snapshot.
+- Added a diagnostic report for product/variant coverage and common data-quality signals; these are reported without fabricating or automatically deleting catalog data.
+- Added unit tests for threshold boundaries, invalid settings and quality-report counts. Final Catalog CI verification is pending.
