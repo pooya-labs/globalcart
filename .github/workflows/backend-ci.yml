@@ -1,0 +1,41 @@
+name: Backend CI
+on:
+  push:
+    branches: [main, feat/m04-go-postgres-foundation]
+    paths:
+      - "backend/**"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/backend-ci.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache: true
+      - name: Download Go modules
+        run: go mod download
+      - name: Check formatting
+        run: test -z "$(gofmt -l backend)"
+      - name: Vet
+        run: go vet ./...
+      - name: Unit tests
+        run: go test -race ./...
+      - name: Build API and importer
+        run: |
+          go build ./backend/cmd/api
+          go build ./backend/cmd/catalog-import
+      - name: Build container image
+        run: docker build -f backend/Dockerfile -t globalcart-api:ci .
