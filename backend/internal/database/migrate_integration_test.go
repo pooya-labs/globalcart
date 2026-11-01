@@ -260,6 +260,12 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if _, err := cartService.AddItem(ctx, cartOwner, product.ID, &variantID, 1); err != nil {
 		t.Fatalf("add active variant to guest cart: %v", err)
 	}
+	if _, err := cartService.RemoveItem(ctx, cartOwner, product.ID, &variantID); err != nil {
+		t.Fatalf("remove variant line before cancellation fixture: %v", err)
+	}
+	if _, err := cartService.AddItem(ctx, cartOwner, product.ID, nil, 1); err != nil {
+		t.Fatalf("add base product for cancellation fixture: %v", err)
+	}
 
 	// A cart owner may cancel an unpaid demo order; active holds are released.
 	cancelKey := make([]byte, 32)
