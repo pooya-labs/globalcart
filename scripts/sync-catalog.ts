@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { dummyJsonCatalogAdapter } from "../lib/catalog/dummyjson";
 import { loadCatalogFromSourceWithReport } from "../lib/catalog/source-adapter";
-import { readCatalogSnapshot, writeCatalogSnapshotAtomically, type CatalogSnapshot } from "../lib/catalog/snapshot";
+import { assertCatalogSnapshot, readCatalogSnapshot, writeCatalogSnapshotAtomically, type CatalogSnapshot } from "../lib/catalog/snapshot";
 import { assertCatalogSnapshotContinuity, summarizeCatalogQuality } from "../lib/catalog/quality";
 
 const outputDirectory = join(process.cwd(), "data");
@@ -40,6 +40,7 @@ async function main(): Promise<void> {
       products
     };
 
+    assertCatalogSnapshot(snapshot, outputFile);
     await writeCatalogSnapshotAtomically(snapshot, outputFile);
     console.log("Catalog snapshot generated:", products.length, "products at", importedAt);
     console.log("Catalog feed import report:", JSON.stringify(importResult.report));

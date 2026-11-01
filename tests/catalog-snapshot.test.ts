@@ -259,3 +259,15 @@ test("snapshot validation enforces variant price and stock constraints", async (
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+
+test("the shared snapshot assertion rejects invalid data before publication", async () => {
+  const { assertCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const invalid = wrapSnapshot([
+    validSnapshotProduct({ price: 1.001 })
+  ]);
+  assert.throws(() => assertCatalogSnapshot(invalid, "publication"), /schema validation.*publication/);
+  assert.doesNotThrow(() => assertCatalogSnapshot(wrapSnapshot([
+    validSnapshotProduct({ price: 19.99, stock: 4 })
+  ])));
+});

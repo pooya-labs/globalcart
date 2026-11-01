@@ -194,8 +194,16 @@ export async function readCatalogSnapshot(outputFile: string): Promise<CatalogSn
   } catch {
     throw new Error("Catalog snapshot is not valid JSON: " + outputFile);
   }
-  if (!isCatalogSnapshot(parsed)) {
-    throw new Error("Catalog snapshot failed schema validation: " + outputFile);
-  }
+  assertCatalogSnapshot(parsed, outputFile);
   return parsed;
+}
+
+/** Throws before publication/import whenever a snapshot violates the shared contract. */
+export function assertCatalogSnapshot(
+  value: unknown,
+  context = "input"
+): asserts value is CatalogSnapshot {
+  if (!isCatalogSnapshot(value)) {
+    throw new Error("Catalog snapshot failed schema validation: " + context);
+  }
 }
