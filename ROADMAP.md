@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.3 — Owner-scoped vendor child-order reads (CI verification pending)  
+**Active stage:** M09.4 — Seller authorization boundary and vendor ownership hardening  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
