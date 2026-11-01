@@ -42,3 +42,6 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - The 50% threshold is a conservative guardrail for the current full-feed job, not a universal supplier rule. Any future incremental/delta source must document completeness semantics and use source-appropriate continuity checks instead.
 - The quality report records product count, variant count, products with/without variants, zero-price/zero-stock products, missing descriptions and uncategorized products. These are diagnostics, not synthetic corrections.
 - Product-only catalogs are valid. Missing variants in a source response do not imply deleting variants or vendor offers already stored in PostgreSQL.
+
+
+**M08.4 verification:** Catalog CI PR run `41355595494` passed TypeScript validation, all tests and production build. The full-snapshot continuity guard is covered by tests for the 50% boundary, rejection of a 51% drop, and invalid thresholds.
