@@ -105,3 +105,7 @@ All endpoints are read-only. Authentication, user data and write operations are 
 
 
 Product list pagination returns both `count` (items in the current page) and `total` (all matching products before limit/offset). Category filters match normalized category names case-insensitively and trim surrounding whitespace. Both list and count use the same search/category predicates.
+
+
+## Demo commerce schema (local-only, not exposed)
+Migration 003 introduces carts, cart items, demo orders, immutable order-line snapshots, expiring inventory reservations and order events. Guest ownership and checkout idempotency persist only SHA-256 digests of high-entropy capabilities/keys. The intended checkout is a single PostgreSQL transaction that locks the cart and relevant stock row, revalidates prices from canonical catalog data, writes immutable snapshots and creates an expiring reservation. Payment is simulated and reservation release never mutates imported stock. See `docs/COMMERCE_DESIGN.md`. No write endpoints or browser cookie flow are enabled until the same-site HTTPS, identity, authorization and CSRF gates are approved.
