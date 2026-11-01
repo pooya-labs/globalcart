@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.1 platform catalog importer synchronization (CI verification pending)  
+**Active stage:** M08.3 supplier adapter contract and fixture-backed variant ingestion (CI verification pending)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -300,3 +300,14 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Current DummyJSON sample feed does not provide variants; this is backward-compatible optional ingestion support, not a claim that live variant records are arriving. An authorized supplier feed/adapter is still needed to exercise real source variants.
 - New code commits: `34e0883`, `a9eeef5`, `e925313`, `26d6e1f`, `26c8a1f`, `ee46960`. CI for this new end-to-end ingestion slice is pending.
 - Active branch remains `feat/m04-go-postgres-foundation`; PR #1 remains Draft/open/unmerged. Do not merge or deploy.
+
+
+## Latest continuation checkpoint — 2026-11-02: M08.2 verified; M08.3 in progress
+- Backend CI run `41354535515` completed with conclusion `success` on head `11132964594083998362a8ef1e35e646524b7e6f`. All steps passed, including sqlc generation, formatting, vet, race-enabled Go/PostgreSQL tests, API/importer builds and Docker image build.
+- M08.2 end-to-end source variant ingestion is therefore CI-verified. The TypeScript catalog contract and Go importer accept optional source variants; the importer persists variant identity, SKU, title, price, stock, attributes and active state transactionally before syncing platform offers.
+- M08.3 introduces `CatalogSourceAdapter` and `loadCatalogFromSource` as a reusable supplier ingestion boundary. Source adapters fetch supplier-specific records and map them into the canonical product/variant input contract.
+- DummyJSON now uses the shared adapter contract. Its retry behavior and the snapshot generator's last-known-good protection are retained.
+- Variant deduplication now keys by both source and source ID, matching the database unique identity pair. Equal source IDs from different suppliers are not incorrectly collapsed.
+- Added a synthetic-only supplier fixture and tests for mapping two variants, source provenance, SKU, attributes, inactive status, source-scoped identity and empty/unmappable feed rejection.
+- Added `.github/workflows/catalog-ci.yml` to run npm install, TypeScript validation, unit tests and a production build for relevant pushes and pull requests. Its result is the remaining M08.3 verification gate.
+- No real supplier API/feed, credentials, live supplier inventory, hosting, secrets, merge or deployment were added. PR #1 remains Draft/open/unmerged.
