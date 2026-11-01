@@ -3,7 +3,7 @@
 **Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main  
-**Package version:** 0.2.2  
+**Package version:** 0.2.2 (next development increment: 0.2.3-dev)  
 **Active stage:** M01.5 marketplace redesign / M03 product experience  
 **Last updated:** 2026-11-01
 
@@ -26,8 +26,8 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 ## Current implementation map
 - `app/page.tsx` — bilingual storefront, catalog search/filter/sort, category mega-menu, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
 - `app/product/[id]/page.tsx` — statically generated product routes from the current catalog snapshot.
-- `app/product/[id]/ProductDetailClient.tsx` — product gallery, pricing, product facts, local cart/favorite actions and related products.
-- `app/globals.css` — responsive marketplace design system, product detail, mega-menu, comparison and Amazon intake styling.
+- `app/product/[id]/ProductDetailClient.tsx` — product gallery, illustrative price breakdown, product facts, browser-local visit tracking, local cart/favorite actions and related products.
+- `app/globals.css` — responsive marketplace design system, product detail, price breakdown, recently viewed rail, mega-menu, comparison and Amazon intake styling.
 - `app/layout.tsx` — metadata and global styles.
 - `data/catalog.json` — generated 100-product sample catalog snapshot.
 - `scripts/sync-catalog.ts` — scheduled/manual DummyJSON import, retry, normalization and last-known-good protection.
@@ -44,6 +44,9 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - The storefront supports Persian RTL and English LTR, category navigation, search, filters, sorting, favorites, recently viewed, local cart and simulated checkout.
 - Product detail routes are statically generated for products in the snapshot and include gallery, pricing, facts and related products.
 - Comparison supports up to four products and is persisted in browser local storage.
+- Homepage merchandising rails are derived from the current sample catalog (discounts, ratings and discovery).
+- Recently viewed product IDs are stored in browser local storage and shown in a homepage rail; there is no server-side account history.
+- Product detail pages expose source USD price, sample discount, illustrative user-configured FX rate and converted demo price. No live FX provider is connected.
 - Amazon URL intake validates supported Amazon domains and ASINs, then saves requests in browser local storage. Live Amazon data is not fetched.
 - Translation is out of scope and removed from the active CI pipeline.
 
@@ -51,16 +54,15 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
 
-Actions run 41299130540 (Run #121) passed catalog refresh, snapshot persistence, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment. This run includes the Amazon link intake, marketplace services/FAQ, comparison, product detail pages and dynamic homepage merchandising.
-https://github.com/pooya16pg-spec/globalcart/actions/runs/41299130540
+Actions run 41299322140 (Run #126) passed catalog refresh, snapshot persistence, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment. This run includes dynamic merchandising, browser-local recently viewed history and the illustrative product price breakdown.
+https://github.com/pooya16pg-spec/globalcart/actions/runs/41299322140
 
 ## Immediate next actions
-1. Verify the latest Amazon-link intake, service/FAQ and comparison changes through TypeScript, unit tests, static export and Pages deployment.
-2. Add a richer homepage merchandising system: curated collections, trending products and deal rails using only authorized catalog data.
-3. Add transparent product price breakdown and FX provenance/staleness handling.
-4. Complete responsive, RTL/LTR, keyboard, screen-reader, reduced-motion and browser QA.
-5. Build seller/admin workspaces only after the catalog UX and role boundaries are defined.
-6. Defer live Amazon product retrieval until approved API/feed credentials and usage rights are available.
+1. Complete responsive, RTL/LTR, keyboard, screen-reader, reduced-motion and published deep-link QA.
+2. Add an authorized FX provider with source timestamp and stale-rate policy; keep the current rate clearly illustrative until then.
+3. Improve source attributes, rating context and catalog freshness diagnostics.
+4. Build seller/admin workspaces only after the catalog UX and role boundaries are defined.
+5. Defer live Amazon product retrieval until approved API/feed credentials and usage rights are available.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.

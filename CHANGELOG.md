@@ -71,3 +71,16 @@
 ### Verification
 - Actions run 41299130540 (Run #121) passed catalog refresh, TypeScript validation, unit tests, production build, Pages artifact upload and deployment.
 - Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41299130540
+
+
+## 0.2.3-dev — 2026-11-01
+### Added
+- Data-driven homepage merchandising rails for top discounts, top-rated products and fresh discoveries.
+- Browser-local recently viewed product rail, updated from both quick view and dedicated product pages, with a clear-history action.
+- Product detail price breakdown showing source USD price, catalog discount, illustrative Toman/USD rate and calculated demo total.
+### Notes
+- FX remains user-configured and illustrative; no live provider, timestamp, shipping, tax or markup is represented.
+- Recently viewed data is stored locally in the browser; no account-level history is created.
+### Verification
+- Actions run 41299322140 (Run #126) passed catalog refresh, TypeScript validation, unit tests, production build, Pages artifact upload and deployment.
+- Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41299322140

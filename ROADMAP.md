@@ -2,7 +2,7 @@
 
 > The single source of truth. A stage is complete only after implementation and verification.
 
-**Current release:** 0.2.2-dev  
+**Current release:** 0.2.3-dev  
 **Active stage:** M01.5 — Marketplace redesign and UX foundation  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
@@ -35,7 +35,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | M00 | 0.1.0 | Product definition, independence, governance and handoff | Complete |
 | M01 | 0.1.x | Storefront foundation, bilingual shell and deployment | Implemented; redesign supersedes original visual direction |
 | M02 | 0.2.x | Automated catalog import, normalization and snapshots | Catalog sync active; translation paused |
-| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Product detail, gallery and comparison UI implemented; pricing provenance remains |
+| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Product detail, gallery, comparison and illustrative price breakdown implemented; live FX provenance remains |
 | M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Planned; owner runtime/hosting gate |
 | M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Planned |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
@@ -100,11 +100,11 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Integer-cent pricing, fixed-point FX and BigInt intermediate arithmetic.
 - [x] Explicit rounding and invalid-input tests.
 - [ ] FX provider, source timestamp and stale-rate policy.
-- [ ] Transparent source/FX/markup/shipping/tax price breakdown.
+- [x] Transparent illustrative source-price, discount and FX breakdown on product pages (browser-local rate only; no live FX, markup, shipping or tax quote).
 - [x] Dedicated static product details for the imported catalog, responsive image gallery and related products.
 - [ ] Attributes, ratings context and source provenance.
 - [x] Product comparison modal and persistent comparison shortlist.
-- [ ] Recently viewed page and richer browsing history.
+- [x] Recently viewed product rail and browser-local visit history; a dedicated history page remains future scope.
 
 ## M04 — Backend and database platform
 - [ ] Owner enables Go runtime and approves separate API hosting.
@@ -168,3 +168,11 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 | 0.1.4 | M02 catalog pipeline | Implemented | Catalog import and snapshot pipeline; translation bridge parked and removed from CI |
 | 0.2.0-dev | M01.5 marketplace redesign | In progress | Category-first shell and updated marketplace visual system |
 | 0.2.1-dev | M03 product experience | In progress | Static product detail routes, gallery, buy box and related products added; verification pending |
+
+
+## 0.2.3-dev verification update — 2026-11-01
+- [x] Data-driven homepage merchandising rails for deals, top-rated products and discoveries.
+- [x] Browser-local recently viewed history, including visits to dedicated product pages.
+- [x] Product price breakdown using the existing fixed-point pricing helper.
+- [x] GitHub Actions run 41299322140 passed catalog refresh, TypeScript, unit tests, production build, Pages artifact upload and deployment.
+- [ ] Full manual responsive, accessibility and published deep-link QA remains open.
