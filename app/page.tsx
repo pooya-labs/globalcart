@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { fetchDummyJsonCatalog } from "../lib/catalog";
 import catalogSnapshot from "../data/catalog.json";
@@ -38,7 +38,7 @@ const copy = {
     feature1: "کشف هوشمند", feature1d: "جست‌وجو و فیلتر سریع", feature2: "اطلاعات شفاف", feature2d: "نمایش منبع و قیمت", feature3: "تجربه امن", feature3d: "بدون تراکنش واقعی",
     footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "طراحی و توسعه: پویا گودرزی",
     count: "محصول", menu: "منو", compare: "مقایسه", recently: "تازه بازدیدشده", emptyFav: "هنوز محصولی ذخیره نکرده‌ای.",
-    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه"
+    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "محصولت را در آمازون پیدا کردی؟", amazonDesc: "لینک مستقیم محصول را وارد کن تا درخواست بررسی آن در نسخه نمایشی ثبت شود.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "بررسی لینک محصول", amazonNote: "ثبت لینک در این نسخه نمایشی است؛ دریافت قیمت و موجودی زنده به دسترسی رسمی آمازون نیاز دارد.", amazonSuccess: "درخواست لینک محصول ذخیره شد", amazonInvalid: "لینک معتبر محصول آمازون با شناسه ASIN ده‌کاراکتری وارد کن."
   },
   en: {
     top: "A fresh perspective on finding good things", search: "Search products, brands or categories...",
@@ -58,7 +58,7 @@ const copy = {
     feature1: "Smart discovery", feature1d: "Fast search and filters", feature2: "Clear information", feature2d: "Source and price context", feature3: "Safe experience", feature3d: "No real transactions",
     footer: "An independent commerce experience, built to showcase product engineering.", owner: "Designed & engineered by Pooya Goodarzi",
     count: "products", menu: "Menu", compare: "Compare", recently: "Recently viewed", emptyFav: "You have not saved anything yet.",
-    min: "Min price", max: "Max price", result: "Results", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison"
+    min: "Min price", max: "Max price", result: "Results", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "Found it on Amazon?", amazonDesc: "Paste the product link to save a sourcing request in this demo experience.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "Validate product link", amazonNote: "Link intake is simulated; live product data and pricing require authorized Amazon API access.", amazonSuccess: "Product link request saved", amazonInvalid: "Enter a valid Amazon product URL containing a 10-character ASIN."
   }
 } as const;
 
@@ -91,6 +91,18 @@ const categories = [
 const money = (value:number, locale:Locale) => new Intl.NumberFormat(locale==="fa"?"fa-IR":"en-US",{maximumFractionDigits:0}).format(value);
 const usd = (value:number) => "$"+value.toFixed(2);
 
+const parseAmazonProductLink=(raw:string):{asin:string;url:string}|null=>{
+  try{
+    const url=new URL(raw.trim());
+    const host=url.hostname.toLowerCase().replace(/^www\./,"");
+    const domains=["amazon.com","amazon.co.uk","amazon.de","amazon.fr","amazon.it","amazon.es","amazon.ca","amazon.co.jp","amazon.in","amazon.com.au","amazon.com.br","amazon.com.mx","amazon.nl","amazon.se","amazon.pl","amazon.com.tr","amazon.ae","amazon.sa","amazon.sg","amazon.eg","amazon.com.be"];
+    if(!domains.includes(host))return null;
+    const match=url.pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([a-z0-9]{10})(?:[/?]|$)/i);
+    if(!match)return null;
+    return {asin:match[1].toUpperCase(),url:url.toString()};
+  }catch{return null;}
+};
+
 export default function Home() {
   const [locale,setLocale]=useState<Locale>("fa");
   const [products,setProducts]=useState<Product[]>(snapshotProducts.length ? snapshotProducts : fallback);
@@ -102,7 +114,7 @@ export default function Home() {
   const [cart,setCart]=useState<CartLine[]>([]);
   const [favorites,setFavorites]=useState<number[]>([]);
   const [compareIds,setCompareIds]=useState<number[]>([]);
-  const [compareOpen,setCompareOpen]=useState(false);
+  const [compareOpen,setCompareOpen]=useState(false);\n  const [amazonUrl,setAmazonUrl]=useState("");\n  const [amazonStatus,setAmazonStatus]=useState<"success"|"error"|null>(null);\n  const [amazonAsin,setAmazonAsin]=useState("");
   const [recent,setRecent]=useState<number[]>([]);
   const [cartOpen,setCartOpen]=useState(false);
   const [favoriteOpen,setFavoriteOpen]=useState(false);
@@ -119,6 +131,22 @@ export default function Home() {
   const [showFilters,setShowFilters]=useState(false);
   const t=copy[locale];
   const rtl=locale==="fa";
+
+  const submitAmazonLink=(event:FormEvent<HTMLFormElement>)=>{
+    event.preventDefault();
+    const parsed=parseAmazonProductLink(amazonUrl);
+    if(!parsed){setAmazonStatus("error");setAmazonAsin("");return;}
+    try{
+      const raw=localStorage.getItem("globalcart-amazon-requests-v1");
+      const requests=raw?JSON.parse(raw):[];
+      const next=Array.isArray(requests)?requests:[];
+      next.push({...parsed,requestedAt:new Date().toISOString()});
+      localStorage.setItem("globalcart-amazon-requests-v1",JSON.stringify(next.slice(-20)));
+      setAmazonAsin(parsed.asin);
+      setAmazonStatus("success");
+      setAmazonUrl("");
+    }catch{setAmazonStatus("error");setAmazonAsin("");}
+  };
 
   useEffect(()=>{
     let active=true;
@@ -249,6 +277,16 @@ export default function Home() {
           <div className="hero-index">GC<span>®</span></div>
           <div className="hero-side-note">A BETTER WAY TO BROWSE</div>
         </div>
+      </section>
+
+      <section className="amazon-request-section" id="amazon-request">
+        <div className="amazon-request-copy"><span className="section-kicker">{t.amazonEyebrow}</span><h2>{t.amazonTitle}</h2><p>{t.amazonDesc}</p><small><ShieldCheck size={14}/>{t.amazonNote}</small></div>
+        <form className="amazon-link-form" onSubmit={submitAmazonLink}>
+          <label htmlFor="amazon-product-url">{rtl?"لینک محصول آمازون":"Amazon product URL"}</label>
+          <div className="amazon-link-input"><input id="amazon-product-url" type="url" dir="ltr" required value={amazonUrl} onChange={e=>{setAmazonUrl(e.target.value);setAmazonStatus(null);}} placeholder={t.amazonPlaceholder}/><button type="submit"><Package size={16}/>{t.amazonSubmit}<ArrowLeft size={15}/></button></div>
+          {amazonStatus==="success"&&<div className="amazon-link-feedback success"><Check size={15}/>{t.amazonSuccess} · ASIN: <b>{amazonAsin}</b></div>}
+          {amazonStatus==="error"&&<div className="amazon-link-feedback error"><CircleHelp size={15}/>{t.amazonInvalid}</div>}
+        </form>
       </section>
 
       <section className="benefits">
