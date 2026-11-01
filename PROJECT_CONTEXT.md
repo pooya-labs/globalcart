@@ -3,7 +3,7 @@
 **Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main  
-**Package version:** 0.2.1  
+**Package version:** 0.2.2  
 **Active stage:** M01.5 marketplace redesign / M03 product experience  
 **Last updated:** 2026-11-01
 
@@ -24,7 +24,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Never mark roadmap work complete before verification.
 
 ## Current implementation map
-- `app/page.tsx` — bilingual storefront, catalog search/filter/sort, category mega-menu, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
+- `app/page.tsx` — bilingual storefront, catalog search/filter/sort, category mega-menu, dynamic merchandising rails, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
 - `app/product/[id]/page.tsx` — statically generated product routes from the current catalog snapshot.
 - `app/product/[id]/ProductDetailClient.tsx` — product gallery, pricing, product facts, local cart/favorite actions and related products.
 - `app/globals.css` — responsive marketplace design system, product detail, mega-menu, comparison and Amazon intake styling.
