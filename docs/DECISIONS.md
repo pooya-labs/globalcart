@@ -44,3 +44,10 @@ Persistent backend capabilities use a Go REST API with OpenAPI for application/d
 **Status:** Accepted · 2026-11-01
 
 The storefront consumes a generated JSON snapshot. Scheduled/manual GitHub Actions refreshes it from permitted sources before build. A failed refresh preserves the previous valid snapshot; live browser refresh must not discard a valid snapshot when the source is unavailable.
+
+
+## ADR-010 — Opaque server-side sessions and deny-by-default RBAC
+**Status:** Proposed · 2026-11-01
+
+Use versioned Argon2id password hashes, opaque high-entropy server-side sessions with only token digests stored, host-only Secure/HttpOnly/SameSite cookies, synchronizer CSRF protection and exact Origin/CORS allow-lists. Roles are customer/seller/admin; seller operations are additionally scoped to an active seller membership. Privileged role grants are audited and never self-assigned. Authorization is database-backed and deny-by-default. Do not implement browser login until the owner approves HTTPS same-site frontend/API hosting, email delivery and secret management; the current GitHub Pages origin is not a suitable cross-site cookie deployment.
+See `docs/SECURITY_AUTH_DESIGN.md` for the complete schema, flow, endpoint and test proposal.
