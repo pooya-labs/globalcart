@@ -323,3 +323,19 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add PostgreSQL integration coverage for normalized codes, percentage calculation, usage exhaustion, minimum subtotal rollback, cart attachment state and order detail totals.
 - [ ] Add verified customer identity before treating guest-capability limits as true per-customer limits.
 - [ ] Keep coupon administration and cart/checkout operations internal until auth, same-site deployment and CSRF prerequisites are approved.
+
+
+### M08 — Multi-vendor foundation (backend-only; migration 005)
+- [x] Add vendor records with platform/merchant type and constrained lifecycle states.
+- [x] Add vendor-specific base-product and variant offers with independent price, USD currency, stock, SKU and status.
+- [x] Enforce one offer per vendor/product-or-variant and vendor-scoped SKU uniqueness.
+- [x] Backfill current products and variants into the explicit GlobalCart Direct platform vendor.
+- [x] Add append-only price history and inventory event tables with initial import/opening balance records.
+- [x] Add PostgreSQL integration assertions for vendor backfill, independent stock across vendors, audit records and duplicate-offer rejection.
+- [ ] Integrate catalog importer so newly imported products create/update platform offers transactionally.
+- [ ] Implement internal vendor and offer services with transactional price/inventory audit writes.
+- [ ] Migrate cart lines, reservations and checkout to vendor-offer identity; split each checkout into vendor order groups.
+- [ ] Add verified seller membership and tenant-scoped authorization only after the approved identity/authentication boundary.
+- [ ] Keep seller APIs, seller UI, commission, payouts and fulfillment disabled until their separate security and product requirements are approved.
+
+**Compatibility note:** existing cart/checkout still use legacy product/variant stock. Migration 005 is additive and intentionally does not claim multi-vendor checkout is complete.

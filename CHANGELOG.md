@@ -168,3 +168,11 @@
 - Added percentage and fixed discount calculation, validity windows, minimum subtotal, maximum discount and redemption limits.
 - Checkout revalidates and records redemption atomically; order totals snapshot subtotal, discount and final total.
 - Added cart coupon state and discounted order detail fields; no public routes or verified customer identity are enabled.
+
+
+### M08 vendor foundation — 2026-11-02
+- Added migration 005 with vendor lifecycle/type, vendor-specific base and variant offers, price history and inventory event ledger.
+- Backfilled existing catalog products and variants into the active GlobalCart Direct platform vendor; recorded opening price/stock snapshots.
+- Added PostgreSQL integration coverage for independent stock across two vendors, audit records and duplicate-offer constraints.
+- Compatibility preserved: existing cart and checkout still use legacy catalog stock; multi-vendor cart/order splitting is not yet implemented.
+- No seller membership, public seller API, dashboard, commission, payout or fulfillment was enabled.

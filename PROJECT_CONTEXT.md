@@ -204,3 +204,13 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The current per-customer-like limit is scoped to the guest cart capability digest, not a verified person/account; account identity is still a prerequisite for a genuine customer-wide limit.
 - PostgreSQL integration coverage includes percentage discount, global use exhaustion, minimum subtotal rejection/rollback, coupon attachment/removal and order-detail totals.
 - Coupon administration and checkout remain internal-only; no public HTTP routes, hosted services or payment provider are enabled.
+
+
+## M08 vendor foundation — migration 005
+- Branch remains `feat/m04-go-postgres-foundation`; PR #1 remains Draft/open/unmerged.
+- `005_vendor_foundation.sql` adds vendors, vendor_products, vendor_price_history and vendor_inventory_events.
+- Current products and variants are backfilled as offers under the active GlobalCart Direct platform vendor, including initial price and opening-stock audit records.
+- Offers support independent vendor-specific price, USD currency, stock, SKU and status; partial unique indexes enforce one base/variant offer per vendor.
+- Integration coverage checks platform vendor backfill, two vendors offering the same variant with independent stock, audit records and duplicate-offer rejection.
+- Critical: cart and checkout still use legacy products/product_variants stock and prices. Vendor offers are not yet wired to cart or checkout; no vendor order split exists.
+- No seller membership, seller HTTP API, dashboard, payout, commission, shipment or production resource is enabled. Membership waits for verified identity and authorization.

@@ -94,3 +94,15 @@ Verification: CI run 41348079983 passed the PostgreSQL integration/race test sui
 Coupon codes are normalized to uppercase and stored only as SHA-256 digests. Internal coupon definitions support percentage or fixed discounts, start/end timestamps, minimum subtotal, optional maximum discount, optional global usage limit and a per-guest-capability redemption limit. The latter is deliberately not described as a verified per-customer limit: until account identity exists, a guest can create another cart capability.
 
 Applying a code attaches its coupon ID to an open cart; cart reads expose only a boolean applied-state. Checkout re-locks and revalidates the coupon, uses the canonical catalog-price subtotal, checks the minimum and redemption limits, calculates the discount with PostgreSQL NUMERIC arithmetic, records a redemption and snapshots subtotal/discount/final total in the same transaction. A failed validation rolls back the order and reservations. Percentage discounts are capped at the subtotal and optional maximum discount; fixed discounts are likewise capped at subtotal. No coupon administration or cart/checkout HTTP route is enabled.
+
+
+## 13. Multi-vendor catalog foundation (migration 005)
+Migration `005_vendor_foundation.sql` introduces:
+- `vendors` with constrained slug, lifecycle status and vendor type; exactly one platform vendor is permitted.
+- `vendor_products` as a vendor-specific offer for either a base product or one of its variants. Price, USD currency, stock, SKU and offer status are scoped to the vendor. Partial unique indexes prevent duplicate base/variant offers and duplicate seller SKUs within one vendor.
+- `vendor_price_history` and `vendor_inventory_events` as append-only audit records. Future price/stock service methods must write the offer mutation and corresponding audit row in the same transaction; database triggers are intentionally not used because migrations are executed statement-by-statement by the current migration runner.
+- Existing catalog products and variants are backfilled as offers owned by the active `GlobalCart Direct` platform vendor. Initial price and opening-stock audit rows are recorded.
+
+Important compatibility boundary: current cart and checkout services still read `products` / `product_variants` stock and price. Migration 005 does not redirect those services to `vendor_products`, does not split orders by vendor, and does not alter the current public read API. This avoids silently changing checkout semantics before a vendor-aware cart line and order-group transaction can be tested end to end. New products imported after this migration do not automatically receive an offer yet; catalog-import integration is a follow-up task.
+
+No seller membership table is created before verified account identity and role authorization exist. No seller API, seller dashboard, payouts, commission, shipment or production service is enabled.

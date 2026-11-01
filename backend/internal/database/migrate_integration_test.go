@@ -140,6 +140,66 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		t.Fatalf("variant attributes = %v, want color=black and size=M", decodedAttributes)
 	}
 
+	// Migration 005 backfills the legacy catalog into an explicit platform vendor.
+	var platformVendorID int64
+	if err := pool.QueryRow(ctx, "SELECT id FROM vendors WHERE slug='globalcart-direct' AND vendor_type='platform' AND status='active'").Scan(&platformVendorID); err != nil {
+		t.Fatalf("read seeded platform vendor: %v", err)
+	}
+	var platformOfferID int64
+	if err := pool.QueryRow(ctx, `INSERT INTO vendor_products
+		(vendor_id,product_id,variant_id,price,currency,stock,status)
+		VALUES($1,$2,$3,13.99,'USD',2,'active') RETURNING id`,
+		platformVendorID, product.ID, variantID).Scan(&platformOfferID); err != nil {
+		t.Fatalf("create platform variant offer: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO vendor_price_history
+		(vendor_product_id,old_price,new_price,currency,change_source)
+		VALUES($1,NULL,13.99,'USD','initial_import')`, platformOfferID); err != nil {
+		t.Fatalf("record initial vendor price: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO vendor_inventory_events
+		(vendor_product_id,quantity_delta,resulting_stock,reason,reference)
+		VALUES($1,2,2,'opening_balance','integration-test')`, platformOfferID); err != nil {
+		t.Fatalf("record initial vendor stock: %v", err)
+	}
+	var secondVendorID int64
+	if err := pool.QueryRow(ctx, `INSERT INTO vendors(slug,display_name,status)
+		VALUES('integration-seller','Integration Seller','active') RETURNING id`).Scan(&secondVendorID); err != nil {
+		t.Fatalf("create second vendor: %v", err)
+	}
+	var secondOfferID int64
+	if err := pool.QueryRow(ctx, `INSERT INTO vendor_products
+		(vendor_id,product_id,variant_id,price,currency,stock,status)
+		VALUES($1,$2,$3,14.49,'USD',7,'active') RETURNING id`,
+		secondVendorID, product.ID, variantID).Scan(&secondOfferID); err != nil {
+		t.Fatalf("create second vendor offer for same variant: %v", err)
+	}
+	var firstStock, secondStock int
+	if err := pool.QueryRow(ctx, "SELECT stock FROM vendor_products WHERE id=$1", platformOfferID).Scan(&firstStock); err != nil {
+		t.Fatalf("read first vendor stock: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT stock FROM vendor_products WHERE id=$1", secondOfferID).Scan(&secondStock); err != nil {
+		t.Fatalf("read second vendor stock: %v", err)
+	}
+	if firstStock != 2 || secondStock != 7 {
+		t.Fatalf("vendor stocks are not independent: first=%d second=%d", firstStock, secondStock)
+	}
+	var priceHistoryCount, inventoryEventCount int
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", platformOfferID).Scan(&priceHistoryCount); err != nil {
+		t.Fatalf("read vendor price history: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id=$1", platformOfferID).Scan(&inventoryEventCount); err != nil {
+		t.Fatalf("read vendor inventory events: %v", err)
+	}
+	if priceHistoryCount != 1 || inventoryEventCount != 1 {
+		t.Fatalf("vendor audit rows: price=%d inventory=%d, want one each", priceHistoryCount, inventoryEventCount)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO vendor_products
+		(vendor_id,product_id,variant_id,price,currency,stock,status)
+		VALUES($1,$2,$3,1.00,'USD',1,'active')`, platformVendorID, product.ID, variantID); err == nil {
+		t.Fatal("duplicate vendor offer for the same variant should be rejected")
+	}
+
 	// Exercise the demo commerce schema. Tokens and idempotency keys are stored
 	// only as fixed-size digests, and order lines retain immutable price/title snapshots.
 	ownerDigest := make([]byte, 32)
