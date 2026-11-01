@@ -3,7 +3,7 @@
 **Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main  
-**Package version:** 0.2.1  
+**Package version:** 0.2.2  
 **Active stage:** M01.5 marketplace redesign / M03 product experience  
 **Last updated:** 2026-11-01
 
