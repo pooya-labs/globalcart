@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	GetProduct(ctx context.Context, id int64) (GetProductRow, error)
+	ListCategories(ctx context.Context) ([]ListCategoriesRow, error)
 	ListProductVariants(ctx context.Context, productID int64) ([]ListProductVariantsRow, error)
 	ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error)
 }

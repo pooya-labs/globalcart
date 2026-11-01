@@ -60,6 +60,47 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (GetProductRow, erro
 	return i, err
 }
 
+const listCategories = `-- name: ListCategories :many
+SELECT c.id, c.name, COALESCE(c.parent_id, 0)::bigint AS parent_id,
+       count(p.id)::bigint AS product_count
+FROM categories AS c
+LEFT JOIN products AS p ON p.category_id = c.id
+GROUP BY c.id
+ORDER BY lower(c.name), c.id
+`
+
+type ListCategoriesRow struct {
+	ID           int64  `json:"id"`
+	Name         string `json:"name"`
+	ParentID     int64  `json:"parent_id"`
+	ProductCount int64  `json:"product_count"`
+}
+
+func (q *Queries) ListCategories(ctx context.Context) ([]ListCategoriesRow, error) {
+	rows, err := q.db.Query(ctx, listCategories)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListCategoriesRow{}
+	for rows.Next() {
+		var i ListCategoriesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.ParentID,
+			&i.ProductCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listProductVariants = `-- name: ListProductVariants :many
 SELECT id, product_id, sku, title, price::float8 AS price, stock, attributes, source, source_id,
        is_active, created_at, updated_at

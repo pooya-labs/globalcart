@@ -64,7 +64,6 @@ func (h *Handler) ready(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ready", "database": "connected"})
 }
 
-
 type categoryResponse struct {
 	ID           int64  `json:"id"`
 	Name         string `json:"name"`
