@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -39,6 +40,9 @@ func UpsertProducts(ctx context.Context, pool *pgxpool.Pool, products []catalog.
 		if err != nil {
 			return fmt.Errorf("upsert product %d: %w", p.ID, err)
 		}
+		if err := upsertProductVariants(ctx, tx, p); err != nil {
+			return fmt.Errorf("upsert variants for product %d: %w", p.ID, err)
+		}
 		categoryName := strings.TrimSpace(p.Category)
 		if categoryName == "" {
 			if _, err := tx.Exec(ctx, "UPDATE products SET category_id=NULL WHERE id=$1", p.ID); err != nil {
@@ -70,6 +74,55 @@ func UpsertProducts(ctx context.Context, pool *pgxpool.Pool, products []catalog.
 		}
 	}
 	return tx.Commit(ctx)
+}
+
+
+func upsertProductVariants(ctx context.Context, tx pgx.Tx, p catalog.Product) error {
+	for i, variant := range p.Variants {
+		source := strings.TrimSpace(variant.Source)
+		if source == "" {
+			source = strings.TrimSpace(p.Source)
+		}
+		sourceID := strings.TrimSpace(variant.SourceID)
+		if sourceID == "" {
+			sourceID = strings.TrimSpace(variant.SKU)
+		}
+		if source == "" || sourceID == "" {
+			return fmt.Errorf("variant %d requires source and source identity (or SKU)", i)
+		}
+		if variant.Price < 0 || math.IsNaN(variant.Price) || math.IsInf(variant.Price, 0) {
+			return fmt.Errorf("variant %q has invalid price", sourceID)
+		}
+		if variant.Stock < 0 {
+			return fmt.Errorf("variant %q has negative stock", sourceID)
+		}
+		attributes := variant.Attributes
+		if attributes == nil {
+			attributes = map[string]any{}
+		}
+		encodedAttributes, err := json.Marshal(attributes)
+		if err != nil {
+			return fmt.Errorf("encode variant %q attributes: %w", sourceID, err)
+		}
+		var variantID int64
+		err = tx.QueryRow(ctx, `INSERT INTO product_variants
+			(product_id,sku,title,price,stock,attributes,source,source_id,is_active)
+			VALUES($1,NULLIF($2,''),$3,$4,$5,$6,$7,$8,$9)
+			ON CONFLICT (source,source_id) WHERE source <> '' AND source_id <> ''
+			DO UPDATE SET sku=EXCLUDED.sku,title=EXCLUDED.title,price=EXCLUDED.price,
+				stock=EXCLUDED.stock,attributes=EXCLUDED.attributes,is_active=EXCLUDED.is_active,updated_at=now()
+			WHERE product_variants.product_id=EXCLUDED.product_id
+			RETURNING id`,
+			p.ID, strings.TrimSpace(variant.SKU), variant.Title, variant.Price, variant.Stock,
+			encodedAttributes, source, sourceID, variant.IsActive).Scan(&variantID)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("variant source identity %q is already assigned to another product", sourceID)
+		}
+		if err != nil {
+			return fmt.Errorf("persist variant %q: %w", sourceID, err)
+		}
+	}
+	return nil
 }
 
 func upsertPlatformOffer(ctx context.Context, tx pgx.Tx, vendorID int64, p catalog.Product) error {
