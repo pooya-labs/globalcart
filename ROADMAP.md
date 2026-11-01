@@ -226,3 +226,11 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Add mapper tests for JSON images and catalog field mapping.
 - [x] Verify sqlc generation, go vet, race-enabled unit/integration tests and Go builds in CI.
 - [ ] Complete read API for active product variants and category navigation.
+
+
+### M04 product variants read API — 2026-11-01
+- [x] Add `GET /api/v1/products/{id}/variants` using generated sqlc product existence and active-variant queries.
+- [x] Return a stable variant response with SKU, price, stock and decoded JSON attributes.
+- [x] Distinguish invalid product IDs and missing parent products.
+- [x] Add mapper tests and OpenAPI endpoint documentation.
+- [ ] Verify this endpoint and generated variant query in CI.
