@@ -196,9 +196,9 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	// Row locking plus active reservations must allow only one 2-unit checkout.
 	type checkoutAttempt struct {
 		owner [32]byte
-		key [32]byte
+		key   [32]byte
 		order commerce.Order
-		err error
+		err   error
 	}
 	attempts := make([]checkoutAttempt, 2)
 	for i := range attempts {

@@ -12,13 +12,13 @@ import (
 )
 
 var (
-	ErrCartNotFound = errors.New("cart not found")
-	ErrCartClosed = errors.New("cart is not open")
-	ErrCartExpired = errors.New("cart expired")
-	ErrEmptyCart = errors.New("cart is empty")
-	ErrUnavailable = errors.New("item is unavailable")
+	ErrCartNotFound      = errors.New("cart not found")
+	ErrCartClosed        = errors.New("cart is not open")
+	ErrCartExpired       = errors.New("cart expired")
+	ErrEmptyCart         = errors.New("cart is empty")
+	ErrUnavailable       = errors.New("item is unavailable")
 	ErrInsufficientStock = errors.New("insufficient demo stock")
-	ErrInvalidLifetime = errors.New("reservation lifetime must be positive")
+	ErrInvalidLifetime   = errors.New("reservation lifetime must be positive")
 )
 
 type Order struct {
@@ -46,7 +46,9 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 		return Order{}, ErrInvalidLifetime
 	}
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
-	if err != nil { return Order{}, fmt.Errorf("begin checkout: %w", err) }
+	if err != nil {
+		return Order{}, fmt.Errorf("begin checkout: %w", err)
+	}
 	defer func() { _ = tx.Rollback(context.Background()) }()
 
 	var cartID, currency, cartStatus string
@@ -54,8 +56,12 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	err = tx.QueryRow(ctx, `SELECT id::text, currency, status, expires_at <= now()
 		FROM carts WHERE owner_token_hash=$1 FOR UPDATE`, ownerTokenHash).
 		Scan(&cartID, &currency, &cartStatus, &cartExpired)
-	if errors.Is(err, pgx.ErrNoRows) { return Order{}, ErrCartNotFound }
-	if err != nil { return Order{}, fmt.Errorf("lock cart: %w", err) }
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Order{}, ErrCartNotFound
+	}
+	if err != nil {
+		return Order{}, fmt.Errorf("lock cart: %w", err)
+	}
 
 	// Replay lookup precedes lifecycle checks so a retry after a successful
 	// commit can recover the original order even though the cart is checked out.
@@ -65,26 +71,48 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 		cartID, idempotencyHash).Scan(&replay.ID, &replay.Status, &replay.Currency, &replay.Total)
 	if err == nil {
 		replay.Replayed = true
-		if err := tx.Commit(ctx); err != nil { return Order{}, fmt.Errorf("commit checkout replay: %w", err) }
+		if err := tx.Commit(ctx); err != nil {
+			return Order{}, fmt.Errorf("commit checkout replay: %w", err)
+		}
 		return replay, nil
 	}
-	if !errors.Is(err, pgx.ErrNoRows) { return Order{}, fmt.Errorf("lookup idempotent order: %w", err) }
-	if cartStatus != "open" { return Order{}, ErrCartClosed }
-	if cartExpired { return Order{}, ErrCartExpired }
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return Order{}, fmt.Errorf("lookup idempotent order: %w", err)
+	}
+	if cartStatus != "open" {
+		return Order{}, ErrCartClosed
+	}
+	if cartExpired {
+		return Order{}, ErrCartExpired
+	}
 
 	rows, err := tx.Query(ctx, `SELECT product_id, variant_id, quantity
 		FROM cart_items WHERE cart_id=$1 ORDER BY product_id, variant_id NULLS FIRST, id FOR UPDATE`, cartID)
-	if err != nil { return Order{}, fmt.Errorf("read cart items: %w", err) }
-	type item struct { productID int64; variantID pgtype.Int8; quantity int32 }
+	if err != nil {
+		return Order{}, fmt.Errorf("read cart items: %w", err)
+	}
+	type item struct {
+		productID int64
+		variantID pgtype.Int8
+		quantity  int32
+	}
 	items := make([]item, 0)
 	for rows.Next() {
 		var it item
-		if err := rows.Scan(&it.productID, &it.variantID, &it.quantity); err != nil { rows.Close(); return Order{}, fmt.Errorf("scan cart item: %w", err) }
+		if err := rows.Scan(&it.productID, &it.variantID, &it.quantity); err != nil {
+			rows.Close()
+			return Order{}, fmt.Errorf("scan cart item: %w", err)
+		}
 		items = append(items, it)
 	}
-	if err := rows.Err(); err != nil { rows.Close(); return Order{}, fmt.Errorf("iterate cart items: %w", err) }
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return Order{}, fmt.Errorf("iterate cart items: %w", err)
+	}
 	rows.Close()
-	if len(items) == 0 { return Order{}, ErrEmptyCart }
+	if len(items) == 0 {
+		return Order{}, ErrEmptyCart
+	}
 
 	var orderID string
 	if err := tx.QueryRow(ctx, `INSERT INTO demo_orders
@@ -107,8 +135,12 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 				FROM products WHERE id=$1 FOR UPDATE`, it.productID).
 				Scan(&price, &stock, &title, &variantTitle)
 		}
-		if errors.Is(err, pgx.ErrNoRows) { return Order{}, ErrUnavailable }
-		if err != nil { return Order{}, fmt.Errorf("lock catalog stock: %w", err) }
+		if errors.Is(err, pgx.ErrNoRows) {
+			return Order{}, ErrUnavailable
+		}
+		if err != nil {
+			return Order{}, fmt.Errorf("lock catalog stock: %w", err)
+		}
 
 		var reserved int64
 		if it.variantID.Valid {
@@ -121,11 +153,17 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 				WHERE product_id=$1 AND variant_id IS NULL
 				  AND status='active' AND expires_at > now()`, it.productID).Scan(&reserved)
 		}
-		if err != nil { return Order{}, fmt.Errorf("calculate reserved stock: %w", err) }
-		if int64(stock)-reserved < int64(it.quantity) { return Order{}, ErrInsufficientStock }
+		if err != nil {
+			return Order{}, fmt.Errorf("calculate reserved stock: %w", err)
+		}
+		if int64(stock)-reserved < int64(it.quantity) {
+			return Order{}, ErrInsufficientStock
+		}
 
 		var variantArg any
-		if it.variantID.Valid { variantArg = it.variantID.Int64 }
+		if it.variantID.Valid {
+			variantArg = it.variantID.Int64
+		}
 		if _, err := tx.Exec(ctx, `INSERT INTO demo_order_items
 			(order_id, product_id, variant_id, quantity, unit_price_snapshot, currency, product_title_snapshot, variant_title_snapshot)
 			VALUES($1,$2,$3,$4,$5::numeric,$6,$7,$8)`,
@@ -155,6 +193,8 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	if _, err := tx.Exec(ctx, `UPDATE carts SET status='checked_out',updated_at=now() WHERE id=$1`, cartID); err != nil {
 		return Order{}, fmt.Errorf("close checked-out cart: %w", err)
 	}
-	if err := tx.Commit(ctx); err != nil { return Order{}, fmt.Errorf("commit checkout: %w", err) }
+	if err := tx.Commit(ctx); err != nil {
+		return Order{}, fmt.Errorf("commit checkout: %w", err)
+	}
 	return Order{ID: orderID, Status: "awaiting_demo_payment", Currency: currency, Total: total}, nil
 }
