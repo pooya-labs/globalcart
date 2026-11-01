@@ -8,6 +8,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   go:
     runs-on: ubuntu-latest
@@ -17,19 +20,19 @@ jobs:
         with:
           go-version: "1.23.x"
           cache: true
-      - name: Resolve Go modules and checksums
-        run: go mod tidy
-      - name: Persist Go module checksums
+      - name: Resolve modules and format Go sources
+        run: |
+          go mod tidy
+          gofmt -w backend
+      - name: Persist Go module checksums and formatting
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add go.mod go.sum
+          git add go.mod go.sum backend
           if ! git diff --cached --quiet; then
-            git commit -m "chore(deps): resolve Go module checksums [skip ci]"
+            git commit -m "chore(backend): persist module checksums and Go formatting [skip ci]"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
-      - name: Format Go sources
-        run: gofmt -w backend
       - name: Vet
         run: go vet ./...
       - name: Unit tests
