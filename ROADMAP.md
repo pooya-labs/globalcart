@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.1 — Platform catalog importer synchronization (CI verification pending)  
+**Active stage:** M08.1 — Platform catalog and variant importer synchronization (CI verification pending)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -398,8 +398,12 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 
 ## M08.1 — Platform catalog importer synchronization (in progress)
 - [x] Extend the existing catalog upsert transaction to create/update the `GlobalCart Direct` base-product offer.
+- [x] Synchronize every imported product variant into a matching platform vendor offer, including SKU, price, stock and active/paused state.
 - [x] Record initial price and opening inventory audit events; record subsequent price/stock changes with `system_sync` / `correction` audit reasons.
 - [x] Keep product/category writes and platform-offer synchronization in one database transaction.
 - [x] Make repeated imports idempotent without duplicate offer or audit rows.
-- [x] Add PostgreSQL integration coverage for initial import, unchanged re-import and changed price/stock synchronization.
+- [x] Add PostgreSQL integration coverage for base-product initial import, unchanged re-import and changed price/stock synchronization.
+- [x] Add PostgreSQL integration coverage for variant offer creation, idempotent re-import, price/stock changes and inactive-variant pausing.
 - [ ] Verify the importer integration slice in Backend CI, including Docker image build.
+
+- [ ] Verify the latest base-product and variant synchronization changes in Backend CI, including Docker image build.
