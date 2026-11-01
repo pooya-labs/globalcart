@@ -107,6 +107,7 @@ export default function Home() {
   const [checkout,setCheckout]=useState(false);
   const [order,setOrder]=useState("");
   const [mobileMenu,setMobileMenu]=useState(false);
+  const [categoryMenu,setCategoryMenu]=useState(false);
   const [toast,setToast]=useState("");
   const [rate,setRate]=useState(69000);
   const [hydrated,setHydrated]=useState(false);
@@ -184,6 +185,9 @@ export default function Home() {
   const toggleFavorite=(id:number)=>setFavorites(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);
   const placeDemoOrder=()=>{setOrder("GC-"+Math.random().toString(36).slice(2,8).toUpperCase());setCart([]);setCheckout(false);};
   const favoriteProducts=products.filter(p=>favorites.includes(p.id));
+  const catalogCategories=useMemo(()=>Array.from(new Set(products.map(p=>p.category).filter(Boolean))).sort((a,b)=>a.localeCompare(b)),[products]);
+  const categoryLabel=(id:string)=>{const known=categories.find(c=>c.id===id);return known?(rtl?known.fa:known.en):id.replace(/-/g," ").replace(/\\b\\w/g,c=>c.toUpperCase());};
+  const selectCategory=(id:string)=>{setCategory(id);setCategoryMenu(false);setMobileMenu(false);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});};
 
   return (
     <main className={rtl?"store rtl":"store ltr"} dir={rtl?"rtl":"ltr"}>
@@ -193,7 +197,7 @@ export default function Home() {
         <a href="#" className="brand"><span className="brand-mark">g<span>.</span></span><span className="brand-name">globalcart<small>THE WORLD, WELL FOUND.</small></span></a>
         <nav className={mobileMenu?"main-nav nav-open":"main-nav"}>
           <a href="#catalog" onClick={()=>setMobileMenu(false)}>{t.nav1}</a>
-          <a href="#categories" onClick={()=>setMobileMenu(false)}>{t.nav2}</a>
+          <button className={categoryMenu?"nav-category-trigger active":"nav-category-trigger"} onClick={()=>setCategoryMenu(v=>!v)} aria-expanded={categoryMenu}><LayoutGrid size={15}/>{t.nav2}<ChevronDown size={13}/></button>
           <a href="#editors" onClick={()=>setMobileMenu(false)}>{t.nav3}</a>
           <a href="#about" onClick={()=>setMobileMenu(false)}>{t.nav4}</a>
         </nav>
@@ -207,9 +211,19 @@ export default function Home() {
 
       <nav className="marketplace-categorybar" aria-label={rtl?"دسته‌بندی‌های سریع":"Quick categories"}>
         <span className="categorybar-label">{rtl?"دسته‌بندی‌ها":"Shop by category"}</span>
-        {categories.slice(1,9).map(c=><button key={c.id} onClick={()=>{setCategory(c.id);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});}}>{rtl?c.fa:c.en}</button>)}
-        <button className="categorybar-all" onClick={()=>{setCategory("all");document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});}}>{rtl?"مشاهده همه":"View all"} <ArrowLeft size={13}/></button>
+        {catalogCategories.slice(0,8).map(id=><button key={id} onClick={()=>selectCategory(id)}>{categoryLabel(id)}</button>)}
+        <button className="categorybar-all" onClick={()=>selectCategory("all")}>{rtl?"مشاهده همه":"View all"} <ArrowLeft size={13}/></button>
       </nav>
+      {categoryMenu&&<div className="mega-menu-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setCategoryMenu(false);}}>
+        <section className="mega-menu" aria-label={rtl?"همه دسته‌بندی‌ها":"All product categories"}>
+          <div className="mega-menu-head"><div><span className="section-kicker">GLOBALCART / DISCOVER</span><h3>{rtl?"همه دسته‌بندی‌ها":"Explore all categories"}</h3><p>{rtl?"مستقیم به گروه کالایی موردنظرت برو.":"Jump straight into the categories available in the live catalog."}</p></div><button className="icon-button" onClick={()=>setCategoryMenu(false)} aria-label={t.close}><X size={18}/></button></div>
+          <div className="mega-menu-grid">
+            <button className={category==="all"?"mega-category selected":"mega-category"} onClick={()=>selectCategory("all")}><span className="mega-category-icon"><LayoutGrid size={18}/></span><span><b>{rtl?"همه محصولات":"All products"}</b><small>{products.length} {t.count}</small></span><ArrowLeft size={14}/></button>
+            {catalogCategories.map((id,i)=><button key={id} className={category===id?"mega-category selected":"mega-category"} onClick={()=>selectCategory(id)}><span className="mega-category-icon">{["✳","◈","⌂","▣","◉","◇"][i%6]}</span><span><b>{categoryLabel(id)}</b><small>{products.filter(x=>x.category===id).length} {t.count}</small></span><ArrowLeft size={14}/></button>)}
+          </div>
+          <div className="mega-menu-foot"><span>{rtl?"دسته‌ها بر اساس کاتالوگ فعلی ساخته می‌شوند.":"Categories are generated from the current catalog."}</span><button onClick={()=>selectCategory("all")}>{rtl?"مشاهده همه محصولات":"Browse the full catalog"}<ArrowLeft size={14}/></button></div>
+        </section>
+      </div>}
 
       <section className="hero">
         <div className="hero-copy">
