@@ -527,11 +527,13 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification:** Catalog CI [41359432556](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432659) succeeded on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.
 
 
-## M08.8.2 — Collision-safe atomic snapshot publication (implementation)
+## M08.8.2 — Collision-safe atomic snapshot publication — CI verified
 - [x] Extract snapshot persistence into a shared helper that serializes before writing and renames only after the complete file has been written.
 - [x] Give every writer a unique, exclusively-created temporary file in the destination directory.
 - [x] Clean up temporary files after write/rename failures without changing the last-known-good destination.
 - [x] Add concurrent-writer, failed-rename cleanup and serialization-failure regression tests.
-- [ ] Verify Catalog CI, production build and Backend CI on the same final branch head.
+- [x] Verify Catalog CI, production build and Backend CI on the same code commit.
+
+**Verification:** Catalog CI [41360183218](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183218) and Backend CI [41360183283](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183283) succeeded on code head `062aabdf563626116a50ecba0d7f534e6af3f260`.
 
 **Safety note:** atomic rename protects readers from partial JSON, but it does not impose freshness ordering between independent writers; the last successful rename wins. The scheduled Pages workflow remains serialized.

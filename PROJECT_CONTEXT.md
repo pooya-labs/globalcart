@@ -421,10 +421,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Tests verify mapping rejection counts and that malformed and duplicate records contribute to post-normalization discards.
 
 
-## M08.8.2 — collision-safe atomic catalog publication (implementation, 2026-11-02)
+## M08.8.2 — collision-safe atomic catalog publication (CI verified, 2026-11-02)
 - Extracted writeCatalogSnapshotAtomically from the sync script. It serializes the complete snapshot before creating any temporary file, writes with exclusive-create semantics to a unique same-directory path, then renames it over the destination.
 - Each invocation uses a process identifier plus a random UUID, preventing concurrent sync processes from sharing the same temporary path.
 - Temporary files are removed in a finally cleanup after write/rename errors. A serialization error occurs before the existing destination is touched.
 - Added regression tests for 12 simultaneous publishers, rename failure cleanup and preservation of an existing last-known-good file on serialization failure.
 - Atomic rename guarantees complete-file visibility; it does not order source freshness across independent writers. The existing Pages workflow continues to serialize its scheduled/manual runs.
-- Catalog CI and Backend CI verification are pending on the final commit.
+- Catalog CI [41360183218](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183218) and Backend CI [41360183283](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183283) both passed on code head `062aabdf563626116a50ecba0d7f534e6af3f260`, including TypeScript validation, unit tests, production build, Go vet/tests/builds and Docker image build.
