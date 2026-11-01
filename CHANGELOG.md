@@ -99,3 +99,5 @@
 - Added dialog roles, modal semantics and accessible title associations to cart, favorites, quick view, comparison and demo checkout.
 - Added aria-expanded/aria-controls relationships for mobile and category navigation; gallery thumbnails now expose aria-pressed.
 - Full focus trapping/restoration and manual assistive-technology QA remain open.
+
+- Added modal focus management: initial focus, Tab/Shift+Tab trapping and focus restoration when dialogs close.

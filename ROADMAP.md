@@ -184,4 +184,7 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Added dialog semantics, modal state and heading associations for cart, favorites, quick view, compare and demo checkout.
 - [x] Added expanded/control relationships for mobile navigation and category navigation.
 - [x] Exposed selected product-gallery thumbnail state to assistive technology.
-- [ ] Focus trapping and focus restoration inside modal dialogs still require a dedicated implementation and manual keyboard/screen-reader QA.
+- [x] Added keyboard focus trapping and focus restoration for modal dialogs.
+- [ ] Manual keyboard, screen-reader and browser QA remains open.
+
+- [x] Focus is moved into each modal on open, trapped while active and returned to the invoking control on close.
