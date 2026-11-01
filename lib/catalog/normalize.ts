@@ -20,7 +20,9 @@ function normalizeVariants(raw: unknown, source: string): CatalogVariant[] {
     const sku = stringOr(record.sku);
     const explicitID = stringOr(record.sourceId) || stringOr(record.id);
     const sourceId = explicitID || sku;
-    if (!sourceId || seen.has(sourceId)) continue;
+    const variantSource = stringOr(record.source) || source;
+    const identity = `${variantSource}:${sourceId}`;
+    if (!sourceId || seen.has(identity)) continue;
     const attributes = record.attributes && typeof record.attributes === "object" && !Array.isArray(record.attributes)
       ? record.attributes as Record<string, unknown>
       : {};
@@ -30,11 +32,11 @@ function normalizeVariants(raw: unknown, source: string): CatalogVariant[] {
       price: Math.max(0, numberOr(record.price)),
       stock: Math.max(0, Math.floor(numberOr(record.stock))),
       attributes,
-      source: stringOr(record.source, source),
+      source: variantSource,
       sourceId,
       isActive: typeof record.isActive === "boolean" ? record.isActive : true
     });
-    seen.add(sourceId);
+    seen.add(identity);
   }
   return variants;
 }
