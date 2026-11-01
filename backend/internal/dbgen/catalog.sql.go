@@ -12,7 +12,8 @@ import (
 )
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, title, description, category, price, discount_percentage, rating,
+SELECT id, title, description, category, price::float8 AS price,
+       discount_percentage::float8 AS discount_percentage, rating::float8 AS rating,
        stock, brand, thumbnail, images, source, source_id, source_url, imported_at
 FROM products
 WHERE id = $1::bigint
@@ -23,9 +24,9 @@ type GetProductRow struct {
 	Title              string             `json:"title"`
 	Description        string             `json:"description"`
 	Category           string             `json:"category"`
-	Price              pgtype.Numeric     `json:"price"`
-	DiscountPercentage pgtype.Numeric     `json:"discount_percentage"`
-	Rating             pgtype.Numeric     `json:"rating"`
+	Price              float64            `json:"price"`
+	DiscountPercentage float64            `json:"discount_percentage"`
+	Rating             float64            `json:"rating"`
 	Stock              int32              `json:"stock"`
 	Brand              string             `json:"brand"`
 	Thumbnail          string             `json:"thumbnail"`
