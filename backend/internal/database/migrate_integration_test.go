@@ -459,8 +459,8 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expire pending demo order: %v", err)
 	}
-	if expired != 1 {
-		t.Fatalf("expired orders = %d, want 1", expired)
+	if expired != 2 {
+		t.Fatalf("expired orders = %d, want 2 (checkout winner and expired-payment fixture)", expired)
 	}
 	var expiredReservationCount int
 	if err := pool.QueryRow(ctx, `SELECT count(*)::int FROM inventory_reservations
