@@ -68,11 +68,3 @@
 ### Notes
 - Amazon link submission is a local demonstration only. Live product details, pricing and availability require authorized Amazon API access.
 - Translation remains paused and excluded from CI.
-
-
-## 0.2.2-dev — 2026-11-01
-### Added
-- Dynamic homepage merchandising rails for top discounts, top-rated products and curated discoveries, generated from the current catalog snapshot.
-- A more complete marketplace homepage flow connecting discovery, Amazon link intake, product details, comparison and demo support content.
-### Verification
-- Pending final CI and GitHub Pages deployment for this commit.
