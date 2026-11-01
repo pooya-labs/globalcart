@@ -339,3 +339,13 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [ ] Keep seller APIs, seller UI, commission, payouts and fulfillment disabled until their separate security and product requirements are approved.
 
 **Compatibility note:** existing cart/checkout still use legacy product/variant stock. Migration 005 is additive and intentionally does not claim multi-vendor checkout is complete.
+
+
+### M09 — Vendor-aware cart foundation
+- [x] Add vendor offer identity to cart lines without changing legacy line ownership.
+- [x] Support internal add, quantity update and removal of vendor-specific offers.
+- [x] Snapshot canonical offer price and vendor identity; serialize cart/offer mutations with row locks.
+- [x] Add parent/child vendor order schema and vendor-aware order-item/reservation references.
+- [x] Prevent legacy checkout from mispricing or reserving vendor cart lines.
+- [ ] Implement atomic split checkout, per-vendor reservations and coupon allocation.
+- [ ] Propagate cancellation, expiry and simulated payment state to vendor child orders.
