@@ -72,6 +72,10 @@ func (s *Service) CompleteDemoPayment(ctx context.Context, ownerTokenHash []byte
 		SET status='paid_simulated',updated_at=now() WHERE id=$1`, orderID); err != nil {
 		return Order{}, fmt.Errorf("mark demo order paid: %w", err)
 	}
+	if _, err := tx.Exec(ctx, `UPDATE demo_vendor_orders SET status='paid_simulated',updated_at=now()
+		WHERE order_id=$1 AND status='awaiting_demo_payment'`, orderID); err != nil {
+		return Order{}, fmt.Errorf("mark vendor child orders paid: %w", err)
+	}
 	if _, err := tx.Exec(ctx, `INSERT INTO demo_order_events(order_id,event_type,payload)
 		VALUES($1,'demo_payment_simulated','{"provider":"none","mode":"simulation"}'::jsonb)`, orderID); err != nil {
 		return Order{}, fmt.Errorf("append simulated payment event: %w", err)
