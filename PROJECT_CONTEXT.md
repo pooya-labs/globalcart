@@ -113,3 +113,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added `sqlc.yaml` with PostgreSQL schema sourced from embedded migrations and pgx/v5 code generation to `backend/internal/dbgen`.
 - Added parameterized product list/detail and active product variant query definitions under `backend/queries/catalog.sql`.
 - Backend CI now generates and formats the typed package before vet, tests and builds. Generated package compilation is pending CI verification; API wiring remains next.
+
+
+### M04 sqlc API integration — verified
+- Product list and detail handlers now call generated `dbgen.Queries` methods. Numeric catalog columns are explicitly cast to float8 in query definitions to preserve the existing float64 API model.
+- Added a row-to-domain mapper to preserve the established catalog JSON fields and safely decode images JSON.
+- Mapper tests cover valid image arrays and malformed JSON.
+- CI run 41302418821 passed sqlc generation, gofmt, go vet, race-enabled tests, API/importer builds; Docker image build was still running at last check.
