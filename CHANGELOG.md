@@ -47,13 +47,3 @@
 ### Added
 - Responsive catalog-driven category mega-menu with live category counts, direct filtering, backdrop dismissal and mobile layout.
 - Quick category rail now reflects categories present in the current catalog rather than only the initial hand-picked list.
-
-## 0.2.1-dev — 2026-11-01
-### Added
-- Catalog-driven category mega-menu and dynamic quick-category rail.
-- Dedicated static product routes with image gallery, product attributes, source disclosure, related products and demo cart actions.
-- Side-by-side comparison shortlist for up to four products.
-- Product cards now navigate directly to dedicated detail pages while retaining quick view.
-### Fixed
-- Corrected escaped comparison-state declarations and duplicate category-name key found during CI validation.
-- Made catalog snapshot commits rebase on the latest main branch to avoid races with UI commits.

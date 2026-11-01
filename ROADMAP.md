@@ -35,7 +35,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | M00 | 0.1.0 | Product definition, independence, governance and handoff | Complete |
 | M01 | 0.1.x | Storefront foundation, bilingual shell and deployment | Implemented; redesign supersedes original visual direction |
 | M02 | 0.2.x | Automated catalog import, normalization and snapshots | Catalog sync active; translation paused |
-| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Product detail, gallery and comparison UI implemented; pricing provenance remains |
+| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Next after marketplace shell |
 | M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Planned; owner runtime/hosting gate |
 | M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Planned |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
@@ -72,7 +72,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [ ] Add marketplace-grade home modules: curated collections, trending products, deals and category rails.
 - [x] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
 - [x] Add dedicated static product detail routes for the imported catalog, image gallery, product information and related products.
-- [x] Add side-by-side comparison for up to four products, with price, rating, discount, brand and source-stock context.
+- [ ] Add comparison flows.
 - [ ] Verify desktop, tablet, mobile, RTL/LTR, keyboard and reduced-motion behavior.
 - [ ] Confirm all controls remain functional and demo-only disclosures are clear.
 
@@ -98,10 +98,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Explicit rounding and invalid-input tests.
 - [ ] FX provider, source timestamp and stale-rate policy.
 - [ ] Transparent source/FX/markup/shipping/tax price breakdown.
-- [x] Dedicated static product details for the imported catalog, responsive image gallery and related products.
+- [ ] Dedicated product details and responsive gallery.
 - [ ] Attributes, ratings context and source provenance.
-- [x] Product comparison modal and persistent comparison shortlist.
-- [ ] Recently viewed page and richer browsing history.
+- [ ] Product comparison and recently viewed page.
 
 ## M04 — Backend and database platform
 - [ ] Owner enables Go runtime and approves separate API hosting.
