@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { normalizeCatalog, normalizeProduct } from "../lib/catalog/normalize";
 import { loadCatalogFromSource } from "../lib/catalog/source-adapter";
+import { dummyJsonCatalogAdapter } from "../lib/catalog/dummyjson";
 import type { CatalogSourceAdapter, CatalogSourceRecord } from "../lib/catalog/types";
 import { syntheticSupplierRecords } from "./fixtures/synthetic-supplier-records";
 
@@ -269,6 +270,45 @@ test("validates the source mapping rejection threshold", async () => {
   };
   for (const value of [-0.1, 1, Number.NaN, Number.POSITIVE_INFINITY]) {
     await assert.rejects(() => loadCatalogFromSource(adapter, { maxUnmappedFraction: value }), RangeError);
+  }
+});
+
+test("combines caller cancellation with a request timeout", async () => {
+  const originalFetch = globalThis.fetch;
+  const controller = new AbortController();
+  let requestSignal: AbortSignal | null = null;
+  globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+    requestSignal = init?.signal ?? null;
+    return { ok: true, json: async () => ({ products: [{ id: 41 }] }) } as Response;
+  }) as typeof fetch;
+  try {
+    await dummyJsonCatalogAdapter.fetchRecords(controller.signal);
+    assert.ok(requestSignal instanceof AbortSignal);
+    assert.notEqual(requestSignal, controller.signal, "request deadline must remain active when caller supplies a signal");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("caller cancellation aborts the request without retrying", async () => {
+  const originalFetch = globalThis.fetch;
+  const controller = new AbortController();
+  let calls = 0;
+  globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+    calls += 1;
+    const requestSignal = init?.signal;
+    return await new Promise<Response>((_resolve, reject) => {
+      if (requestSignal?.aborted) { reject(requestSignal.reason ?? new Error("aborted")); return; }
+      requestSignal?.addEventListener("abort", () => reject(requestSignal.reason ?? new Error("aborted")), { once: true });
+    });
+  }) as typeof fetch;
+  try {
+    const pending = dummyJsonCatalogAdapter.fetchRecords(controller.signal);
+    controller.abort(new Error("caller cancelled"));
+    await assert.rejects(pending, /caller cancelled/);
+    assert.equal(calls, 1, "explicit cancellation must not be retried");
+  } finally {
+    globalThis.fetch = originalFetch;
   }
 });
 
