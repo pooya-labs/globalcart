@@ -3,6 +3,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { dummyJsonCatalogAdapter } from "../lib/catalog/dummyjson";
 import { loadCatalogFromSource } from "../lib/catalog/source-adapter";
+import { assertCatalogSnapshotContinuity, summarizeCatalogQuality } from "../lib/catalog/quality";
 import type { CatalogProduct } from "../lib/catalog/types";
 
 type CatalogSnapshot = {
@@ -33,6 +34,8 @@ async function main(): Promise<void> {
     const importedAt = new Date().toISOString();
     const importedProducts = await loadCatalogFromSource(dummyJsonCatalogAdapter, { importedAt });
     const previousById = new Map((previous?.products ?? []).map(product => [product.id, product]));
+    assertCatalogSnapshotContinuity(importedProducts.length, previous?.products?.length ?? 0);
+
     const products = importedProducts.map(product => {
       const prior = previousById.get(product.id);
       if (!prior?.localization) return product;
@@ -43,6 +46,7 @@ async function main(): Promise<void> {
         : product;
     });
 
+    const quality = summarizeCatalogQuality(products);
     const snapshot: CatalogSnapshot = {
       schemaVersion: 1,
       source: dummyJsonCatalogAdapter.source,
@@ -54,6 +58,7 @@ async function main(): Promise<void> {
     await writeFile(temporaryFile, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
     await rename(temporaryFile, outputFile);
     console.log("Catalog snapshot generated:", products.length, "products at", importedAt);
+    console.log("Catalog quality report:", JSON.stringify(quality));
   } catch (error) {
     if (previous?.products?.length) {
       console.warn("Catalog refresh failed; preserving last known-good snapshot:", error);
