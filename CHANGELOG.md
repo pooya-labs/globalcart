@@ -331,3 +331,10 @@
 - Mode mismatches are rejected before fetching, protecting the last-known-good catalog from accidentally replacing it with a delta batch.
 - Generic ingestion may normalize incremental records for a future dedicated merger, but this change does not merge or persist delta records.
 - Verification: Catalog CI PR run [41356770768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770768) and Backend CI PR run [41356770801](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770801) both passed on the same branch head, including production and Docker builds.
+
+
+### M08.8 feed mapping quality guard — implementation in progress (2026-11-02)
+- Added a default 20% maximum mapping-rejection fraction to the shared source adapter.
+- Added a validated per-source override and regression tests for mostly-invalid feeds, acceptable small rejection rates and invalid thresholds.
+- The guard is source-mapping specific; duplicate canonical identities remain handled by normal de-duplication.
+- Catalog CI verification is pending. Real supplier onboarding remains blocked pending explicit owner approval.
