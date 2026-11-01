@@ -124,3 +124,52 @@ func TestCategoryResponseOmitsRootParent(t *testing.T) {
 		t.Fatalf("child category parentId missing: %s", raw)
 	}
 }
+
+func TestSellerAndCommerceRoutesAreNotExposed(t *testing.T) {
+	h := New(nil, nil)
+	for _, tc := range []struct {
+		method string
+		path   string
+	}{
+		{http.MethodGet, "/api/v1/seller/orders"},
+		{http.MethodPost, "/api/v1/seller/orders"},
+		{http.MethodGet, "/api/v1/vendors/1/products"},
+		{http.MethodPost, "/api/v1/vendors/1/products"},
+		{http.MethodGet, "/api/v1/vendor/orders"},
+		{http.MethodPost, "/api/v1/cart"},
+		{http.MethodPost, "/api/v1/checkout"},
+	} {
+		t.Run(tc.method+" "+tc.path, func(t *testing.T) {
+			res := httptest.NewRecorder()
+			h.ServeHTTP(res, httptest.NewRequest(tc.method, tc.path, nil))
+			if res.Code != http.StatusNotFound {
+				t.Fatalf("status = %d, want 404 while route is intentionally unavailable", res.Code)
+			}
+		})
+	}
+}
+
+func TestReadOnlyCatalogRoutesRejectMutationMethods(t *testing.T) {
+	h := New(nil, nil)
+	for _, path := range []string{"/api/v1/products", "/api/v1/categories", "/api/v1/products/1"} {
+		res := httptest.NewRecorder()
+		h.ServeHTTP(res, httptest.NewRequest(http.MethodPost, path, nil))
+		if res.Code != http.StatusMethodNotAllowed {
+			t.Errorf("POST %s status = %d, want 405", path, res.Code)
+		}
+	}
+}
+
+func TestAllowedCORSOriginReceivesReadOnlyMethods(t *testing.T) {
+	h := New(nil, map[string]bool{"https://shop.example.test": true})
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	req.Header.Set("Origin", "https://shop.example.test")
+	res := httptest.NewRecorder()
+	h.ServeHTTP(res, req)
+	if got := res.Header().Get("Access-Control-Allow-Origin"); got != "https://shop.example.test" {
+		t.Fatalf("allow-origin = %q", got)
+	}
+	if got := res.Header().Get("Access-Control-Allow-Methods"); got != "GET, OPTIONS" {
+		t.Fatalf("allow-methods = %q, want GET, OPTIONS", got)
+	}
+}
