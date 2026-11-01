@@ -120,3 +120,9 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added a row-to-domain mapper to preserve the established catalog JSON fields and safely decode images JSON.
 - Mapper tests cover valid image arrays and malformed JSON.
 - CI run 41302418821 passed sqlc generation, gofmt, go vet, race-enabled tests, API/importer builds; Docker image build was still running at last check.
+
+
+### M04 product variants API — implementation in progress
+- Added read-only `GET /api/v1/products/{id}/variants` endpoint, backed by sqlc-generated product existence and active variant queries.
+- Variant response exposes ID, product ID, optional SKU, title, price, stock and JSON attributes; malformed attributes produce a stable internal catalog error.
+- Added mapping tests and OpenAPI path documentation. CI verification pending.
