@@ -1,6 +1,6 @@
 # Demo cart, checkout and order design
 
-**Status:** Schema foundation added locally; no commerce write API is enabled.
+**Status:** Schema and internal transactional checkout service implemented and CI-verified; no commerce HTTP write API is enabled.
 **Scope:** Portfolio simulation only. No real payment, fulfillment, inventory adjustment, customer account or seller payout.
 
 ## 1. Ownership and deployment boundary
@@ -64,3 +64,7 @@ The row lock serializes competing reservations for the same product/variant. Res
 ## 7. Explicit non-goals
 
 No real payment gateway, card/bank data, order fulfillment, shipment, refund, seller payout, customer identity, email delivery or public deployment is implemented or authorized.
+
+
+## 8. Implemented service boundary
+The internal Go service at `backend/internal/commerce/checkout.go` implements the checkout transaction above. It accepts only 32-byte owner/idempotency digests, locks the cart, checks idempotent replay before lifecycle checks, locks catalog stock rows in deterministic cart-item order, reads canonical price/title/stock, subtracts unexpired reservations, and atomically writes order snapshots, reservation rows and an event. It uses PostgreSQL time for cart expiry. It is intentionally not registered with the HTTP router. PostgreSQL integration tests cover stock contention and replay; CI run 41345901209 passed.
