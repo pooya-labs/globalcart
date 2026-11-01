@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M09.3 owner-scoped vendor child-order reads (CI verification pending)  
+**Active stage:** M09.4.1 public API surface regression guards (CI verification pending)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -268,3 +268,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Security design prohibits public seller routes until the handler resolves a verified session and active seller membership.
 - PR #1 remains Draft, open and unmerged. See `ROADMAP.md` for the next checkpoint.
 - M09.5 is blocked pending approval of same-site HTTPS hosting, runtime, secret management and email provider. No deployment or paid service was enabled.
+
+
+## Canonical continuation checkpoint — 2026-11-02
+- M09.3 owner-scoped vendor child-order reads: CI verified by run `41352898725`.
+- M09.4 cross-vendor offer read/price/inventory isolation: CI verified by run `41353137589` on code commit `e18a01d1a9414520334ceb312c2207990ccc71d5`; Docker build passed.
+- Seller/auth implementation remains gated by same-site HTTPS hosting, runtime approval, secret management and an approved email provider. `vendorID` is never proof of caller identity.
+- New in-progress regression tests in `backend/internal/httpapi/handler_test.go` assert that seller/order/cart/checkout write routes are not exposed and catalog routes reject mutation methods. Commit: `e91132997a9053943bc2e6c3f8dbe82d59f7d9b5`. CI pending.
+- Latest roadmap checkpoint: `ROADMAP.md`, stage M09.4.1. Do not treat the new HTTP guard tests as verified until their CI run completes.
+- PR #1 remains Draft/open/unmerged. No production hosting, payment provider or paid infrastructure enabled.
