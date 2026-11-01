@@ -198,8 +198,8 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 		err = tx.QueryRow(ctx, `SELECT discount_type,discount_value::text,minimum_subtotal::text,
 			maximum_discount::text,starts_at,ends_at,usage_limit,per_customer_limit,is_active,now()
 			FROM coupons WHERE id=$1 FOR UPDATE`, couponID.Int64).
-			Scan(&discountType,&discountValue,&minimumSubtotal,&maximumDiscount,&startsAt,&endsAt,
-				&usageLimit,&perCustomerLimit,&active,&dbNow)
+			Scan(&discountType, &discountValue, &minimumSubtotal, &maximumDiscount, &startsAt, &endsAt,
+				&usageLimit, &perCustomerLimit, &active, &dbNow)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return Order{}, ErrCouponUnavailable
 		}

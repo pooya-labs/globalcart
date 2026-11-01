@@ -32,7 +32,7 @@ type Cart struct {
 	Currency      string
 	ExpiresAt     time.Time
 	CouponApplied bool
-	Items          []CartItem
+	Items         []CartItem
 }
 
 func (s *Service) CreateCart(ctx context.Context, ownerTokenHash []byte, currency string, ttl time.Duration) (Cart, error) {

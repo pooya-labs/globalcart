@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	ErrInvalidCoupon   = errors.New("invalid coupon configuration")
+	ErrInvalidCoupon     = errors.New("invalid coupon configuration")
 	ErrCouponUnavailable = errors.New("coupon is unavailable")
-	ErrCouponMinimum   = errors.New("coupon minimum subtotal not met")
+	ErrCouponMinimum     = errors.New("coupon minimum subtotal not met")
 )
 
 var couponCodePattern = regexp.MustCompile(`^[A-Z0-9][A-Z0-9-]{3,63}$`)
@@ -25,14 +25,14 @@ var couponCodePattern = regexp.MustCompile(`^[A-Z0-9][A-Z0-9-]{3,63}$`)
 // UsageLimit nil means unlimited; PerCustomerLimit is scoped to the guest
 // cart capability until a verified customer identity system exists.
 type CouponSpec struct {
-	DiscountType      string
-	DiscountValue     string
-	MinimumSubtotal   string
-	MaximumDiscount   *string
-	StartsAt          time.Time
-	EndsAt            time.Time
-	UsageLimit        *int64
-	PerCustomerLimit  int32
+	DiscountType     string
+	DiscountValue    string
+	MinimumSubtotal  string
+	MaximumDiscount  *string
+	StartsAt         time.Time
+	EndsAt           time.Time
+	UsageLimit       *int64
+	PerCustomerLimit int32
 }
 
 // CreateCoupon stores only a digest of the normalized coupon code. This is an

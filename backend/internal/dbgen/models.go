@@ -16,6 +16,7 @@ type Cart struct {
 	ExpiresAt      pgtype.Timestamptz `json:"expires_at"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	CouponID       *int64             `json:"coupon_id"`
 }
 
 type CartItem struct {
@@ -39,6 +40,31 @@ type Category struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
+type Coupon struct {
+	ID               int64              `json:"id"`
+	CodeHash         []byte             `json:"code_hash"`
+	DiscountType     string             `json:"discount_type"`
+	DiscountValue    pgtype.Numeric     `json:"discount_value"`
+	MinimumSubtotal  pgtype.Numeric     `json:"minimum_subtotal"`
+	MaximumDiscount  pgtype.Numeric     `json:"maximum_discount"`
+	StartsAt         pgtype.Timestamptz `json:"starts_at"`
+	EndsAt           pgtype.Timestamptz `json:"ends_at"`
+	UsageLimit       *int64             `json:"usage_limit"`
+	PerCustomerLimit int32              `json:"per_customer_limit"`
+	IsActive         bool               `json:"is_active"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+}
+
+type CouponRedemption struct {
+	ID             int64              `json:"id"`
+	CouponID       int64              `json:"coupon_id"`
+	OrderID        pgtype.UUID        `json:"order_id"`
+	OwnerTokenHash []byte             `json:"owner_token_hash"`
+	DiscountAmount pgtype.Numeric     `json:"discount_amount"`
+	RedeemedAt     pgtype.Timestamptz `json:"redeemed_at"`
+}
+
 type DemoOrder struct {
 	ID                 pgtype.UUID        `json:"id"`
 	CartID             pgtype.UUID        `json:"cart_id"`
@@ -49,6 +75,8 @@ type DemoOrder struct {
 	Total              pgtype.Numeric     `json:"total"`
 	CreatedAt          pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
+	CouponID           *int64             `json:"coupon_id"`
+	DiscountAmount     pgtype.Numeric     `json:"discount_amount"`
 }
 
 type DemoOrderEvent struct {
