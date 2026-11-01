@@ -117,7 +117,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add embedded, versioned SQL migrations and transactional migration ledger for the initial catalog schema.
 - [ ] Define reviewed rollback/forward-fix policy for shared environments.
 - [x] Add Go REST API foundation, OpenAPI 3.1 contract, health/readiness probes, CORS allow-list and read-only catalog list/detail endpoints.
-- [x] Validate catalog pagination bounds and query/category lengths with stable 400 error codes.\n- [x] Document the API error response shape and list endpoint validation in OpenAPI.\n- [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
+- [x] Validate catalog pagination bounds and query/category lengths with stable 400 error codes.
+- [x] Document the API error response shape and list endpoint validation in OpenAPI.
+- [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
 - [ ] Add sqlc typed query layer and parameterized SQL.
 - [ ] Design authentication/session and role-based authorization.
 - [ ] Add idempotent Python ingestion/translation workers.
