@@ -814,3 +814,96 @@ func TestCatalogImportSynchronizesPlatformOfferIdempotently(t *testing.T) {
 		t.Fatalf("changed import audit counts: price=%d inventory=%d, want 2 each", priceEvents, inventoryEvents)
 	}
 }
+
+
+// TestVariantSourceIdentityCannotMoveBetweenProducts proves that a supplier
+// source identity is permanently scoped to its first product and that a failed
+// multi-product import rolls back every earlier write in the same batch.
+func TestVariantSourceIdentityCannotMoveBetweenProducts(t *testing.T) {
+	dsn := os.Getenv("TEST_DATABASE_URL")
+	if dsn == "" {
+		t.Skip("TEST_DATABASE_URL is not set; PostgreSQL integration test skipped")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	pool, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		t.Fatalf("create database pool: %v", err)
+	}
+	defer pool.Close()
+	if err := pool.Ping(ctx); err != nil {
+		t.Fatalf("connect to test PostgreSQL: %v", err)
+	}
+	if err := Migrate(ctx, pool); err != nil {
+		t.Fatalf("migrate: %v", err)
+	}
+
+	baseID := time.Now().UnixNano()%500_000_000_000_000 + 1_000_000_000_000_000
+	source := "variant-identity-ownership-test"
+	sourceID := fmt.Sprintf("variant-%d", baseID)
+	original := catalog.Product{
+		ID: baseID, Title: "Original identity owner", Description: "Identity ownership fixture",
+		Category: "identity-ownership-test", Price: 19.99, Stock: 8,
+		Images: []string{"https://example.invalid/identity-owner.webp"},
+		Source: source, SourceID: fmt.Sprintf("product-%d", baseID), ImportedAt: time.Now().UTC(),
+		Variants: []catalog.Variant{{
+			SKU: "IDENTITY-ORIGINAL", Title: "Original variant", Price: 21.50, Stock: 5,
+			Attributes: map[string]any{"color": "blue"},
+			Source: source, SourceID: sourceID, IsActive: true,
+		}},
+	}
+	if err := UpsertProducts(ctx, pool, []catalog.Product{original}); err != nil {
+		t.Fatalf("import original identity owner: %v", err)
+	}
+
+	rollbackCandidate := catalog.Product{
+		ID: baseID + 1, Title: "Must roll back", Description: "Earlier batch row",
+		Category: "identity-ownership-test", Price: 10, Stock: 2,
+		Images: []string{"https://example.invalid/rollback.webp"},
+		Source: source, SourceID: fmt.Sprintf("rollback-%d", baseID), ImportedAt: time.Now().UTC(),
+	}
+	conflictingOwner := catalog.Product{
+		ID: baseID + 2, Title: "Unauthorized identity reassignment", Description: "Must be rejected",
+		Category: "identity-ownership-test", Price: 30, Stock: 3,
+		Images: []string{"https://example.invalid/conflict.webp"},
+		Source: source, SourceID: fmt.Sprintf("conflict-%d", baseID), ImportedAt: time.Now().UTC(),
+		Variants: []catalog.Variant{{
+			SKU: "IDENTITY-REASSIGNED", Title: "Wrong product", Price: 99, Stock: 99,
+			Attributes: map[string]any{"color": "red"},
+			Source: source, SourceID: sourceID, IsActive: true,
+		}},
+	}
+
+	err = UpsertProducts(ctx, pool, []catalog.Product{rollbackCandidate, conflictingOwner})
+	if err == nil {
+		t.Fatal("reassigning a source variant identity to another product should fail")
+	}
+
+	var rollbackCandidateExists bool
+	if err := pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM products WHERE id=$1)", rollbackCandidate.ID).
+		Scan(&rollbackCandidateExists); err != nil {
+		t.Fatalf("check batch rollback candidate: %v", err)
+	}
+	if rollbackCandidateExists {
+		t.Fatal("earlier product in a batch with a variant identity conflict must be rolled back")
+	}
+
+	var ownerProductID int64
+	var sku string
+	var price string
+	var stock int
+	var variantCount int
+	if err := pool.QueryRow(ctx, "SELECT product_id,sku,price::text,stock FROM product_variants WHERE source=$1 AND source_id=$2",
+		source, sourceID).Scan(&ownerProductID, &sku, &price, &stock); err != nil {
+		t.Fatalf("read original source variant after rejected reassignment: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM product_variants WHERE source=$1 AND source_id=$2",
+		source, sourceID).Scan(&variantCount); err != nil {
+		t.Fatalf("count source identity rows: %v", err)
+	}
+	if ownerProductID != original.ID || sku != "IDENTITY-ORIGINAL" || price != "21.50" || stock != 5 || variantCount != 1 {
+		t.Fatalf("source identity changed after rejected reassignment: product=%d sku=%q price=%s stock=%d rows=%d",
+			ownerProductID, sku, price, stock, variantCount)
+	}
+}
