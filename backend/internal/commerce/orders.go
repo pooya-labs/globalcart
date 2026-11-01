@@ -56,11 +56,11 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 	defer func() { _ = tx.Rollback(context.Background()) }()
 
 	var detail OrderDetail
-	err = tx.QueryRow(ctx, `SELECT o.id::text,o.status,o.currency,o.total::text,o.created_at
+	err = tx.QueryRow(ctx, `SELECT o.id::text,o.status,o.currency,o.subtotal::text,o.discount_amount::text,o.total::text,o.created_at
 		FROM demo_orders o
 		JOIN carts c ON c.id=o.cart_id
 		WHERE o.id=$1 AND c.owner_token_hash=$2`, orderID, ownerTokenHash).
-		Scan(&detail.ID, &detail.Status, &detail.Currency, &detail.Total, &detail.CreatedAt)
+		Scan(&detail.ID, &detail.Status, &detail.Currency, &detail.Subtotal, &detail.DiscountAmount, &detail.Total, &detail.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return OrderDetail{}, ErrOrderNotFound
 	}
