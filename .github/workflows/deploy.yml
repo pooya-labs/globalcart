@@ -1,6 +1,8 @@
 name: Deploy GlobalCart to GitHub Pages
 # CI validates the application, runs domain unit tests, and builds the static Pages artifact.
 on:
+  schedule:
+    - cron: "17 4 * * *"
   push:
     branches: [main]
   workflow_dispatch:
@@ -21,6 +23,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Refresh static catalog snapshot
+        run: npm run catalog:sync
       - name: TypeScript validation
         run: npm run typecheck
       - name: Unit tests

@@ -1,66 +1,89 @@
 # GlobalCart Architecture
 
-## Product boundaries
-GlobalCart is a standalone portfolio marketplace simulation. It has no dependency on other portfolio repositories and no real commerce backend. GitHub Pages serves a static export. Browser state is local and demonstrative.
+## Current product boundary
+GlobalCart is an independent portfolio marketplace simulation. The current public preview is a Next.js static export on GitHub Pages. Cart, favorites and checkout are local/demo state. No real payment, fulfillment or seller payout is performed.
 
-## Target data flow
+## Current catalog data flow
 
 ```text
-Permitted demo/source APIs
+DummyJSON public demo API
         |
         v
-Typed source connector adapters
+scripts/sync-catalog.ts (scheduled/manual GitHub Actions)
         |
         v
-Normalization + validation + deduplication
+Typed normalization + validation + deduplication
         |
-        +----> Original source text / provenance
-        |
-        v
-Translation provider adapter (server-side scheduled job)
+        +----> source identity / URL / import timestamp
         |
         v
-Versioned normalized catalog JSON
-        |
-        +----> Pricing / FX assumptions
-        +----> Search and discovery
+data/catalog.json (static snapshot)
         |
         v
-Static storefront (Next.js export)
+Next.js static storefront
         |
         v
-Local cart / favorites / simulated checkout
+Browser-local cart / favorites / simulated checkout
 ```
 
-## Current code boundaries
+The browser may attempt a live catalog refresh. If it fails, the storefront keeps the generated snapshot; local fixtures are used only if no snapshot exists.
 
+## Target platform architecture (M04+)
+
+```text
+Next.js / React / TypeScript
+        |
+        | HTTPS REST (OpenAPI)
+        v
+Go API
+        |
+        +------ PostgreSQL (system of record)
+        |          |
+        |          +-- versioned SQL migrations + sqlc typed queries
+        |
+        +------ Redis (optional cache / queue)
+        |
+        +------ Python workers
+                   |
+                   +-- supplier ingestion
+                   +-- translation / enrichment
+                   +-- data quality jobs
+```
+
+This target architecture is not deployed. GitHub Pages cannot host the Go API, PostgreSQL or Python workers. M04 requires owner approval for runtimes and separate hosting.
+
+## Technology decisions
+- Frontend: Next.js App Router, React and TypeScript.
+- Backend: Go REST API with OpenAPI.
+- Primary database: PostgreSQL for relational catalog, variants, users, roles, carts, orders and audit events.
+- Data access: reviewed SQL migrations and sqlc-generated typed methods; parameterized SQL only.
+- Cache/queue: Redis only when measured need exists; never canonical storage.
+- Data/AI jobs: Python workers for ingestion, enrichment and translation, with idempotency, retries and provenance.
+- Search: PostgreSQL full-text/trigram first; evaluate a dedicated engine only after measurement.
+- API style: REST first; GraphQL only with demonstrated need.
+
+## Current code boundaries
 | Module | Responsibility |
 |---|---|
-| app/page.tsx | Storefront composition, client-side interactions, cart/favorites/checkout |
-| app/globals.css | Responsive design system, RTL/LTR layout |
-| lib/catalog/types.ts | Canonical normalized product contract |
-| lib/catalog/normalize.ts | Input validation, normalization, deduplication |
-| lib/catalog/dummyjson.ts | DummyJSON source adapter |
-| lib/catalog/index.ts | Public catalog exports |
-| lib/pricing.ts | Pure demo price calculation and validation |
-| lib/translation/types.ts | Provider contract and localization provenance |
-| lib/translation/index.ts | Safe localization orchestration; no false translated state |
-| tests/*.test.ts | Node test-runner coverage for core domain logic |
+| app/page.tsx | Storefront and local demo interactions |
+| app/globals.css | Responsive design system, RTL/LTR |
+| data/catalog.json | Static catalog snapshot contract |
+| scripts/sync-catalog.ts | Scheduled/manual source import and snapshot generation |
+| lib/catalog/types.ts | Normalized product contract |
+| lib/catalog/normalize.ts | Validation and deduplication |
+| lib/catalog/dummyjson.ts | Live demo source adapter |
+| lib/pricing.ts | Integer-cent pricing and fixed-point FX |
+| lib/translation/* | Translation provider contract and honest unavailable/error states |
+| tests/*.test.ts | Domain unit tests |
 
-## Connector contract
-Each source adapter must return normalized catalog records with stable source ID, source name, source URL, import timestamp, original currency and source price. Invalid required fields are rejected. Duplicate records are keyed by source plus source ID. Keep adapters independent of UI components.
-
-## Translation contract
-Translation is a separate pipeline, not an inline browser request per product. Preserve original strings. Store translated value, source locale, target locale, provider, translation status and timestamp. Missing credentials, quotas or provider failures must produce an explicit unavailable/error state and never silently replace source text. Secrets are only available in scheduled/server-side jobs.
+## Catalog and translation contracts
+Connectors preserve stable source ID, source name, source URL and import timestamp. Invalid records are rejected and duplicates are removed. Translation is a separate server-side/scheduled pipeline; preserve original and translated strings, locales, provider, status and timestamp. Missing credentials or provider failures must never silently replace source text.
 
 ## Pricing contract
-Pricing is deterministic over source price, discount and configured FX assumptions. USD is quantized to integer cents, FX is represented in fixed-point micro-units, and BigInt intermediates avoid floating-point drift in the conversion path. The calculation rounds discounted USD to cents, then rounds converted Toman half-up to a whole Toman. Current UI FX is illustrative only; it is not a live quote. Future FX adapters must preserve source, timestamp and stale-rate status.
+USD is quantized to integer cents, FX uses fixed-point micro-units and BigInt intermediates. Current UI FX is illustrative, not a live quote. Future feeds retain provider, timestamp and stale-rate status.
 
 ## Static hosting
-GitHub Pages serves the Next.js static export under /globalcart. Do not add server-only runtime features to the client bundle. Scheduled ingestion may generate a JSON artifact committed or uploaded as a build artifact; secrets must not be bundled into public JavaScript.
-
-## Backend evolution gate
-Static GitHub Pages cannot run a persistent API server, PostgreSQL instance or Python worker. Keep the current frontend independent from future services through typed API/data contracts. When durable multi-user state, authenticated roles, background translation or SQL-backed search becomes necessary, obtain owner approval for Go/Python runtime access and select a separate API/database host before implementation. Do not simulate server persistence as if it were real.
+GitHub Pages serves the Next.js export under /globalcart. No secrets or server-only code may enter the client bundle. Scheduled ingestion generates JSON before build. A failed refresh preserves last-known-good data.
 
 ## Commerce simulation
-Cart, favorites and checkout are browser-local. Never call payment gateways, reserve inventory, dispatch shipments, create seller payouts or imply a real order.
+Until M04/M05, cart, favorites and checkout are browser-local. Future persisted payment/order records remain simulated and never trigger real payment or fulfillment.

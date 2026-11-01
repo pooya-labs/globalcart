@@ -7,12 +7,12 @@
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no payment, inventory reservation, shipment, seller payout or refund is processed.
 
-## Current status — v0.1.1 + M02 foundations
+## Current status — v0.1.2 + M02 catalog pipeline
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
 - Responsive editorial marketplace storefront with Persian RTL and English LTR.
-- Automatically imported sample catalog from DummyJSON, with a local fallback.
+- Typed catalog import foundation plus a scheduled/manual snapshot generator with retry and last-known-good fallback (CI verification pending).
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
 - Browser-local cart, quantity changes, removal and simulated checkout.
@@ -20,9 +20,10 @@ Implemented:
 - Decimal-safe pricing core using integer cents, fixed-point FX and explicit rounding.
 - Source/demo disclosures and visible owner attribution.
 - GitHub Pages deployment workflow and project handoff documentation.
+- Target architecture: Go REST/OpenAPI, PostgreSQL + sqlc, Python workers and optional Redis at the backend milestone.
 
 In progress / not yet claimed as complete:
-- AI-backed Persian product translation and scheduled catalog publishing.
+- AI-backed Persian product translation; provider credentials and integration are not configured yet.
 - Production-grade FX feed, price history and product detail pages.
 - Compare, admin/seller workspaces, order history and advanced search.
 - Expanded domain unit tests; accessibility and browser tests remain pending.

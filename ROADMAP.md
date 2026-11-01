@@ -1,131 +1,151 @@
 # GlobalCart — Master Roadmap
 
-> This is the authoritative progress ledger. Never mark work complete because a file was merely created: implementation and verification are both required.
+> The single source of truth. A stage is complete only after implementation and verification.
 
-**Current release:** 0.1.1  
-**Active milestone:** M02 — Catalog intelligence foundations  
+**Current release:** 0.1.2  
+**Active stage:** M02 — Automated catalog pipeline  
 **Repository:** pooya16pg-spec/globalcart  
-**Product boundary:** independent portfolio simulation; no real commerce.
+**Owner:** Pooya Goodarzi
 
-## Release and milestone map
+## Engineering north star
+Build a polished, bilingual global marketplace with excellent usability, accessible interaction, responsive layouts, reliable data and credible production-style architecture. Visual effects must never compromise readability, performance or accessibility.
 
-| Milestone | Target release | Scope | Status |
+## Target technology and database architecture
+
+| Layer | Target | Purpose | Stage |
+|---|---|---|---|
+| Frontend | Next.js App Router, React, TypeScript | Storefront, product pages, admin/seller UX | Current |
+| Backend | Go REST API + OpenAPI | Domain services, auth, catalog and orders | M04 |
+| Primary database | PostgreSQL | Relational data and transactional consistency | M04 |
+| Data access | SQL migrations + sqlc | Versioned schema and typed queries | M04 |
+| Data/AI workers | Python | Supplier ingestion, enrichment and translation | M02/M04 |
+| Cache/queue | Redis, optional | Cache and job coordination when justified | M04+ |
+| Search | PostgreSQL FTS/trigram first | Search and relevance | M07 |
+
+**Database decision:** PostgreSQL is the primary system of record. Marketplace entities have relationships and transactional invariants, so relational constraints, joins and ACID transactions are the right default. Redis is optional and never the canonical database. Do not add MongoDB or multiple databases without a measured use case.
+
+**API decision:** REST + OpenAPI first. GraphQL only if real client query patterns justify it. Use versioned migrations and parameterized SQL.
+
+**Runtime gate:** GitHub Pages is static. M04 cannot begin until the owner enables Go/Python runtimes and approves separate API/database hosting.
+
+## Release and stage map
+
+| Stage | Target | Scope | Status |
 |---|---:|---|---|
-| M00 | 0.1.0 | Product definition, independence, governance, handoff docs | Complete |
-| M01 | 0.1.0 | Storefront, responsive UI, bilingual shell, demo cart/checkout | Implemented; CI/deploy and accessibility verification pending |
-| M02 | 0.2.0 | Typed connectors, normalization, translation pipeline, scheduled catalog | Foundations implemented; provider/scheduler/tests verification pending |
-| M03 | 0.3.0 | Pricing engine, FX provenance, product details, compare | Pricing foundation implemented; product experience pending |
-| M04 | 0.4.0 | Full commerce simulation, order history, coupons, returns | Not started |
-| M05 | 0.5.0 | Admin and seller workspaces, catalog operations, analytics | Not started |
-| M06 | 0.6.0 | Advanced search, facets, recommendations, saved searches | Not started |
-| M07 | 0.7.0 | Automated tests, accessibility, performance, security, CI gates | Not started |
-| M08 | 1.0.0 | Portfolio case study, release, final QA and public demo | Not started |
+| M00 | 0.1.0 | Product definition, independence, governance and handoff | Complete |
+| M01 | 0.1.x | Premium storefront, bilingual UX, responsive behavior and deployment | Implemented; visual/accessibility QA pending |
+| M02 | 0.2.0 | Automated catalog import, normalization, translation and snapshots | Active |
+| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Pricing core implemented; product UX pending |
+| M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Planned; owner runtime/hosting gate |
+| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Planned |
+| M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
+| M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Planned |
+| M08 | 0.8.0 | Browser tests, accessibility, security and performance | Planned |
+| M09 | 1.0.0 | Portfolio case study, release and public demo QA | Planned |
 
-## M00 — Product definition and governance
-- [x] Define portfolio simulation, not live store.
-- [x] Establish independent repository and owner attribution.
-- [x] Define safe source policy; prohibit unauthorized scraping.
-- [x] Establish semantic versioning and AI handoff requirements.
-- [x] Record architecture and product decisions.
+## M00 — Product and governance
+- [x] Portfolio simulation, not a live retailer.
+- [x] Independent repository and owner attribution.
+- [x] Safe source policy; no unauthorized scraping.
+- [x] Versioning, roadmap and AI handoff rules.
+- [x] Architecture decisions recorded.
 
-## M01 — Foundation and storefront
-- [x] Next.js App Router, React and TypeScript foundation.
-- [x] Static export configuration and Pages deployment workflow.
-- [x] Responsive editorial retail storefront.
-- [x] Persian-first RTL and English LTR switch.
-- [x] Demo catalog API with local fallback.
-- [x] Search, category filters, price range and sorting.
-- [x] Product quick view, favorites and recently viewed state.
-- [x] Cart quantity controls, removal and local persistence.
-- [x] Demo checkout with generated reference; no payment API.
-- [x] Configurable illustrative USD/Toman conversion.
-- [x] Discount-aware product and cart totals.
-- [x] Owner attribution and demo/source disclosure.
-- [ ] Confirm clean Actions build after CI workflow repair.
-- [ ] Verify published Pages URL and deep-link behavior.
-- [ ] Keyboard, focus, screen-reader and reduced-motion audit.
-- [ ] Mobile/tablet/desktop visual QA.
-**Acceptance:** complete storefront browsing and simulated cart journey; no real-commerce claims.
+## M01 — Storefront foundation
+- [x] Next.js, React and TypeScript foundation.
+- [x] Static export and Pages deployment workflow.
+- [x] Responsive editorial marketplace storefront.
+- [x] Persian-first RTL and English LTR.
+- [x] Search, categories, filters and sorting.
+- [x] Quick view, favorites and recently viewed.
+- [x] Local cart and simulated checkout.
+- [x] Owner attribution and demo/source disclosures.
+- [x] GitHub Actions build, typecheck, tests, artifact upload and Pages deploy passed in run 41294484252.
+- [ ] Visual QA on phone, tablet and desktop.
+- [ ] Keyboard, focus, screen-reader, contrast and reduced-motion audit.
+- [ ] Verify published URL, base-path assets and deep links.
 
-## M02 — Catalog intelligence (active)
-- [x] Typed catalog product/result contracts.
-- [x] Normalization and malformed-record rejection.
-- [x] Source identity, import timestamp and duplicate suppression.
-- [x] DummyJSON adapter separated from storefront UI.
-- [x] Translation provider interface and explicit unavailable/error states.
-- [x] Unit tests authored for normalization, pricing and translation orchestration.
-- [ ] Verify expanded test suite passes in the next Actions run.
-- [ ] Add provider implementation (server-side only; no browser secrets).
-- [ ] Translate title, description, category and attributes to Persian.
-- [ ] Preserve original text, translated text, provider, locale and timestamp.
-- [ ] Translation cache, retries, throttling and failure reporting.
-- [ ] Add Amazon connector only after authorization/eligibility review.
-- [ ] Generate a versioned static catalog JSON artifact.
-- [ ] Scheduled GitHub Actions catalog refresh and manual dispatch.
-- [ ] Catalog import summary and source diagnostics page.
-**Acceptance:** repeatable automatic import and honest localization status; no manual product-by-product entry.
+## M02 — Automated catalog pipeline (active)
+- [x] Typed catalog contracts and normalization.
+- [x] Invalid-record rejection, source identity and duplicate suppression.
+- [x] DummyJSON source adapter.
+- [x] Translation provider interface with honest unavailable/error states.
+- [x] Scheduled and manual catalog refresh trigger.
+- [x] Retry-capable static snapshot generator with last-known-good protection.
+- [x] Storefront initializes from generated snapshot and keeps it if live refresh fails.
+- [ ] Verify snapshot generation, tests and build in the new Actions run.
+- [ ] Add an approved translation provider; no credential is configured yet.
+- [ ] Translate title, description, category and attributes while preserving originals/provenance.
+- [ ] Translation cache, throttling, retries and quota/error reporting.
+- [ ] Catalog freshness and source diagnostics.
+- [ ] Add other suppliers only through authorized APIs/feeds.
+**Acceptance:** products import automatically, the storefront survives source outages, and untranslated text is never mislabeled.
 
-## M03 — Pricing and product details
-- [x] Initial pure pricing calculation foundation with input validation.
-- [x] Integer-cent and fixed-point FX arithmetic with explicit rounding.
-- [x] Reject non-finite discounts and unsafe numeric ranges.
-- [ ] Integer minor units/decimal-safe arithmetic and rounding tests.
-- [ ] FX adapter with source, timestamp and stale-rate behavior.
-- [ ] Configurable demo markup/shipping/tax assumptions.
-- [ ] Dedicated product detail routes and image gallery.
-- [ ] Specs, review summaries, source links and stock disclaimers.
+## M03 — Pricing and product experience
+- [x] Integer-cent pricing, fixed-point FX and BigInt intermediate arithmetic.
+- [x] Explicit rounding and invalid-input tests.
+- [ ] FX provider, source timestamp and stale-rate policy.
+- [ ] Transparent source/FX/markup/shipping/tax price breakdown.
+- [ ] Dedicated product details and responsive gallery.
+- [ ] Attributes, ratings context and source provenance.
 - [ ] Product comparison and recently viewed page.
-**Acceptance:** every displayed price is traceable to source price, rate and assumptions.
 
-## M04 — Commerce simulation
-- [ ] Persistent cart, favorites and checkout draft.
+## M04 — Backend and database platform
+- [ ] Owner enables Go runtime and approves separate API hosting.
+- [ ] Owner enables Python runtime or an approved worker runner.
+- [ ] Provision PostgreSQL and secure connection management.
+- [ ] Define ERD/schema for catalog, variants, users, roles, carts, orders and audit events.
+- [ ] Add versioned migrations and rollback strategy.
+- [ ] Build Go REST API with OpenAPI and request validation.
+- [ ] Add sqlc typed query layer and parameterized SQL.
+- [ ] Design authentication/session and role-based authorization.
+- [ ] Add idempotent Python ingestion/translation workers.
+- [ ] Add Redis only for measured cache/queue requirements.
+- [ ] Integration tests for transactions, constraints and authorization.
+
+## M05 — Commerce simulation
+- [ ] Persistent demo cart and checkout draft.
 - [ ] Multi-step checkout with validation and demo address book.
-- [ ] Simulated payment success/failure/decline states.
-- [ ] Local order history and printable demo receipt.
+- [ ] Simulated payment outcomes; never contact a real payment provider.
+- [ ] Persistent demo order history and printable receipt.
 - [ ] Coupons and promotions.
 - [ ] Returns/refund simulation.
-**Acceptance:** full testable journey without collecting payment data or creating real orders.
 
-## M05 — Admin and seller workspaces
-- [ ] Demo role switcher with clearly simulated permissions.
-- [ ] Admin overview and import/translation/price diagnostics.
-- [ ] Product create/edit/archive against local demo state.
-- [ ] Supplier connector configuration (no secret values).
-- [ ] Seller profile and product management.
-- [ ] Order operations and demo analytics.
-**Acceptance:** meaningful admin/seller interactions, explicitly local and simulated.
+## M06 — Admin and seller workspaces
+- [ ] Demo role switcher with real authorization boundaries where API exists.
+- [ ] Admin overview and catalog/translation/price diagnostics.
+- [ ] Product create/edit/archive.
+- [ ] Supplier connector configuration without secret exposure.
+- [ ] Seller profile, product management and demo analytics.
 
-## M06 — Search and discovery
-- [ ] Faceted filters: brand, rating, price and category.
-- [ ] Search suggestions and keyboard-accessible command palette.
-- [ ] Explainable ranking and recommendation modules.
-- [ ] Saved searches and preference controls.
+## M07 — Search and discovery
+- [ ] Faceted filters for brand, rating, price and category.
+- [ ] Accessible suggestions and keyboard command palette.
+- [ ] PostgreSQL full-text/trigram baseline and relevance tests.
+- [ ] Explainable ranking and recommendations.
+- [ ] Saved searches and preferences.
 - [ ] Empty, loading, offline and error states.
-**Acceptance:** fast and accessible discovery on the full sample catalog.
 
-## M07 — Quality and release hardening
-- [ ] Unit tests for normalization, pricing, translation and state (initial tests exist; CI verification pending).
-- [ ] Playwright tests for critical shopping paths.
-- [ ] Accessibility audit for RTL/LTR, focus, labels and contrast.
+## M08 — Quality and hardening
+- [ ] Playwright tests for critical shopping journeys.
+- [ ] RTL/LTR accessibility, keyboard, labels and contrast audit.
 - [ ] Performance and image-loading audit.
-- [ ] Dependency, secret and static-analysis checks.
-- [ ] CI gates for typecheck, tests and production build.
-- [ ] Confirm reproducible build and deployed site.
-**Acceptance:** documented, reproducible, passing quality checks.
+- [ ] Dependency, secret, static-analysis and API security checks.
+- [ ] Database backup/restore and migration verification.
+- [ ] Reproducible build and deployment smoke test.
 
-## M08 — Portfolio release
+## M09 — Portfolio release
 - [ ] Persian and English case study.
-- [ ] Screenshots, architecture diagrams and feature tour.
-- [ ] Versioned 1.0.0 release and complete changelog.
+- [ ] Screenshots, architecture/ERD diagrams and feature tour.
+- [ ] Versioned 1.0.0 release and changelog.
 - [ ] README verified against actual behavior.
 - [ ] Final public demo smoke test.
-**Acceptance:** a reviewer can understand the engineering, inspect source and use the demo.
 
-## AI/developer handoff rule
-Before any code change, read PROJECT_CONTEXT.md, this roadmap, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md, docs/DECISIONS.md and CHANGELOG.md. Inspect the actual tree and Actions status. Work on the earliest incomplete acceptance item. At the end of each coherent task, update exact checkboxes and PROJECT_CONTEXT.md. Never guess that a previous AI finished something.
+## Handoff rule
+Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md and docs/DECISIONS.md before changing code. Continue from the earliest incomplete item, inspect current Actions, and update documentation only with verified facts.
 
 ## Release ledger
-| Version | Milestone | Status | Notes |
+| Version | Stage | Status | Notes |
 |---|---|---|---|
-| 0.1.0 | M00 + M01 | Implemented; deployment/accessibility verification pending | Initial storefront and domain foundations |
-| 0.1.1 | M03 pricing foundation | Implemented; CI verification pending | Integer-cent pricing and fixed-point FX rounding |
+| 0.1.0 | M00 + M01 | Implemented | Initial independent storefront |
+| 0.1.1 | Pricing foundation | Implemented | Integer-cent and fixed-point demo pricing |
+| 0.1.2 | M02 catalog pipeline | In progress | Scheduled snapshot pipeline; CI verification pending |

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { fetchDummyJsonCatalog } from "../lib/catalog";
+import catalogSnapshot from "../data/catalog.json";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, Check, ChevronDown, ChevronLeft,
   ChevronRight, CircleHelp, Heart, LayoutGrid, Menu, Minus, Package, Plus,
@@ -60,6 +61,10 @@ const copy = {
   }
 } as const;
 
+const snapshotProducts = Array.isArray(catalogSnapshot.products)
+  ? (catalogSnapshot.products as unknown as Product[])
+  : [];
+
 const fallback: Product[] = [
   {id:101,title:"هدفون بی‌سیم استودیویی",description:"صدای شفاف با حذف نویز فعال، طراحی سبک و شارژدهی طولانی برای استفاده روزمره.",category:"electronics",price:89.99,discountPercentage:18,rating:4.8,stock:24,brand:"SONORA",thumbnail:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900",images:[],source:"Local demo fixture"},
   {id:102,title:"ساعت هوشمند Active",description:"نمایشگر AMOLED، پایش فعالیت و طراحی مینیمال با بند راحت.",category:"mens-watches",price:129.5,discountPercentage:12,rating:4.7,stock:18,brand:"NORTH",thumbnail:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=900",images:[],source:"Local demo fixture"},
@@ -87,9 +92,9 @@ const usd = (value:number) => "$"+value.toFixed(2);
 
 export default function Home() {
   const [locale,setLocale]=useState<Locale>("fa");
-  const [products,setProducts]=useState<Product[]>(fallback);
-  const [loading,setLoading]=useState(true);
-  const [usingFallback,setUsingFallback]=useState(false);
+  const [products,setProducts]=useState<Product[]>(snapshotProducts.length ? snapshotProducts : fallback);
+  const [loading,setLoading]=useState(snapshotProducts.length===0);
+  const [usingFallback,setUsingFallback]=useState(snapshotProducts.length===0);
   const [query,setQuery]=useState("");
   const [category,setCategory]=useState("all");
   const [sort,setSort]=useState("popular");
@@ -125,7 +130,13 @@ export default function Home() {
         setProducts(mapped);
         setUsingFallback(false);
       })
-      .catch(()=>{if(active){setProducts(fallback);setUsingFallback(true);}})
+      .catch(()=>{
+        if(active){
+          // Keep the last successfully generated static snapshot when the live source is unavailable.
+          setUsingFallback(snapshotProducts.length===0);
+          if(snapshotProducts.length===0)setProducts(fallback);
+        }
+      })
       .finally(()=>{if(active)setLoading(false);});
     return()=>{active=false;};
   },[]);

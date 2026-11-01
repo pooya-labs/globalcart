@@ -1,6 +1,6 @@
 {
   "name": "globalcart",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "author": "Pooya Goodarzi",
   "description": "Commerce-grade intelligent global marketplace portfolio demo",
@@ -9,7 +9,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "catalog:sync": "tsx scripts/sync-catalog.ts"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

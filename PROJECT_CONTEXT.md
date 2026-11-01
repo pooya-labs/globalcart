@@ -1,81 +1,76 @@
 # GlobalCart — Project Context / Single Source of Truth
 
-**Owner:** Pooya Goodarzi ([GitHub](https://github.com/pooya16pg-spec))  
+**Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main  
-**Current release:** 0.1.1  
-**Active milestone:** M02  
-**Last context update:** 2026-11-01
+**Current release:** 0.1.2  
+**Active stage:** M02 — Automated catalog pipeline  
+**Last updated:** 2026-11-01
 
 ## Product definition
-GlobalCart is an independent portfolio engineering project: a realistic marketplace demonstration built to showcase engineering skill. It is not a live store. Checkout, payment, inventory, shipping, seller, order, refund and analytics flows are simulations.
+GlobalCart is an independent, high-fidelity marketplace portfolio simulation. The goal is a modern, accessible, bilingual commerce experience with strong UX, reliable data and credible engineering. It is not a live retailer. Payments, fulfillment, inventory reservation and seller payouts remain simulated.
 
-## Independence — mandatory
-This repository must remain standalone. Do not add runtime imports, packages, shared deployment dependencies, cross-repo workflows or build dependencies on Pooya.OS, ORBIT, AuraPulse, NexusCanvas, LuminaGlass or any other portfolio project. Cross-links in portfolio documentation are allowed only if later approved.
+## Non-negotiable invariants
+- Keep this repository independent from all other portfolio projects.
+- Never collect card numbers/bank credentials or call a real payment gateway.
+- Label sample data, illustrative currency and simulated outcomes honestly.
+- Do not scrape Amazon; require authorized API/feed access and terms review.
+- Preserve original text and source provenance during translation.
+- Never expose provider secrets in browser code or Git history.
+- Persian is default with true RTL; English must retain correct LTR.
+- Every visible control must work or explain why unavailable.
+- Keep owner attribution visible.
+- Never mark roadmap work complete before verification.
 
-## Product and safety invariants
-1. Never collect card numbers, bank credentials or real payment details.
-2. Never call a real payment gateway or create real orders, reservations, shipments, inventory changes or payouts.
-3. Label demo data, local fallback, illustrative currency and simulated outcomes honestly.
-4. Do not scrape Amazon or copy its catalog. An Amazon adapter needs authorized access and review of current terms.
-5. Preserve original product text and source provenance when translating.
-6. Never expose provider secrets in client JavaScript or repository files.
-7. Persian is default and must use real RTL. English is also supported.
-8. All visible controls must work or have a clear disabled/unavailable state.
-9. Keep owner attribution visible.
-10. Do not mark roadmap work complete until implemented and verified.
+## Current implementation map
+- app/page.tsx — storefront, search/filter/sort, local cart/favorites/checkout; initializes from static snapshot and attempts live refresh.
+- app/globals.css — responsive visual system and RTL/LTR.
+- app/layout.tsx — metadata and global styles.
+- data/catalog.json — static snapshot contract; empty local seed replaced by CI sync.
+- scripts/sync-catalog.ts — scheduled/manual DummyJSON import, retry, normalization and last-known-good protection.
+- lib/catalog/types.ts — canonical catalog contracts.
+- lib/catalog/normalize.ts — validation, normalization and deduplication.
+- lib/catalog/dummyjson.ts — live demo source adapter.
+- lib/pricing.ts — integer-cent/fixed-point demo pricing with BigInt.
+- lib/translation/* — provider contract and honest unavailable/error states; no real provider configured yet.
+- tests/*.test.ts — catalog, pricing and translation tests.
+- .github/workflows/deploy.yml — CI, scheduled/manual catalog refresh, static build and Pages deployment.
+- ROADMAP.md — single authoritative roadmap.
+- docs/AI_HANDOFF.md — continuation contract.
 
-## Current repository map
-- app/page.tsx — storefront, catalog view, cart, favorites and simulated checkout.
-- app/globals.css — responsive marketplace visual system.
-- app/layout.tsx — document metadata and global styles.
-- lib/catalog/types.ts — canonical normalized product contract.
-- lib/catalog/normalize.ts — record validation, normalization and deduplication.
-- lib/catalog/dummyjson.ts — DummyJSON source adapter.
-- lib/catalog/index.ts — catalog public exports.
-- lib/pricing.ts — decimal-safe demo pricing using integer cents and fixed-point FX arithmetic.
-- lib/translation/types.ts — provider contract and localization provenance.
-- lib/translation/index.ts — safe localization orchestration with honest unavailable/error states.
-- tests/catalog.test.ts — catalog normalization tests.
-- tests/pricing.test.ts — decimal rounding and invalid-input pricing tests.
-- tests/translation.test.ts — translation orchestration tests.
-- .github/workflows/deploy.yml — CI and GitHub Pages deployment.
-- ROADMAP.md — milestone acceptance checklist.
-- docs/AI_HANDOFF.md — mandatory instructions for the next AI/developer.
+## Verified deployment state
+Actions run 41294484252 passed dependency installation, TypeScript validation, unit tests, production build, Pages artifact upload and deployment:
+https://github.com/pooya16pg-spec/globalcart/actions/runs/41294484252
 
-## Current implementation status
+This verification applies to the commit used by that run. Version 0.1.2 catalog pipeline changes require a new run before being called verified.
 
-### M01 — Storefront
-Implemented: responsive storefront, Persian/English shell, search/filter/sort, quick view, favorites, recently viewed IDs, local cart, simulated checkout, illustrative FX, owner/source disclosure.
-Pending verification: latest CI run, GitHub Pages configuration and live URL, keyboard/accessibility and responsive QA.
+## M01 status
+Storefront foundation, bilingual shell, search/filter/sort, quick view, favorites, recently viewed, browser-local cart and simulated checkout are implemented. GitHub Pages deployment is successful. Visual QA, accessibility and base-path/deep-link verification remain open.
 
-### M02 — Catalog intelligence
-Implemented: typed product contract; normalization; required-field validation; numeric bounds; source IDs; import timestamp; duplicate suppression; separated DummyJSON adapter; translation provider interface; translation metadata and explicit unavailable/error states; initial unit tests.
-Pending: verify test suite in Actions; actual provider integration; translation cache/retries; scheduled static catalog generation; admin diagnostics.
+## M02 status
+Typed catalog contracts, normalization, source metadata, deduplication, DummyJSON adapter and translation interface exist. No actual translation provider or automatic Persian translation is configured.
+Version 0.1.2 adds:
+- scripts/sync-catalog.ts: retrying catalog importer.
+- data/catalog.json: generated static snapshot.
+- GitHub Actions schedule and manual trigger.
+- Storefront initializes from snapshot and preserves it if live refresh fails.
+CI verification is pending.
 
-Important: imported product descriptions are not yet automatically translated. Never claim they are.
+## Target backend/database architecture
+- Frontend: Next.js App Router, React and TypeScript.
+- Backend: Go REST API with OpenAPI contract.
+- Primary database: PostgreSQL, selected for relational marketplace entities and transactional integrity.
+- Data access: versioned SQL migrations and sqlc-generated typed queries.
+- Python: supplier ingestion, enrichment and translation workers.
+- Redis: optional cache/queue only when measured need exists; never system of record.
+- Search: PostgreSQL full-text/trigram first; dedicated engine only if evidence warrants it.
+- REST first; GraphQL only if client requirements justify it.
 
-## CI blocker and deployment configuration
-The original workflow failed because setup-node npm caching expected a lockfile that did not exist. The workflow was changed to remove the cache dependency and use npm install. A subsequent run successfully completed dependency installation, TypeScript validation, production build and artifact upload. Its deploy job then returned HTTP 404 because GitHub Pages is not enabled/configured for this repository. In repository Settings → Pages, set Build and deployment → Source to **GitHub Actions** once. Re-check the latest run after this setting.
-
-The workflow now includes a unit-test step. Verify the latest run to confirm the new tests pass; do not infer success from an earlier run.
-
-## Architecture direction and language gates
-The current public preview is a Next.js static export. Keep the existing Next.js/TypeScript frontend while it remains suitable. Static GitHub Pages cannot host a persistent Go API, Python worker or PostgreSQL database. When the roadmap reaches authenticated APIs, durable multi-user data, background translation jobs or real SQL query workflows, pause before introducing those runtimes and ask the owner to enable the required language/runtime and choose an API/database host. Until then, implement frontend-safe and static-compatible slices without pretending a backend exists.
-
-## Mandatory continuation protocol
-1. Read this file, ROADMAP.md, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md, docs/DECISIONS.md and CHANGELOG.md.
-2. Inspect current main tree, package.json, relevant source files and latest Actions status.
-3. Continue from the earliest unchecked roadmap acceptance item.
-4. Keep repository independence and static Pages compatibility unless a documented architecture decision changes them.
-5. Run npm install, npm run typecheck, npm test and npm run build.
-6. Inspect the diff and verify the deployed site and basePath assets.
-7. Update ROADMAP.md, CHANGELOG.md and this file after verified work. Update package.json at release boundaries.
-8. State exact completed work, verification evidence, known limitations and next action.
+GitHub Pages is static and cannot host a persistent Go API, Python worker or PostgreSQL database. M04 is gated on owner enabling Go/Python runtimes and approving separate API/database hosting. Do not claim static frontend has backend persistence.
 
 ## Immediate next actions
-1. Verify the expanded decimal-pricing tests in the next Actions run.
-2. Confirm GitHub Pages Source = GitHub Actions and verify deploy and public URL.
-3. Generate and commit package-lock.json; return CI to npm ci for deterministic installs.
-4. Add a server-side translation provider adapter and scheduled catalog generation, preserving translation provenance.
-5. Add tests for product localization, API failure, currency rounding and cart state.
+1. Verify the new 0.1.2 catalog sync workflow and production build.
+2. Perform visual/mobile/accessibility QA on the published site.
+3. Add an approved translation provider; keep credentials server-side.
+4. Continue M03 traceable pricing and product details.
+5. Request Go/Python and hosted PostgreSQL access when M04 is reached.

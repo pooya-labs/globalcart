@@ -1,47 +1,47 @@
 # AI / Developer Handoff Contract
 
-This document is mandatory reading for every assistant, coding agent or human contributor taking over GlobalCart.
+Mandatory reading for every assistant, coding agent or human contributor taking over GlobalCart.
 
 ## Read first
-1. PROJECT_CONTEXT.md — current state, constraints and next task.
-2. ROADMAP.md — release milestones and verified completion checklist.
+1. PROJECT_CONTEXT.md — current state and next action.
+2. ROADMAP.md — the single authoritative milestone plan.
 3. CHANGELOG.md — implementation history.
-4. docs/ARCHITECTURE.md — boundaries and data flow.
-5. docs/DECISIONS.md — accepted decisions and constraints.
-6. package.json and the current source files involved in the task.
+4. docs/ARCHITECTURE.md — current and target architecture.
+5. docs/DECISIONS.md — accepted decisions.
+6. package.json and relevant source files.
 
 ## Non-negotiable requirements
-- Work only in pooya16pg-spec/globalcart.
-- Do not connect this project to another portfolio repository or shared runtime.
-- Treat the product as a high-fidelity portfolio simulation, never as a real retailer.
-- Do not add live payment, fulfillment, inventory reservation or seller payout behavior.
-- Do not scrape Amazon. Verify authorized API/program access before any connector work.
-- Keep Persian RTL and English LTR behavior intact.
+- Work only in pooya16pg-spec/globalcart; keep it independent from other portfolio projects.
+- Treat GlobalCart as a high-fidelity portfolio simulation, never a live retailer.
+- Do not add real payments, fulfillment, inventory reservations or seller payouts.
+- Do not scrape Amazon; verify authorized API/feed access before any connector.
+- Keep Persian RTL and English LTR correct.
 - Preserve original catalog fields and source provenance.
-- Do not represent untranslated text as Persian translation.
+- Never label untranslated content as translated.
 - Keep secrets server-side and out of Git history.
-- GitHub Pages is static hosting; never add server-only runtime code to the client bundle.
-- Ask the owner before adding a Go/Python service, PostgreSQL database, external hosting, or paid API dependency.
-- Every menu, button and form must perform a real action or show a clear unavailable state.
+- GitHub Pages is static; never add server-only runtime code to the client bundle.
+- Every visible control must work or show a clear unavailable state.
+- Prioritize polished, modern, accessible UX and responsive behavior over decorative effects.
+- PostgreSQL is the planned primary database; Redis is optional and not a source of truth.
+- Ask the owner before adding Go/Python services, PostgreSQL hosting, external infrastructure or paid APIs. The owner can enable extra runtimes when requested.
+
+## Target stack
+- Frontend: Next.js, React and TypeScript.
+- Backend (M04): Go REST API + OpenAPI.
+- Primary database (M04): PostgreSQL + versioned SQL migrations + sqlc.
+- Data workers: Python for ingestion, enrichment and translation.
+- Optional cache/queue: Redis only when justified.
+- Search baseline: PostgreSQL full-text/trigram.
+Introduce each technology only at the roadmap stage where it solves a real requirement.
 
 ## Engineering workflow
-1. Inspect latest main commit and GitHub Actions run.
-2. Identify the earliest unchecked task in ROADMAP.md.
-3. Implement a coherent slice, not a superficial placeholder.
-4. Add types, validation and tests for business logic.
-5. Run dependency install, typecheck, tests and production build.
-6. Inspect the diff and confirm GitHub Pages base path.
-7. Update ROADMAP.md, PROJECT_CONTEXT.md and CHANGELOG.md with verified status.
-8. Never claim the deployment is live unless Actions succeeds and the URL is tested.
+1. Inspect latest main commit and GitHub Actions.
+2. Continue from the earliest incomplete stage in ROADMAP.md.
+3. Implement a coherent vertical slice with types, validation and tests.
+4. Run install, typecheck, tests and production build.
+5. Inspect diff, basePath, RTL/LTR and responsive behavior.
+6. Update ROADMAP.md, PROJECT_CONTEXT.md and CHANGELOG.md with verified facts.
+7. Never claim deployment is live unless Actions succeeds and the published URL is checked.
+8. Report the completed stage, exact commit/run and next stage to the owner.
 
-## Version progression
-- 0.1.x: fix and complete initial storefront and pricing foundations.
-- 0.2.0: complete catalog connectors, translation and scheduled catalog generation.
-- 0.3.0: pricing/FX engine and detailed product experience.
-- 0.4.0: full local commerce simulation.
-- 0.5.0: admin and seller workspaces.
-- 0.6.0: advanced discovery and recommendations.
-- 0.7.0: quality, security, accessibility and performance hardening.
-- 1.0.0: documented public portfolio release.
-
-A task is complete only when its code exists, its acceptance criteria pass, and the roadmap/context/changelog reflect the evidence. The repository, not chat memory, is the canonical project state.
+The repository, not chat history, is the canonical source of truth.
