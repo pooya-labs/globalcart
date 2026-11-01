@@ -160,7 +160,7 @@ export default function Home() {
   },[products,category,query,sort,minPrice,maxPrice]);
 
   const count=cart.reduce((sum,line)=>sum+line.quantity,0);
-  const subtotal=cart.reduce((sum,line)=>sum+line.product.price*rate*line.quantity,0);
+  const subtotal=cart.reduce((sum,line)=>sum+line.product.price*(1-line.product.discountPercentage/100)*rate*line.quantity,0);
   const formatPrice=(p:Product)=>rtl?money(p.price*(1-p.discountPercentage/100)*rate,locale)+" تومان":usd(p.price*(1-p.discountPercentage/100));
   const notify=(message:string)=>{setToast(message);window.setTimeout(()=>setToast(""),2100);};
   const addToCart=(product:Product)=>{
