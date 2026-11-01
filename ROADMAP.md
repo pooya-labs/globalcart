@@ -233,4 +233,7 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Return a stable variant response with SKU, price, stock and decoded JSON attributes.
 - [x] Distinguish invalid product IDs and missing parent products.
 - [x] Add mapper tests and OpenAPI endpoint documentation.
-- [ ] Verify this endpoint and generated variant query in CI.
+- [x] Verify this endpoint and generated variant query in CI.
+
+
+- CI verification for the product variants read endpoint completed successfully (run 41302565323): sqlc generation, go vet, race-enabled tests, API/importer builds and Docker image build all passed.
