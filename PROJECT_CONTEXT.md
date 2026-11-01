@@ -37,7 +37,9 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `lib/translation/*` and `google-apps-script/*` — parked legacy translation implementation; not used by storefront or CI.
 - `tests/*.test.ts` — catalog, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
-- `ROADMAP.md` — authoritative milestone checklist.\n- `backend/` — Go REST API, PostgreSQL migrations, local Docker Compose, catalog importer and OpenAPI contract.\n- `go.mod` — Go module at repository root.
+- `ROADMAP.md` — authoritative milestone checklist.
+- `backend/` — Go REST API, PostgreSQL migrations, local Docker Compose, catalog importer and OpenAPI contract.
+- `go.mod` — Go module at repository root.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
 ## Verified behavior
@@ -87,6 +89,8 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Product listing supports bounded limit/offset, category and full-text query parameters.
 - A one-shot CLI imports the current normalized catalog snapshot; it refuses empty or incomplete imports.
 - OpenAPI 3.1 contract is in `backend/openapi.yaml`.
-- Backend CI run #22 passed gofmt, go vet, race-enabled unit and PostgreSQL integration tests, Go binary builds and Docker image build.\n- Integration coverage verifies concurrent/idempotent migration startup, product upsert and transaction rollback after a database constraint violation.\n- Verified run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41301389812
+- Backend CI run #22 passed gofmt, go vet, race-enabled unit and PostgreSQL integration tests, Go binary builds and Docker image build.
+- Integration coverage verifies concurrent/idempotent migration startup, product upsert and transaction rollback after a database constraint violation.
+- Verified run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41301389812
 - No authentication, user/order writes, payment, seller APIs or production deployment exists yet.
 - Local Docker Compose is development scaffolding only; no cloud resources or paid services were created.
