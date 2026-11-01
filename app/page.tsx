@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { fetchDummyJsonCatalog } from "../lib/catalog";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, Check, ChevronDown, ChevronLeft,
   ChevronRight, CircleHelp, Heart, LayoutGrid, Menu, Minus, Package, Plus,
@@ -112,17 +113,17 @@ export default function Home() {
 
   useEffect(()=>{
     let active=true;
-    fetch("https://dummyjson.com/products?limit=100")
-      .then(r=>{if(!r.ok)throw new Error("Catalog request failed");return r.json();})
-      .then(data=>{
-        if(!active||!Array.isArray(data.products))return;
-        const mapped:Product[]=data.products.map((p:any)=>({
+    fetchDummyJsonCatalog()
+      .then(records=>{
+        if(!active||!records.length)return;
+        const mapped:Product[]=records.map(p=>({
           id:p.id,title:p.title,description:p.description,category:p.category,
-          price:Number(p.price)||0,discountPercentage:Number(p.discountPercentage)||0,
-          rating:Number(p.rating)||0,stock:Number(p.stock)||0,brand:p.brand||"GLOBAL",
-          thumbnail:p.thumbnail,images:Array.isArray(p.images)?p.images:[],source:"DummyJSON public demo API"
+          price:p.price,discountPercentage:p.discountPercentage,rating:p.rating,
+          stock:p.stock,brand:p.brand,thumbnail:p.thumbnail,images:p.images,
+          source:p.source
         }));
-        if(mapped.length){setProducts(mapped);setUsingFallback(false);}
+        setProducts(mapped);
+        setUsingFallback(false);
       })
       .catch(()=>{if(active){setProducts(fallback);setUsingFallback(true);}})
       .finally(()=>{if(active)setLoading(false);});
