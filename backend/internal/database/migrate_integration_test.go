@@ -257,6 +257,34 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		t.Fatalf("winner reserved %d units, want 2", winnerReservations)
 	}
 
+	if _, err := pool.Exec(ctx, `UPDATE inventory_reservations
+		SET expires_at=now()-interval '1 second'
+		WHERE order_id=$1 AND status='active'`, attempts[winner].order.ID); err != nil {
+		t.Fatalf("force demo reservation expiry: %v", err)
+	}
+	expired, err := service.ExpirePendingOrders(ctx)
+	if err != nil {
+		t.Fatalf("expire pending demo order: %v", err)
+	}
+	if expired != 1 {
+		t.Fatalf("expired orders = %d, want 1", expired)
+	}
+	var expiredReservationCount int
+	if err := pool.QueryRow(ctx, `SELECT count(*)::int FROM inventory_reservations
+		WHERE order_id=$1 AND status='expired'`, attempts[winner].order.ID).Scan(&expiredReservationCount); err != nil {
+		t.Fatalf("read expired reservations: %v", err)
+	}
+	if expiredReservationCount != 1 {
+		t.Fatalf("expired reservation rows = %d, want 1", expiredReservationCount)
+	}
+	expiredAgain, err := service.ExpirePendingOrders(ctx)
+	if err != nil {
+		t.Fatalf("repeat expiration cleanup: %v", err)
+	}
+	if expiredAgain != 0 {
+		t.Fatalf("repeat cleanup expired %d orders, want 0", expiredAgain)
+	}
+
 	// A failed item must roll back earlier writes in the same import batch.
 	valid := product
 	valid.ID = 987654322
