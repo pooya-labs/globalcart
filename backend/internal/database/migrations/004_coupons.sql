@@ -21,6 +21,9 @@ ALTER TABLE carts ADD COLUMN coupon_id BIGINT REFERENCES coupons(id) ON DELETE R
 ALTER TABLE demo_orders ADD COLUMN coupon_id BIGINT REFERENCES coupons(id) ON DELETE RESTRICT;
 ALTER TABLE demo_orders ADD COLUMN discount_amount NUMERIC(12,2) NOT NULL DEFAULT 0
     CHECK (discount_amount >= 0 AND discount_amount <= subtotal);
+ALTER TABLE demo_orders DROP CONSTRAINT demo_orders_check;
+ALTER TABLE demo_orders ADD CONSTRAINT demo_orders_discount_total_check
+    CHECK (total = subtotal - discount_amount);
 CREATE TABLE coupon_redemptions (
     id BIGSERIAL PRIMARY KEY,
     coupon_id BIGINT NOT NULL REFERENCES coupons(id) ON DELETE RESTRICT,
