@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.5 — Variant omission and inventory retention semantics (implementation in progress)  
+**Active stage:** M08.6 — Variant source identity ownership and rollback (implementation in progress)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -433,7 +433,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **M08.3 verification:** Catalog CI push run `41355090849` and PR run `41355095558` passed on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. Follow-up collision-hardening run `41355272122` also passed on latest code head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`, including TypeScript validation, all unit tests and production build.\n\n**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
 
 
-## M08.6 — Authorized supplier onboarding (blocked pending owner decision)
+## M08.7 — Authorized supplier onboarding (blocked pending owner decision)
 - [ ] Select a supplier and confirm the account has documented API/feed access rights and permitted catalog/image/price reuse.
 - [ ] Review supplier API documentation, rate limits, pagination, delta/full-snapshot semantics and variant identity guarantees.
 - [ ] Implement the supplier-specific fetch and mapping adapter using the M08.3 shared contract.
@@ -461,9 +461,21 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Assert the source variant remains stored and platform offer price/stock/status remain unchanged.
 - [x] Assert an independent merchant offer remains active and unchanged when the platform catalog importer receives a product-only snapshot.
 - [x] Assert no duplicate price-history or inventory events are created by the omission-only import.
-- [ ] Verify the new PostgreSQL regression test, race-enabled Go suite and Docker build in Backend CI on the final head.
+- [x] Verify the PostgreSQL omission regression, race-enabled Go suite and Docker build in Backend CI PR run `41356201201` on head `eca6f936d99582a83930f2040a46b912bba57225`.
 
 **M08.5 safety rule:** absence is not deletion. A source must explicitly communicate a complete variant set and an authorized retirement signal before any future variant/offer retirement workflow is introduced. This stage does not add deletion or stock-zero behavior.
 
 
 **M08.6 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
+
+
+## M08.6 — Variant source identity ownership and batch rollback (in progress)
+- [x] Add a PostgreSQL integration test proving an existing `(source, source_id)` cannot be reassigned to a different product.
+- [x] Include a valid earlier product in the same import batch and assert the identity conflict rolls back that earlier write too.
+- [x] Assert the original variant owner, SKU, price and stock remain unchanged and only one row exists for the source identity.
+- [ ] Verify the new identity-ownership test, complete race-enabled Go integration suite and Docker image build in Backend CI on the final head.
+
+**M08.6 safety boundary:** source identity is immutable ownership, not merely a deduplication key. Conflicts fail the transaction; they never silently move a variant between products.
+
+
+**M08.7 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
