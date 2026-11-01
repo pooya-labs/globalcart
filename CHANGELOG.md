@@ -230,3 +230,13 @@
 - Verified public API regression guards and pre-auth CORS restrictions in Backend CI run `41353463006`.
 
 - Platform catalog synchronization now includes product variants, mapping source SKU, price, stock and active/paused state into vendor offers. Added PostgreSQL regression coverage for idempotency and price/inventory audit events. CI verification pending.
+
+
+### Platform offer synchronization verified — 2026-11-02
+- Backend CI run `41354208659` passed all steps for base-product and existing-variant platform offer synchronization, including PostgreSQL integration tests and Docker image build.
+
+### End-to-end source variant ingestion — in progress
+- Added optional source variants to the normalized TypeScript catalog contract and Go importer model.
+- Importer now transactionally upserts variant identity, SKU, title, price, stock, attributes and active state before synchronizing the GlobalCart Direct offer.
+- Added normalization and PostgreSQL integration coverage for variants delivered in the product snapshot.
+- The current DummyJSON source does not provide variant records; ingestion is optional and awaits an authorized supplier source. CI verification pending.
