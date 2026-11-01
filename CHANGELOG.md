@@ -161,3 +161,10 @@
 - Requires a live stock reservation; atomically releases holds, updates order state and appends a simulation event.
 - Added PostgreSQL integration coverage for ownership, repeat completion, reservation release and invalid post-payment cancellation.
 - No external payment provider or public payment endpoint is involved; Verified by CI run 41348079983, including PostgreSQL integration/race tests and Docker image build.
+
+
+### Internal coupon foundation — 2026-11-02
+- Added hashed coupon-code storage and internal coupon creation/application/removal methods.
+- Added percentage and fixed discount calculation, validity windows, minimum subtotal, maximum discount and redemption limits.
+- Checkout revalidates and records redemption atomically; order totals snapshot subtotal, discount and final total.
+- Added cart coupon state and discounted order detail fields; no public routes or verified customer identity are enabled.

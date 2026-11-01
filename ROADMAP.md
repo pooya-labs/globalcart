@@ -312,3 +312,14 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add PostgreSQL integration coverage for ownership, payment replay, reservation release and expired-reservation rejection.
 - [x] Verify sqlc generation, formatting, vet, race-enabled PostgreSQL tests, API/importer builds and Docker image build in CI run 41348079983.
 - [x] Keep all payment/order operations internal until the deployment, identity and CSRF gates are approved.
+
+
+### M07 internal coupon and discount foundation — 2026-11-02
+- [x] Add hashed coupon-code storage and percentage/fixed discount rules.
+- [x] Support start/end dates, minimum subtotal, maximum discount, global usage limit and guest-capability usage limit.
+- [x] Attach/remove coupons on open carts and expose only a boolean applied-state in cart reads.
+- [x] Revalidate coupon eligibility and limits under a row lock during checkout; calculate money using PostgreSQL NUMERIC.
+- [x] Snapshot subtotal, discount and final total on orders and expose those totals in owner-scoped order reads.
+- [x] Add PostgreSQL integration coverage for normalized codes, percentage calculation, usage exhaustion, minimum subtotal rollback, cart attachment state and order detail totals.
+- [ ] Add verified customer identity before treating guest-capability limits as true per-customer limits.
+- [ ] Keep coupon administration and cart/checkout operations internal until auth, same-site deployment and CSRF prerequisites are approved.

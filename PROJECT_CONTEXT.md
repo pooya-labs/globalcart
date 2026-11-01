@@ -194,3 +194,13 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - This is explicitly a local simulation: no payment provider, credentials, webhook, card data or real-money movement.
 - PostgreSQL integration coverage has been added for owner isolation, completion, replay, reservation release and rejection of cancellation after simulated payment. CI run 41348079983 passed sqlc generation, formatting, vet, race-enabled PostgreSQL tests, API/importer builds and Docker image build.
 - No HTTP routes or browser checkout flow enabled.
+
+
+### M07 internal coupon foundation — implementation
+- Migration `004_coupons.sql` stores only SHA-256 digests of normalized coupon codes; it adds coupon rules, cart attachment, order discount snapshots and redemption records.
+- Internal `CreateCoupon`, `ApplyCoupon` and `RemoveCoupon` methods support percentage/fixed discounts, validity windows, minimum subtotal, maximum discount, global usage limit and per-guest-capability usage limit.
+- Checkout locks the coupon row and revalidates dates, active state, minimum subtotal and redemption limits in the same transaction as order creation. Discounts are calculated with PostgreSQL NUMERIC; order subtotal, discount and final total are persisted.
+- `GetCart` exposes only `CouponApplied`; `GetOrder` includes subtotal/discount/total. No raw code or coupon identifier is returned.
+- The current per-customer-like limit is scoped to the guest cart capability digest, not a verified person/account; account identity is still a prerequisite for a genuine customer-wide limit.
+- PostgreSQL integration coverage includes percentage discount, global use exhaustion, minimum subtotal rejection/rollback, coupon attachment/removal and order-detail totals.
+- Coupon administration and checkout remain internal-only; no public HTTP routes, hosted services or payment provider are enabled.

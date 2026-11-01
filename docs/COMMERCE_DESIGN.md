@@ -88,3 +88,9 @@ The internal `CancelOrder` service locks the owned order in a transaction. Only 
 
 
 Verification: CI run 41348079983 passed the PostgreSQL integration/race test suite, sqlc generation, formatting, vet, API/importer builds and Docker image build. The payment simulation remains an internal service only.
+
+
+## 12. Coupon and discount rules
+Coupon codes are normalized to uppercase and stored only as SHA-256 digests. Internal coupon definitions support percentage or fixed discounts, start/end timestamps, minimum subtotal, optional maximum discount, optional global usage limit and a per-guest-capability redemption limit. The latter is deliberately not described as a verified per-customer limit: until account identity exists, a guest can create another cart capability.
+
+Applying a code attaches its coupon ID to an open cart; cart reads expose only a boolean applied-state. Checkout re-locks and revalidates the coupon, uses the canonical catalog-price subtotal, checks the minimum and redemption limits, calculates the discount with PostgreSQL NUMERIC arithmetic, records a redemption and snapshots subtotal/discount/final total in the same transaction. A failed validation rolls back the order and reservations. Percentage discounts are capped at the subtotal and optional maximum discount; fixed discounts are likewise capped at subtotal. No coupon administration or cart/checkout HTTP route is enabled.
