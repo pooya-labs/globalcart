@@ -260,6 +260,45 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if _, err := cartService.AddItem(ctx, cartOwner, product.ID, &variantID, 1); err != nil {
 		t.Fatalf("add active variant to guest cart: %v", err)
 	}
+
+	// A cart owner may cancel an unpaid demo order; active holds are released.
+	cancelKey := make([]byte, 32)
+	cancelKey[0] = 79
+	cancelledOrder, err := cartService.Checkout(ctx, cartOwner, cancelKey, 15*time.Minute)
+	if err != nil {
+		t.Fatalf("checkout variant cart for cancellation test: %v", err)
+	}
+	cancelledOrder, err = cartService.CancelOrder(ctx, cartOwner, cancelledOrder.ID)
+	if err != nil {
+		t.Fatalf("cancel owned demo order: %v", err)
+	}
+	if cancelledOrder.Status != "cancelled" {
+		t.Fatalf("cancelled order status = %q, want cancelled", cancelledOrder.Status)
+	}
+	cancelledReplay, err := cartService.CancelOrder(ctx, cartOwner, cancelledOrder.ID)
+	if err != nil || cancelledReplay.Status != "cancelled" {
+		t.Fatalf("repeat cancellation = %+v, err=%v; want idempotent cancelled result", cancelledReplay, err)
+	}
+	cancelledDetail, err := cartService.GetOrder(ctx, cartOwner, cancelledOrder.ID)
+	if err != nil {
+		t.Fatalf("read cancelled order: %v", err)
+	}
+	if len(cancelledDetail.Events) != 2 || cancelledDetail.Events[1].Type != "demo_order_cancelled" {
+		t.Fatalf("cancelled order event history = %+v", cancelledDetail.Events)
+	}
+	var releasedReservations int
+	if err := pool.QueryRow(ctx, `SELECT count(*)::int FROM inventory_reservations
+		WHERE order_id=$1 AND status='released'`, cancelledOrder.ID).Scan(&releasedReservations); err != nil {
+		t.Fatalf("read released reservation: %v", err)
+	}
+	if releasedReservations != 1 {
+		t.Fatalf("released reservations = %d, want 1", releasedReservations)
+	}
+	var unrelatedOwner [32]byte
+	unrelatedOwner[0] = 80
+	if _, err := cartService.CancelOrder(ctx, unrelatedOwner[:], cancelledOrder.ID); !errors.Is(err, commerce.ErrOrderNotFound) {
+		t.Fatalf("cancelling another cart's order error = %v, want not found", err)
+	}
 	var expiredCartOwner [32]byte
 	expiredCartOwner[0] = 78
 	if _, err := pool.Exec(ctx, `INSERT INTO carts(owner_token_hash,currency,expires_at)
