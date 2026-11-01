@@ -34,7 +34,13 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
 		if err != nil { return err }
 		tx, err := pool.Begin(ctx)
 		if err != nil { return err }
-		if _, err = tx.Exec(ctx, string(sqlBytes)); err == nil {
+		// Execute statements individually: PostgreSQL extended-query mode does not
+		// accept a multi-command prepared statement.
+		for _, statement := range strings.Split(string(sqlBytes), ";") {
+			if strings.TrimSpace(statement) == "" { continue }
+			if _, err = tx.Exec(ctx, statement); err != nil { break }
+		}
+		if err == nil {
 			_, err = tx.Exec(ctx, "INSERT INTO schema_migrations(version) VALUES($1)", name)
 		}
 		if err != nil { _ = tx.Rollback(ctx); return fmt.Errorf("apply %s: %w", name, err) }
