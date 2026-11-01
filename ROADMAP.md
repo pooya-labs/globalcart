@@ -266,5 +266,15 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Enforce digest lengths, bounded quantities, nonnegative price snapshots, valid statuses, variant/product ownership and cart-scoped idempotency.
 - [x] Specify transactional checkout locking, server-side price revalidation, reservation expiry and replay semantics in `docs/COMMERCE_DESIGN.md`.
 - [x] Verify migration 003 and PostgreSQL integration tests in CI (run 41345512979).
-- [ ] Implement typed commerce queries and domain transaction service after schema verification.
+- [x] Implement domain transaction service for demo checkout, canonical price snapshots, row-locked stock reservations and idempotent replay.
 - [ ] Expose persistent cart/order endpoints only after same-site HTTPS, identity/authorization and CSRF prerequisites are approved.
+
+
+### M05 transactional checkout service — 2026-11-01
+- [x] Implement internal Go checkout service; deliberately not exposed as an HTTP write route.
+- [x] Lock guest cart and catalog stock rows, revalidate canonical price/title/stock, and write order snapshots/reservations/events in one transaction.
+- [x] Use database time for cart expiry and expiring reservations; store only caller-provided SHA-256 digests.
+- [x] Add PostgreSQL concurrency test: two carts competing for limited product stock yield one success and one insufficient-stock result.
+- [x] Add idempotent replay test: repeated checkout returns the original order without duplicate reservations.
+- [x] CI run 41345901209 passed sqlc generation, formatting, vet, PostgreSQL-backed tests, API/importer builds and Docker image build.
+- [ ] Implement cart lifecycle operations and safe demo order read APIs after authorization boundary is ready.
