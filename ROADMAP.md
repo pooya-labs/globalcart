@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.6 — Variant source identity ownership and rollback (implementation in progress)  
+**Active stage:** M08.7 — Explicit feed completeness semantics (implementation in progress)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -433,7 +433,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **M08.3 verification:** Catalog CI push run `41355090849` and PR run `41355095558` passed on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. Follow-up collision-hardening run `41355272122` also passed on latest code head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`, including TypeScript validation, all unit tests and production build.\n\n**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
 
 
-## M08.7 — Authorized supplier onboarding (blocked pending owner decision)
+## M08.8 — Authorized supplier onboarding (blocked pending owner decision)
 - [ ] Select a supplier and confirm the account has documented API/feed access rights and permitted catalog/image/price reuse.
 - [ ] Review supplier API documentation, rate limits, pagination, delta/full-snapshot semantics and variant identity guarantees.
 - [ ] Implement the supplier-specific fetch and mapping adapter using the M08.3 shared contract.
@@ -479,3 +479,15 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 
 
 **M08.7 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
+
+
+## M08.7 — Explicit feed completeness semantics (in progress)
+- [ ] Require every source adapter to declare whether it provides a complete snapshot or incremental/delta records.
+- [ ] Keep the static catalog snapshot writer restricted to complete snapshots; reject incremental feeds before replacing the last-known-good file.
+- [ ] Add contract tests proving incremental records can be normalized for a merger but cannot be written as a full snapshot.
+- [ ] Verify Catalog CI and production build on the final branch head.
+
+**M08.7 safety boundary:** no automatic merging or deletion is implied by an incremental feed declaration. A source-specific delta merger must be designed and tested before incremental records can change the canonical snapshot.
+
+
+**M08.8 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
