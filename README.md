@@ -7,7 +7,7 @@
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no payment, inventory reservation, shipment, seller payout or refund is processed.
 
-## Current status — v0.2.1-dev · marketplace redesign
+## Current status — v0.2.2-dev · marketplace redesign
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
