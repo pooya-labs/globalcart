@@ -189,3 +189,10 @@
 - Added parent-level coupon redemption with exact child allocation.
 - Propagated simulated payment, cancellation and expiry to child orders.
 - Added PostgreSQL integration tests for checkout and inventory contention.
+
+
+### M09.3 — Owner-scoped vendor child-order reads — 2026-11-02
+- Added `GetVendorOrder` for reading a single vendor child order and its immutable item snapshots through the owning guest cart capability digest.
+- Kept unknown child IDs and cross-owner access indistinguishable via `ErrOrderNotFound`.
+- Added PostgreSQL integration coverage for child metadata, parent linkage, item snapshots, exact totals and cross-owner isolation.
+- Backend CI verification is pending; see PR #1 before treating this slice as complete.
