@@ -138,6 +138,58 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 		t.Fatalf("variant attributes = %v, want color=black and size=M", decodedAttributes)
 	}
 
+	// Exercise the demo commerce schema. Tokens and idempotency keys are stored
+	// only as fixed-size digests, and order lines retain immutable price/title snapshots.
+	ownerDigest := make([]byte, 32)
+	ownerDigest[0] = 1
+	var cartID string
+	if err := pool.QueryRow(ctx, `INSERT INTO carts(owner_token_hash, currency, expires_at)
+		VALUES($1, 'USD', now() + interval '1 hour') RETURNING id`, ownerDigest).Scan(&cartID); err != nil {
+		t.Fatalf("create demo cart: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO cart_items
+		(cart_id, product_id, variant_id, quantity, unit_price_snapshot, currency, product_title_snapshot, variant_title_snapshot)
+		VALUES($1, $2, $3, 2, 13.99, 'USD', 'Integration fixture', 'Black / Medium')`,
+		cartID, product.ID, variantID); err != nil {
+		t.Fatalf("insert cart item: %v", err)
+	}
+	idempotencyDigest := make([]byte, 32)
+	idempotencyDigest[0] = 2
+	var orderID string
+	if err := pool.QueryRow(ctx, `INSERT INTO demo_orders
+		(cart_id, idempotency_key_hash, currency, subtotal, total)
+		VALUES($1, $2, 'USD', 27.98, 27.98) RETURNING id`,
+		cartID, idempotencyDigest).Scan(&orderID); err != nil {
+		t.Fatalf("create demo order: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO demo_order_items
+		(order_id, product_id, variant_id, quantity, unit_price_snapshot, currency, product_title_snapshot, variant_title_snapshot)
+		VALUES($1, $2, $3, 2, 13.99, 'USD', 'Integration fixture', 'Black / Medium')`,
+		orderID, product.ID, variantID); err != nil {
+		t.Fatalf("insert immutable order item snapshot: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO inventory_reservations
+		(order_id, product_id, variant_id, quantity, expires_at)
+		VALUES($1, $2, $3, 2, now() + interval '15 minutes')`,
+		orderID, product.ID, variantID); err != nil {
+		t.Fatalf("create inventory reservation: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO demo_order_events(order_id, event_type, payload)
+		VALUES($1, 'demo_order_created', '{"source":"integration-test"}'::jsonb)`, orderID); err != nil {
+		t.Fatalf("append demo order event: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO demo_orders
+		(cart_id, idempotency_key_hash, currency, subtotal, total)
+		VALUES($1, $2, 'USD', 27.98, 27.98)`, cartID, idempotencyDigest); err == nil {
+		t.Fatal("duplicate cart idempotency key should be rejected")
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO cart_items
+		(cart_id, product_id, variant_id, quantity, unit_price_snapshot, currency, product_title_snapshot)
+		VALUES($1, $2, $3, 0, 13.99, 'USD', 'Invalid quantity')`,
+		cartID, product.ID, variantID); err == nil {
+		t.Fatal("cart quantity zero should be rejected")
+	}
+
 	// A failed item must roll back earlier writes in the same import batch.
 	valid := product
 	valid.ID = 987654322
