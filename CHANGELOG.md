@@ -240,3 +240,17 @@
 - Importer now transactionally upserts variant identity, SKU, title, price, stock, attributes and active state before synchronizing the GlobalCart Direct offer.
 - Added normalization and PostgreSQL integration coverage for variants delivered in the product snapshot.
 - The current DummyJSON source does not provide variant records; ingestion is optional and awaits an authorized supplier source. CI verification pending.
+
+
+### M08.2 source variant ingestion — CI verified (2026-11-02)
+- Extended the normalized catalog snapshot and Go importer contract to carry optional source variants.
+- Persisted variant source identity, SKU, title, price, stock, attributes and active state in the same import transaction as the parent product.
+- Added PostgreSQL integration coverage for variant creation, idempotent re-import, changed offer price/stock audit events and inactive-state synchronization.
+- Backend CI run `41354535515` passed all steps, including PostgreSQL-backed race tests, API/importer builds and Docker image build.
+
+### M08.3 supplier adapter contract — implementation in progress (2026-11-02)
+- Added a common adapter interface for fetching supplier-specific records and mapping them into the canonical catalog input.
+- Refactored DummyJSON and scheduled snapshot generation to use the shared ingestion boundary while retaining retry and last-known-good behavior.
+- Corrected variant de-duplication to use the same source/source-ID identity pair enforced by PostgreSQL.
+- Added synthetic supplier fixture coverage and dedicated Catalog CI for typecheck, tests and production build.
+- No real supplier feed is connected; current verification is pending the new Catalog CI run.
