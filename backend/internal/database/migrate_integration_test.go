@@ -400,6 +400,9 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if expiredReservationCount != 1 {
 		t.Fatalf("expired reservation rows = %d, want 1", expiredReservationCount)
 	}
+	if _, err := service.CancelOrder(ctx, attempts[winner].owner[:], attempts[winner].order.ID); !errors.Is(err, commerce.ErrOrderNotCancellable) {
+		t.Fatalf("cancelling expired order error = %v, want not cancellable", err)
+	}
 	expiredAgain, err := service.ExpirePendingOrders(ctx)
 	if err != nil {
 		t.Fatalf("repeat expiration cleanup: %v", err)
