@@ -145,6 +145,6 @@ test("supplier adapter rejects empty or wholly unmappable feeds", async () => {
   };
   await assert.rejects(
     () => loadCatalogFromSource(unmappableAdapter),
-    /no mappable product records/
+    /did not return any mappable product records/
   );
 });
