@@ -102,6 +102,7 @@ test("variant tuple identity cannot collide when source or source ID contains a 
 test("supplier adapter maps its own payload into the canonical variant contract", async () => {
   const adapter: CatalogSourceAdapter = {
     source: "Synthetic Supplier Fixture",
+    snapshotMode: "full",
     fetchRecords: async () => syntheticSupplierRecords,
     mapProduct: (record): CatalogSourceRecord | null => {
       if (!record || typeof record !== "object" || Array.isArray(record)) return null;
@@ -197,9 +198,42 @@ test("reports catalog completeness without treating product-only feeds as invali
   });
 });
 
+
+test("incremental feeds cannot replace a complete catalog snapshot", async () => {
+  let fetchCalls = 0;
+  const adapter: CatalogSourceAdapter = {
+    source: "Incremental Supplier Fixture",
+    snapshotMode: "incremental",
+    fetchRecords: async () => {
+      fetchCalls += 1;
+      return [{
+        id: 31,
+        title: "Changed record",
+        thumbnail: "https://cdn.example/changed.jpg",
+        price: 20,
+        stock: 3
+      }];
+    },
+    mapProduct: record => record && typeof record === "object" && !Array.isArray(record)
+      ? record as CatalogSourceRecord
+      : null
+  };
+
+  await assert.rejects(
+    () => loadCatalogFromSource(adapter, { requiredSnapshotMode: "full" }),
+    /incremental.*full.*required/
+  );
+  assert.equal(fetchCalls, 0, "mode mismatch must be rejected before fetching records");
+
+  const incrementalRecords = await loadCatalogFromSource(adapter);
+  assert.equal(incrementalRecords.length, 1, "incremental records may be normalized for a dedicated merger");
+  assert.equal(incrementalRecords[0].title, "Changed record");
+});
+
 test("supplier adapter rejects empty or wholly unmappable feeds", async () => {
   const emptyAdapter: CatalogSourceAdapter = {
     source: "Empty Fixture",
+    snapshotMode: "full",
     fetchRecords: async () => [],
     mapProduct: () => null
   };
@@ -210,6 +244,7 @@ test("supplier adapter rejects empty or wholly unmappable feeds", async () => {
 
   const unmappableAdapter: CatalogSourceAdapter = {
     source: "Unmappable Fixture",
+    snapshotMode: "full",
     fetchRecords: async () => [null, "not-a-product"],
     mapProduct: () => null
   };
