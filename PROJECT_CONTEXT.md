@@ -143,3 +143,9 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - `GET /api/v1/categories` is implemented with generated sqlc query and product counts.
 - PostgreSQL integration coverage exercises the generated category query after migrations/backfill. CI run 41302783939 passed sqlc generation, formatting, vet, unit/integration tests, API/importer builds and Docker image build.
 - Authentication/session/RBAC architecture is documented in `docs/SECURITY_AUTH_DESIGN.md` and ADR-010. No authentication code or user tables are implemented; implementation waits for owner approval of same-site HTTPS hosting, email delivery and secret management.
+
+
+### M04 catalog pagination — implementation in progress
+- Product list filtering now resolves normalized categories case-insensitively and ignores surrounding whitespace.
+- Added generated `CountProducts` query with matching search/category predicates; list response adds `total` while retaining `count` as current-page item count.
+- PostgreSQL integration test covers normalized category filter and count. CI verification pending.
