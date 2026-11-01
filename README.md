@@ -7,7 +7,7 @@
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no payment, inventory reservation, shipment, seller payout or refund is processed.
 
-## Current status — v0.2.3-dev · marketplace redesign
+## Current status — v0.2.2-dev · marketplace redesign
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -32,7 +32,7 @@ In progress / not yet claimed as complete:
 - Live Amazon product retrieval, price/stock synchronization and a production FX feed require authorized provider access.
 - Seller/admin workspaces, persistent order history and advanced search remain planned.
 - Expanded domain unit tests; accessibility and browser tests remain pending.
-- Manual responsive, accessibility and published deep-link QA; automated browser tests are not yet configured.
+- Visual/accessibility QA and browser tests; deployment is now successful.
 
 
 ## Demo boundaries
