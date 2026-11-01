@@ -172,4 +172,7 @@ func TestAllowedCORSOriginReceivesReadOnlyMethods(t *testing.T) {
 	if got := res.Header().Get("Access-Control-Allow-Methods"); got != "GET, OPTIONS" {
 		t.Fatalf("allow-methods = %q, want GET, OPTIONS", got)
 	}
+	if got := res.Header().Get("Access-Control-Allow-Headers"); got != "Content-Type" {
+		t.Fatalf("allow-headers = %q, want Content-Type only before auth exists", got)
+	}
 }
