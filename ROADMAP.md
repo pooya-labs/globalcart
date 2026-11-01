@@ -110,15 +110,15 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M04 — Backend and database platform
 - [ ] Owner enables Go runtime and approves separate API hosting.
 - [ ] Owner enables Python runtime or an approved worker runner.
-- [ ] Provision PostgreSQL and secure connection management.
-- [ ] Define ERD/schema for catalog, variants, users, roles, carts, orders and audit events.
-- [ ] Add versioned migrations and rollback strategy.
-- [ ] Build Go REST API with OpenAPI and request validation.
+- [x] Add local-only PostgreSQL 17 Docker Compose service with loopback-only port binding and persistent development volume.\n- [ ] Provision hosted PostgreSQL and production secret management after owner selects provider, region and budget.
+- [x] Define initial catalog schema with provenance, numeric constraints, JSONB images and category/search indexes.\n- [ ] Extend ERD/schema for variants, users, roles, carts, orders and audit events.
+- [x] Add embedded, versioned SQL migrations and transactional migration ledger for the initial catalog schema.\n- [ ] Define reviewed rollback/forward-fix policy for shared environments.
+- [x] Add Go REST API foundation, OpenAPI 3.1 contract, health/readiness probes, CORS allow-list and read-only catalog list/detail endpoints.\n- [ ] Expand request validation, API error contract and integration coverage.
 - [ ] Add sqlc typed query layer and parameterized SQL.
 - [ ] Design authentication/session and role-based authorization.
 - [ ] Add idempotent Python ingestion/translation workers.
 - [ ] Add Redis only for measured cache/queue requirements.
-- [ ] Integration tests for transactions, constraints and authorization.
+- [x] Add Go unit tests and backend CI for formatting, vet, race tests, builds and Docker image build.\n- [ ] Add PostgreSQL integration tests for transactions, constraints and authorization.
 
 ## M05 — Commerce simulation
 - [ ] Persistent demo cart and checkout draft.
