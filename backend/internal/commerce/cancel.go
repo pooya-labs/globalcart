@@ -56,6 +56,10 @@ func (s *Service) CancelOrder(ctx context.Context, ownerTokenHash []byte, orderI
 	if _, err := tx.Exec(ctx, `UPDATE demo_orders SET status='cancelled',updated_at=now() WHERE id=$1`, orderID); err != nil {
 		return Order{}, fmt.Errorf("cancel demo order: %w", err)
 	}
+	if _, err := tx.Exec(ctx, `UPDATE demo_vendor_orders SET status='cancelled',updated_at=now()
+		WHERE order_id=$1 AND status='awaiting_demo_payment'`, orderID); err != nil {
+		return Order{}, fmt.Errorf("cancel vendor child orders: %w", err)
+	}
 	if _, err := tx.Exec(ctx, `INSERT INTO demo_order_events(order_id,event_type,payload)
 		VALUES($1,'demo_order_cancelled','{"reason":"owner_requested"}'::jsonb)`, orderID); err != nil {
 		return Order{}, fmt.Errorf("append cancellation event: %w", err)
