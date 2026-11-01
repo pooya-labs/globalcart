@@ -28,7 +28,7 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
 	defer func() {
 		_, _ = lockConn.Exec(context.Background(), "SELECT pg_advisory_unlock($1)", migrationLockID)
 	}()
-	if _, err := pool.Exec(ctx, `CREATE TABLE IF NOT EXISTS schema_migrations (
+	if _, err := lockConn.Exec(ctx, `CREATE TABLE IF NOT EXISTS schema_migrations (
 		version TEXT PRIMARY KEY,
 		applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
 	)`); err != nil {
@@ -47,7 +47,7 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
 	sort.Strings(names)
 	for _, name := range names {
 		var exists bool
-		if err := pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM schema_migrations WHERE version=$1)", name).Scan(&exists); err != nil {
+		if err := lockConn.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM schema_migrations WHERE version=$1)", name).Scan(&exists); err != nil {
 			return err
 		}
 		if exists {
@@ -57,7 +57,7 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
 		if err != nil {
 			return err
 		}
-		tx, err := pool.Begin(ctx)
+		tx, err := lockConn.Begin(ctx)
 		if err != nil {
 			return err
 		}
