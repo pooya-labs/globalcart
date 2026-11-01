@@ -221,3 +221,10 @@
 - Reconciled roadmap and project context: M09.3 and M09.4 are CI-verified; M09.4.1 is the active regression-guard slice.
 
 - Tightened pre-auth CORS policy by no longer advertising the `Authorization` request header; added a regression assertion. Latest code CI verification pending.
+
+
+## 0.2.5-dev — 2026-11-02
+- Catalog imports now create/update the GlobalCart Direct base-product offer transactionally alongside product/category data.
+- Added append-only price and inventory audit events for initial offers and subsequent source changes; unchanged imports remain idempotent.
+- Added PostgreSQL integration coverage for initial, repeated and changed catalog imports. CI verification pending.
+- Verified public API regression guards and pre-auth CORS restrictions in Backend CI run `41353463006`.
