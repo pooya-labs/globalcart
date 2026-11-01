@@ -42,7 +42,7 @@ GlobalCart is an independent, high-fidelity marketplace portfolio simulation. Th
 Actions run 41294484252 passed dependency installation, TypeScript validation, unit tests, production build, Pages artifact upload and deployment:
 https://github.com/pooya16pg-spec/globalcart/actions/runs/41294484252
 
-This verification applies to the commit used by that run. Version 0.1.2 catalog pipeline changes require a new run before being called verified.
+This verification applies to the commit used by that run. Version 0.1.2 catalog pipeline is now verified in Actions run 41295039930.
 
 ## M01 status
 Storefront foundation, bilingual shell, search/filter/sort, quick view, favorites, recently viewed, browser-local cart and simulated checkout are implemented. GitHub Pages deployment is successful. Visual QA, accessibility and base-path/deep-link verification remain open.
@@ -54,7 +54,7 @@ Version 0.1.2 adds:
 - data/catalog.json: generated static snapshot.
 - GitHub Actions schedule and manual trigger.
 - Storefront initializes from snapshot and preserves it if live refresh fails.
-CI verification is pending.
+CI verification passed in Actions run 41295039930: the sync imported 100 products, TypeScript validation passed, all unit tests passed, production static export passed and Pages deployment succeeded. Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41295039930
 
 ## Target backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript.
@@ -69,7 +69,7 @@ CI verification is pending.
 GitHub Pages is static and cannot host a persistent Go API, Python worker or PostgreSQL database. M04 is gated on owner enabling Go/Python runtimes and approving separate API/database hosting. Do not claim static frontend has backend persistence.
 
 ## Immediate next actions
-1. Verify the new 0.1.2 catalog sync workflow and production build.
+1. Continue M02 with an approved server-side translation provider; translation is not implemented yet.
 2. Perform visual/mobile/accessibility QA on the published site.
 3. Add an approved translation provider; keep credentials server-side.
 4. Continue M03 traceable pricing and product details.
