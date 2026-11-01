@@ -276,15 +276,15 @@ test("validates the source mapping rejection threshold", async () => {
 test("combines caller cancellation with a request timeout", async () => {
   const originalFetch = globalThis.fetch;
   const controller = new AbortController();
-  let requestSignal: AbortSignal | null = null;
+  const observed: { signal?: AbortSignal | null } = {};
   globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
-    requestSignal = init?.signal ?? null;
+    observed.signal = init?.signal ?? null;
     return { ok: true, json: async () => ({ products: [{ id: 41 }] }) } as Response;
   }) as typeof fetch;
   try {
     await dummyJsonCatalogAdapter.fetchRecords(controller.signal);
-    assert.ok(requestSignal instanceof AbortSignal);
-    assert.notEqual(requestSignal, controller.signal, "request deadline must remain active when caller supplies a signal");
+    assert.ok(observed.signal instanceof AbortSignal);
+    assert.notEqual(observed.signal, controller.signal, "request deadline must remain active when caller supplies a signal");
   } finally {
     globalThis.fetch = originalFetch;
   }
