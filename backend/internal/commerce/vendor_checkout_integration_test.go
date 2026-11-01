@@ -106,6 +106,16 @@ func TestVendorSplitCheckoutAndCouponAllocation(t *testing.T) {
 	if err != nil || !replay.Replayed || replay.ID != order.ID {
 		t.Fatalf("idempotent replay=%+v err=%v", replay, err)
 	}
+	detail, err := svc.GetOrder(ctx, owner[:], order.ID)
+	if err != nil { t.Fatalf("read split order: %v", err) }
+	if len(detail.VendorOrders) != 2 || len(detail.Items) != 2 {
+		t.Fatalf("order detail child count=%d item count=%d", len(detail.VendorOrders), len(detail.Items))
+	}
+	for _, item := range detail.Items {
+		if item.VendorID == nil || item.VendorOrderID == nil || item.VendorProductID == nil {
+			t.Fatalf("vendor ownership missing from order item: %+v", item)
+		}
+	}
 	var legacyStock int32
 	if err = pool.QueryRow(ctx, "SELECT stock FROM products WHERE id=$1", productID).Scan(&legacyStock); err != nil {
 		t.Fatalf("read legacy stock: %v", err)
