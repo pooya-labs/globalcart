@@ -44,3 +44,16 @@ export type CatalogResult = {
   importedAt: string;
   fallback: boolean;
 };
+
+/** Canonical-but-untrusted product-shaped record emitted by a source mapper. */
+export type CatalogSourceRecord = Record<string, unknown>;
+
+/**
+ * Supplier-specific adapters fetch their own payload shape and map each
+ * record into the shared catalog input contract before normalization.
+ */
+export type CatalogSourceAdapter = {
+  readonly source: string;
+  fetchRecords(signal?: AbortSignal): Promise<unknown[]>;
+  mapProduct(record: unknown): CatalogSourceRecord | null;
+};
