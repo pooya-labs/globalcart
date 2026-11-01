@@ -197,6 +197,12 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if changedVariantPriceEvents != 2 || changedVariantInventoryEvents != 2 {
 		t.Fatalf("changed variant import audit counts: price=%d inventory=%d, want 2 each", changedVariantPriceEvents, changedVariantInventoryEvents)
 	}
+	if _, err := pool.Exec(ctx, "UPDATE product_variants SET is_active=true WHERE id=$1", variantID); err != nil {
+		t.Fatalf("restore active variant fixture: %v", err)
+	}
+	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
+		t.Fatalf("restore active platform variant offer: %v", err)
+	}
 	var secondVendorID int64
 	if err := pool.QueryRow(ctx, `INSERT INTO vendors(slug,display_name,status)
 		VALUES('integration-seller','Integration Seller','active') RETURNING id`).Scan(&secondVendorID); err != nil {
