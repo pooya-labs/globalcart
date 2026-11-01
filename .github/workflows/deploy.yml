@@ -29,6 +29,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Rebase the catalog-only change on the latest main before pushing.
+          # This prevents scheduled catalog commits from racing with UI commits.
+          git fetch origin main
+          git reset --soft origin/main
           git add data/catalog.json
           if git diff --cached --quiet; then
             echo "Catalog snapshot is unchanged."
