@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.8 — Authorized supplier onboarding (blocked pending owner-approved source/feed)  
+**Active stage:** M08.8 — Feed mapping quality guard (implementation in progress)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -494,3 +494,17 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 
 
 **M08.7 verification:** Catalog CI PR run `41356770768` and Backend CI PR run `41356770801` both passed on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`. TypeScript validation, unit tests, production build, sqlc generation, Go vet, PostgreSQL race tests, API/importer builds and Docker image build all succeeded.
+
+
+## M08.8 — Feed mapping quality guard
+- [x] Reject a feed when more than 20% of raw records fail source-specific mapping by default.
+- [x] Allow a source-specific threshold override; validate finite values in [0, 1).
+- [x] Preserve empty-feed and zero-valid-product rejection behavior.
+- [ ] Verify Catalog CI on the current PR head.
+- [ ] Keep supplier onboarding blocked until the owner approves a named source and its API/feed/data reuse terms.
+
+## M08.9 — Authorized supplier onboarding (blocked)
+- Select a named supplier and confirm API/feed access rights and catalog/image/price reuse terms.
+- Review authentication, rate limits, pagination, full-vs-delta semantics, stable product/variant identity and retirement signals.
+- Implement only the approved adapter and source-specific failure/identity tests.
+- Keep credentials server-side; do not scrape or invent live inventory.
