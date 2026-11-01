@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.4 catalog snapshot continuity and quality diagnostics (CI verification pending)  
+**Active stage:** M08.5 authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -338,3 +338,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Quality reporting is diagnostic only: product-only sources, zero-stock items, missing descriptions and uncategorized products are reported but not automatically deleted or fabricated.
 - The continuity guard is intentionally attached to the current full-snapshot sync only. Future supplier adapters must distinguish complete snapshots from incremental/delta feeds before applying this policy.
 - Catalog CI for the current implementation is pending. M08.5 real supplier onboarding remains blocked until a named, authorized supplier/feed and usage rights are approved.
+
+
+## M08.4 final verification — 2026-11-02
+- Catalog CI push run `41355552153` passed on code head `c3e5b1624223333f8db61af407fa43308d7eaf06`.
+- Catalog CI PR run `41355595494` passed on PR head `0df4c5485e4a2eb391b61e13c52047ed4631942a`: TypeScript validation, all catalog/domain unit tests and production build succeeded.
+- Backend CI PR run `41355595650` passed on the same PR head: SQL generation, Go formatting/module checks, vet, PostgreSQL tests, API/importer builds, Docker image build and container cleanup all succeeded.
+- M08.4 is complete. The active roadmap stage is M08.5, authorized supplier onboarding; this is blocked on the owner selecting an approved supplier/feed and confirming its usage rights.
