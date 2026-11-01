@@ -19,6 +19,7 @@ const categoryNames:Record<string,{fa:string;en:string}> = {
   groceries:{fa:"خوراکی",en:"Groceries"},
   laptops:{fa:"لپ‌تاپ",en:"Laptops"},
   smartphones:{fa:"موبایل",en:"Smartphones"},
+  "mens-watches":{fa:"ساعت",en:"Watches"},
   electronics:{fa:"الکترونیک",en:"Electronics"},
   "mobile-accessories":{fa:"لوازم جانبی",en:"Accessories"},
   "home-decoration":{fa:"دکوراسیون",en:"Home decoration"},
