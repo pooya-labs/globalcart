@@ -1,4 +1,6 @@
 -- Demo commerce persistence primitives. No public write API is enabled by this migration.
+CREATE UNIQUE INDEX product_variants_id_product_uidx ON product_variants(id, product_id);
+
 CREATE TABLE carts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_token_hash BYTEA NOT NULL UNIQUE CHECK (octet_length(owner_token_hash) = 32),
