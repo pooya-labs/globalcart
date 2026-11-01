@@ -199,7 +199,6 @@ func (s *Service) Checkout(ctx context.Context, ownerTokenHash, idempotencyHash 
 	return Order{ID: orderID, Status: "awaiting_demo_payment", Currency: currency, Total: total}, nil
 }
 
-
 // ExpirePendingOrders releases every active reservation belonging to an order
 // whose reservation window has elapsed. The operation is safe to run repeatedly.
 func (s *Service) ExpirePendingOrders(ctx context.Context) (int64, error) {
@@ -226,6 +225,8 @@ func (s *Service) ExpirePendingOrders(ctx context.Context) (int64, error) {
 		RETURNING id
 	)
 	SELECT count(*)::bigint FROM expired_orders`).Scan(&expired)
-	if err != nil { return 0, fmt.Errorf("expire demo orders and reservations: %w", err) }
+	if err != nil {
+		return 0, fmt.Errorf("expire demo orders and reservations: %w", err)
+	}
 	return expired, nil
 }
