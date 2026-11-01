@@ -113,11 +113,11 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add local-only PostgreSQL 17 Docker Compose service with loopback-only port binding and persistent development volume.
 - [ ] Provision hosted PostgreSQL and production secret management after owner selects provider, region and budget.
 - [x] Define initial catalog schema with provenance, numeric constraints, JSONB images and category/search indexes.
-- [ ] Extend ERD/schema for variants, users, roles, carts, orders and audit events.
+- [x] Extend catalog schema with normalized categories, product-to-category relationships and constrained product variants; users, roles, carts, orders and audit events remain pending.
 - [x] Add embedded, versioned SQL migrations and transactional migration ledger for the initial catalog schema.
 - [ ] Define reviewed rollback/forward-fix policy for shared environments.
 - [x] Add Go REST API foundation, OpenAPI 3.1 contract, health/readiness probes, CORS allow-list and read-only catalog list/detail endpoints.
-- [ ] Expand request validation, API error contract and integration coverage.
+- [ ] Expand request validation and API error contract.\n- [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
 - [ ] Add sqlc typed query layer and parameterized SQL.
 - [ ] Design authentication/session and role-based authorization.
 - [ ] Add idempotent Python ingestion/translation workers.
@@ -194,3 +194,11 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [ ] Manual keyboard, screen-reader and browser QA remains open.
 
 - [x] Focus is moved into each modal on open, trapped while active and returned to the invoking control on close.
+
+
+### M04 catalog schema extension — 2026-11-01
+- [x] Add migration 002 for normalized category records, product category foreign keys and product variants.
+- [x] Backfill categories from existing product rows without changing the existing catalog API response shape.
+- [x] Enforce non-negative variant price/stock, object-shaped JSONB attributes, product ownership, optional unique SKU and source identity.
+- [x] Extend PostgreSQL integration tests to verify category backfill and variant attribute persistence.
+- [ ] Run the backend CI for this migration before marking the slice verified.
