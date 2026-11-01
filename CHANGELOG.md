@@ -196,3 +196,9 @@
 - Kept unknown child IDs and cross-owner access indistinguishable via `ErrOrderNotFound`.
 - Added PostgreSQL integration coverage for child metadata, parent linkage, item snapshots, exact totals and cross-owner isolation.
 - Backend CI verification is pending; see PR #1 before treating this slice as complete.
+
+
+### M09.3 CI correction — 2026-11-02
+- Inspected Backend CI run 41352752412 and identified the exact `go vet` failure: an unused `time` import in `backend/internal/commerce/vendor_orders.go`.
+- Removed the unused import in commit `cb0f20816afdbf3f2dc23628e8a5bd4b7d1bce46`.
+- The original failed run predates the correction. A fresh CI run is still required; M09.3 remains unverified until it passes.
