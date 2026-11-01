@@ -14,7 +14,9 @@ async function fetchDummyJsonRecords(signal?: AbortSignal): Promise<unknown[]> {
     try {
       const response = await fetch(ENDPOINT, {
         headers: { accept: "application/json" },
-        signal: signal ?? AbortSignal.timeout(20_000),
+        signal: signal
+          ? AbortSignal.any([signal, AbortSignal.timeout(20_000)])
+          : AbortSignal.timeout(20_000),
         next: { revalidate: 3600 }
       });
       if (!response.ok) throw new Error("DummyJSON catalog request failed: " + response.status);
