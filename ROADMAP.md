@@ -244,4 +244,7 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [x] Expose `GET /api/v1/categories` as a read-only endpoint.
 - [x] Add OpenAPI documentation and response serialization coverage.
 - [x] Extend PostgreSQL integration tests to exercise the generated category query against migrated schema.
-- [ ] Verify category endpoint and integration test in CI.
+- [x] Verify category query and PostgreSQL integration test in CI.
+
+
+Category API CI verification: run 41302783939 passed sqlc generation, formatting, vet, unit and PostgreSQL integration tests, API/importer builds, and Docker image build.
