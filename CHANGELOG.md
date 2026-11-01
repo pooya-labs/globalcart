@@ -293,3 +293,14 @@
 - Added PostgreSQL integration coverage for a source that previously supplied variants but later sends a product-only snapshot.
 - The regression test asserts that existing product variants are retained, platform offer values/status remain unchanged, independent merchant offers are untouched, and no spurious audit events are written.
 - No automatic variant deletion, stock-zeroing or offer archival behavior was added. Backend CI verification is pending.
+
+
+### M08.5 variant omission and inventory retention — CI verified (2026-11-02)
+- Added PostgreSQL integration coverage for a source that later sends a product-only snapshot after previously supplying variants.
+- Verified that existing variants and platform offers are retained; an independent merchant offer is unchanged and no spurious audit events are appended.
+- Backend CI PR run [41356201201](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356201201) passed SQL generation, Go vet, race-enabled PostgreSQL tests, API/importer builds, Docker image build and cleanup.
+
+### M08.6 variant source identity ownership — implementation in progress (2026-11-02)
+- Added a PostgreSQL regression test for attempted reassignment of a supplier's existing variant source identity to a different product.
+- The test checks that the whole multi-product import batch rolls back and the original variant owner, SKU, price and stock remain intact.
+- Backend CI verification is pending.
