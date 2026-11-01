@@ -219,3 +219,5 @@
 - Added HTTP handler regression tests to keep seller order/product routes, cart writes and checkout writes unavailable until verified identity and authorization exist.
 - Added tests that catalog routes reject mutation methods and configured CORS origins receive only read-only methods. Backend CI verification pending.
 - Reconciled roadmap and project context: M09.3 and M09.4 are CI-verified; M09.4.1 is the active regression-guard slice.
+
+- Tightened pre-auth CORS policy by no longer advertising the `Authorization` request header; added a regression assertion. Latest code CI verification pending.
