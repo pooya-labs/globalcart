@@ -79,6 +79,26 @@ test("variant identity is scoped by source, matching the database unique key", (
   assert.deepEqual(result.variants?.map(variant => variant.sku), ["A-1", "B-1", "P-1"]);
 });
 
+
+test("variant tuple identity cannot collide when source or source ID contains a colon", () => {
+  const result = normalizeProduct({
+    id: 10,
+    title: "Collision-resistant identity",
+    thumbnail: "https://cdn.example/item.jpg",
+    variants: [
+      { source: "supplier:one", sourceId: "id", sku: "FIRST" },
+      { source: "supplier", sourceId: "one:id", sku: "SECOND" }
+    ]
+  }, "catalog-parent", "now");
+
+  assert.ok(result);
+  assert.equal(result.variants?.length, 2);
+  assert.deepEqual(result.variants?.map(variant => [variant.source, variant.sourceId]), [
+    ["supplier:one", "id"],
+    ["supplier", "one:id"]
+  ]);
+});
+
 test("supplier adapter maps its own payload into the canonical variant contract", async () => {
   const adapter: CatalogSourceAdapter = {
     source: "Synthetic Supplier Fixture",
