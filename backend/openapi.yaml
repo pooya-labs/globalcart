@@ -1,0 +1,53 @@
+openapi: 3.1.0
+info:
+  title: GlobalCart API
+  version: 0.1.0
+  description: Initial read-only catalog API for the GlobalCart portfolio demo.
+servers:
+  - url: http://localhost:8080
+paths:
+  /healthz:
+    get:
+      summary: Liveness probe
+      responses:
+        '200':
+          description: API process is alive
+  /readyz:
+    get:
+      summary: Readiness probe
+      responses:
+        '200':
+          description: Database is reachable
+        '503':
+          description: Database is unavailable
+  /api/v1/products:
+    get:
+      summary: List catalog products
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 24 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: Product page
+  /api/v1/products/{id}:
+    get:
+      summary: Get a catalog product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64, minimum: 1 }
+      responses:
+        '200': { description: Product }
+        '400': { description: Invalid product identifier }
+        '404': { description: Product not found }
