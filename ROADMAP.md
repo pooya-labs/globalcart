@@ -349,3 +349,14 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Prevent legacy checkout from mispricing or reserving vendor cart lines.
 - [ ] Implement atomic split checkout, per-vendor reservations and coupon allocation.
 - [ ] Propagate cancellation, expiry and simulated payment state to vendor child orders.
+
+
+### M09.2 — Vendor split checkout
+- [x] Add internal atomic vendor checkout with one parent order and one child order per vendor.
+- [x] Reserve inventory against vendor offers, without mutating legacy catalog stock.
+- [x] Revalidate vendor, offer, variant, currency and available stock under deterministic row locks.
+- [x] Apply coupon redemption once at parent level and allocate discounts across child orders with cent-exact reconciliation.
+- [x] Propagate simulated payment, cancellation and reservation expiry to child order states.
+- [x] Add PostgreSQL integration coverage for split totals, idempotency, coupon allocation, simulated payment and competing checkouts.
+- [ ] Add split-order detail reads and vendor-specific internal query methods.
+- [ ] Add seller authorization/membership model before any seller-facing APIs.
