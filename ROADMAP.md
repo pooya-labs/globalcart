@@ -2,7 +2,7 @@
 
 > The single source of truth. A stage is complete only after implementation and verification.
 
-**Current release:** 0.2.1-dev  
+**Current release:** 0.2.2-dev  
 **Active stage:** M01.5 — Marketplace redesign and UX foundation  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
@@ -69,7 +69,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Pause translation and remove it from the deployment pipeline.
 - [x] Rebuild the storefront shell around category-first discovery, prominent search and shopping utilities.
 - [x] Add a responsive category mega-menu generated from the live catalog, with product counts and direct category filtering.
-- [ ] Add marketplace-grade home modules: curated collections, trending products and richer deal rails.
+- [x] Add data-driven homepage modules for top discounts, top-rated products and fresh discoveries.
 - [x] Add Amazon product-link intake with domain/ASIN validation and a local-only demo request queue.
 - [x] Add marketplace service shortcuts and a transparent FAQ for sourcing, support and demo boundaries.
 - [x] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
