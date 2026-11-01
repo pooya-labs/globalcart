@@ -92,4 +92,14 @@ func TestVendorServiceTransactions(t *testing.T) {
 	if err := svc.UpdateVendorPrice(ctx, vendor.ID+999999, offer.ID, "17.00"); !errors.Is(err, commerce.ErrVendorProductNotFound) {
 		t.Fatalf("cross-vendor price update error=%v, want not found", err)
 	}
+	if _, err := svc.GetVendorProduct(ctx, vendor.ID+999999, offer.ID); !errors.Is(err, commerce.ErrVendorProductNotFound) {
+		t.Fatalf("cross-vendor offer read error=%v, want not found", err)
+	}
+	if _, err := svc.AdjustVendorInventory(ctx, vendor.ID+999999, offer.ID, 1, "restock", "cross-vendor"); !errors.Is(err, commerce.ErrVendorProductNotFound) {
+		t.Fatalf("cross-vendor inventory adjustment error=%v, want not found", err)
+	}
+	got, err = svc.GetVendorProduct(ctx, vendor.ID, offer.ID)
+	if err != nil || got.Stock != 7 {
+		t.Fatalf("cross-vendor attempt changed owner stock: offer=%+v err=%v, want stock 7", got, err)
+	}
 }
