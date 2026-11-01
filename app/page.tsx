@@ -14,6 +14,7 @@ type Product = {
   id: number; title: string; description: string; category: string; price: number;
   discountPercentage: number; rating: number; stock: number; brand?: string;
   thumbnail: string; images?: string[]; source?: string;
+  localization?: { locale: "fa"; status: "translated" | "error"; fields: { title: string; description: string; category: string; brand: string } | null };
 };
 type CartLine = { product: Product; quantity: number };
 type Locale = "fa" | "en";
@@ -125,7 +126,7 @@ export default function Home() {
           id:p.id,title:p.title,description:p.description,category:p.category,
           price:p.price,discountPercentage:p.discountPercentage,rating:p.rating,
           stock:p.stock,brand:p.brand,thumbnail:p.thumbnail,images:p.images,
-          source:p.source
+          source:p.source,localization:snapshotProducts.find(saved=>saved.id===p.id)?.localization
         }));
         setProducts(mapped);
         setUsingFallback(false);
@@ -160,7 +161,11 @@ export default function Home() {
   },[hydrated,cart,favorites,recent,rate]);
 
   const filtered=useMemo(()=>{
-    let list=products.filter(p=>{
+    const displayProducts=products.map(p=>{
+      const translation=locale==="fa"&&p.localization?.status==="translated"?p.localization.fields:null;
+      return translation?{...p,title:translation.title,description:translation.description,category:translation.category,brand:translation.brand}:p;
+    });
+    let list=displayProducts.filter(p=>{
       const text=(p.title+" "+p.description+" "+(p.brand||"")+" "+p.category).toLocaleLowerCase();
       return (category==="all"||p.category===category)&&text.includes(query.toLocaleLowerCase())&&p.price>=minPrice&&p.price<=maxPrice;
     });
