@@ -1,9 +1,11 @@
 import { normalizeCatalog } from "./normalize";
-import type { CatalogProduct, CatalogSourceAdapter, CatalogSourceRecord } from "./types";
+import type { CatalogProduct, CatalogSnapshotMode, CatalogSourceAdapter, CatalogSourceRecord } from "./types";
 
 export type CatalogImportOptions = {
   signal?: AbortSignal;
   importedAt?: string;
+  /** Reject a feed unless it declares the requested completeness semantics. */
+  requiredSnapshotMode?: CatalogSnapshotMode;
 };
 
 /**
@@ -19,6 +21,12 @@ export async function loadCatalogFromSource(
 ): Promise<CatalogProduct[]> {
   const source = adapter.source.trim();
   if (!source) throw new Error("Catalog source adapter requires a non-empty source name");
+
+  if (options.requiredSnapshotMode && adapter.snapshotMode !== options.requiredSnapshotMode) {
+    throw new Error(
+      `${source} feed mode is '${adapter.snapshotMode}', but '${options.requiredSnapshotMode}' is required`
+    );
+  }
 
   const records = await adapter.fetchRecords(options.signal);
   if (!Array.isArray(records) || records.length === 0) {
