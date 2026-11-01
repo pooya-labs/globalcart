@@ -258,3 +258,5 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added PostgreSQL integration assertions proving a mismatched vendor scope cannot read an offer, update its price or adjust its stock; the owning vendor's stock is asserted unchanged.
 - Implementation commit: `e18a01d1a9414520334ceb312c2207990ccc71d5`.
 - Roadmap updated to show the cross-vendor isolation slice implemented; CI verification is pending.
+
+- Security guardrail added in `docs/SECURITY_AUTH_DESIGN.md`: internal `vendorID` parameters are selectors, not caller authorization; seller operations must not be exposed as HTTP routes until the server resolves a verified session and active seller membership. Roadmap records this design checkpoint.
