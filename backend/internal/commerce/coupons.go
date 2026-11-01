@@ -147,3 +147,10 @@ func (s *Service) RemoveCoupon(ctx context.Context, ownerTokenHash []byte) error
 	}
 	return nil
 }
+
+func nullableCouponID(id pgtype.Int8) any {
+	if !id.Valid {
+		return nil
+	}
+	return id.Int64
+}
