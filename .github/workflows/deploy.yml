@@ -25,11 +25,11 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Refresh static catalog snapshot
         run: npm run catalog:sync
-      - name: Translate catalog to Persian (optional; requires GEMINI_API_KEY secret)
+      - name: Translate catalog to Persian (optional Google Apps Script bridge)
         run: npm run catalog:translate
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-2.5-flash
+          GOOGLE_TRANSLATE_ENDPOINT: ${{ secrets.GOOGLE_TRANSLATE_ENDPOINT }}
+          GOOGLE_TRANSLATE_TOKEN: ${{ secrets.GOOGLE_TRANSLATE_TOKEN }}
       - name: Persist refreshed catalog and translation cache
         run: |
           git config user.name "github-actions[bot]"
