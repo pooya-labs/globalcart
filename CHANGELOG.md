@@ -140,3 +140,10 @@
 - Added an internal Go transaction service for demo checkout with canonical catalog revalidation, row-level stock locks, expiring reservations, immutable order snapshots and idempotent replay.
 - Added PostgreSQL integration coverage for competing carts, replay and idempotent reservation expiry; CI run 41346127244 passed.
 - Service is not exposed as an HTTP endpoint; no real payments or live stock adjustments are performed.
+
+
+### Guest cart lifecycle — 2026-11-01
+- Added internal guest cart creation, item add/increment, quantity update, item removal and cart retrieval.
+- Enforced digest-only guest capability inputs, per-cart transactional locking, canonical catalog price/title/stock reads and bounded quantities.
+- Added PostgreSQL integration tests for lifecycle operations, variants, stock limits and expiry.
+- Verified by CI push run 41346723656; no public cart endpoints or browser cookie flow enabled.
