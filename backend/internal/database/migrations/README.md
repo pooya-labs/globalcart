@@ -15,3 +15,5 @@ Rules:
 
 
 Migration 003 adds demo-only carts, checkout order snapshots, idempotency digests, temporary inventory reservations and order events. It is schema scaffolding only: do not expose write endpoints until the identity/deployment gates and the transaction protocol in `docs/COMMERCE_DESIGN.md` are satisfied. Never store raw cart capabilities or idempotency keys.
+
+Migration 007 adds the missing PostgreSQL upper bound for product ratings (`rating <= 5`). This matches the canonical catalog domain and the snapshot validator; keep the application and database limits aligned.

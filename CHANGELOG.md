@@ -372,3 +372,9 @@
 - Catalog CI PR run [41362606331](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606331), Catalog CI push run [41362602994](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362602994), and Backend CI PR run [41362606267](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606267) passed on implementation commit `e9d864f6bdbf0013137929e02b6258007200db29`.
 
 - Refinement: validate the newly built snapshot before writing it and reject duplicate non-empty variant SKUs, matching the PostgreSQL partial unique index.
+
+
+### M08.8.5 PostgreSQL rating domain constraint — implementation (2026-11-02)
+- Added migration 007 enforcing the canonical maximum product rating of 5 at the database boundary.
+- Added a PostgreSQL batch-rollback regression for an out-of-range 5.01 rating.
+- Backend CI verification is pending.

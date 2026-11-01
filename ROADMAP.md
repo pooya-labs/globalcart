@@ -564,3 +564,11 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on implementation commit `e9d864f6bdbf0013137929e02b6258007200db29`:** Catalog CI PR run [41362606331](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606331), Catalog CI push run [41362602994](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362602994), and Backend CI PR run [41362606267](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606267) all succeeded.
 
 **Safety note:** validation mirrors the PostgreSQL identity and numeric constraints plus the catalog's 0–5 rating domain; it rejects a snapshot rather than mutating, deduplicating or fabricating supplier data.
+
+
+## M08.8.5 — PostgreSQL rating domain constraint (implementation)
+- [x] Add a forward-only migration enforcing `products.rating <= 5` in PostgreSQL, preserving the existing non-negative constraint.
+- [x] Add a PostgreSQL integration regression proving an out-of-range 5.01 rating aborts the entire import batch, including earlier valid rows.
+- [ ] Verify Backend CI, including migration application, PostgreSQL integration tests and Docker build, on the final branch head.
+
+**Safety note:** this is a tightening of the existing canonical rating domain; it does not rewrite existing rows or fabricate rating values.

@@ -735,6 +735,25 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if exists {
 		t.Fatal("valid row from failed batch should have been rolled back")
 	}
+
+	// The database must enforce the canonical 0–5 rating domain independently
+	// of the snapshot loader and reject a rating above five.
+	validRating := product
+	validRating.ID = 987654324
+	validRating.SourceID = "fixture-rating-valid"
+	invalidRating := product
+	invalidRating.ID = 987654325
+	invalidRating.SourceID = "fixture-rating-invalid"
+	invalidRating.Rating = 5.01
+	if err := UpsertProducts(ctx, pool, []catalog.Product{validRating, invalidRating}); err == nil {
+		t.Fatal("expected PostgreSQL rating upper-bound constraint to reject rating above five")
+	}
+	if err := pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM products WHERE id=$1)", validRating.ID).Scan(&exists); err != nil {
+		t.Fatalf("check rating batch rollback: %v", err)
+	}
+	if exists {
+		t.Fatal("valid product from a batch with an out-of-range rating should have been rolled back")
+	}
 }
 
 func TestCatalogImportSynchronizesPlatformOfferIdempotently(t *testing.T) {

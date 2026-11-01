@@ -447,3 +447,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 - The shared `assertCatalogSnapshot` contract runs before atomic publication as well as when reading the previous snapshot, so newly mapped invalid data is never written as the next last-known-good file.
 - Non-empty trimmed variant SKUs are unique across the full snapshot, matching the PostgreSQL unique SKU index in addition to source-identity uniqueness.
+
+
+## M08.8.5 — PostgreSQL rating domain constraint (implementation, 2026-11-02)
+- Added migration 007 with a database-level `rating <= 5` check so direct importer/API writes cannot bypass the canonical snapshot rating rule.
+- Added PostgreSQL integration coverage using rating 5.01 in a multi-product import batch; the test asserts the earlier valid product is rolled back too.
+- The migration is additive and forward-only; it does not rewrite existing ratings.
+- Backend CI verification is pending.
