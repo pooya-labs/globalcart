@@ -252,3 +252,9 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Authentication/session/RBAC remains design-only. `docs/SECURITY_AUTH_DESIGN.md` requires a custom same-site HTTPS frontend/API origin, approved email delivery and secret management before identity endpoints or browser cookie flows are implemented.
 - Next safe engineering slice: audit vendor-scoped service boundaries and define/test an internal authorization seam without creating public seller APIs or inventing seller identity.
 - No cloud hosting, paid services, real payments, production secrets or deployment were enabled.
+
+
+## M09.4 progress — 2026-11-02
+- Added PostgreSQL integration assertions proving a mismatched vendor scope cannot read an offer, update its price or adjust its stock; the owning vendor's stock is asserted unchanged.
+- Implementation commit: `e18a01d1a9414520334ceb312c2207990ccc71d5`.
+- Roadmap updated to show the cross-vendor isolation slice implemented; CI verification is pending.
