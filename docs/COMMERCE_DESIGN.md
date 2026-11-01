@@ -68,3 +68,6 @@ No real payment gateway, card/bank data, order fulfillment, shipment, refund, se
 
 ## 8. Implemented service boundary
 The internal Go service at `backend/internal/commerce/checkout.go` implements the checkout transaction above. It accepts only 32-byte owner/idempotency digests, locks the cart, checks idempotent replay before lifecycle checks, locks catalog stock rows in deterministic cart-item order, reads canonical price/title/stock, subtracts unexpired reservations, and atomically writes order snapshots, reservation rows and an event. It uses PostgreSQL time for cart expiry. It is intentionally not registered with the HTTP router. PostgreSQL integration tests cover stock contention and replay; CI run 41345901209 passed.
+
+
+The service also provides `ExpirePendingOrders`, an idempotent database operation that marks awaiting-demo-payment orders expired when an active reservation deadline passes, transitions their active reservations to `expired`, and appends a timeout event. It does not alter imported product/variant stock.
