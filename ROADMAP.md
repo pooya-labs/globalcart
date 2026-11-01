@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.4 — Seller authorization boundary and vendor ownership hardening  
+**Active stage:** M09.5 — Seller membership implementation readiness (blocked on deployment prerequisites)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -375,3 +375,16 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Remove the unused import in commit `cb0f20816afdbf3f2dc23628e8a5bd4b7d1bce46`.
 - [ ] Obtain a fresh CI run for the corrected branch head; the failed run tested the previous commit and does not verify this fix.
 - [ ] Only after CI passes, mark M09.3 complete and proceed to seller membership/auth implementation planning.
+
+
+## M09.4 — Seller authorization boundary and vendor ownership hardening — CI verified
+- [x] Add wrong-vendor negative integration checks for offer read, price update and inventory adjustment.
+- [x] Verify a foreign vendor scope cannot mutate the actual owner's stock.
+- [x] Document that `vendorID` is an internal selector, not caller authorization; seller operations must not be exposed over HTTP until verified session + active membership resolution exists.
+- [x] Backend CI run `41353137589` on code commit `e18a01d` passed: SQL generation, formatting, `go vet`, race-enabled tests, API/importer builds and Docker image build.
+
+## M09.5 — Seller membership implementation readiness (blocked)
+- [ ] Select and approve custom frontend domain + same-site HTTPS API origin.
+- [ ] Approve runtime/hosting, region, budget and secret-management approach.
+- [ ] Select and approve email delivery provider before verification/reset flows.
+- [ ] Then implement users, seller memberships, role grants, sessions, CSRF and audit events according to `docs/SECURITY_AUTH_DESIGN.md`.
