@@ -210,3 +210,6 @@
 - Authentication and seller RBAC remain gated by same-site HTTPS, approved email delivery and secret-management prerequisites; no public seller endpoints were added.
 
 - Added PostgreSQL integration coverage for cross-vendor offer reads, price updates and inventory adjustments; verifies a foreign vendor scope cannot mutate the owning vendor's stock. CI verification pending.
+
+- M09.4 cross-vendor isolation tests passed Backend CI run `41353137589` on code commit `e18a01d`; the full workflow including Docker image build succeeded.
+- Documented the interim seller-service boundary: a vendor ID is not caller authorization and public seller routes remain disabled until verified sessions and active memberships are enforced.
