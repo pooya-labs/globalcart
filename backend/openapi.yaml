@@ -54,6 +54,19 @@ paths:
         '400': { description: Invalid product identifier }
         '404': { description: Product not found }
 
+  /api/v1/products/{id}/variants:
+    get:
+      summary: List active variants for a product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64, minimum: 1 }
+      responses:
+        '200': { description: Active product variants }
+        '400': { description: Invalid product identifier }
+        '404': { description: Product not found }
+
 components:
   schemas:
     ApiError:
