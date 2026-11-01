@@ -27,11 +27,12 @@ type CartItem struct {
 }
 
 type Cart struct {
-	ID        string
-	Status    string
-	Currency  string
-	ExpiresAt time.Time
-	Items     []CartItem
+	ID            string
+	Status        string
+	Currency      string
+	ExpiresAt     time.Time
+	CouponApplied bool
+	Items          []CartItem
 }
 
 func (s *Service) CreateCart(ctx context.Context, ownerTokenHash []byte, currency string, ttl time.Duration) (Cart, error) {
@@ -274,8 +275,9 @@ func (s *Service) GetCart(ctx context.Context, ownerTokenHash []byte) (Cart, err
 		return Cart{}, errors.New("cart capability digest must be 32 bytes")
 	}
 	var cart Cart
-	err := s.pool.QueryRow(ctx, `SELECT id::text,status,currency,expires_at FROM carts WHERE owner_token_hash=$1`, ownerTokenHash).
-		Scan(&cart.ID, &cart.Status, &cart.Currency, &cart.ExpiresAt)
+	err := s.pool.QueryRow(ctx, `SELECT id::text,status,currency,expires_at,coupon_id IS NOT NULL
+		FROM carts WHERE owner_token_hash=$1`, ownerTokenHash).
+		Scan(&cart.ID, &cart.Status, &cart.Currency, &cart.ExpiresAt, &cart.CouponApplied)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Cart{}, ErrCartNotFound
 	}
