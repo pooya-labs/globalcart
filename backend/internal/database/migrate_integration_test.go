@@ -242,6 +242,10 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if err := cartService.ApplyCoupon(ctx, couponOwner[:], " save10 "); err != nil {
 		t.Fatalf("apply normalized coupon code: %v", err)
 	}
+	couponCart, err := cartService.GetCart(ctx, couponOwner[:])
+	if err != nil || !couponCart.CouponApplied {
+		t.Fatalf("cart coupon state = %+v, err=%v; want coupon applied", couponCart, err)
+	}
 	couponKey := make([]byte, 32)
 	couponKey[0] = 71
 	couponOrder, err := cartService.Checkout(ctx, couponOwner[:], couponKey, 15*time.Minute)
@@ -298,6 +302,10 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	}
 	if err := cartService.RemoveCoupon(ctx, minimumOwner[:]); err != nil {
 		t.Fatalf("remove coupon from open cart: %v", err)
+	}
+	removedCouponCart, err := cartService.GetCart(ctx, minimumOwner[:])
+	if err != nil || removedCouponCart.CouponApplied {
+		t.Fatalf("cart coupon state after removal = %+v, err=%v; want no coupon", removedCouponCart, err)
 	}
 	createdCart, err := cartService.CreateCart(ctx, cartOwner, "USD", time.Hour)
 	if err != nil {
