@@ -29,7 +29,7 @@ Mandatory reading for every assistant, coding agent or human contributor taking 
 - Frontend: Next.js, React and TypeScript.
 - Backend (M04): Go REST API + OpenAPI.
 - Primary database (M04): PostgreSQL + versioned SQL migrations + sqlc.
-- Data workers: Python for ingestion, enrichment and translation.
+- Data workers: Python for ingestion and enrichment; translation is currently out of scope.
 - Optional cache/queue: Redis only when justified.
 - Search baseline: PostgreSQL full-text/trigram.
 Introduce each technology only at the roadmap stage where it solves a real requirement.
