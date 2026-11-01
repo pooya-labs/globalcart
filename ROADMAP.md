@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.4 — Authorized supplier onboarding (blocked pending owner-approved source/feed)  
+**Active stage:** M08.4 — Catalog snapshot continuity and quality diagnostics (implementation in progress)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -433,7 +433,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **M08.3 verification:** Catalog CI push run `41355090849` and PR run `41355095558` passed on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. Follow-up collision-hardening run `41355272122` also passed on latest code head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`, including TypeScript validation, all unit tests and production build.\n\n**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
 
 
-## M08.4 — Authorized supplier onboarding (blocked pending owner decision)
+## M08.5 — Authorized supplier onboarding (blocked pending owner decision)
 - [ ] Select a supplier and confirm the account has documented API/feed access rights and permitted catalog/image/price reuse.
 - [ ] Review supplier API documentation, rate limits, pagination, delta/full-snapshot semantics and variant identity guarantees.
 - [ ] Implement the supplier-specific fetch and mapping adapter using the M08.3 shared contract.
@@ -442,3 +442,14 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [ ] Store credentials only in an approved server-side secret store; never commit credentials or expose them to the browser.
 
 **Gate:** do not connect a real supplier, scrape retail pages, generate placeholder inventory or treat the synthetic M08.3 fixture as live data until the owner approves a named supplier and its authorized feed/API.
+
+
+## M08.4 — Catalog snapshot continuity and quality diagnostics (in progress)
+- [x] Add a full-snapshot continuity guard: reject a refresh that loses more than 50% of the previous known-good product count.
+- [x] Run the guard before writing the new snapshot so the existing last-known-good file is retained on suspicious drops.
+- [x] Add a compact quality report for product/variant counts, products without variants, zero price/stock, missing descriptions and uncategorized items.
+- [x] Add unit tests for exact threshold behavior, invalid thresholds and quality report counts.
+- [ ] Verify TypeScript validation, all unit tests and production build in Catalog CI on the final branch head.
+- [ ] Revisit source-specific continuity policy when a real supplier is approved; incremental/delta feeds must declare their semantics and must not use the full-snapshot drop guard blindly.
+
+**M08.4 safety boundary:** this guard applies to the current full-snapshot catalog sync. Product-only feeds remain valid; absence of variants is not treated as a catalog failure and does not delete previously imported variants/offers.
