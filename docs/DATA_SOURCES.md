@@ -58,3 +58,9 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 - A variant's `(source, source_id)` pair is an ownership key. If an existing pair is presented under a different product, the importer rejects the transaction rather than moving the row.
 - The M08.6 PostgreSQL test also verifies batch atomicity: an otherwise valid product earlier in the same batch must not persist when a later variant identity conflict aborts the import.
 - Original variant ownership and mutable catalog fields remain unchanged after rejection.
+
+
+## Feed completeness declaration (M08.7)
+- A source adapter must declare whether its payload is a complete catalog snapshot or an incremental/delta batch.
+- The scheduled static snapshot writer may consume only complete snapshots. Incremental records require a source-specific merge/reconciliation workflow and must never replace the complete catalog directly.
+- An incremental declaration alone does not authorize deleting products or variants, zeroing stock or archiving offers.
