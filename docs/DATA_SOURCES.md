@@ -45,3 +45,10 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 
 
 **M08.4 verification:** Catalog CI PR run `41355595494` passed TypeScript validation, all tests and production build. The full-snapshot continuity guard is covered by tests for the 50% boundary, rejection of a 51% drop, and invalid thresholds.
+
+
+## Variant omission and retention semantics (M08.5)
+- A product snapshot with no variants is valid for a product-only source. It is not an instruction to delete previously imported variants or vendor offers.
+- The Go importer upserts only variant rows actually supplied, then synchronizes the platform offer from all persisted variants for that product. Consequently, an omitted variant remains present with its previous state until a future explicit and authorized retirement protocol is designed.
+- This is intentionally conservative: a partial page, temporary source omission or feed schema regression must not destroy stock or seller offers. Future source adapters must declare whether they provide a complete variant set and must provide a documented retirement signal before destructive reconciliation can be considered.
+- M08.5 adds PostgreSQL regression coverage for retained source variants, retained platform offer values/status, independent merchant offer isolation and unchanged audit-event counts.
