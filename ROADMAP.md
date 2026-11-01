@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.4.1 — Public API surface regression guards (CI verification pending)  
+**Active stage:** M08.1 — Platform catalog importer synchronization (CI verification pending)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -332,7 +332,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Backfill current products and variants into the explicit GlobalCart Direct platform vendor.
 - [x] Add append-only price history and inventory event tables with initial import/opening balance records.
 - [x] Add PostgreSQL integration assertions for vendor backfill, independent stock across vendors, audit records and duplicate-offer rejection.
-- [ ] Integrate catalog importer so newly imported products create/update platform offers transactionally.
+- [ ] Integrate catalog importer so newly imported products create/update platform offers transactionally (implementation committed; CI verification pending).
 - [ ] Implement internal vendor and offer services with transactional price/inventory audit writes.
 - [ ] Migrate cart lines, reservations and checkout to vendor-offer identity; split each checkout into vendor order groups.
 - [ ] Add verified seller membership and tenant-scoped authorization only after the approved identity/authentication boundary.
@@ -393,4 +393,13 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 ## M09.4.1 — Public API surface regression guards (in progress)
 - [x] Add handler tests proving seller order/product routes, cart writes and checkout writes remain unavailable over HTTP.
 - [x] Add tests proving catalog routes reject mutation methods and allowed CORS origins receive only GET/OPTIONS.
-- [ ] Verify these new handler tests in Backend CI before marking the guardrail complete.
+- [x] Verify these handler tests and pre-auth CORS restrictions in Backend CI run `41353463006` (success).
+
+
+## M08.1 — Platform catalog importer synchronization (in progress)
+- [x] Extend the existing catalog upsert transaction to create/update the `GlobalCart Direct` base-product offer.
+- [x] Record initial price and opening inventory audit events; record subsequent price/stock changes with `system_sync` / `correction` audit reasons.
+- [x] Keep product/category writes and platform-offer synchronization in one database transaction.
+- [x] Make repeated imports idempotent without duplicate offer or audit rows.
+- [x] Add PostgreSQL integration coverage for initial import, unchanged re-import and changed price/stock synchronization.
+- [ ] Verify the importer integration slice in Backend CI, including Docker image build.
