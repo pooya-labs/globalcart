@@ -36,10 +36,11 @@ async function fetchDummyJsonRecords(signal?: AbortSignal): Promise<unknown[]> {
 /** DummyJSON is a sample source and currently supplies no variant records. */
 export const dummyJsonCatalogAdapter: CatalogSourceAdapter = {
   source: SOURCE,
+  snapshotMode: "full",
   fetchRecords: fetchDummyJsonRecords,
   mapProduct: record => isRecord(record) ? record : null
 };
 
 export async function fetchDummyJsonCatalog(signal?: AbortSignal): Promise<CatalogProduct[]> {
-  return loadCatalogFromSource(dummyJsonCatalogAdapter, { signal });
+  return loadCatalogFromSource(dummyJsonCatalogAdapter, { signal, requiredSnapshotMode: "full" });
 }
