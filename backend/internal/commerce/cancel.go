@@ -33,32 +33,36 @@ func (s *Service) CancelOrder(ctx context.Context, ownerTokenHash []byte, orderI
 		JOIN carts c ON c.id=o.cart_id
 		WHERE o.id=$1 AND c.owner_token_hash=$2
 		FOR UPDATE OF o`, orderID, ownerTokenHash).
-		Scan(&order.ID,&order.Status,&order.Currency,&order.Total)
-	if errors.Is(err,pgx.ErrNoRows) {
-		return Order{},ErrOrderNotFound
+		Scan(&order.ID, &order.Status, &order.Currency, &order.Total)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Order{}, ErrOrderNotFound
 	}
 	if err != nil {
-		return Order{},fmt.Errorf("lock owned order: %w",err)
+		return Order{}, fmt.Errorf("lock owned order: %w", err)
 	}
 	if order.Status == "cancelled" {
-		if err:=tx.Commit(ctx);err!=nil{return Order{},fmt.Errorf("commit cancellation replay: %w",err)}
-		return order,nil
+		if err := tx.Commit(ctx); err != nil {
+			return Order{}, fmt.Errorf("commit cancellation replay: %w", err)
+		}
+		return order, nil
 	}
 	if order.Status != "awaiting_demo_payment" {
-		return Order{},ErrOrderNotCancellable
+		return Order{}, ErrOrderNotCancellable
 	}
-	if _,err:=tx.Exec(ctx,`UPDATE inventory_reservations SET status='released',updated_at=now()
-		WHERE order_id=$1 AND status='active'`,orderID);err!=nil {
-		return Order{},fmt.Errorf("release order reservations: %w",err)
+	if _, err := tx.Exec(ctx, `UPDATE inventory_reservations SET status='released',updated_at=now()
+		WHERE order_id=$1 AND status='active'`, orderID); err != nil {
+		return Order{}, fmt.Errorf("release order reservations: %w", err)
 	}
-	if _,err:=tx.Exec(ctx,`UPDATE demo_orders SET status='cancelled',updated_at=now() WHERE id=$1`,orderID);err!=nil {
-		return Order{},fmt.Errorf("cancel demo order: %w",err)
+	if _, err := tx.Exec(ctx, `UPDATE demo_orders SET status='cancelled',updated_at=now() WHERE id=$1`, orderID); err != nil {
+		return Order{}, fmt.Errorf("cancel demo order: %w", err)
 	}
-	if _,err:=tx.Exec(ctx,`INSERT INTO demo_order_events(order_id,event_type,payload)
-		VALUES($1,'demo_order_cancelled','{"reason":"owner_requested"}'::jsonb)`,orderID);err!=nil {
-		return Order{},fmt.Errorf("append cancellation event: %w",err)
+	if _, err := tx.Exec(ctx, `INSERT INTO demo_order_events(order_id,event_type,payload)
+		VALUES($1,'demo_order_cancelled','{"reason":"owner_requested"}'::jsonb)`, orderID); err != nil {
+		return Order{}, fmt.Errorf("append cancellation event: %w", err)
 	}
-	if err:=tx.Commit(ctx);err!=nil{return Order{},fmt.Errorf("commit order cancellation: %w",err)}
-	order.Status="cancelled"
-	return order,nil
+	if err := tx.Commit(ctx); err != nil {
+		return Order{}, fmt.Errorf("commit order cancellation: %w", err)
+	}
+	order.Status = "cancelled"
+	return order, nil
 }
