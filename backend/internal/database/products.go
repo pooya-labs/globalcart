@@ -73,20 +73,34 @@ func upsertPlatformOffer(ctx context.Context, tx pgx.Tx, vendorID int64, p catal
 	err := tx.QueryRow(ctx, "SELECT id,price::text,stock FROM vendor_products WHERE vendor_id=$1 AND product_id=$2 AND variant_id IS NULL FOR UPDATE", vendorID, p.ID).Scan(&offerID, &oldPrice, &oldStock)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = tx.QueryRow(ctx, "INSERT INTO vendor_products (vendor_id,product_id,price,currency,stock,status) VALUES($1,$2,$3,'USD',$4,'active') RETURNING id,price::text,stock", vendorID, p.ID, p.Price, p.Stock).Scan(&offerID, &oldPrice, &oldStock)
-		if err != nil { return fmt.Errorf("insert platform offer: %w", err) }
-		if _, err := tx.Exec(ctx, "INSERT INTO vendor_price_history (vendor_product_id,old_price,new_price,currency,change_source) VALUES($1,NULL,$2::numeric,'USD','initial_import')", offerID, oldPrice); err != nil { return fmt.Errorf("record initial platform price: %w", err) }
-		if _, err := tx.Exec(ctx, "INSERT INTO vendor_inventory_events (vendor_product_id,quantity_delta,resulting_stock,reason,reference) VALUES($1,$2,$2,'opening_balance','catalog_import')", offerID, oldStock); err != nil { return fmt.Errorf("record initial platform stock: %w", err) }
+		if err != nil {
+			return fmt.Errorf("insert platform offer: %w", err)
+		}
+		if _, err := tx.Exec(ctx, "INSERT INTO vendor_price_history (vendor_product_id,old_price,new_price,currency,change_source) VALUES($1,NULL,$2::numeric,'USD','initial_import')", offerID, oldPrice); err != nil {
+			return fmt.Errorf("record initial platform price: %w", err)
+		}
+		if _, err := tx.Exec(ctx, "INSERT INTO vendor_inventory_events (vendor_product_id,quantity_delta,resulting_stock,reason,reference) VALUES($1,$2,$2,'opening_balance','catalog_import')", offerID, oldStock); err != nil {
+			return fmt.Errorf("record initial platform stock: %w", err)
+		}
 		return nil
 	}
-	if err != nil { return fmt.Errorf("read platform offer: %w", err) }
+	if err != nil {
+		return fmt.Errorf("read platform offer: %w", err)
+	}
 	var newPrice string
 	var newStock int32
-	if err := tx.QueryRow(ctx, "UPDATE vendor_products SET price=$2,currency='USD',stock=$3,status='active',updated_at=now() WHERE id=$1 RETURNING price::text,stock", offerID, p.Price, p.Stock).Scan(&newPrice, &newStock); err != nil { return fmt.Errorf("update platform offer: %w", err) }
+	if err := tx.QueryRow(ctx, "UPDATE vendor_products SET price=$2,currency='USD',stock=$3,status='active',updated_at=now() WHERE id=$1 RETURNING price::text,stock", offerID, p.Price, p.Stock).Scan(&newPrice, &newStock); err != nil {
+		return fmt.Errorf("update platform offer: %w", err)
+	}
 	if oldPrice != newPrice {
-		if _, err := tx.Exec(ctx, "INSERT INTO vendor_price_history (vendor_product_id,old_price,new_price,currency,change_source) VALUES($1,$2::numeric,$3::numeric,'USD','system_sync')", offerID, oldPrice, newPrice); err != nil { return fmt.Errorf("record platform price change: %w", err) }
+		if _, err := tx.Exec(ctx, "INSERT INTO vendor_price_history (vendor_product_id,old_price,new_price,currency,change_source) VALUES($1,$2::numeric,$3::numeric,'USD','system_sync')", offerID, oldPrice, newPrice); err != nil {
+			return fmt.Errorf("record platform price change: %w", err)
+		}
 	}
 	if oldStock != newStock {
-		if _, err := tx.Exec(ctx, "INSERT INTO vendor_inventory_events (vendor_product_id,quantity_delta,resulting_stock,reason,reference) VALUES($1,$2,$3,'correction','catalog_import')", offerID, int64(newStock)-int64(oldStock), newStock); err != nil { return fmt.Errorf("record platform stock change: %w", err) }
+		if _, err := tx.Exec(ctx, "INSERT INTO vendor_inventory_events (vendor_product_id,quantity_delta,resulting_stock,reason,reference) VALUES($1,$2,$3,'correction','catalog_import')", offerID, int64(newStock)-int64(oldStock), newStock); err != nil {
+			return fmt.Errorf("record platform stock change: %w", err)
+		}
 	}
 	return nil
 }

@@ -674,7 +674,7 @@ func TestCatalogImportSynchronizesPlatformOfferIdempotently(t *testing.T) {
 		t.Fatalf("migrate: %v", err)
 	}
 	product := catalog.Product{
-		ID: time.Now().UnixNano()%7000000000000000000 + 2000000000000000000,
+		ID:    time.Now().UnixNano()%7000000000000000000 + 2000000000000000000,
 		Title: "Platform import sync fixture", Description: "Importer integration",
 		Category: "platform-import-test", Price: 21.45, Stock: 8,
 		Images: []string{}, Source: "platform-import-test",
