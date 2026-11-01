@@ -19,4 +19,4 @@ CREATE TABLE IF NOT EXISTS products (
     UNIQUE (source, source_id)
 );
 CREATE INDEX IF NOT EXISTS products_category_idx ON products(category);
-CREATE INDEX IF NOT EXISTS products_title_search_idx ON products USING GIN (to_tsvector('simple', title));
+CREATE INDEX IF NOT EXISTS products_title_search_idx ON products USING GIN (to_tsvector('simple', title || ' ' || description));
