@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.1 — Platform catalog and variant importer synchronization (CI verification pending)  
+**Active stage:** M08.2 — End-to-end source variant ingestion (implementation and CI verification pending)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -406,4 +406,13 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add PostgreSQL integration coverage for variant offer creation, idempotent re-import, price/stock changes and inactive-variant pausing.
 - [ ] Verify the importer integration slice in Backend CI, including Docker image build.
 
-- [ ] Verify the latest base-product and variant synchronization changes in Backend CI, including Docker image build.
+- [x] Verify base-product and existing-variant offer synchronization in Backend CI run `41354208659` (all steps passed, including PostgreSQL tests and Docker image build).
+
+
+## M08.2 — End-to-end source variant ingestion (in progress)
+- [x] Extend the TypeScript catalog contract and normalization layer to retain optional source variants, stable source identity, SKU, attributes, price, stock and active state.
+- [x] Extend the Go catalog model and PostgreSQL importer to upsert supplied variants transactionally before synchronizing platform offers.
+- [x] Enforce source identity ownership so an existing variant identity cannot silently move to another product; reject invalid prices, negative stock and missing identity.
+- [x] Add catalog normalization and PostgreSQL integration coverage using variants supplied in the imported product snapshot.
+- [ ] Verify the complete TypeScript and Go workflows, PostgreSQL integration tests and Docker image build in CI.
+- [ ] Add an authorized supplier adapter that actually supplies variant data; current DummyJSON sample feed does not expose variant records, so existing snapshots continue to import products without variants.
