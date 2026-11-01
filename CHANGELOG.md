@@ -57,3 +57,14 @@
 ### Fixed
 - Corrected escaped comparison-state declarations and duplicate category-name key found during CI validation.
 - Made catalog snapshot commits rebase on the latest main branch to avoid races with UI commits.
+
+
+## 0.2.2-dev — 2026-11-01
+### Added
+- Validated Amazon product-link intake with supported marketplace domains, ASIN extraction and a browser-local sourcing request queue.
+- Marketplace service shortcuts for sourcing requests, product comparison, planned seller tools and GitHub feedback.
+- FAQ content clarifying demo checkout, Amazon data access and comparison behavior.
+- Responsive styles for the Amazon request module, service cards and FAQ.
+### Notes
+- Amazon link submission is a local demonstration only. Live product details, pricing and availability require authorized Amazon API access.
+- Translation remains paused and excluded from CI.
