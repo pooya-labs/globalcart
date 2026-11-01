@@ -12,3 +12,6 @@ Rules:
 - Prefer additive changes and backfills that preserve existing API contracts.
 - Use forward-fix migrations for shared environments. A destructive rollback is not automatic: assess data loss and coordinate a maintenance window before any reverse migration.
 - Keep each migration compatible with the currently deployed application during rolling upgrades.
+
+
+Migration 003 adds demo-only carts, checkout order snapshots, idempotency digests, temporary inventory reservations and order events. It is schema scaffolding only: do not expose write endpoints until the identity/deployment gates and the transaction protocol in `docs/COMMERCE_DESIGN.md` are satisfied. Never store raw cart capabilities or idempotency keys.
