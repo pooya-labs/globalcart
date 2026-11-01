@@ -32,7 +32,10 @@ async function main(): Promise<void> {
 
   try {
     const importedAt = new Date().toISOString();
-    const importedProducts = await loadCatalogFromSource(dummyJsonCatalogAdapter, { importedAt });
+    const importedProducts = await loadCatalogFromSource(dummyJsonCatalogAdapter, {
+      importedAt,
+      requiredSnapshotMode: "full"
+    });
     const previousById = new Map((previous?.products ?? []).map(product => [product.id, product]));
     assertCatalogSnapshotContinuity(importedProducts.length, previous?.products?.length ?? 0);
 
