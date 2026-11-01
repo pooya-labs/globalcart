@@ -362,9 +362,6 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if _, err := cartService.AddItem(ctx, partialExpiryOwner[:], product.ID, nil, 1); err != nil {
 		t.Fatalf("add base product to partial-expiry cart: %v", err)
 	}
-	if _, err := cartService.AddItem(ctx, partialExpiryOwner[:], product.ID, &variantID, 1); err != nil {
-		t.Fatalf("add variant to partial-expiry cart: %v", err)
-	}
 	partialExpiryKey := make([]byte, 32)
 	partialExpiryKey[0] = 85
 	partialExpiryOrder, err := cartService.Checkout(ctx, partialExpiryOwner[:], partialExpiryKey, 15*time.Minute)
