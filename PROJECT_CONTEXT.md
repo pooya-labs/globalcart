@@ -107,3 +107,9 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Product list endpoint now rejects malformed/out-of-range pagination and oversized query/category filters with stable machine-readable 400 error codes.
 - Added handler tests for invalid requests and pagination parsing, plus OpenAPI 400/error schema documentation.
 - CI verification for this follow-up is pending.
+
+
+### M04 typed SQL generation — in progress
+- Added `sqlc.yaml` with PostgreSQL schema sourced from embedded migrations and pgx/v5 code generation to `backend/internal/dbgen`.
+- Added parameterized product list/detail and active product variant query definitions under `backend/queries/catalog.sql`.
+- Backend CI now generates and formats the typed package before vet, tests and builds. Generated package compilation is pending CI verification; API wiring remains next.
