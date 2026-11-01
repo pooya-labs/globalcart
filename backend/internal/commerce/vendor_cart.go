@@ -85,10 +85,6 @@ func (s *Service) AddVendorItem(ctx context.Context, ownerTokenHash []byte, vend
 	if existing+quantity > stock {
 		return Cart{}, ErrInsufficientStock
 	}
-	var variantArg any
-	if variant.Valid {
-		variantArg = variant.Int64
-	}
 	_, err = tx.Exec(ctx, `INSERT INTO cart_items(cart_id,product_id,variant_id,vendor_product_id,quantity,unit_price_snapshot,currency,product_title_snapshot,variant_title_snapshot)
  VALUES($1,$2,$3,$4,$5,$6::numeric,$7,$8,$9)
  ON CONFLICT (cart_id,vendor_product_id) WHERE vendor_product_id IS NOT NULL
