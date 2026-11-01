@@ -243,3 +243,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Removed the unused import in commit `cb0f20816afdbf3f2dc23628e8a5bd4b7d1bce46`.
 - **Immediate next action:** obtain a fresh CI run for the corrected branch head. The earlier failed run does not verify the fix; do not mark M09.3 complete until a fresh run passes sqlc generation, vet, PostgreSQL-backed race tests, builds and Docker image build.
 - No public commerce or seller HTTP routes, browser session flow, real payments, hosted API/database, or production secrets are enabled.
+
+
+## Latest continuation checkpoint — 2026-11-02 (CI verified)
+- Branch: `feat/m04-go-postgres-foundation`; PR #1 remains Draft/open/unmerged.
+- M09.3 `GetVendorOrder` and its PostgreSQL integration tests are verified by fresh Backend CI run `41352898725` on head `1234d02b51c7c411816ff9a7ab1b64a84aec5bb9`; conclusion: `success`.
+- The earlier run `41352848269` was cancelled after a newer PR run superseded it; it is not the verification record.
+- Authentication/session/RBAC remains design-only. `docs/SECURITY_AUTH_DESIGN.md` requires a custom same-site HTTPS frontend/API origin, approved email delivery and secret management before identity endpoints or browser cookie flows are implemented.
+- Next safe engineering slice: audit vendor-scoped service boundaries and define/test an internal authorization seam without creating public seller APIs or inventing seller identity.
+- No cloud hosting, paid services, real payments, production secrets or deployment were enabled.
