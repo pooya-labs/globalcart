@@ -112,3 +112,18 @@
 - This is local development infrastructure only. No hosted database/API, credentials, paid resources, authentication, real orders or payments were provisioned.
 
 - Backend CI run #22 passed: PostgreSQL service startup, Go formatting, vet, race-enabled unit/integration tests, API/importer builds and Docker image build. Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41301389812
+
+
+### M04 catalog platform extension — 2026-11-01
+#### Added
+- Normalized category table with product foreign-key backfill and category product counts.
+- Product variants schema with SKU/source identity constraints, non-negative price/stock and JSONB attributes.
+- sqlc v2 generation targeting PostgreSQL and pgx/v5; generated typed product, category and variant queries.
+- Product list/detail handlers now use generated sqlc methods; importer retains explicit transactional upsert logic.
+- Read-only product-variant endpoint and normalized category listing endpoint.
+- Authentication/session/RBAC design covering Argon2id, opaque server-side sessions, CSRF, cookie policy, role scopes and required security tests.
+
+#### Verification
+- Actions run 41302783939 passed sqlc generation, Go formatting, vet, unit and PostgreSQL integration tests, API/importer builds and Docker image build.
+- Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41302783939
+- Authentication remains design-only pending approval of same-site HTTPS hosting, email delivery and secret management. No user tables or login flows were added.
