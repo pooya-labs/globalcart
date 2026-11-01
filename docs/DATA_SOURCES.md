@@ -70,3 +70,11 @@ The storefront currently uses a user-configurable illustrative USD-to-Toman rate
 
 
 **M08.7 verification:** Catalog CI run `41356770768` and Backend CI run `41356770801` both passed on the same PR head. A full-snapshot writer cannot fetch or consume an incremental adapter; a dedicated delta merger is still required before incremental records can affect the canonical snapshot.
+
+
+## Feed mapping rejection guard (M08.8)
+- Shared ingestion rejects a source response when more than 20% of raw records fail the adapter mapProduct step.
+- A source with a documented legitimate filtering rule may set CatalogImportOptions.maxUnmappedFraction explicitly; the value must be finite and in [0, 1).
+- The check is based on raw source records, before normalization. Duplicate canonical product IDs are not counted as mapper rejections and continue through normal de-duplication.
+- Empty collections, wholly unmappable collections and collections with no valid normalized products remain errors.
+- This is a defensive default, not a substitute for source-specific completeness semantics or the full-snapshot continuity guard.
