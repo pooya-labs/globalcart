@@ -146,22 +146,56 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if err := pool.QueryRow(ctx, "SELECT id FROM vendors WHERE slug='globalcart-direct' AND vendor_type='platform' AND status='active'").Scan(&platformVendorID); err != nil {
 		t.Fatalf("read seeded platform vendor: %v", err)
 	}
+	// Catalog import creates and maintains the platform offer for every variant.
+	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
+		t.Fatalf("sync imported product variants: %v", err)
+	}
 	var platformOfferID int64
-	if err := pool.QueryRow(ctx, `INSERT INTO vendor_products
-		(vendor_id,product_id,variant_id,price,currency,stock,status)
-		VALUES($1,$2,$3,13.99,'USD',2,'active') RETURNING id`,
-		platformVendorID, product.ID, variantID).Scan(&platformOfferID); err != nil {
-		t.Fatalf("create platform variant offer: %v", err)
+	var platformVariantPrice string
+	var platformVariantStock int
+	if err := pool.QueryRow(ctx, `SELECT id,price::text,stock FROM vendor_products
+		WHERE vendor_id=$1 AND product_id=$2 AND variant_id=$3`,
+		platformVendorID, product.ID, variantID).Scan(&platformOfferID, &platformVariantPrice, &platformVariantStock); err != nil {
+		t.Fatalf("read imported platform variant offer: %v", err)
 	}
-	if _, err := pool.Exec(ctx, `INSERT INTO vendor_price_history
-		(vendor_product_id,old_price,new_price,currency,change_source)
-		VALUES($1,NULL,13.99,'USD','initial_import')`, platformOfferID); err != nil {
-		t.Fatalf("record initial vendor price: %v", err)
+	if platformVariantPrice != "13.99" || platformVariantStock != 2 {
+		t.Fatalf("platform variant offer price=%s stock=%d, want 13.99 / 2", platformVariantPrice, platformVariantStock)
 	}
-	if _, err := pool.Exec(ctx, `INSERT INTO vendor_inventory_events
-		(vendor_product_id,quantity_delta,resulting_stock,reason,reference)
-		VALUES($1,2,2,'opening_balance','integration-test')`, platformOfferID); err != nil {
-		t.Fatalf("record initial vendor stock: %v", err)
+	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
+		t.Fatalf("repeat imported variant sync: %v", err)
+	}
+	var initialVariantPriceEvents, initialVariantInventoryEvents int
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", platformOfferID).Scan(&initialVariantPriceEvents); err != nil {
+		t.Fatalf("count initial platform variant price events: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id=$1", platformOfferID).Scan(&initialVariantInventoryEvents); err != nil {
+		t.Fatalf("count initial platform variant inventory events: %v", err)
+	}
+	if initialVariantPriceEvents != 1 || initialVariantInventoryEvents != 1 {
+		t.Fatalf("unchanged variant import duplicated audit events: price=%d inventory=%d", initialVariantPriceEvents, initialVariantInventoryEvents)
+	}
+	if _, err := pool.Exec(ctx, "UPDATE product_variants SET price=15.25,stock=4,is_active=false WHERE id=$1", variantID); err != nil {
+		t.Fatalf("change source variant: %v", err)
+	}
+	if err := UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
+		t.Fatalf("sync changed variant: %v", err)
+	}
+	var changedStatus string
+	if err := pool.QueryRow(ctx, "SELECT price::text,stock,status FROM vendor_products WHERE id=$1", platformOfferID).Scan(&platformVariantPrice, &platformVariantStock, &changedStatus); err != nil {
+		t.Fatalf("read changed platform variant offer: %v", err)
+	}
+	if platformVariantPrice != "15.25" || platformVariantStock != 4 || changedStatus != "paused" {
+		t.Fatalf("changed platform variant offer price=%s stock=%d status=%s", platformVariantPrice, platformVariantStock, changedStatus)
+	}
+	var changedVariantPriceEvents, changedVariantInventoryEvents int
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", platformOfferID).Scan(&changedVariantPriceEvents); err != nil {
+		t.Fatalf("count changed variant price events: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id=$1", platformOfferID).Scan(&changedVariantInventoryEvents); err != nil {
+		t.Fatalf("count changed variant inventory events: %v", err)
+	}
+	if changedVariantPriceEvents != 2 || changedVariantInventoryEvents != 2 {
+		t.Fatalf("changed variant import audit counts: price=%d inventory=%d, want 2 each", changedVariantPriceEvents, changedVariantInventoryEvents)
 	}
 	var secondVendorID int64
 	if err := pool.QueryRow(ctx, `INSERT INTO vendors(slug,display_name,status)
