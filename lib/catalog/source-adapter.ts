@@ -6,6 +6,8 @@ export type CatalogImportOptions = {
   importedAt?: string;
   /** Reject a feed unless it declares the requested completeness semantics. */
   requiredSnapshotMode?: CatalogSnapshotMode;
+  /** Maximum fraction of source records that may fail source-specific mapping. Defaults to 20%. */
+  maxUnmappedFraction?: number;
 };
 
 /**
@@ -33,10 +35,23 @@ export async function loadCatalogFromSource(
     throw new Error(`${source} returned an empty or invalid product collection`);
   }
 
+  const maxUnmappedFraction = options.maxUnmappedFraction ?? 0.2;
+  if (!Number.isFinite(maxUnmappedFraction) || maxUnmappedFraction < 0 || maxUnmappedFraction >= 1) {
+    throw new RangeError("maxUnmappedFraction must be a finite number in the range [0, 1)");
+  }
+
   const mapped: CatalogSourceRecord[] = [];
   for (const record of records) {
     const product = adapter.mapProduct(record);
     if (product) mapped.push(product);
+  }
+
+  const unmappedCount = records.length - mapped.length;
+  const unmappedFraction = unmappedCount / records.length;
+  if (unmappedFraction > maxUnmappedFraction) {
+    throw new Error(
+      `${source} rejected ${unmappedCount}/${records.length} source records during mapping (${(unmappedFraction * 100).toFixed(1)}%); maximum allowed is ${(maxUnmappedFraction * 100).toFixed(1)}%`
+    );
   }
 
   if (mapped.length === 0) {
