@@ -24,6 +24,6 @@ export async function localizeText(
   }
 }
 
-export { GeminiProductTranslator, parseProductTranslation } from "./gemini";
-export type { ProductTranslationFields } from "./gemini";
+export { GoogleAppsScriptTranslator, parseGoogleTranslateResponse } from "./google-apps-script";
+export type { ProductTranslationFields } from "./google-apps-script";
 export type { LocalizedText, TranslationProvider, TranslationStatus } from "./types";
