@@ -154,3 +154,10 @@
 - Added owner-scoped demo cancellation, atomic reservation release, cancellation event and idempotent replay.
 - Added PostgreSQL integration tests for cross-cart isolation, order snapshots, event history and cancellation behavior.
 - Verified by CI push run 41347325289; no public order endpoints enabled.
+
+
+### Simulated payment lifecycle — 2026-11-02
+- Added an owner-scoped, idempotent internal demo payment completion transition.
+- Requires a live stock reservation; atomically releases holds, updates order state and appends a simulation event.
+- Added PostgreSQL integration coverage for ownership, repeat completion, reservation release and invalid post-payment cancellation.
+- No external payment provider or public payment endpoint is involved; CI verification pending.
