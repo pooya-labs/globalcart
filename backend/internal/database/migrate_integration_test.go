@@ -306,6 +306,26 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if !replayed.Replayed || replayed.ID != attempts[winner].order.ID {
 		t.Fatalf("idempotent replay = %+v, original = %+v", replayed, attempts[winner].order)
 	}
+
+	// Order reads are scoped to the owning guest capability, not merely the UUID.
+	orderDetail, err := service.GetOrder(ctx, attempts[winner].owner[:], attempts[winner].order.ID)
+	if err != nil {
+		t.Fatalf("read order through owning cart capability: %v", err)
+	}
+	if orderDetail.ID != attempts[winner].order.ID || orderDetail.Total != attempts[winner].order.Total {
+		t.Fatalf("order detail does not match checkout result: %+v", orderDetail)
+	}
+	if len(orderDetail.Items) != 1 || orderDetail.Items[0].Quantity != 2 || orderDetail.Items[0].UnitPrice != "12.34" {
+		t.Fatalf("unexpected immutable order item snapshots: %+v", orderDetail.Items)
+	}
+	if len(orderDetail.Events) != 1 || orderDetail.Events[0].Type != "demo_order_created" {
+		t.Fatalf("unexpected initial order event history: %+v", orderDetail.Events)
+	}
+	var wrongOrderOwner [32]byte
+	wrongOrderOwner[0] = 99
+	if _, err := service.GetOrder(ctx, wrongOrderOwner[:], attempts[winner].order.ID); !errors.Is(err, commerce.ErrOrderNotFound) {
+		t.Fatalf("reading another cart's order error = %v, want not found", err)
+	}
 	var winnerReservations int
 	if err := pool.QueryRow(ctx, `SELECT COALESCE(sum(quantity),0)::int
 		FROM inventory_reservations WHERE order_id=$1 AND status='active'`, attempts[winner].order.ID).Scan(&winnerReservations); err != nil {
