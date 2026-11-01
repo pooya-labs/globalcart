@@ -21,7 +21,7 @@ function normalizeVariants(raw: unknown, source: string): CatalogVariant[] {
     const explicitID = stringOr(record.sourceId) || stringOr(record.id);
     const sourceId = explicitID || sku;
     const variantSource = stringOr(record.source) || source;
-    const identity = `${variantSource}:${sourceId}`;
+    const identity = JSON.stringify([variantSource, sourceId]);
     if (!sourceId || seen.has(identity)) continue;
     const attributes = record.attributes && typeof record.attributes === "object" && !Array.isArray(record.attributes)
       ? record.attributes as Record<string, unknown>
