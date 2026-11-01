@@ -1,23 +1,27 @@
-# Data Sources & Provenance
+# Data Sources, Translation and Provenance
 
-## Demo catalog
-DummyJSON Products API: https://dummyjson.com/products
-- Purpose: sample catalog import without manual per-product entry.
-- This is external demo content, not Amazon inventory or commercial availability.
-- Image URLs are supplied by the source and can change or become unavailable.
-- Preserve source product IDs and import timestamps.
+## Current catalog source
+**DummyJSON Products API:** https://dummyjson.com/products?limit=100
 
-## Amazon
-Not active in v0.1.0. Do not scrape Amazon product pages or copy its catalog. Any future connector requires eligible authorized API/program access and review of current content, image, price refresh, attribution, and linking rules. Affiliate discovery is not wholesale inventory.
+- Used as a public sample catalog to demonstrate automatic ingestion.
+- Not Amazon inventory and not a commercial offer.
+- The adapter normalizes records and keeps source identity/import time.
+- Images are remote source-provided URLs and may change or fail.
+- If the network source is unavailable, the UI uses a small local fixture.
 
-## Translation
-No translation provider is assumed available by default. A provider adapter must preserve original fields, store translation separately, identify provider/locale/timestamp/status, cache results, handle limits, and never expose secrets in browser code.
+## Amazon policy
+Amazon is not connected. Do not scrape product pages or copy the catalog. A future integration is allowed only after verifying the account's eligibility and authorized API/program access and reviewing current terms for content reuse, image URLs, price refresh, attribution and linking. An affiliate API is not a wholesale inventory feed.
+
+## Translation status
+The code currently defines a provider interface and safe orchestration metadata. It does **not** yet automatically translate the full catalog. Until a provider adapter is configured, translated text is null and status is unavailable; source text must remain visible. A future scheduled job must translate title, description, category and attributes, preserve original fields, cache results, handle quotas/retries and record provider/locale/timestamp. API keys belong in GitHub Actions secrets and must never enter browser bundles or committed files.
 
 ## Foreign exchange
-Initial UI uses a configurable illustrative USD-to-Toman rate. It is not a live quote or purchase promise. Future sources must include timestamp and stale-rate policy.
+The storefront currently uses a user-configurable illustrative USD-to-Toman rate. It is not a live market quote. Future FX providers must return source, currency pair, timestamp and rate; stale values must be labelled.
 
-## UI labels
-- Demo source: external sample catalog.
-- Local fallback: repository fixture used if import fails.
-- Illustrative calculation: arithmetic based on configured sample inputs.
-- Live external data: only when provider response and source/time are shown.
+## Provenance labels
+- **External demo source:** a sample record returned by DummyJSON.
+- **Local fallback:** fixture data included for offline resilience.
+- **Translated:** only when a provider returns a non-empty translation.
+- **Translation unavailable/error:** original text is retained.
+- **Illustrative price:** converted using a manually configured sample rate.
+- **Live external value:** only when its provider and timestamp are displayed.

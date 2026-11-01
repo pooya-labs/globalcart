@@ -13,7 +13,7 @@
 |---|---:|---|---|
 | M00 | 0.1.0 | Product definition, independence, governance, handoff docs | Complete |
 | M01 | 0.1.0 | Storefront, responsive UI, bilingual shell, demo cart/checkout | Implemented; CI/deploy and accessibility verification pending |
-| M02 | 0.2.0 | Typed connectors, normalization, dedupe, translation pipeline, scheduled catalog | Foundations implemented; provider/scheduler/tests pending |
+| M02 | 0.2.0 | Typed connectors, normalization, translation pipeline, scheduled catalog | Foundations implemented; provider/scheduler/tests verification pending |
 | M03 | 0.3.0 | Pricing engine, FX provenance, product details, compare | Not started |
 | M04 | 0.4.0 | Full commerce simulation, order history, coupons, returns | Not started |
 | M05 | 0.5.0 | Admin and seller workspaces, catalog operations, analytics | Not started |
@@ -22,7 +22,7 @@
 | M08 | 1.0.0 | Portfolio case study, release, final QA and public demo | Not started |
 
 ## M00 — Product definition and governance
-- [x] Define the product as a portfolio-grade simulation, not a live store.
+- [x] Define portfolio simulation, not live store.
 - [x] Establish independent repository and owner attribution.
 - [x] Define safe source policy; prohibit unauthorized scraping.
 - [x] Establish semantic versioning and AI handoff requirements.
@@ -49,26 +49,27 @@
 
 ## M02 — Catalog intelligence (active)
 - [x] Typed catalog product/result contracts.
-- [x] Normalization and basic malformed-record rejection.
+- [x] Normalization and malformed-record rejection.
 - [x] Source identity, import timestamp and duplicate suppression.
 - [x] DummyJSON adapter separated from storefront UI.
 - [x] Translation provider interface and explicit unavailable/error states.
+- [x] Unit tests authored for normalization, pricing and translation orchestration.
+- [ ] Verify test suite passes in latest Actions run.
 - [ ] Add provider implementation (server-side only; no browser secrets).
 - [ ] Translate title, description, category and attributes to Persian.
 - [ ] Preserve original text, translated text, provider, locale and timestamp.
 - [ ] Translation cache, retries, throttling and failure reporting.
 - [ ] Add Amazon connector only after authorization/eligibility review.
-- [ ] Add source adapters and fixtures for partial/invalid records.
 - [ ] Generate a versioned static catalog JSON artifact.
 - [ ] Scheduled GitHub Actions catalog refresh and manual dispatch.
 - [ ] Catalog import summary and source diagnostics page.
 **Acceptance:** repeatable automatic import and honest localization status; no manual product-by-product entry.
 
 ## M03 — Pricing and product details
-- [ ] Use integer minor units/decimal-safe arithmetic.
-- [ ] Unit-tested pricing function for discounts, FX and rounding.
+- [x] Initial pure pricing calculation foundation with input validation.
+- [ ] Integer minor units/decimal-safe arithmetic and rounding tests.
 - [ ] FX adapter with source, timestamp and stale-rate behavior.
-- [ ] Clearly configurable demo markup/shipping/tax assumptions.
+- [ ] Configurable demo markup/shipping/tax assumptions.
 - [ ] Dedicated product detail routes and image gallery.
 - [ ] Specs, review summaries, source links and stock disclaimers.
 - [ ] Product comparison and recently viewed page.
@@ -101,7 +102,7 @@
 **Acceptance:** fast and accessible discovery on the full sample catalog.
 
 ## M07 — Quality and release hardening
-- [ ] Unit tests for normalization, pricing, translation and state.
+- [ ] Unit tests for normalization, pricing, translation and state (initial tests exist; CI verification pending).
 - [ ] Playwright tests for critical shopping paths.
 - [ ] Accessibility audit for RTL/LTR, focus, labels and contrast.
 - [ ] Performance and image-loading audit.
@@ -119,11 +120,9 @@
 **Acceptance:** a reviewer can understand the engineering, inspect source and use the demo.
 
 ## AI/developer handoff rule
-
-Before any code change, read PROJECT_CONTEXT.md, this roadmap, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md, docs/DECISIONS.md and the latest CHANGELOG.md. Inspect the actual tree and Actions status. Work on the earliest incomplete acceptance item. At the end of each coherent task, update the exact checkboxes and PROJECT_CONTEXT.md. Never guess that a previous AI finished something.
+Before any code change, read PROJECT_CONTEXT.md, this roadmap, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md, docs/DECISIONS.md and CHANGELOG.md. Inspect the actual tree and Actions status. Work on the earliest incomplete acceptance item. At the end of each coherent task, update exact checkboxes and PROJECT_CONTEXT.md. Never guess that a previous AI finished something.
 
 ## Release ledger
-
 | Version | Milestone | Status | Notes |
 |---|---|---|---|
-| 0.1.0 | M00 + M01 | Implemented; verification pending | Storefront and deployment workflow committed |
+| 0.1.0 | M00 + M01 | Implemented; verification pending | Storefront and initial domain foundations committed |
