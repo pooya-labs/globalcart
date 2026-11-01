@@ -287,3 +287,9 @@
 - Added a quality report covering total products/variants, product-only coverage, zero-price/zero-stock products, missing descriptions and uncategorized products.
 - Diagnostic metrics do not fabricate inventory or auto-delete data; product-only sources are valid.
 - Verification: Catalog CI push run [41355552153](https://github.com/pooya16pg-spec/globalcart/actions/runs/41355552153) and PR run [41355595494](https://github.com/pooya16pg-spec/globalcart/actions/runs/41355595494) passed. Backend CI PR run [41355595650](https://github.com/pooya16pg-spec/globalcart/actions/runs/41355595650) also passed SQL generation, Go/PostgreSQL tests, builds, Docker image build and cleanup.
+
+
+### M08.5 variant omission and inventory retention — implementation in progress (2026-11-02)
+- Added PostgreSQL integration coverage for a source that previously supplied variants but later sends a product-only snapshot.
+- The regression test asserts that existing product variants are retained, platform offer values/status remain unchanged, independent merchant offers are untouched, and no spurious audit events are written.
+- No automatic variant deletion, stock-zeroing or offer archival behavior was added. Backend CI verification is pending.
