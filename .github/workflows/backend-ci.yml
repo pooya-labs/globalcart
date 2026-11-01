@@ -9,7 +9,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: backend-${{ github.ref }}
+  group: backend-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   go:
@@ -50,7 +50,19 @@ jobs:
           git add go.mod go.sum backend
           if ! git diff --cached --quiet; then
             git commit -m "chore(backend): persist module checksums and Go formatting [skip ci]"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+            # Another push workflow may update the branch while this job runs.
+            # Rebase generated/formatting changes onto the latest branch and retry
+            # the push instead of failing on a harmless non-fast-forward race.
+            for attempt in 1 2 3; do
+              git fetch origin "${GITHUB_REF_NAME}"
+              git rebase "origin/${GITHUB_REF_NAME}"
+              if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+                exit 0
+              fi
+              sleep "$((attempt * 2))"
+            done
+            echo "Unable to persist generated Go files after three push attempts" >&2
+            exit 1
           fi
       - name: Vet
         run: go vet ./...
