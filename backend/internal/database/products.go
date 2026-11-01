@@ -44,6 +44,9 @@ func UpsertProducts(ctx context.Context, pool *pgxpool.Pool, products []catalog.
 			if _, err := tx.Exec(ctx, "UPDATE products SET category_id=NULL WHERE id=$1", p.ID); err != nil {
 				return fmt.Errorf("clear product %d category relation: %w", p.ID, err)
 			}
+			if err := upsertPlatformOffer(ctx, tx, platformVendorID, p); err != nil {
+				return fmt.Errorf("sync platform offer for product %d: %w", p.ID, err)
+			}
 			continue
 		}
 		var categoryID int64
