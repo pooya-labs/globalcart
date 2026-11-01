@@ -1,4 +1,5 @@
 name: Deploy GlobalCart to GitHub Pages
+# CI validates the application and runs unit tests before the static Pages build.
 on:
   push:
     branches: [main]
