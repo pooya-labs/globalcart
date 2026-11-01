@@ -39,7 +39,8 @@ func TestVendorAwareCartLifecycle(t *testing.T) {
  if len(cart.Items)!=1||cart.Items[0].VendorProductID==nil||*cart.Items[0].VendorProductID!=offer.ID||cart.Items[0].VendorID==nil||*cart.Items[0].VendorID!=vendor.ID||cart.Items[0].VendorName!="Vendor Cart Test"||cart.Items[0].UnitPrice!="18.50" {
   t.Fatalf("vendor cart line = %+v; offer/vendor/price snapshot mismatch",cart.Items)
  }
- if _,err:=svc.Checkout(ctx,owner[:],sha256.Sum256([]byte("vendor-cart-checkout-key"))[:],15*time.Minute);!errors.Is(err,commerce.ErrVendorCheckoutNotReady) {
+ idempotencyHash:=sha256.Sum256([]byte("vendor-cart-checkout-key"))
+ if _,err:=svc.Checkout(ctx,owner[:],idempotencyHash[:],15*time.Minute);!errors.Is(err,commerce.ErrVendorCheckoutNotReady) {
   t.Fatalf("legacy checkout error=%v, want ErrVendorCheckoutNotReady",err)
  }
  cart,err=svc.SetVendorItemQuantity(ctx,owner[:],offer.ID,2)
