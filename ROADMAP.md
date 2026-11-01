@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M01.5 — Marketplace redesign and UX foundation  
+**Active stage:** M09.3 — Owner-scoped vendor child-order reads (CI verification pending)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -36,8 +36,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | M01 | 0.1.x | Storefront foundation, bilingual shell and deployment | Implemented; redesign supersedes original visual direction |
 | M02 | 0.2.x | Automated catalog import, normalization and snapshots | Catalog sync active; translation paused |
 | M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Product detail, gallery, comparison and illustrative price breakdown implemented; live FX provenance remains |
-| M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Planned; owner runtime/hosting gate |
-| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Planned |
+| M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Local foundation implemented; CI/hosting gates remain |
+| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo services implemented; returns and API exposure gated |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
 | M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Planned |
 | M08 | 0.8.0 | Browser tests, accessibility, security and performance | Planned |
@@ -358,7 +358,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Apply coupon redemption once at parent level and allocate discounts across child orders with cent-exact reconciliation.
 - [x] Propagate simulated payment, cancellation and reservation expiry to child order states.
 - [x] Add PostgreSQL integration coverage for split totals, idempotency, coupon allocation, simulated payment and competing checkouts.
-- [x] Add owner-scoped split-order detail reads and vendor-specific internal query methods (CI verification pending).
+- [ ] Add owner-scoped split-order detail reads and vendor-specific internal query methods (implementation committed; CI verification pending).
 - [ ] Add seller authorization/membership model before any seller-facing APIs.
 
 
@@ -367,3 +367,11 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Conceal cross-owner child-order existence behind the same `ErrOrderNotFound` result used for unknown IDs.
 - [x] Add PostgreSQL integration coverage for child/parent identity, vendor metadata, exact totals, item ownership, invalid capabilities and cross-owner isolation.
 - [ ] Run backend CI and verify the new integration test before marking this slice complete.
+
+
+### M09.3 CI correction checkpoint — 2026-11-02
+- [x] Inspect failed Backend CI run 41352752412 and retrieve the exact job log.
+- [x] Identify the blocking `go vet` error: unused `time` import in `backend/internal/commerce/vendor_orders.go`.
+- [x] Remove the unused import in commit `cb0f20816afdbf3f2dc23628e8a5bd4b7d1bce46`.
+- [ ] Obtain a fresh CI run for the corrected branch head; the failed run tested the previous commit and does not verify this fix.
+- [ ] Only after CI passes, mark M09.3 complete and proceed to seller membership/auth implementation planning.
