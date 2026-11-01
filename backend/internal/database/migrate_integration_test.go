@@ -97,6 +97,26 @@ func TestMigrationsAndCatalogUpsert(t *testing.T) {
 	if !foundCategory {
 		t.Fatalf("category %d missing from generated listing", categoryID)
 	}
+	// Category filtering is normalized and total counts are independent of page size.
+	catalogQueries := dbgen.New(pool)
+	filtered, err := catalogQueries.ListProducts(ctx, dbgen.ListProductsParams{
+		Category: "  TEST ", Query: "", PageLimit: 1, PageOffset: 0,
+	})
+	if err != nil {
+		t.Fatalf("list products by normalized category: %v", err)
+	}
+	if len(filtered) != 1 || filtered[0].ID != product.ID {
+		t.Fatalf("normalized category filter returned unexpected products: %+v", filtered)
+	}
+	total, err := catalogQueries.CountProducts(ctx, dbgen.CountProductsParams{
+		Category: "tEsT", Query: "",
+	})
+	if err != nil {
+		t.Fatalf("count products by normalized category: %v", err)
+	}
+	if total < 1 {
+		t.Fatalf("normalized category count = %d, want at least one", total)
+	}
 	variantAttributes := []byte(`{"color":"black","size":"M"}`)
 	var variantID int64
 	if err := pool.QueryRow(ctx, `INSERT INTO product_variants
