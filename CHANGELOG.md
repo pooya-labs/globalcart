@@ -147,3 +147,10 @@
 - Enforced digest-only guest capability inputs, per-cart transactional locking, canonical catalog price/title/stock reads and bounded quantities.
 - Added PostgreSQL integration tests for lifecycle operations, variants, stock limits and expiry.
 - Verified by CI push run 41346723656; no public cart endpoints or browser cookie flow enabled.
+
+
+### Order detail and cancellation — 2026-11-01
+- Added capability-scoped internal order detail reads with immutable item snapshots and event history.
+- Added owner-scoped demo cancellation, atomic reservation release, cancellation event and idempotent replay.
+- Added PostgreSQL integration tests for cross-cart isolation, order snapshots, event history and cancellation behavior.
+- Verified by CI push run 41347325289; no public order endpoints enabled.

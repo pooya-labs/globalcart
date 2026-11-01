@@ -75,3 +75,9 @@ The service also provides `ExpirePendingOrders`, an idempotent database operatio
 
 ## 9. Implemented guest cart service boundary
 The internal Go service in `backend/internal/commerce/cart.go` implements cart creation, line add/increment, quantity setting, line removal and cart retrieval. It accepts only a 32-byte SHA-256 capability digest, locks the cart row for mutations, checks open/unexpired state, and re-reads canonical product/variant price, title and stock from PostgreSQL. Cart quantities are bounded to 1–99 and current catalog stock. The current catalog has no currency column, so this service explicitly supports USD only rather than implying FX support. PostgreSQL integration tests cover lifecycle operations, stock bounds, variant handling and expiry. These methods are not exposed over HTTP.
+
+
+## 10. Implemented order read and cancellation boundaries
+The internal `GetOrder` service scopes order detail reads through a join from the order to its owning cart and the supplied 32-byte capability digest. It returns immutable item snapshots and chronological event history. An unknown order and an order belonging to a different capability intentionally produce the same not-found error.
+
+The internal `CancelOrder` service locks the owned order in a transaction. Only `awaiting_demo_payment` orders may be cancelled; active reservations are transitioned to `released`, the order becomes `cancelled`, and a `demo_order_cancelled` event is appended atomically. Repeated cancellation is idempotent. Paid-simulated and expired orders are not cancellable. PostgreSQL integration tests cover ownership, snapshot integrity, event history, reservation release and repeat cancellation. Neither service is exposed through HTTP.

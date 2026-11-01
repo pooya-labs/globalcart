@@ -291,3 +291,13 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add PostgreSQL integration tests for cart creation, add/increment, quantity updates, stock bounds, removal, variants and expired-cart rejection.
 - [x] CI push run 41346723656 passed sqlc generation, formatting, vet, PostgreSQL-backed tests, API/importer builds and Docker image build.
 - [ ] Keep all cart operations internal until same-site HTTPS, CSRF and identity/authorization prerequisites are approved.
+
+
+### M06 order read and cancellation services — 2026-11-01
+- [x] Implement capability-scoped order detail reads, returning immutable item snapshots and ordered event history.
+- [x] Hide order existence behind the same not-found error for unknown IDs and wrong cart capability digests.
+- [x] Implement owner-scoped cancellation for unpaid demo orders; atomically release active reservations and append a cancellation event.
+- [x] Make repeated cancellation idempotent; reject cancellation of paid or expired orders.
+- [x] Add PostgreSQL integration coverage for order ownership, snapshots, event history, cancellation, reservation release and replay.
+- [x] CI push run 41347325289 passed sqlc generation, formatting, vet, PostgreSQL-backed tests, API/importer builds and Docker image build.
+- [ ] Keep order read/cancel methods internal until same-site HTTPS, CSRF and identity/authorization prerequisites are approved.

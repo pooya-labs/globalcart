@@ -175,3 +175,13 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - PostgreSQL integration tests cover create/add/increment/set/remove, stock overflow, active variants and expired carts.
 - CI push run 41346723656 passed all stages including PostgreSQL-backed tests and Docker image build. The earlier PR run exposed one unused import; it was removed and the corrected commit passed.
 - No cart HTTP routes, cookies, or cross-origin browser flows were enabled.
+
+
+### M06 order read and cancellation services — CI verified
+- Added `backend/internal/commerce/orders.go`: `GetOrder` scopes reads by the cart capability digest and order UUID, returning immutable item snapshots and ordered event history.
+- Unknown order IDs and wrong owner digests intentionally return the same `ErrOrderNotFound`.
+- Added `backend/internal/commerce/cancel.go`: `CancelOrder` locks the owned order, permits cancellation only from `awaiting_demo_payment`, releases active reservations and appends `demo_order_cancelled` atomically.
+- Repeating cancellation returns the already-cancelled order; paid/expired orders cannot be cancelled.
+- Integration tests verify correct owner access, cross-cart denial, snapshot/event reads, reservation release and idempotent cancellation.
+- CI push run 41347325289 passed all stages, including PostgreSQL tests and Docker image build. An initial test fixture conflicted with a pre-existing variant reservation; the fixture was corrected to use available base-product stock, then the complete CI passed.
+- No HTTP routes, cookie flow or public order access were enabled.
