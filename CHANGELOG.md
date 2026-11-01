@@ -176,3 +176,9 @@
 - Added PostgreSQL integration coverage for independent stock across two vendors, audit records and duplicate-offer constraints.
 - Compatibility preserved: existing cart and checkout still use legacy catalog stock; multi-vendor cart/order splitting is not yet implemented.
 - No seller membership, public seller API, dashboard, commission, payout or fulfillment was enabled.
+
+
+### M09 — Vendor-aware cart foundation
+- Added additive vendor-specific cart line and parent/child vendor-order schema.
+- Added internal vendor-aware cart operations and legacy-checkout safety guard.
+- Added integration coverage and architecture notes; split checkout remains pending.
