@@ -146,3 +146,47 @@ type ProductVariant struct {
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
+
+type Vendor struct {
+	ID          int64              `json:"id"`
+	Slug        string             `json:"slug"`
+	DisplayName string             `json:"display_name"`
+	VendorType  string             `json:"vendor_type"`
+	Status      string             `json:"status"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
+type VendorInventoryEvent struct {
+	ID              int64              `json:"id"`
+	VendorProductID int64              `json:"vendor_product_id"`
+	QuantityDelta   int32              `json:"quantity_delta"`
+	ResultingStock  int32              `json:"resulting_stock"`
+	Reason          string             `json:"reason"`
+	Reference       *string            `json:"reference"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+}
+
+type VendorPriceHistory struct {
+	ID              int64              `json:"id"`
+	VendorProductID int64              `json:"vendor_product_id"`
+	OldPrice        pgtype.Numeric     `json:"old_price"`
+	NewPrice        pgtype.Numeric     `json:"new_price"`
+	Currency        string             `json:"currency"`
+	ChangeSource    string             `json:"change_source"`
+	ChangedAt       pgtype.Timestamptz `json:"changed_at"`
+}
+
+type VendorProduct struct {
+	ID        int64              `json:"id"`
+	VendorID  int64              `json:"vendor_id"`
+	ProductID int64              `json:"product_id"`
+	VariantID *int64             `json:"variant_id"`
+	SellerSku *string            `json:"seller_sku"`
+	Price     pgtype.Numeric     `json:"price"`
+	Currency  string             `json:"currency"`
+	Stock     int32              `json:"stock"`
+	Status    string             `json:"status"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
