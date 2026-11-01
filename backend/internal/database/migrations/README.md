@@ -7,3 +7,8 @@ Rules:
 - Keep schema changes backwards-compatible with the currently deployed API where practical.
 - Use constraints and indexes to enforce invariants in PostgreSQL.
 - Do not put secrets or real user data in migration fixtures.
+
+- Number migrations with a stable, lexically sortable prefix; never rename an applied migration.
+- Prefer additive changes and backfills that preserve existing API contracts.
+- Use forward-fix migrations for shared environments. A destructive rollback is not automatic: assess data loss and coordinate a maintenance window before any reverse migration.
+- Keep each migration compatible with the currently deployed application during rolling upgrades.
