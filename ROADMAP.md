@@ -277,5 +277,5 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add PostgreSQL concurrency test: two carts competing for limited product stock yield one success and one insufficient-stock result.
 - [x] Add idempotent replay test: repeated checkout returns the original order without duplicate reservations.
 - [x] Implement and integration-test idempotent expiry cleanup for pending demo orders and their active reservations.
-- [x] CI run 41345901209 passed sqlc generation, formatting, vet, PostgreSQL-backed tests, API/importer builds and Docker image build.
+- [x] CI run 41346127244 passed sqlc generation, formatting, vet, PostgreSQL-backed tests (including reservation-expiry cleanup), API/importer builds and Docker image build.
 - [ ] Implement cart lifecycle operations and safe demo order read APIs after authorization boundary is ready.
