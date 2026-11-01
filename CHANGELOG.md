@@ -127,3 +127,10 @@
 - Actions run 41302783939 passed sqlc generation, Go formatting, vet, unit and PostgreSQL integration tests, API/importer builds and Docker image build.
 - Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41302783939
 - Authentication remains design-only pending approval of same-site HTTPS hosting, email delivery and secret management. No user tables or login flows were added.
+
+
+### Catalog pagination follow-up — 2026-11-01
+- Category filtering now matches normalized category names case-insensitively and ignores surrounding whitespace.
+- Added a typed total-count query sharing the same search and category predicates as product listing.
+- Product list response now includes `total` for pagination while `count` continues to report items in the returned page.
+- Added PostgreSQL integration coverage for category normalization and total count; CI pending.
