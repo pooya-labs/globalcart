@@ -223,3 +223,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Legacy Checkout rejects vendor lines with ErrVendorCheckoutNotReady so vendor stock cannot be processed against legacy product inventory.
 - Added PostgreSQL integration coverage for vendor cart lifecycle and this checkout guard.
 - Split checkout and vendor child-order state propagation are not implemented yet.
+
+
+## M09.2 — Vendor split checkout
+- Added Service.CheckoutVendorCart as a separate internal-only transaction path; legacy Checkout continues to reject vendor lines.
+- Vendor checkout creates one parent demo order and one child per vendor, snapshots canonical offer data and reserves inventory by vendor_product_id.
+- Coupon is redeemed once at parent order level; proportional child discount allocation reconciles exactly to parent cents.
+- Simulated payment, cancellation and reservation expiry now propagate state to vendor child orders.
+- Mixed legacy/vendor carts are intentionally rejected. No payment gateway, real stock decrement, HTTP write routes, seller identity or production infrastructure.
+- Integration tests cover two-vendor checkout, coupon totals, idempotent replay, legacy-stock non-mutation, simulated payment propagation and same-offer stock contention.
