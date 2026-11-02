@@ -157,15 +157,14 @@ func parsePHC(encoded string) (phcParameters, error) {
 	iterations, hasIterations := values["t"]
 	parallelism, hasParallelism := values["p"]
 	if !hasMemory || !hasIterations || !hasParallelism ||
-		memory < uint64(defaultMemoryKiB) || memory > uint64(maxVerifyMemoryKiB) ||
-		iterations < uint64(defaultIterations) || iterations > uint64(maxVerifyIterations) ||
-		parallelism == 0 || parallelism > uint64(maxVerifyParallel) ||
-		memory < 8*parallelism {
+		memory < 8*parallelism || memory > uint64(maxVerifyMemoryKiB) ||
+		iterations == 0 || iterations > uint64(maxVerifyIterations) ||
+		parallelism == 0 || parallelism > uint64(maxVerifyParallel) {
 		return phcParameters{}, ErrInvalidHash
 	}
 
 	salt, err := base64.RawStdEncoding.DecodeString(parts[4])
-	if err != nil || len(salt) < saltLength || len(salt) > 64 ||
+	if err != nil || len(salt) < 8 || len(salt) > 64 ||
 		base64.RawStdEncoding.EncodeToString(salt) != parts[4] {
 		clear(salt)
 		return phcParameters{}, ErrInvalidHash

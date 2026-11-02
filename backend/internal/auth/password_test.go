@@ -66,12 +66,12 @@ func TestVerifyPasswordRejectsMalformedOrOverBudgetPHC(t *testing.T) {
 	}
 }
 
-func TestPasswordHashNeedsRehashRejectsWeakHash(t *testing.T) {
+func TestPasswordHashNeedsRehashAcceptsBoundedLegacyHash(t *testing.T) {
 	salt := base64.RawStdEncoding.EncodeToString(make([]byte, saltLength))
 	key := base64.RawStdEncoding.EncodeToString(make([]byte, keyLength))
-	weak := "$argon2id$v=19$m=12288,t=1,p=1$" + salt + "$" + key
-	if needs, err := PasswordHashNeedsRehash(weak); needs || !errors.Is(err, ErrInvalidHash) {
-		t.Fatalf("PasswordHashNeedsRehash(weak) = (%t, %v), want (false, ErrInvalidHash)", needs, err)
+	legacy := "$argon2id$v=19$m=12288,t=1,p=1$" + salt + "$" + key
+	if needs, err := PasswordHashNeedsRehash(legacy); !needs || err != nil {
+		t.Fatalf("PasswordHashNeedsRehash(legacy) = (%t, %v), want (true, nil)", needs, err)
 	}
 }
 
