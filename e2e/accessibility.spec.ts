@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator(".product-card").first()).toBeVisible();
 });
 
-async function expectNoWcagViolations(page: Parameters<typeof test>[0] extends never ? never : import("@playwright/test").Page) {
+async function expectNoWcagViolations(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
   const violations = results.violations.flatMap(violation =>
     violation.nodes.map(node => ({
