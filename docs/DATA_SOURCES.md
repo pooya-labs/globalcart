@@ -29,7 +29,7 @@ Wallex documents the unauthenticated UDF history endpoint, one-minute resolution
 - **Local fallback:** fixture data included for offline resilience.
 - **Translated:** only when a provider returns a non-empty translation.
 - **Translation unavailable/error:** original text is retained.
-- **Exchange-derived estimate:** converted using the timestamped Nobitex USDT/IRT midpoint; the UI discloses that USDT is a USD proxy, not cash USD.
+- **Exchange-derived estimate:** converted using the latest validated Wallex USDTTMN one-minute candle close (USDT/Toman); the UI discloses that USDT is a USD proxy, not cash USD.
 - **Stale exchange quote:** the last-known-good rate remains visible only with an aging/stale warning; no hard-coded fallback is used.
 
 
