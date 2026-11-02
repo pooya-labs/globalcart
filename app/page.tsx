@@ -6,11 +6,12 @@ import { fetchDummyJsonCatalog } from "../lib/catalog";
 import { filterCatalogProducts } from "../lib/catalog/filtering";
 import { buildCatalogSuggestions, type CatalogSearchSuggestion } from "../lib/catalog/suggestions";
 import { getCatalogRecommendationReason, rankCatalogRecommendations } from "../lib/catalog/recommendations";
+import { hasSameSavedSearchFilters, normalizeSavedCatalogSearches, type SavedCatalogSearch } from "../lib/catalog/saved-searches";
 import catalogSnapshot from "../data/catalog.json";
 import {
-  ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, Check, ChevronDown, ChevronLeft,
+  ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, BookmarkCheck, BookmarkPlus, Check, ChevronDown, ChevronLeft,
   ChevronRight, CircleHelp, Heart, LayoutGrid, Menu, Minus, Package, Plus,
-  Search, ShieldCheck, ShoppingBag, SlidersHorizontal, Sparkles, Star, Truck, GitCompareArrows,
+  Search, ShieldCheck, ShoppingBag, SlidersHorizontal, Sparkles, Star, Trash2, Truck, GitCompareArrows,
   X, Zap
 } from "lucide-react";
 
@@ -51,7 +52,11 @@ const copy = {
     feature1: "کشف هوشمند", feature1d: "جست‌وجو و فیلتر سریع", feature2: "اطلاعات شفاف", feature2d: "نمایش منبع و قیمت", feature3: "تجربه امن", feature3d: "بدون تراکنش واقعی",
     footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "طراحی و توسعه: پویا گودرزی",
     count: "محصول", menu: "منو", compare: "مقایسه", recently: "تازه بازدیدشده", emptyFav: "هنوز محصولی ذخیره نکرده‌ای.",
-    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", brand: "برند", allBrands: "همه برندها", minRatingLabel: "حداقل امتیاز", anyRating: "همه امتیازها", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "محصولت را در آمازون پیدا کردی؟", amazonDesc: "لینک مستقیم محصول را وارد کن تا درخواست بررسی آن در نسخه نمایشی ثبت شود.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "بررسی لینک محصول", amazonNote: "ثبت لینک در این نسخه نمایشی است؛ دریافت قیمت و موجودی زنده به دسترسی رسمی آمازون نیاز دارد.", amazonSuccess: "درخواست لینک محصول ذخیره شد", amazonInvalid: "لینک معتبر محصول آمازون با شناسه ASIN ده‌کاراکتری وارد کن.", decrease:"کاهش تعداد", increase:"افزایش تعداد", remove:"حذف محصول", searchClose:"بستن جست‌وجو"
+    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", brand: "برند", allBrands: "همه برندها", minRatingLabel: "حداقل امتیاز", anyRating: "همه امتیازها",
+    saveSearch: "ذخیره جست‌وجو", savedSearches: "جست‌وجوهای ذخیره‌شده", savedSearchName: "نام جست‌وجو", savedSearchPlaceholder: "مثلاً هدفون اقتصادی",
+    save: "ذخیره", savedSearchEmpty: "هنوز جست‌وجویی ذخیره نشده است.", savedSearchDefault: "جست‌وجوی من",
+    savedSearchSuccess: "جست‌وجو در همین مرورگر ذخیره شد.", savedSearchDuplicate: "این ترکیب فیلترها قبلاً ذخیره شده است.",
+    applySavedSearch: "اعمال", deleteSavedSearch: "حذف", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "محصولت را در آمازون پیدا کردی؟", amazonDesc: "لینک مستقیم محصول را وارد کن تا درخواست بررسی آن در نسخه نمایشی ثبت شود.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "بررسی لینک محصول", amazonNote: "ثبت لینک در این نسخه نمایشی است؛ دریافت قیمت و موجودی زنده به دسترسی رسمی آمازون نیاز دارد.", amazonSuccess: "درخواست لینک محصول ذخیره شد", amazonInvalid: "لینک معتبر محصول آمازون با شناسه ASIN ده‌کاراکتری وارد کن.", decrease:"کاهش تعداد", increase:"افزایش تعداد", remove:"حذف محصول", searchClose:"بستن جست‌وجو"
   },
   en: {
     top: "A fresh perspective on finding good things", search: "Search products, brands or categories...",
@@ -81,7 +86,11 @@ const copy = {
     feature1: "Smart discovery", feature1d: "Fast search and filters", feature2: "Clear information", feature2d: "Source and price context", feature3: "Safe experience", feature3d: "No real transactions",
     footer: "An independent commerce experience, built to showcase product engineering.", owner: "Designed & engineered by Pooya Goodarzi",
     count: "products", menu: "Menu", compare: "Compare", recently: "Recently viewed", emptyFav: "You have not saved anything yet.",
-    min: "Min price", max: "Max price", result: "Results", brand: "Brand", allBrands: "All brands", minRatingLabel: "Minimum rating", anyRating: "Any rating", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "Found it on Amazon?", amazonDesc: "Paste the product link to save a sourcing request in this demo experience.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "Validate product link", amazonNote: "Link intake is simulated; live product data and pricing require authorized Amazon API access.", amazonSuccess: "Product link request saved", amazonInvalid: "Enter a valid Amazon product URL containing a 10-character ASIN.", decrease:"Decrease quantity", increase:"Increase quantity", remove:"Remove item", searchClose:"Close search"
+    min: "Min price", max: "Max price", result: "Results", brand: "Brand", allBrands: "All brands", minRatingLabel: "Minimum rating", anyRating: "Any rating",
+    saveSearch: "Save search", savedSearches: "Saved searches", savedSearchName: "Search name", savedSearchPlaceholder: "e.g. Budget headphones",
+    save: "Save", savedSearchEmpty: "No saved searches yet.", savedSearchDefault: "My search",
+    savedSearchSuccess: "Saved in this browser.", savedSearchDuplicate: "These filters are already saved.",
+    applySavedSearch: "Apply", deleteSavedSearch: "Delete", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "Found it on Amazon?", amazonDesc: "Paste the product link to save a sourcing request in this demo experience.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "Validate product link", amazonNote: "Link intake is simulated; live product data and pricing require authorized Amazon API access.", amazonSuccess: "Product link request saved", amazonInvalid: "Enter a valid Amazon product URL containing a 10-character ASIN.", decrease:"Decrease quantity", increase:"Increase quantity", remove:"Remove item", searchClose:"Close search"
   }
 } as const;
 
@@ -133,7 +142,7 @@ export default function Home() {
   const [usingFallback,setUsingFallback]=useState(snapshotProducts.length===0);
   const [query,setQuery]=useState("");
   const [category,setCategory]=useState("all");
-  const [sort,setSort]=useState("popular");
+  const [sort,setSort]=useState<SavedCatalogSearch["sort"]>("popular");
   const [cart,setCart]=useState<CartLine[]>([]);
   const [favorites,setFavorites]=useState<number[]>([]);
   const [compareIds,setCompareIds]=useState<number[]>([]);
@@ -157,6 +166,12 @@ export default function Home() {
   const [maxPrice,setMaxPrice]=useState(1000);
   const [brandFilter,setBrandFilter]=useState("");
   const [minRating,setMinRating]=useState(0);
+  const [savedSearches,setSavedSearches]=useState<SavedCatalogSearch[]>([]);
+  const [savedSearchesHydrated,setSavedSearchesHydrated]=useState(false);
+  const [savedSearchPanelOpen,setSavedSearchPanelOpen]=useState(false);
+  const [saveSearchFormOpen,setSaveSearchFormOpen]=useState(false);
+  const [saveSearchName,setSaveSearchName]=useState("");
+  const [savedSearchNotice,setSavedSearchNotice]=useState("");
   const [showFilters,setShowFilters]=useState(false);
   const [searchSuggestionsOpen,setSearchSuggestionsOpen]=useState(false);
   const [activeSuggestionIndex,setActiveSuggestionIndex]=useState(-1);
@@ -250,6 +265,19 @@ export default function Home() {
       setAmazonUrl("");
     }catch{setAmazonStatus("error");setAmazonAsin("");}
   };
+
+  useEffect(()=>{
+    try{
+      const raw=localStorage.getItem("globalcart-saved-searches-v1");
+      if(raw)setSavedSearches(normalizeSavedCatalogSearches(JSON.parse(raw)));
+    }catch{/* Invalid local saved-search state is ignored safely. */}
+    finally{setSavedSearchesHydrated(true);}
+  },[]);
+
+  useEffect(()=>{
+    if(!savedSearchesHydrated)return;
+    try{localStorage.setItem("globalcart-saved-searches-v1",JSON.stringify(savedSearches));}catch{/* Browser storage can be unavailable. */}
+  },[savedSearchesHydrated,savedSearches]);
 
   useEffect(()=>{
     let active=true;
@@ -354,6 +382,36 @@ export default function Home() {
     }
     selectCategory(suggestion.value);
   };
+  const currentSearchState=():Omit<SavedCatalogSearch,"id"|"name"|"createdAt">=>({
+    query:query.trim(),category,brand:brandFilter,minPrice,maxPrice,minRating,sort
+  });
+  const saveCurrentSearch=(event:FormEvent<HTMLFormElement>)=>{
+    event.preventDefault();
+    const state=currentSearchState();
+    const candidate:SavedCatalogSearch={
+      ...state,
+      id:Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8),
+      name:saveSearchName.trim().slice(0,60)||state.query||state.brand||categoryLabel(state.category)||t.savedSearchDefault,
+      createdAt:new Date().toISOString()
+    };
+    if(savedSearches.some(existing=>hasSameSavedSearchFilters(existing,candidate))){
+      setSavedSearchNotice(t.savedSearchDuplicate);
+      return;
+    }
+    setSavedSearches(current=>[candidate,...current].slice(0,12));
+    setSavedSearchNotice(t.savedSearchSuccess);
+    setSaveSearchName("");
+    setSaveSearchFormOpen(false);
+    setSavedSearchPanelOpen(true);
+  };
+  const applySavedSearch=(saved:SavedCatalogSearch)=>{
+    setQuery(saved.query);setCategory(saved.category);setBrandFilter(saved.brand);
+    setMinPrice(saved.minPrice);setMaxPrice(saved.maxPrice);setMinRating(saved.minRating);setSort(saved.sort);
+    setSavedSearchPanelOpen(false);setSaveSearchFormOpen(false);setSavedSearchNotice("");
+    document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});
+  };
+  const deleteSavedSearch=(id:string)=>setSavedSearches(current=>current.filter(saved=>saved.id!==id));
+
   const closeCommandPalette=()=>{
     setCommandPaletteOpen(false);
     setCommandQuery("");
@@ -526,7 +584,25 @@ export default function Home() {
       {recentProducts.length>0&&<section className="recently-viewed-section"><div className="recently-viewed-head"><div><span className="section-kicker">03 / PICK UP WHERE YOU LEFT OFF</span><h2>{rtl?"بازدیدهای اخیر":"Recently viewed"}</h2><p>{rtl?"محصولاتی که اخیراً بررسی کرده‌ای؛ ذخیره‌شده فقط در همین مرورگر.":"Products you opened recently, stored only in this browser."}</p></div><div className="recently-viewed-actions"><Link href="/recently-viewed">{rtl?"مشاهده تاریخچه":"View history"} <ArrowLeft size={14}/></Link><button onClick={()=>setRecent([])}>{rtl?"پاک کردن تاریخچه":"Clear history"}</button></div></div><div className="recently-viewed-grid">{recentProducts.map(p=><Link href={`/product/${p.id}`} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></Link>)}</div></section>}
 
       <section className="section catalog-section" id="catalog">
-        <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p>{sort==="popular"&&<small className="recommendation-basis">{t.recommendationBasis}</small>}</div><div className="catalog-tools"><button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select value={sort} onChange={e=>setSort(e.target.value)}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
+        <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p>{sort==="popular"&&<small className="recommendation-basis">{t.recommendationBasis}</small>}</div><div className="catalog-tools">
+          <button type="button" className="saved-search-trigger" onClick={()=>{setSaveSearchFormOpen(value=>!value);setSavedSearchPanelOpen(false);setSavedSearchNotice("");}} aria-expanded={saveSearchFormOpen}><BookmarkPlus size={15}/>{t.saveSearch}</button>
+          <button type="button" className="saved-search-trigger" onClick={()=>{setSavedSearchPanelOpen(value=>!value);setSaveSearchFormOpen(false);setSavedSearchNotice("");}} aria-expanded={savedSearchPanelOpen}><BookmarkCheck size={15}/>{t.savedSearches} <span>{savedSearches.length}</span></button>
+          <button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select value={sort} onChange={e=>setSort(e.target.value)}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
+        {(saveSearchFormOpen||savedSearchPanelOpen)&&<div className="saved-search-panel">
+          {saveSearchFormOpen&&<form className="saved-search-form" onSubmit={saveCurrentSearch}>
+            <label htmlFor="saved-search-name">{t.savedSearchName}</label>
+            <input id="saved-search-name" value={saveSearchName} maxLength={60} onChange={event=>{setSaveSearchName(event.target.value);setSavedSearchNotice("");}} placeholder={t.savedSearchPlaceholder}/>
+            <button type="submit"><BookmarkPlus size={15}/>{t.save}</button>
+          </form>}
+          {savedSearchPanelOpen&&<div className="saved-search-list">
+            {savedSearches.length===0?<p className="saved-search-empty">{t.savedSearchEmpty}</p>:savedSearches.map(saved=><div className="saved-search-item" key={saved.id}>
+              <div><b>{saved.name}</b><small>{[saved.query,saved.brand,saved.category!=="all"?categoryLabel(saved.category):""].filter(Boolean).join(" · ")||t.catalog}</small></div>
+              <button type="button" className="saved-search-apply" onClick={()=>applySavedSearch(saved)}>{t.applySavedSearch}</button>
+              <button type="button" className="saved-search-delete" onClick={()=>deleteSavedSearch(saved.id)} aria-label={t.deleteSavedSearch+" "+saved.name}><Trash2 size={15}/></button>
+            </div>)}
+          </div>}
+          {savedSearchNotice&&<p className="saved-search-notice" role="status">{savedSearchNotice}</p>}
+        </div>}
         <div className="catalog-layout">
           <aside className={showFilters?"filter-panel filter-visible":"filter-panel"}>
             <div className="filter-title"><b><SlidersHorizontal size={16}/>{t.filter}</b><button onClick={()=>{setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);setQuery("");}}>{t.clear}</button></div>
