@@ -70,6 +70,60 @@ jobs:
         run: go vet ./...
       - name: Unit tests
         run: go test -race ./...
+      - name: Verify PostgreSQL logical backup and restore
+        env:
+          PGPASSWORD: test-only-password
+        run: |
+          set -euo pipefail
+          backup_dir="$(mktemp -d)"
+          restore_database_url="postgres://globalcart:test-only-password@localhost:5432/globalcart_restore?sslmode=disable"
+          cleanup() {
+            docker run --rm --network host -e PGPASSWORD postgres:17-alpine \
+              dropdb --if-exists --host=127.0.0.1 --port=5432 --username=globalcart globalcart_restore >/dev/null 2>&1 || true
+            rm -rf "$backup_dir"
+          }
+          trap cleanup EXIT
+
+          docker run --rm --network host -e PGPASSWORD \
+            -v "$backup_dir:/backup" postgres:17-alpine \
+            pg_dump --format=custom --no-owner --no-acl \
+              --file=/backup/globalcart.dump "$TEST_DATABASE_URL"
+
+          docker run --rm --network host -e PGPASSWORD postgres:17-alpine \
+            createdb --host=127.0.0.1 --port=5432 --username=globalcart globalcart_restore
+
+          docker run --rm --network host -e PGPASSWORD \
+            -v "$backup_dir:/backup:ro" postgres:17-alpine \
+            pg_restore --exit-on-error --no-owner --no-acl \
+              --dbname="$restore_database_url" /backup/globalcart.dump
+
+          state_query="
+            SELECT concat_ws('|',
+              (SELECT string_agg(version, ',' ORDER BY version) FROM schema_migrations),
+              (SELECT count(*)::text FROM products),
+              (SELECT count(*)::text FROM users),
+              (SELECT count(*)::text FROM carts),
+              (SELECT count(*)::text FROM vendor_products),
+              (SELECT count(*)::text FROM pg_constraint WHERE connamespace = 'public'::regnamespace),
+              COALESCE((SELECT extversion FROM pg_extension WHERE extname = 'pg_trgm'), 'missing')
+            );
+          "
+          read_database_state() {
+            docker run --rm --network host -e PGPASSWORD postgres:17-alpine \
+              psql -X -A -t -v ON_ERROR_STOP=1 "$1" -c "$state_query"
+          }
+
+          source_state="$(read_database_state "$TEST_DATABASE_URL")"
+          restored_state="$(read_database_state "$restore_database_url")"
+          test -n "$source_state"
+          if [ "$source_state" != "$restored_state" ]; then
+            echo "Restored database state does not match the source database." >&2
+            echo "Source:   $source_state" >&2
+            echo "Restored: $restored_state" >&2
+            exit 1
+          fi
+          echo "PostgreSQL 17 custom-format backup restored successfully; migration ledger, key table counts, constraints and pg_trgm match."
+
       - name: Build API and importer
         run: |
           go build -o /tmp/globalcart-api ./backend/cmd/api
