@@ -17,8 +17,8 @@ const (
 )
 
 var (
-	ErrAccountNotActive = errors.New("account is not active and verified")
-	ErrInvalidSession   = errors.New("invalid session")
+	ErrAccountNotActive   = errors.New("account is not active and verified")
+	ErrInvalidSession     = errors.New("invalid session")
 	ErrCredentialsChanged = errors.New("credentials changed since verification")
 )
 

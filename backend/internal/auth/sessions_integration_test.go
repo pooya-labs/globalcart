@@ -16,7 +16,6 @@ import (
 
 const integrationPasswordHash = "$argon2id$v=19$m=19456,t=2,p=1$AAECAwQFBgcICQoLDA0ODw$AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
 
-
 func openAuthIntegrationPool(t *testing.T) (*pgxpool.Pool, context.Context) {
 	t.Helper()
 	dsn := os.Getenv("TEST_DATABASE_URL")
@@ -472,7 +471,6 @@ func TestSessionCreationSerializesWithAccountDisableAndBulkRevocation(t *testing
 		t.Fatalf("account-disable revocations = %d, want 1", disabledRevocations)
 	}
 }
-
 
 func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
 	pool, ctx := openAuthIntegrationPool(t)
