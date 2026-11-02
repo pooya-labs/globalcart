@@ -257,8 +257,11 @@ export default function Home() {
     const target=commandPaletteReturnFocusRef.current;
     if(!target)return;
     commandPaletteReturnFocusRef.current=null;
+    // A command may replace the palette with another modal (cart/favorites/compare).
+    // Let that modal own focus instead of restoring it outside the new dialog.
+    if(overlayModalActive)return;
     requestAnimationFrame(()=>{if(target.isConnected)target.focus();});
-  },[commandPaletteOpen]);
+  },[commandPaletteOpen,overlayModalActive]);
 
   useEffect(()=>{
     if(mobileSearchOpen)searchInputRef.current?.focus();
