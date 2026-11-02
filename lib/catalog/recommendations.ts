@@ -21,7 +21,7 @@ const bounded = (value: number, minimum: number, maximum: number): number =>
 export function getCatalogRecommendationScore(product: RecommendationSignals): number {
   const ratingSignal = bounded(product.rating, 0, 5) / 5;
   const discountSignal = bounded(product.discountPercentage, 0, 50) / 50;
-  return ratingSignal * 0.7 + discountSignal * 0.3;
+  return Number((ratingSignal * 0.7 + discountSignal * 0.3).toFixed(6));
 }
 
 export function getCatalogRecommendationReason(

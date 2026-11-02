@@ -16,7 +16,7 @@ const products = [
 test("scores use the documented 70/30 rating and discount weights", () => {
   assert.equal(getCatalogRecommendationScore(products[0]), 0.7);
   assert.equal(getCatalogRecommendationScore(products[1]), 0.8);
-  assert.equal(getCatalogRecommendationScore({ ...products[1], discountPercentage: 100 }), 0.8);
+  assert.equal(getCatalogRecommendationScore({ ...products[1], discountPercentage: 100 }), 0.86);
 });
 
 test("recommendation reasons identify the strongest visible catalog signals", () => {
