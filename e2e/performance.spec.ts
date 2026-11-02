@@ -94,6 +94,10 @@ test("initial route stays within the static JavaScript and CSS transfer budgets"
 
   console.log("GlobalCart initial route asset budget:", JSON.stringify(assets));
   expect(assets.scriptRequests).toBeGreaterThan(0);
-  expect(assets.scriptBytes).toBeLessThan(2_000_000);
-  expect(assets.styleBytes).toBeLessThan(500_000);
+  // Current CI baseline is ~513 KB JS / ~68 KB CSS; leave measured headroom
+  // without allowing a large dependency or stylesheet regression to slip in.
+  expect(assets.scriptBytes).toBeLessThan(750_000);
+  expect(assets.styleBytes).toBeLessThan(120_000);
+  expect(assets.scriptRequests).toBeLessThanOrEqual(10);
+  expect(assets.styleRequests).toBeLessThanOrEqual(2);
 });
