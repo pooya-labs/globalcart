@@ -229,6 +229,74 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 	}
 }
 
+
+func TestCreateManagedProductCreatesAuditedPlatformDemoOffer(t *testing.T) {
+	pool, ctx := openOverviewIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	_, adminSession := createProductManagementAdmin(t, ctx, pool, suffix+"-create")
+	input := ProductCreateInput{
+		Title: "Hand-created Studio Headphones",
+		Description: "Administrator-authored sample product",
+		Category: "  Manual Audio  ",
+		Brand: "GlobalCart Studio",
+		Price: "89.90",
+		DiscountPercentage: "10",
+		Rating: "4.75",
+		Stock: 7,
+		Images: []string{"https://example.invalid/manual-headphones.webp"},
+	}
+	created, err := CreateManagedProduct(ctx, pool, adminSession.SessionToken, input)
+	if err != nil { t.Fatalf("create admin manual product: %v", err) }
+	if created.ID < 8000000000000000000 || created.Title != input.Title ||
+		created.Category != "Manual Audio" || created.Brand != input.Brand ||
+		created.Source != manualProductSource || created.SourceID == "" ||
+		created.Revision != 1 || created.VisibilityStatus != "active" {
+		t.Fatalf("unexpected created manual product: %+v", created)
+	}
+	var storedSource, storedSourceID, storedPrice, offerPrice string
+	var storedStock, offerStock int32
+	var offerStatus string
+	if err := pool.QueryRow(ctx, `
+		SELECT p.source,p.source_id,p.price::text,p.stock,vp.price::text,vp.stock,vp.status
+		FROM products p
+		JOIN vendors v ON v.slug = 'globalcart-direct' AND v.vendor_type = 'platform'
+		JOIN vendor_products vp ON vp.vendor_id = v.id AND vp.product_id = p.id AND vp.variant_id IS NULL
+		WHERE p.id = $1
+	`, created.ID).Scan(&storedSource, &storedSourceID, &storedPrice, &storedStock, &offerPrice, &offerStock, &offerStatus); err != nil {
+		t.Fatalf("read manual product and platform offer: %v", err)
+	}
+	if storedSource != manualProductSource || storedSourceID == "" || storedPrice != "89.90" ||
+		storedStock != 7 || offerPrice != "89.90" || offerStock != 7 || offerStatus != "active" {
+		t.Fatalf("manual product/offer source=%s sourceID=%s price=%s stock=%d offer=%s/%d/%s",
+			storedSource, storedSourceID, storedPrice, storedStock, offerPrice, offerStock, offerStatus)
+	}
+	var priceEvents, stockEvents int
+	if err := pool.QueryRow(ctx, `
+		SELECT
+			(SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id = vp.id AND change_source = 'admin_adjustment'),
+			(SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id = vp.id AND reason = 'opening_balance')
+		FROM vendor_products vp WHERE vp.product_id = $1 AND vp.variant_id IS NULL
+	`, created.ID).Scan(&priceEvents, &stockEvents); err != nil {
+		t.Fatalf("read manual opening history: %v", err)
+	}
+	if priceEvents != 1 || stockEvents != 1 {
+		t.Fatalf("manual opening history counts price=%d stock=%d, want 1 each", priceEvents, stockEvents)
+	}
+	history, err := ReadProductRevisionHistory(ctx, pool, adminSession.SessionToken, created.ID, 10, 0)
+	if err != nil || len(history) != 1 || history[0].Action != "created" || history[0].Revision != 1 {
+		t.Fatalf("manual product revision history = %+v err=%v, want created revision 1", history, err)
+	}
+	if !strings.Contains(string(history[0].After), input.Title) ||
+		!strings.Contains(string(history[0].After), manualProductSource) || string(history[0].Before) != "{}" {
+		t.Fatalf("manual creation revision snapshots are incomplete: %+v", history[0])
+	}
+	queries := dbgen.New(pool)
+	row, err := queries.GetProduct(ctx, created.ID)
+	if err != nil || row.Title != input.Title || row.Brand != input.Brand || row.Price != 89.9 {
+		t.Fatalf("manual product missing from read-only catalog: row=%+v err=%v", row, err)
+	}
+}
+
 func TestManagedProductRequiresAdminAndValidInput(t *testing.T) {
 	pool, ctx := openOverviewIntegrationPool(t)
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
@@ -255,6 +323,11 @@ func TestManagedProductRequiresAdminAndValidInput(t *testing.T) {
 	}
 	if _, err := ReadProductRevisionHistory(ctx, pool, customerSession.SessionToken, productID, 10, 0); !errors.Is(err, auth.ErrForbidden) {
 		t.Fatalf("customer read product revision history error = %v, want auth.ErrForbidden", err)
+	}
+	if _, err := CreateManagedProduct(ctx, pool, customerSession.SessionToken, ProductCreateInput{
+		Title: "Forbidden manual product", Category: "Forbidden", Price: "10",
+	}); !errors.Is(err, auth.ErrForbidden) {
+		t.Fatalf("customer manual product creation error = %v, want auth.ErrForbidden", err)
 	}
 
 	tooLong := strings.Repeat("x", 301)
