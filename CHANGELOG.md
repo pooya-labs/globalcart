@@ -3,7 +3,7 @@
 ## Unreleased — 2026-11-02
 
 ### Fixed
-- Fixed cross-route language reset by sharing the Persian/English locale preference across homepage and product-detail routes, including reloads, with guarded browser storage and a safe Persian fallback. Browser E2E [41414269385](https://github.com/pooya16pg-spec/globalcart/actions/runs/41414269385) passed all 32 desktop/mobile journeys; Pages deployment [41413878826](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413878826) passed its published-site smoke test.
+- Fixed locale continuity across the homepage, product-detail and recently-viewed routes. The history page now reads and writes the shared guarded `globalcart-locale-v1` preference, and its language-toggle accessible name is localized correctly; unsupported values or unavailable storage still fall back safely to Persian. Browser E2E [41462200408](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200408) passed all 34 desktop/mobile tests; Pages deployment and published-site smoke test [41462200496](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200496) passed.
 - Aligned the data-source provenance description with the active Wallex USDTTMN Toman candle-close feed; removed the obsolete Nobitex midpoint description.
 - Moved the Wallex scheduled refresh from minute zero to `2-59/5` to avoid the busy hour boundary. Push-triggered refresh [41413175324](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413175324) passed, validated and persisted the 08:27 UTC candle at 272,892 Toman per USDT. A fresh push-triggered data refresh is verified; the recurring `schedule` event still needs independent confirmation.
 
