@@ -136,7 +136,7 @@ func (s *Service) RequestDemoReturn(ctx context.Context, ownerTokenHash []byte, 
 		return DemoReturn{}, fmt.Errorf("insert demo return: %w", err)
 	}
 	if _, err := tx.Exec(ctx, `INSERT INTO demo_order_events(order_id,event_type,payload)
-		VALUES($1,'demo_return_requested',jsonb_build_object('return_id',$2,'reason',$3))`,
+		VALUES($1,'demo_return_requested',jsonb_build_object('return_id',$2::text,'reason',$3::text))`,
 		orderID, result.ID, reason); err != nil {
 		return DemoReturn{}, fmt.Errorf("append demo return request event: %w", err)
 	}
@@ -193,7 +193,7 @@ func (s *Service) ReviewDemoReturn(ctx context.Context, orderID string, approve 
 		return DemoReturn{}, fmt.Errorf("record demo return decision: %w", err)
 	}
 	if _, err := tx.Exec(ctx, `INSERT INTO demo_order_events(order_id,event_type,payload)
-		VALUES($1,$2,jsonb_build_object('return_id',$3,'refund_amount',$4::numeric,'currency',$5))`,
+		VALUES($1,$2,jsonb_build_object('return_id',$3::text,'refund_amount',$4::numeric,'currency',$5::text))`,
 		orderID, eventType, result.ID, refundAmount, result.Currency); err != nil {
 		return DemoReturn{}, fmt.Errorf("append demo return decision event: %w", err)
 	}
@@ -276,8 +276,8 @@ func (s *Service) CompleteDemoRefund(ctx context.Context, ownerTokenHash []byte,
 	}
 	if _, err := tx.Exec(ctx, `INSERT INTO demo_order_events(order_id,event_type,payload)
 		VALUES($1,'demo_refund_simulated',
-			jsonb_build_object('provider','none','mode','simulation','return_id',$2,
-			                   'amount',$3::numeric,'currency',$4))`,
+			jsonb_build_object('provider','none','mode','simulation','return_id',$2::text,
+			                   'amount',$3::numeric,'currency',$4::text))`,
 		orderID, result.ID, result.RefundAmount, result.Currency); err != nil {
 		return DemoReturn{}, fmt.Errorf("append simulated refund event: %w", err)
 	}
