@@ -183,6 +183,7 @@ export default function Home() {
   const searchInputRef=useRef<HTMLInputElement>(null);
   const commandInputRef=useRef<HTMLInputElement>(null);
   const commandPaletteReturnFocusRef=useRef<HTMLElement|null>(null);
+  const nextDialogReturnFocusRef=useRef<HTMLElement|null>(null);
   const searchListboxId=useId();
   const commandInputId=useId();
   const t=copy[locale];
@@ -230,7 +231,11 @@ export default function Home() {
     if(!modalActive)return;
     const dialog=document.querySelector<HTMLElement>('[role="dialog"][aria-modal="true"]');
     if(!dialog)return;
-    const previouslyFocused=document.activeElement instanceof HTMLElement?document.activeElement:null;
+    const requestedReturnTarget=nextDialogReturnFocusRef.current;
+    nextDialogReturnFocusRef.current=null;
+    const previouslyFocused=requestedReturnTarget?.isConnected
+      ?requestedReturnTarget
+      :document.activeElement instanceof HTMLElement?document.activeElement:null;
     const selector='a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
     const getFocusable=()=>Array.from(dialog.querySelectorAll<HTMLElement>(selector)).filter(el=>!el.hasAttribute("hidden")&&el.getAttribute("aria-hidden")!=="true");
     const focusable=getFocusable();
@@ -445,6 +450,9 @@ export default function Home() {
     {id:"language",label:t.commandLanguage,keywords:"locale فارسی english زبان"}
   ].filter(item=>(item.label+" "+item.keywords).toLocaleLowerCase().includes(commandQuery.trim().toLocaleLowerCase()));
   const runCommand=(id:string)=>{
+    if(id==="cart"||id==="favorites"||(id==="compare"&&compareIds.length>=2)){
+      nextDialogReturnFocusRef.current=commandPaletteReturnFocusRef.current;
+    }
     closeCommandPalette();
     if(id==="catalog"){document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});return;}
     if(id==="categories"){setCategoryMenu(true);return;}
