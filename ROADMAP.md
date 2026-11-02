@@ -172,15 +172,16 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Return the affected count; repeated revocation is a no-op and does not create duplicate audit events.
 - [x] Add integration coverage for rollback, invalid reasons, user isolation, audit actor/reason and idempotency.
 - [x] Verify the complete race-enabled PostgreSQL Backend CI suite and security scans: Backend CI [run 41393919125](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919125) and Security scans [run 41393919064](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919064) both passed on code head `6e044b63048b0911c5a7078279e38fe354898605`.
+- [x] Verify the concurrent session-creation/account-disable regression: Backend CI [run 41394508053](https://github.com/pooya16pg-spec/globalcart/actions/runs/41394508053) passed the PostgreSQL race-enabled suite on implementation head `4e74a223e87ee55f84127039be99735eb30b089e`.
 
 **Boundary:** this is an internal transaction helper, not a password-change endpoint or authorization middleware. Callers must include the relevant credential/role/account update in the same transaction. No HTTP route, browser cookie, email flow or hosted database is enabled.
 
-### M04.5 — Atomic password change and stale-login rejection (implementation; CI pending, 2026-11-02)
+### M04.5 — Atomic password change and stale-login rejection (CI verified, 2026-11-02)
 - [x] Require session creation to present the exact password-hash snapshot that was verified; compare it under the account row lock before issuing tokens.
 - [x] Add an internal password-change service that re-checks the expected old hash, updates the Argon2id hash, revokes every active session and audits the change in one transaction.
 - [x] Reject login attempts whose previously verified password hash became stale while waiting for the account lock.
 - [x] Add PostgreSQL integration coverage for multi-session revocation, old-password rejection, new-password verification and stale credential snapshots.
-- [ ] Verify Backend CI with PostgreSQL race tests and security scans on the implementation head.
+- [x] Verify Backend CI [run 41395032305](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032305), Security scans [run 41395032374](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032374) and GitHub Pages deployment [run 41395032292](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032292) on code head `fe2ec6b9bfce6ec4aa20ea004029e2a68d5b05ab`; all passed.
 
 **Boundary:** this is an internal password-change primitive, not a public endpoint or password-reset-token flow. The caller must verify the old password against the supplied hash snapshot before invoking it. No login/register HTTP route, browser cookie, email delivery or hosted database is enabled.
 

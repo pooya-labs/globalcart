@@ -77,11 +77,12 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - The helper is intentionally not wired to HTTP. Password, role and account-status mutation services must invoke it in the same transaction as their own database changes.
 
 
-## M04.5 password-change and stale-login checkpoint — implementation pushed; CI pending (2026-11-02)
+## M04.5 password-change and stale-login checkpoint — CI verified (2026-11-02)
 - `CreateSession` now requires the exact password-hash snapshot verified by the caller and compares it in constant time while holding the account row lock.
 - Internal `ChangePassword` re-checks the expected old hash, writes a fresh Argon2id hash, revokes all current sessions and appends an `auth.password.changed` event in one PostgreSQL transaction.
 - A login that verified an old password before a concurrent change cannot create a session after the new hash commits; it receives `ErrCredentialsChanged`.
-- Integration coverage verifies session revocation, new-password verification and stale snapshot rejection. Backend CI is pending.
+- Integration coverage verifies session revocation, new-password verification and stale snapshot rejection using a real Argon2id old-password hash.
+- Backend CI [run 41395032305](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032305), Security scans [run 41395032374](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032374) and Pages deployment [run 41395032292](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032292) passed on implementation head `fe2ec6b9bfce6ec4aa20ea004029e2a68d5b05ab`.
 
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
