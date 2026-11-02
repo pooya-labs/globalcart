@@ -159,8 +159,8 @@ func TestSellerAuthorizationSerializesWithMembershipRevocation(t *testing.T) {
 	}()
 	select {
 	case revokeErr := <-revokeResult:
-		_ = protectedTx.Rollback(ctx)
 		if !errors.Is(revokeErr, context.DeadlineExceeded) {
+			_ = protectedTx.Rollback(ctx)
 			t.Fatalf("membership revocation while seller transaction held locks = %v, want deadline exceeded", revokeErr)
 		}
 	case <-time.After(2 * time.Second):
