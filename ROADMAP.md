@@ -102,7 +102,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M03 — Pricing and product experience
 - [x] Integer-cent pricing, fixed-point FX and BigInt intermediate arithmetic.
 - [x] Explicit rounding and invalid-input tests.
-- [x] Add a timestamped Wallex USDTTMN one-minute candle-close feed with 5/15-minute freshness states, no-key server-side refresh, and no hard-coded fallback. First live snapshot is persisted to `data/fx-rate.json`; Browser E2E and Pages verification are still required.
+- [x] Add a timestamped Wallex USDTTMN one-minute candle-close feed with 5/15-minute freshness states, no-key server-side refresh, and no hard-coded fallback. First live snapshot is persisted to `data/fx-rate.json`; Browser E2E [41412932870](https://github.com/pooya16pg-spec/globalcart/actions/runs/41412932870) and Pages deployment [41412932549](https://github.com/pooya16pg-spec/globalcart/actions/runs/41412932549) passed. Scheduled refresh reliability remains under observation.
 - [x] Transparent source-price, discount and exchange-derived Tether/Toman estimate breakdown on product pages (no shipping, tax, payment fees or executable checkout quote).
 - [x] Dedicated static product details for the imported catalog, responsive image gallery and related products.
 - [x] Show source record ID, import time, source URL when present, provided variants/attributes, and disclose when source review count is not supplied.
