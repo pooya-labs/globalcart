@@ -371,3 +371,9 @@ button:disabled{cursor:not-allowed;opacity:.55}
   .command-palette-search{margin-inline:14px}
   .command-palette-footer{padding-inline:14px;align-items:flex-start;flex-direction:column}
 }
+
+/* M07.4 — explainable catalog recommendation ranking */
+.recommendation-basis{display:block;margin-top:7px;color:#8a95a3;font-size:9px;line-height:1.7}
+.recommendation-reason{margin:7px 0 0;display:inline-flex;align-items:center;max-width:100%;width:max-content;padding:4px 7px;border:1px solid #e5eee9;border-radius:6px;background:#f4f8f5;color:#39745e;font-size:8px;font-weight:750;line-height:1.5}
+.rtl .recommendation-reason{font-size:9px}
+@media(max-width:760px){.recommendation-basis{font-size:8px}.recommendation-reason{font-size:7px;padding:3px 6px}}

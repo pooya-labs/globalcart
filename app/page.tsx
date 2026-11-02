@@ -5,6 +5,7 @@ import Link from "next/link";
 import { fetchDummyJsonCatalog } from "../lib/catalog";
 import { filterCatalogProducts } from "../lib/catalog/filtering";
 import { buildCatalogSuggestions, type CatalogSearchSuggestion } from "../lib/catalog/suggestions";
+import { getCatalogRecommendationReason, rankCatalogRecommendations } from "../lib/catalog/recommendations";
 import catalogSnapshot from "../data/catalog.json";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, Check, ChevronDown, ChevronLeft,
@@ -35,7 +36,10 @@ const copy = {
     heroEyebrow: "THE ART OF DISCOVERY", heroTitle: "چیزهای خوب،\nدرست همین‌جا پیدا می‌شوند.", heroDesc: "یک تجربه خرید مدرن برای کشف، مقایسه و انتخاب هوشمندانه؛ از محصولات روزمره تا انتخاب‌های خاص.",
     explore: "کشف محصولات", curated: "انتخاب‌های سردبیر", categories: "بر اساس علاقه بگرد", categoriesDesc: "از جایی شروع کن که به تو نزدیک‌تر است.",
     all: "همه محصولات", catalog: "ویترین جهانی", catalogDesc: "کالکشن نمونه با اطلاعات واردشده از منبع داده نمایشی.",
-    sort: "مرتب‌سازی", popular: "محبوب‌ترین", low: "قیمت: کم به زیاد", high: "قیمت: زیاد به کم", rating: "بالاترین امتیاز",
+    sort: "مرتب‌سازی", popular: "پیشنهاد‌شده", low: "قیمت: کم به زیاد", high: "قیمت: زیاد به کم", rating: "بالاترین امتیاز",
+    recommendationBasis: "رتبه‌بندی نمایشی بر پایه امتیاز و تخفیف نمونه؛ نه شخصی‌سازی بر اساس سابقه کاربر.",
+    recommendationBoth: "امتیاز بالا + تخفیف", recommendationRating: "امتیاز بالای کاتالوگ",
+    recommendationDiscount: "تخفیف قابل‌توجه", recommendationBalanced: "ترکیب متعادل امتیاز و قیمت",
     filter: "فیلترها", category: "دسته‌بندی", clear: "پاک کردن فیلتر", noResults: "محصولی با این مشخصات پیدا نشد.",
     add: "افزودن به سبد", quick: "جزئیات", cart: "سبد خرید", favorites: "علاقه‌مندی‌ها", emptyCart: "سبدت هنوز خالی است.",
     subtotal: "جمع جزء", checkout: "ادامه و ثبت سفارش نمایشی", demo: "نسخه نمایشی", noPayment: "پرداخت واقعی غیرفعال است؛ این پروژه فروشگاه واقعی نیست.",
@@ -62,7 +66,10 @@ const copy = {
     heroEyebrow: "THE ART OF DISCOVERY", heroTitle: "Good things,\nright where you need them.", heroDesc: "A modern shopping experience to discover, compare and choose with confidence — from everyday essentials to thoughtful finds.",
     explore: "Explore products", curated: "Editor's selection", categories: "Browse by interest", categoriesDesc: "Start with what speaks to you.",
     all: "All products", catalog: "The global edit", catalogDesc: "A sample collection imported from a public demo data source.",
-    sort: "Sort by", popular: "Most popular", low: "Price: low to high", high: "Price: high to low", rating: "Top rated",
+    sort: "Sort by", popular: "Recommended", low: "Price: low to high", high: "Price: high to low", rating: "Top rated",
+    recommendationBasis: "Demo ranking uses sample ratings and discounts; it is not personalized from browsing or purchase history.",
+    recommendationBoth: "High rating + discount", recommendationRating: "Top catalog rating",
+    recommendationDiscount: "Strong sample discount", recommendationBalanced: "Balanced rating and price",
     filter: "Filters", category: "Category", clear: "Clear filters", noResults: "No products match your search.",
     add: "Add to bag", quick: "Details", cart: "Your bag", favorites: "Saved items", emptyCart: "Your bag is still empty.",
     subtotal: "Subtotal", checkout: "Continue to demo checkout", demo: "DEMO", noPayment: "Real payments are disabled. This is not a live store.",
@@ -293,7 +300,7 @@ export default function Home() {
     if(sort==="low")list.sort((a,b)=>a.price-b.price);
     else if(sort==="high")list.sort((a,b)=>b.price-a.price);
     else if(sort==="rating")list.sort((a,b)=>b.rating-a.rating);
-    else list.sort((a,b)=>(b.rating*b.discountPercentage)-(a.rating*a.discountPercentage));
+    else return rankCatalogRecommendations(list);
     return list;
   },[products,category,query,sort,minPrice,maxPrice,brandFilter,minRating]);
 
@@ -519,7 +526,7 @@ export default function Home() {
       {recentProducts.length>0&&<section className="recently-viewed-section"><div className="recently-viewed-head"><div><span className="section-kicker">03 / PICK UP WHERE YOU LEFT OFF</span><h2>{rtl?"بازدیدهای اخیر":"Recently viewed"}</h2><p>{rtl?"محصولاتی که اخیراً بررسی کرده‌ای؛ ذخیره‌شده فقط در همین مرورگر.":"Products you opened recently, stored only in this browser."}</p></div><div className="recently-viewed-actions"><Link href="/recently-viewed">{rtl?"مشاهده تاریخچه":"View history"} <ArrowLeft size={14}/></Link><button onClick={()=>setRecent([])}>{rtl?"پاک کردن تاریخچه":"Clear history"}</button></div></div><div className="recently-viewed-grid">{recentProducts.map(p=><Link href={`/product/${p.id}`} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></Link>)}</div></section>}
 
       <section className="section catalog-section" id="catalog">
-        <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p></div><div className="catalog-tools"><button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select value={sort} onChange={e=>setSort(e.target.value)}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
+        <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p>{sort==="popular"&&<small className="recommendation-basis">{t.recommendationBasis}</small>}</div><div className="catalog-tools"><button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select value={sort} onChange={e=>setSort(e.target.value)}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
         <div className="catalog-layout">
           <aside className={showFilters?"filter-panel filter-visible":"filter-panel"}>
             <div className="filter-title"><b><SlidersHorizontal size={16}/>{t.filter}</b><button onClick={()=>{setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);setQuery("");}}>{t.clear}</button></div>
@@ -535,7 +542,7 @@ export default function Home() {
             {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);}}>{t.clear}</button></div>:<div className="product-grid">
               {filtered.map((p,index)=><article className="product-card" key={p.id}>
                 <div className="product-media"><Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy"/></Link><span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
-                <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating"><span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span><small>{t.inStock}</small></div><div className="product-price"><div><b>{formatPrice(p)}</b><small>{usd(p.price)}</small></div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
+                <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating"><span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span><small>{t.inStock}</small></div><div className="recommendation-reason">{(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b><small>{usd(p.price)}</small></div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
               </article>)}
             </div>}
             <div className="catalog-foot"><span>{t.result}: {filtered.length} / {products.length}</span><span>{t.source}: {usingFallback?"Local demo fixture":"DummyJSON public demo API"}</span></div>
