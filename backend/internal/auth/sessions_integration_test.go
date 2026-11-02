@@ -684,7 +684,8 @@ func TestPasswordResetRejectsExpiredToken(t *testing.T) {
 	}
 	if _, err := pool.Exec(ctx, `
 		UPDATE auth_action_tokens
-		SET expires_at = now() - INTERVAL '1 minute'
+		SET created_at = now() - INTERVAL '2 hours',
+			expires_at = now() - INTERVAL '1 minute'
 		WHERE id = $1
 	`, issued.ID); err != nil {
 		t.Fatalf("expire reset-token fixture: %v", err)
