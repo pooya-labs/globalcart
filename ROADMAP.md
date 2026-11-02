@@ -535,13 +535,13 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Backfill current products and variants into the explicit GlobalCart Direct platform vendor.
 - [x] Add append-only price history and inventory event tables with initial import/opening balance records.
 - [x] Add PostgreSQL integration assertions for vendor backfill, independent stock across vendors, audit records and duplicate-offer rejection.
-- [ ] Integrate catalog importer so newly imported products create/update platform offers transactionally (implementation committed; CI verification pending).
-- [ ] Implement internal vendor and offer services with transactional price/inventory audit writes.
-- [ ] Migrate cart lines, reservations and checkout to vendor-offer identity; split each checkout into vendor order groups.
+- [x] Integrate catalog importer so newly imported base products and supplied variants create/update GlobalCart Direct platform offers transactionally; price/inventory audit events are appended only for actual changes (Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed).
+- [x] Implement internal vendor and offer services with transactional price/inventory audit writes (covered by `TestVendorServiceTransactions`; Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed).
+- [x] Migrate cart lines, reservations and checkout to vendor-offer identity; split each checkout into vendor order groups (migration 006, vendor cart lifecycle and split-checkout PostgreSQL tests; Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed).
 - [ ] Add verified seller membership and tenant-scoped authorization only after the approved identity/authentication boundary.
 - [ ] Keep seller APIs, seller UI, commission, payouts and fulfillment disabled until their separate security and product requirements are approved.
 
-**Compatibility note:** existing cart/checkout still use legacy product/variant stock. Migration 005 is additive and intentionally does not claim multi-vendor checkout is complete.
+**Compatibility note:** migration 005 adds vendor/offer storage; migration 006 adds vendor-aware cart lines and parent/child order references. Internal vendor split checkout, per-vendor reservations and child-order state propagation are implemented and CI-verified. Public seller/customer HTTP routes remain disabled pending the approved identity, same-site hosting and CSRF boundary.
 
 
 ### M09 — Vendor-aware cart foundation
@@ -550,8 +550,8 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Snapshot canonical offer price and vendor identity; serialize cart/offer mutations with row locks.
 - [x] Add parent/child vendor order schema and vendor-aware order-item/reservation references.
 - [x] Prevent legacy checkout from mispricing or reserving vendor cart lines.
-- [ ] Implement atomic split checkout, per-vendor reservations and coupon allocation.
-- [ ] Propagate cancellation, expiry and simulated payment state to vendor child orders.
+- [x] Implement atomic split checkout, per-vendor reservations and coupon allocation (M09.2; PostgreSQL integration and competing-checkout race tests passed in Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955)).
+- [x] Propagate cancellation, expiry and simulated payment state to vendor child orders (parent/child lifecycle SQL and simulated-payment integration coverage; Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955)).
 
 
 ### M09.2 — Vendor split checkout
@@ -676,7 +676,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add a PostgreSQL integration test proving an existing `(source, source_id)` cannot be reassigned to a different product.
 - [x] Include a valid earlier product in the same import batch and assert the identity conflict rolls back that earlier write too.
 - [x] Assert the original variant owner, SKU, price and stock remain unchanged and only one row exists for the source identity.
-- [ ] Verify the new identity-ownership test, complete race-enabled Go integration suite and Docker image build in Backend CI on the final head.
+- [x] Verify `TestVariantSourceIdentityCannotMoveBetweenProducts`, the complete race-enabled Go integration suite and Docker image build in Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955).
 
 **M08.6 safety boundary:** source identity is immutable ownership, not merely a deduplication key. Conflicts fail the transaction; they never silently move a variant between products.
 
@@ -685,7 +685,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 
 
 ## M08.7 — Explicit feed completeness semantics (CI verified)
-- [ ] Require every source adapter to declare whether it provides a complete snapshot or incremental/delta records.
+- [x] Require every source adapter to declare whether it provides a complete snapshot or incremental/delta records (`snapshotMode` is mandatory; the scheduled snapshot writer requires `full` and rejects incremental mode before fetch; Catalog CI [41356770768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770768) and Backend CI [41356770801](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770801) passed).
 - [x] Keep the static catalog snapshot writer restricted to complete snapshots; reject incremental feeds before fetching or replacing the last-known-good file.
 - [x] Add contract tests proving incremental records can be normalized for a merger but cannot be written as a full snapshot.
 - [x] Verify Catalog CI PR run `41356770768` and Backend CI PR run `41356770801` on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`; both passed all jobs.
