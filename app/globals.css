@@ -462,3 +462,12 @@ details>summary{min-height:28px;padding-block:5px;line-height:1.5}
     border:0;
   }
 }
+
+/* Catalog source freshness metadata */
+.catalog-foot{align-items:center;flex-wrap:wrap;row-gap:8px}
+.catalog-freshness{font-size:8px;letter-spacing:0;color:#778394}
+.catalog-freshness[data-freshness="fresh"]{color:#47765e}
+.catalog-freshness[data-freshness="aging"]{color:#98703b}
+.catalog-freshness[data-freshness="stale"]{color:#a44f49}
+.catalog-freshness[data-freshness="unknown"]{color:#7c8792}
+@media(max-width:760px){.catalog-freshness{flex-basis:100%}}

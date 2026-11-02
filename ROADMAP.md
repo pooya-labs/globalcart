@@ -93,9 +93,11 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Translation intentionally paused; no translation secrets or external translation service required for CI.
 - [x] Translate title, description, category and brand while preserving original source fields and provenance.
 - [x] Translation cache via source-content fingerprints, sequential throttling, bounded retries and per-product error reporting.
-- [ ] Catalog freshness and source diagnostics.
+- [x] Show the last successful source-fetch time or generated snapshot timestamp and classify its age as fresh (≤36h), aging (>36h to 72h), stale (>72h) or unknown; update the indicator for both Persian and English storefronts. The timestamp describes when GlobalCart fetched/generated the displayed catalog, not when the upstream supplier last changed its data.
 - [ ] Add other suppliers only through authorized APIs/feeds.
 **Acceptance:** products import automatically, the storefront survives source outages, and original source text remains intact. Translation is out of scope until explicitly reactivated.
+
+**Freshness semantics:** the public catalog job runs daily. A 36-hour fresh window allows one delayed/missed schedule; 72 hours marks two missed daily cycles as stale. This is snapshot-generation/fetch age only and is not a claim about upstream product modification timestamps.
 
 ## M03 — Pricing and product experience
 - [x] Integer-cent pricing, fixed-point FX and BigInt intermediate arithmetic.

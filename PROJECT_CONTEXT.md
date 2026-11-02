@@ -652,3 +652,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Requests/reviews/refunds are idempotent where applicable. Rejected returns and unpaid orders cannot be refunded.
 - The feature is not exposed over HTTP and never calls a provider, moves money, or changes stock/reservations.
 - Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) passed on `bc97475c0cce7f8de6aebe72071813c942b6a3d0`.
+
+
+## Latest catalog diagnostics checkpoint — M02 (implementation pending CI, 2026-11-02)
+- The storefront now displays the timestamp of the currently displayed catalog: the last successful browser fetch when the live source succeeds, otherwise the committed snapshot's `generatedAt`.
+- A small status label classifies that timestamp as fresh (up to 36 hours), aging (36–72 hours), stale (over 72 hours) or unknown, in both Persian and English.
+- The date is formatted in the browser's local timezone. If a live refresh fails, the timestamp stays anchored to the last-known-good snapshot instead of being reset to the failed attempt.
+- This measures GlobalCart's fetch/snapshot generation time, not an upstream supplier's last-modified timestamp. The scheduled source is a public demo API, not a contracted commercial feed.
+- TypeScript, unit tests, production build and Pages deployment verification are pending for this implementation.

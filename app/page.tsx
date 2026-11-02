@@ -8,6 +8,7 @@ import { buildCatalogSuggestions, type CatalogSearchSuggestion } from "../lib/ca
 import { getCatalogRecommendationReason, rankCatalogRecommendations } from "../lib/catalog/recommendations";
 import { hasSameSavedSearchFilters, normalizeSavedCatalogSearches, type SavedCatalogSearch } from "../lib/catalog/saved-searches";
 import { getCatalogSourceStatus, type CatalogSourceStatus } from "../lib/catalog/source-status";
+import { getCatalogFreshness, type CatalogFreshnessStatus } from "../lib/catalog/freshness";
 import catalogSnapshot from "../data/catalog.json";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, BookmarkCheck, BookmarkPlus, Check, ChevronDown, ChevronLeft,
@@ -49,6 +50,7 @@ const copy = {
     confirm: "ثبت سفارش آزمایشی", success: "سفارش نمایشی ساخته شد", order: "شناسه سفارش", continue: "بازگشت به فروشگاه",
     source: "منبع", rate: "نرخ نمایشی هر دلار (تومان)", inStock: "موجود در کاتالوگ نمونه", off: "تخفیف",
     searchResults: "نتایج جست‌وجو", loading: "در حال دریافت کاتالوگ...", sourceFallback: "منبع آنلاین در دسترس نیست؛ داده‌های نمونه محلی نمایش داده شده‌اند.", snapshotFallback: "به‌روزرسانی آنلاین در دسترس نیست؛ آخرین کاتالوگ تولیدشده نمایش داده می‌شود.",
+    catalogLastChecked: "آخرین بررسی منبع", snapshotGenerated: "زمان تولید کاتالوگ", freshnessFresh: "تازه", freshnessAging: "در حال کهنه‌شدن", freshnessStale: "قدیمی", freshnessUnknown: "زمان نامشخص",
     why: "چرا GlobalCart؟", whyText: "یک پروژه مستقل برای نمایش مهندسی محصول، معماری فرانت‌اند، یکپارچه‌سازی داده و طراحی تجربه تجارت الکترونیک.",
     feature1: "کشف هوشمند", feature1d: "جست‌وجو و فیلتر سریع", feature2: "اطلاعات شفاف", feature2d: "نمایش منبع و قیمت", feature3: "تجربه امن", feature3d: "بدون تراکنش واقعی",
     footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "طراحی و توسعه: پویا گودرزی",
@@ -83,6 +85,7 @@ const copy = {
     confirm: "Place demo order", success: "Demo order created", order: "Order reference", continue: "Back to store",
     source: "Source", rate: "Illustrative USD rate (Toman)", inStock: "Sample catalog item", off: "OFF",
     searchResults: "Search results", loading: "Loading catalog...", sourceFallback: "Live source is unavailable; showing local demo fixtures.", snapshotFallback: "Live refresh is unavailable; showing the last generated catalog snapshot.",
+    catalogLastChecked: "Last source check", snapshotGenerated: "Snapshot generated", freshnessFresh: "Fresh", freshnessAging: "Aging", freshnessStale: "Stale", freshnessUnknown: "Unknown",
     why: "Why GlobalCart?", whyText: "An independent portfolio project showcasing product engineering, frontend architecture, data integration and commerce experience design.",
     feature1: "Smart discovery", feature1d: "Fast search and filters", feature2: "Clear information", feature2d: "Source and price context", feature3: "Safe experience", feature3d: "No real transactions",
     footer: "An independent commerce experience, built to showcase product engineering.", owner: "Designed & engineered by Pooya Goodarzi",
@@ -123,6 +126,14 @@ const categories = [
 
 const money = (value:number, locale:Locale) => new Intl.NumberFormat(locale==="fa"?"fa-IR":"en-US",{maximumFractionDigits:0}).format(value);
 const usd = (value:number) => "$"+value.toFixed(2);
+const formatCatalogTimestamp = (value:string|null, locale:Locale) => {
+  if(!value)return null;
+  const timestamp=Date.parse(value);
+  if(!Number.isFinite(timestamp))return null;
+  return new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{
+    year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"
+  }).format(new Date(timestamp));
+};
 
 const parseAmazonProductLink=(raw:string):{asin:string;url:string}|null=>{
   try{
@@ -141,6 +152,9 @@ export default function Home() {
   const [products,setProducts]=useState<Product[]>(snapshotProducts.length ? snapshotProducts : fallback);
   const [catalogSourceState,setCatalogSourceState]=useState<CatalogSourceStatus>(
     getCatalogSourceStatus(snapshotProducts.length>0,"pending")
+  );
+  const [catalogTimestamp,setCatalogTimestamp]=useState<string|null>(
+    typeof catalogSnapshot.generatedAt === "string" ? catalogSnapshot.generatedAt : null
   );
   const [query,setQuery]=useState("");
   const [category,setCategory]=useState("all");
@@ -310,6 +324,7 @@ export default function Home() {
         const nextState=getCatalogSourceStatus(snapshotProducts.length>0,"success",records.length);
         setCatalogSourceState(nextState);
         if(nextState!=="live")return;
+        setCatalogTimestamp(new Date().toISOString());
         const mapped:Product[]=records.map(p=>({
           id:p.id,title:p.title,description:p.description,category:p.category,
           price:p.price,discountPercentage:p.discountPercentage,rating:p.rating,
@@ -649,7 +664,21 @@ export default function Home() {
                 <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating"><span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span><small>{t.inStock}</small></div><div className="recommendation-reason">{(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b><small>{usd(p.price)}</small></div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
               </article>)}
             </div>}
-            <div className="catalog-foot"><span>{t.result}: {filtered.length} / {products.length}</span><span>{t.source}: {catalogSourceState==="live"?"DummyJSON public demo API":catalogSourceState==="fixture-fallback"?"Local demo fixture":"Generated catalog snapshot"}</span></div>
+            <div className="catalog-foot">
+              <span>{t.result}: {filtered.length} / {products.length}</span>
+              <span>{t.source}: {catalogSourceState==="live"?"DummyJSON public demo API":catalogSourceState==="fixture-fallback"?"Local demo fixture":"Generated catalog snapshot"}</span>
+              {(() => {
+                const freshness:CatalogFreshnessStatus=getCatalogFreshness(catalogTimestamp);
+                const freshnessLabel=freshness==="fresh"?t.freshnessFresh:freshness==="aging"?t.freshnessAging:freshness==="stale"?t.freshnessStale:t.freshnessUnknown;
+                const timestampLabel=catalogSourceState==="live"?t.catalogLastChecked:t.snapshotGenerated;
+                const formattedTimestamp=formatCatalogTimestamp(catalogTimestamp,locale);
+                return <span className="catalog-freshness" data-freshness={freshness}>
+                  {formattedTimestamp
+                    ? <>{timestampLabel}: <time dateTime={catalogTimestamp??undefined}>{formattedTimestamp}</time> · {freshnessLabel}</>
+                    : <>{timestampLabel}: {t.freshnessUnknown}</>}
+                </span>;
+              })()}
+            </div>
           </div>
         </div>
       </section>
