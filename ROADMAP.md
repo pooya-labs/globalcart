@@ -179,7 +179,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 ## M08 — Quality and hardening
 - [x] Playwright tests for critical shopping journeys.
-- [ ] RTL/LTR accessibility, keyboard, labels and contrast audit (automated axe and Command Palette keyboard checks are verified; manual screen-reader and broader keyboard review remains open).
+- [x] Automated RTL/LTR axe checks, dialog keyboard/focus regression tests and reduced-motion behavior verified in desktop Chromium and Pixel 7 mobile; manual screen-reader, physical-device and broader keyboard review remains open.
 - [ ] Performance and image-loading audit (image policy and first-party JS/CSS budgets are automated; live CDN image timing and Core Web Vitals review remains open).
 - [x] Automated repository secret scan (Gitleaks), Go dependency vulnerability scan and `go vet` in CI; hosted API penetration/security review remains gated.
 - [ ] Database backup/restore and migration verification.
@@ -194,6 +194,16 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] On the same pre-merge PR head, Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) passed.
 
 **Boundary:** this is automated keyboard/focus coverage for the tested dialogs and desktop/mobile viewports. Manual screen-reader, physical-device, broader RTL/LTR and reduced-motion review remains open.
+
+### M08.11 — RTL/LTR accessibility and reduced-motion regression coverage (CI verified, 2026-11-02)
+- [x] Run axe WCAG 2.0/2.1/2.2 A/AA scans on the storefront in Persian RTL and English LTR.
+- [x] Verify `prefers-reduced-motion: reduce` disables smooth scrolling and limits image transitions and overlay animation.
+- [x] Correct the catalog stale-snapshot status text to exceed the 4.5:1 normal-text contrast threshold.
+- [x] Keep reduced-motion overlay interaction touch-safe on Pixel 7; the check uses the cart drawer rather than a hover-dependent quick-view control.
+- [x] Browser E2E run [41383420470](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420470) passed all 30 desktop/mobile Playwright tests on implementation head `9653fc7d2d03e45f726b7e6a0e47fd7cbd1295dc`.
+- [x] Security scans [41383420409](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420409) and GitHub Pages deployment [41383420345](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420345) passed on the same head.
+
+**Boundary:** automated scans cover the tested storefront states and desktop/mobile emulation. Manual screen-reader, real-device, full-site RTL/LTR and published URL/deep-link QA remain open.
 
 ## M09 — Portfolio release
 - [ ] Persian and English case study.

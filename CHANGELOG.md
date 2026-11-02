@@ -3,6 +3,24 @@
 ## Unreleased — 2026-11-02
 
 ### Added
+- Added Playwright axe coverage for the storefront in both Persian RTL and English LTR.
+- Added a desktop/mobile `prefers-reduced-motion` regression test for smooth scrolling, image transitions and modal overlay animation.
+
+### Fixed
+- Increased the stale-catalog status foreground contrast from 4.32:1 to above 5:1 against its light background.
+- Made reduced-motion overlay coverage use the touch-safe cart drawer rather than a hover-dependent quick-view control.
+
+### Verification
+- Browser E2E [41383420470](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420470) passed all 30 Playwright tests across desktop Chromium and Pixel 7 mobile on `9653fc7d2d03e45f726b7e6a0e47fd7cbd1295dc`.
+- Security scans [41383420409](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420409) and GitHub Pages deployment [41383420345](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420345) passed on the same implementation head.
+
+### Remaining manual QA
+- Screen-reader review, real-device checks, full-site RTL/LTR review and live CDN/Core Web Vitals measurement remain outstanding.
+
+
+## Unreleased — 2026-11-02
+
+### Added
 - Added migration 010 for one full-order return request per paid simulated order, fixed reason codes, review timestamps and terminal `refunded_simulated` states.
 - Added internal Go services for owner-scoped return requests, approve/reject review and idempotent full-order simulated refund completion.
 - Added PostgreSQL integration coverage for ownership isolation, unpaid-order rejection, invalid/duplicate reasons, request/review/refund idempotency, parent/vendor child state transitions, event history and unchanged inventory.

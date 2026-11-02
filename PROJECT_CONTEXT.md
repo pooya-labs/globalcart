@@ -69,6 +69,14 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The backend remains local-development scaffolding. No hosted database/API, real payment/refund provider, production secrets or paid service was provisioned.
 - PR #1 is closed and merged: https://github.com/pooya16pg-spec/globalcart/pull/1
 
+## Latest quality checkpoint — M08.11 (CI verified, 2026-11-02)
+- Implementation head: `9653fc7d2d03e45f726b7e6a0e47fd7cbd1295dc` on `main`.
+- Playwright Browser E2E [41383420470](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420470) passed all 30 tests across desktop Chromium and Pixel 7 mobile.
+- axe audits passed in both Persian RTL and English LTR. Reduced-motion behavior passed on both viewports, including scroll, transition and dialog-animation checks.
+- Fixed the stale-catalog status contrast to exceed 5:1.
+- Security scans [41383420409](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420409) and GitHub Pages deployment [41383420345](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420345) passed on the same implementation head.
+- Manual screen-reader, real-device and full-site/deep-link QA remain open.
+
 ## Immediate next actions
 1. Design the identity/session/deny-by-default RBAC boundary, including seller membership, CSRF, audit events and an admin-review permission model. Keep all commerce write and return-review methods off HTTP until the security and hosting gates are approved.
 2. Complete manual responsive and RTL/LTR QA on real devices, including screen-reader, broader keyboard, reduced-motion and published deep-link checks. Automated axe, focus and browser journeys are already CI-verified.
