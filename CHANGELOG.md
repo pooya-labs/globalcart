@@ -3,6 +3,7 @@
 ## Unreleased — 2026-11-02
 
 ### Fixed
+- Serialized Backend CI Go test packages with `go test -race -p 1 ./...` because PostgreSQL integration packages intentionally share `TEST_DATABASE_URL` and the checksum-drift regression temporarily alters the shared migration ledger; race detection remains enabled within each package.
 - Fixed locale continuity across the homepage, product-detail and recently-viewed routes. The history page now reads and writes the shared guarded `globalcart-locale-v1` preference, and its language-toggle accessible name is localized correctly; unsupported values or unavailable storage still fall back safely to Persian. Browser E2E [41462200408](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200408) passed all 34 desktop/mobile tests; Pages deployment and published-site smoke test [41462200496](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200496) passed.
 - Aligned the data-source provenance description with the active Wallex USDTTMN Toman candle-close feed; removed the obsolete Nobitex midpoint description.
 - Moved the Wallex scheduled refresh from minute zero to `2-59/5` to avoid the busy hour boundary. Push-triggered refresh [41413175324](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413175324) passed, validated and persisted the 08:27 UTC candle at 272,892 Toman per USDT. A fresh push-triggered data refresh is verified; the recurring `schedule` event still needs independent confirmation.
