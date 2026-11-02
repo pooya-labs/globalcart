@@ -597,3 +597,18 @@
 
 ### Verification
 - Backend CI [run 41396823353](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823353), Security scans [run 41396823371](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823371) and Pages deployment [run 41396823403](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823403) passed on code head `aef92e7526cfbc9c51f0d803bcba8493e131d8d2`.
+
+
+## Unreleased — internal seller-membership lifecycle (Backend CI and Security verified, 2026-11-02)
+
+### Added
+- Added internal seller-membership request, activation, suspension and revocation using migration 011; no additional schema migration was needed.
+- Pending requests grant no seller role. Admin activation grants seller only for an active, verified account and active vendor.
+- Preserve vendor scopes across multiple memberships and revoke seller role only after the last active membership is removed.
+- Revoke affected sessions and append actor-attributed membership/role audit events transactionally.
+- Added PostgreSQL coverage for multi-vendor scopes, disabled-account cleanup, inactive vendor/requester rejection and concurrent activation.
+- No seller HTTP route, dashboard, self-approval or payout feature was added.
+
+### Verification
+- Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226) and Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) passed on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`.
+- GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) was still running when this entry was prepared.

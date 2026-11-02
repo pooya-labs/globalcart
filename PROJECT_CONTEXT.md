@@ -112,6 +112,16 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Backend CI [run 41396823353](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823353), Security scans [run 41396823371](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823371) and Pages deployment [run 41396823403](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823403) passed on code head `aef92e7526cfbc9c51f0d803bcba8493e131d8d2`.
 - No HTTP endpoint or self-bootstrap flow exists. First-admin provisioning remains an operator-controlled database operation.
 
+
+## M04.9 seller-membership administration checkpoint — Backend CI and Security verified (2026-11-02)
+- `backend/internal/auth/seller_memberships.go` reuses migration 011 tables. It provides internal request, activate, suspend and revoke operations; no schema migration or public route was added.
+- Requests are pending only and do not grant the seller role. Activation requires a different active, verified admin actor, an active/verified target and an active vendor.
+- Each membership mutation is serialized with admin role operations. The user keeps seller role while at least one active membership on an active vendor remains; the role is revoked after the final active scope is removed.
+- Affected sessions are invalidated in the same transaction; membership and automatic role changes append actor-attributed audit events.
+- PostgreSQL tests verify two-vendor scope preservation, remaining-scope behavior after suspension, final seller-role removal, disabled-target cleanup, inactive vendor/requester rejection and concurrent activation.
+- Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226) and Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) passed on implementation head `f0756e0a3360b949b384aef1ff8e3a646192257b`. Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) was still completing at checkpoint time.
+- No seller HTTP endpoint, dashboard, self-approval path or seller payout feature exists.
+
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
@@ -135,9 +145,9 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Manual screen-reader, real-device and full-site/deep-link QA remain open.
 
 ## Immediate next actions
-1. Keep authentication, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Identity and role helpers remain internal-only; callers must derive actor IDs from verified server-side sessions.
-2. Implement M04.9 internal seller-membership request/review/activation/suspension/revocation with vendor ownership checks, session invalidation and audit in one transaction.
-3. After membership authorization is complete, implement deny-by-default route policies and cross-vendor IDOR tests before considering any protected HTTP route.
+1. Keep authentication, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Identity and authorization helpers remain internal-only; actor IDs must come from verified server-side sessions.
+2. Implement M04.10 deny-by-default internal authorization policies for customer ownership, seller vendor scope and admin-only actions; keep unknown policy combinations forbidden.
+3. Add cross-vendor IDOR and route-policy matrix tests before any protected HTTP route is considered.
 4. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
 5. Obtain owner approval and documented rights for a named supplier API/feed and an authorized FX provider/rate-staleness policy before enabling either integration.
 

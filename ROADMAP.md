@@ -221,14 +221,27 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** internal privileged-role operations only. The trusted caller must derive `actorUserID` from a verified server-side session, never from request JSON or a browser-supplied role claim. Seller membership lifecycle and public authorization middleware are not included.
 
-### M04.9 — Seller-membership administration and scoped authorization (next; implementation not started)
-- [ ] Add internal request/review/activate/suspend/revoke operations for `seller_memberships`, with an active administrator actor and explicit vendor ownership checks.
-- [ ] Require the target account to be active and email-verified before activation; never grant the seller role or vendor scope from client-supplied IDs.
-- [ ] Serialize membership mutations, revoke affected sessions on suspension/revocation, and append actor-attributed audit events in the same transaction.
-- [ ] Test cross-vendor isolation, inactive vendors, inactive users, duplicate requests, unauthorized actors and concurrent review/revocation with PostgreSQL.
-- [ ] Keep seller routes and dashboards disabled until the approved same-site HTTPS identity boundary exists.
+### M04.9 — Seller-membership administration and scoped authorization (CI verified, 2026-11-02)
+- [x] Add internal `RequestSellerMembership`, `ActivateSellerMembership`, `SuspendSellerMembership` and `RevokeSellerMembership`; reuse migration 011 `seller_memberships` and `user_roles` without a new migration.
+- [x] Require active, verified accounts and active vendors for requests/activation; the seller role is granted only on admin approval, never from browser-supplied role/vendor claims.
+- [x] Serialize admin review with the existing privileged-mutation lock, preserve other vendor scopes, revoke the seller role only after the last active vendor scope is removed, and invalidate target sessions transactionally.
+- [x] Append actor-attributed audit events for membership requests, activation, suspension/revocation and automatic seller-role grant/revoke.
+- [x] Add PostgreSQL tests for multi-vendor scope retention, no-scope role removal, disabled target cleanup, inactive vendors, unauthorized actors and concurrent activation.
+
+- [x] Verify Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226), Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) and GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`; Backend CI and Security passed; Pages deployment is completing.
+
+- [x] Verify Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226), Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) and GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`; Backend CI and Security passed; Pages deployment is completing.
 
 **Boundary:** internal membership administration only; no seller self-approval, payouts, seller dashboard or public seller endpoint.
+
+### M04.10 — Deny-by-default internal authorization policy (next; implementation not started)
+- [ ] Define explicit action/resource policy types for customer ownership, seller vendor scope and administrator-only operations.
+- [ ] Use only a `SessionPrincipal` resolved from the server-side session store; no role, owner, or vendor IDs from request payloads may authorize an action.
+- [ ] Deny unknown actions/resources by default and return a typed forbidden result without disclosing cross-tenant resource existence.
+- [ ] Add table-driven tests for customer ownership, assigned/unassigned seller vendors, missing/inactive sessions, admin-only actions and unknown policy combinations.
+- [ ] Keep policy evaluation internal; no middleware or public protected route until same-site HTTPS hosting and runtime approval.
+
+**Boundary:** pure/internal authorization policy only. Public handlers, cookies, CSRF middleware and deployment remain blocked on ADR-010 owner approval.
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
