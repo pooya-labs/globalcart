@@ -164,19 +164,19 @@ func (s productOverrideState) snapshot() ([]byte, error) {
 		SourceTitle       string `json:"sourceTitle"`
 		SourceDescription string `json:"sourceDescription"`
 		SourceBrand       string `json:"sourceBrand"`
-		Overrides struct {
+		Overrides         struct {
 			Title       *string `json:"title"`
 			Description *string `json:"description"`
 			Brand       *string `json:"brand"`
 		} `json:"overrides"`
 		VisibilityStatus string `json:"visibilityStatus"`
 	}{
-		Title: effective(s.Title, s.SourceTitle),
-		Description: effective(s.Description, s.SourceDescription),
-		Brand: effective(s.Brand, s.SourceBrand),
-		SourceTitle: s.SourceTitle,
+		Title:             effective(s.Title, s.SourceTitle),
+		Description:       effective(s.Description, s.SourceDescription),
+		Brand:             effective(s.Brand, s.SourceBrand),
+		SourceTitle:       s.SourceTitle,
 		SourceDescription: s.SourceDescription,
-		SourceBrand: s.SourceBrand,
+		SourceBrand:       s.SourceBrand,
 		Overrides: struct {
 			Title       *string `json:"title"`
 			Description *string `json:"description"`
