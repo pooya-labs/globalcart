@@ -42,7 +42,7 @@ func TestCatalogSearchTrigramFallbackAndExactMatchRanking(t *testing.T) {
 			Source: "trigram-integration", SourceID: fmt.Sprintf("trigram-%d-a", baseID), ImportedAt: importedAt,
 		},
 		{
-			ID: baseID + 2, Title: "Headphone Case", Description: "Protective case for headphones",
+			ID: baseID + 2, Title: "Headphone Case", Description: "Protective travel case for electronics",
 			Category: "Accessories", Price: 19.99, Rating: 4.1, Stock: 5, Brand: "CaseCo",
 			Thumbnail: "https://example.invalid/hedphones.webp", Images: []string{},
 			Source: "trigram-integration", SourceID: fmt.Sprintf("trigram-%d-b", baseID), ImportedAt: importedAt,
