@@ -43,8 +43,8 @@ test("rejects bad status, missing sides, crossed books and implausible prices", 
   }, NOW), /crossed/);
   assert.throws(() => normalizeNobitexOrderBook({
     ...validOrderBook,
-    bids: [["100000", "1"]],
-    asks: [["100100", "1"]]
+    bids: [["99900", "1"]],
+    asks: [["99910", "1"]]
   }, NOW), /supported Toman range/);
   assert.throws(() => normalizeNobitexOrderBook({ ...validOrderBook, lastUpdate: "bad" }, NOW), /lastUpdate/);
 });
