@@ -145,9 +145,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 ## M07 — Search and discovery
 - [x] Faceted filters for brand, rating, price and category across the storefront and read-only API.
-- [ ] Accessible suggestions and keyboard command palette.
+- [x] Accessible product/brand/category suggestions and keyboard command palette (Ctrl/⌘+K), with Arrow/Enter/Escape controls.
 - [x] PostgreSQL full-text search baseline and indexed query path.
-- [ ] Trigram typo tolerance and search relevance tests.
+- [x] PostgreSQL trigram typo tolerance for product titles and brands, with exact full-text matches ranked first and integration coverage.
 - [ ] Explainable ranking and recommendations.
 - [ ] Saved searches and preferences.
 - [ ] Empty, loading, offline and error states.
@@ -590,3 +590,29 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on implementation commit `cc36339bcac77d08abc37af3f88f08607a090367`:** Catalog CI PR run [41363342797](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342797), Backend CI PR run [41363342758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342758), and Backend CI push run [41363337241](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363337241) all succeeded.
 
 **Safety note:** this tightens the existing canonical rating domain; it does not rewrite existing rows or fabricate rating values.
+
+
+### M07.2 — Accessible suggestions and keyboard command palette — CI verified (2026-11-02)
+- [x] Build deterministic, bounded product, brand and category suggestions from the catalog already loaded by the storefront.
+- [x] Add accessible combobox/listbox semantics, active-option tracking and Arrow Up/Down, Enter and Escape behavior.
+- [x] Add a Ctrl/⌘+K command palette for catalog, category, cart, favorites, comparison, reset-filters and language actions.
+- [x] Reuse the modal focus trap and restore focus when the command dialog closes; explicitly focus mobile search when expanded.
+- [x] Add unit tests for prefix ranking, normalization, de-duplication, bounded results and source-array non-mutation.
+- [x] Verify TypeScript, Catalog unit tests and production build.
+
+**Verification:** the feature was implemented in 3d6b840f769a4c23de134800877de9c9b47e8298; Catalog CI push run [41366011979](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366011979) and PR run [41366016027](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366016027) passed. The combined current PR head 87bc930da16367bd725b68fec460bae2fda6f26e also passed [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366593947).
+
+**Scope:** suggestions and commands run against the browser-loaded sample catalog and local demo state; they do not call the unhosted API or create real orders/payments.
+
+### M07.3 — PostgreSQL trigram typo tolerance — CI verified (2026-11-02)
+- [x] Enable the trusted pg_trgm extension in a forward-only migration and add GIN indexes for normalized product titles and brands.
+- [x] Keep full-text search as the primary path; use trigram/word-similarity matching as a fallback only for queries of at least three characters.
+- [x] Rank exact full-text matches ahead of fuzzy title/brand matches.
+- [x] Keep list and count search predicates aligned, including fuzzy matches.
+- [x] Document the 200-character query limit and fuzzy-search behavior in OpenAPI.
+- [x] Add PostgreSQL integration tests for exact-match precedence, typo-tolerant title/phrase and brand search, and count/list consistency.
+- [x] Verify sqlc generation, Go vet, PostgreSQL 17 integration/race tests, API/importer builds and Docker image build.
+
+**Verification on final implementation head 87bc930da16367bd725b68fec460bae2fda6f26e:** [Backend CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366589804), [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366594050) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366593947) all succeeded.
+
+**Scope:** this changes only the local PostgreSQL search path. The public GitHub Pages storefront continues to search its generated static catalog; no hosted API connection is implied.

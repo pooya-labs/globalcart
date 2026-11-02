@@ -390,3 +390,16 @@
 
 ### Verification
 - Implementation head `3372040d3cd71cd55d99724033065cf0dfa4537e` passed [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365136582), [Catalog CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141727) and [Backend CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141780).
+
+
+## Unreleased — Accessible discovery and typo-tolerant search (2026-11-02)
+
+### Added
+- Added bounded, normalized product/brand/category suggestions with accessible combobox/listbox keyboard operation.
+- Added a Ctrl/⌘+K command palette for frequently used storefront navigation and local demo actions.
+- Added PostgreSQL trigram fallback search for product-title and brand typos, with exact full-text results ranked first.
+- Added GIN indexes, a forward-only pg_trgm migration, OpenAPI documentation and PostgreSQL integration tests for fuzzy title/brand search and count consistency.
+
+### Verification
+- Catalog CI push 41366011979 and PR 41366016027 passed for the storefront discovery feature.
+- Final combined head 87bc930da16367bd725b68fec460bae2fda6f26e passed Backend CI push 41366589804, Backend CI PR 41366594050 and Catalog CI PR 41366593947.

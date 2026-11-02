@@ -24,7 +24,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Never mark roadmap work complete before verification.
 
 ## Current implementation map
-- `app/page.tsx` — bilingual storefront, catalog search/filter/sort with dynamic brand and minimum-rating facets, category mega-menu, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
+- `app/page.tsx` — bilingual storefront, catalog search/filter/sort with dynamic brand and minimum-rating facets, accessible product/brand/category suggestions and Ctrl/⌘+K command palette, category mega-menu, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
 - `app/product/[id]/page.tsx` — statically generated product routes from the current catalog snapshot.
 - `app/product/[id]/ProductDetailClient.tsx` — product gallery, illustrative price breakdown, product facts, browser-local visit tracking, local cart/favorite actions and related products.
 - `app/recently-viewed/page.tsx` — static-exportable history page reading and clearing browser-local recent product IDs.
@@ -32,10 +32,10 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `app/layout.tsx` — metadata and global styles.
 - `data/catalog.json` — generated 100-product sample catalog snapshot.
 - `scripts/sync-catalog.ts` — scheduled/manual DummyJSON import, retry, normalization and last-known-good protection.
-- `lib/catalog/*` — canonical catalog contracts, normalization, source adapter and pure local facet filtering (`filtering.ts`).
+- `lib/catalog/*` — canonical catalog contracts, normalization, source adapter, pure local facet filtering (filtering.ts) and bounded search-suggestion ranking (suggestions.ts).
 - `lib/pricing.ts` — integer-cent/fixed-point demo pricing with BigInt.
 - `lib/translation/*` and `google-apps-script/*` — parked legacy translation implementation; not used by storefront or CI.
-- `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering, pricing and legacy translation tests.
+- `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering and search-suggestion tests, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - `ROADMAP.md` — authoritative milestone checklist.
 - `backend/` — Go REST API, PostgreSQL migrations, local Docker Compose, catalog importer and OpenAPI contract.
@@ -464,3 +464,18 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Local filtering logic is isolated in `lib/catalog/filtering.ts` and covered by focused regression tests.
 - The latest implementation head `3372040d3cd71cd55d99724033065cf0dfa4537e` passed Catalog CI push run `41365136582`, Catalog CI PR run `41365141727` and Backend CI PR run `41365141780`.
 - The frontend still uses the generated static catalog. The Go API is not hosted and has not been connected to the public storefront.
+
+
+## M07.2 — Accessible suggestions and command palette (CI verified, 2026-11-02)
+- app/page.tsx exposes bounded product, brand and category suggestions from the loaded catalog. The search field uses combobox/listbox semantics and supports keyboard navigation and selection.
+- Ctrl/⌘+K opens a focus-trapped command dialog for catalog navigation, category browsing, cart, favorites, comparison, reset filters and language switching.
+- lib/catalog/suggestions.ts owns deterministic NFKC-normalized ranking and de-duplication. tests/catalog-suggestions.test.ts covers ranking, normalization, result bounds and source-data non-mutation.
+- Catalog CI push and PR checks passed on implementation commit 3d6b840f769a4c23de134800877de9c9b47e8298; the combined final PR head 87bc930da16367bd725b68fec460bae2fda6f26e also passed Catalog CI.
+
+## M07.3 — PostgreSQL trigram typo tolerance (CI verified, 2026-11-02)
+- Migration 009 enables pg_trgm and adds GIN expression indexes for normalized product titles and brands.
+- backend/queries/catalog.sql retains simple-config full-text search as primary matching and adds trigram/word-similarity fallback for queries of at least three characters. Exact full-text matches rank above fuzzy matches.
+- Product list and total-count filters use the same full-text/trigram predicate. OpenAPI documents the query length and typo-tolerance behavior.
+- backend/internal/database/search_integration_test.go covers exact-match ordering, typo-tolerant title/phrase and brand search, and total-count consistency using isolated category fixtures.
+- Final implementation head 87bc930da16367bd725b68fec460bae2fda6f26e passed Backend CI push 41366589804, Backend CI PR 41366594050 and Catalog CI PR 41366593947.
+- The storefront remains static and local; this migration does not deploy or connect a public backend.
