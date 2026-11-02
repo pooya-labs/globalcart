@@ -110,7 +110,6 @@ func AuthorizeSellerVendorTx(
 	return nil
 }
 
-
 // AuthorizeCustomerSessionTx revalidates an account-backed customer session
 // under row locks in the caller's transaction. Customer resource ownership
 // must still be loaded from PostgreSQL and checked separately with Authorize;

@@ -324,7 +324,6 @@ func (s *Service) GetCart(ctx context.Context, ownerTokenHash []byte) (Cart, err
 	return cart, nil
 }
 
-
 type cartItemsReader interface {
 	Query(context.Context, string, ...any) (pgx.Rows, error)
 }

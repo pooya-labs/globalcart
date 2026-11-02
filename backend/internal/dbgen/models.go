@@ -40,6 +40,7 @@ type Cart struct {
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 	CouponID       *int64             `json:"coupon_id"`
+	OwnerUserID    pgtype.UUID        `json:"owner_user_id"`
 }
 
 type CartItem struct {
