@@ -41,6 +41,7 @@ func TestMigrateBackfillsLegacyChecksumsAndRejectsAppliedFileDrift(t *testing.T)
 	if err != nil {
 		t.Fatalf("create database pool: %v", err)
 	}
+	var migrationName, expectedChecksum string
 	t.Cleanup(func() {
 		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cleanupCancel()
