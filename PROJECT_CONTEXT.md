@@ -76,6 +76,13 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Backend CI [run 41393919125](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919125) passed the PostgreSQL-backed race-enabled Go suite, `go vet`, dependency vulnerability scan, API/importer builds and Docker image build. Security scans [run 41393919064](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919064) also passed on code head `6e044b63048b0911c5a7078279e38fe354898605`.
 - The helper is intentionally not wired to HTTP. Password, role and account-status mutation services must invoke it in the same transaction as their own database changes.
 
+
+## M04.5 password-change and stale-login checkpoint — implementation pushed; CI pending (2026-11-02)
+- `CreateSession` now requires the exact password-hash snapshot verified by the caller and compares it in constant time while holding the account row lock.
+- Internal `ChangePassword` re-checks the expected old hash, writes a fresh Argon2id hash, revokes all current sessions and appends an `auth.password.changed` event in one PostgreSQL transaction.
+- A login that verified an old password before a concurrent change cannot create a session after the new hash commits; it receives `ErrCredentialsChanged`.
+- Integration coverage verifies session revocation, new-password verification and stale snapshot rejection. Backend CI is pending.
+
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
@@ -99,8 +106,8 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Manual screen-reader, real-device and full-site/deep-link QA remain open.
 
 ## Immediate next actions
-1. Keep auth HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Reuse `RevokeUserSessions` inside the same transaction as future password, privilege and account-status mutations.
-2. Add concurrency-focused session creation/revocation tests before exposing authentication; then implement deny-by-default middleware and seller-membership authorization only behind the approved deployment boundary.
+1. Keep auth HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Use `ChangePassword` and `RevokeUserSessions` only inside their documented internal transaction boundary.
+2. Finish stale-credential, session-creation/revocation concurrency and password-reset token consumption tests before implementing deny-by-default middleware and seller-membership authorization behind the approved deployment boundary.
 3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
 4. Obtain owner approval and documented rights for a named supplier API/feed before live catalog onboarding; do not scrape or fabricate inventory.
 5. Select an authorized FX provider and define source timestamp/stale-rate policy; keep the current rate illustrative until then.

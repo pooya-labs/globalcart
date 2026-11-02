@@ -14,6 +14,9 @@ import (
 	"github.com/pooya16pg-spec/globalcart/backend/internal/database"
 )
 
+const integrationPasswordHash = "$argon2id$v=19$m=19456,t=2,p=1$AAECAwQFBgcICQoLDA0ODw$AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
+
+
 func openAuthIntegrationPool(t *testing.T) (*pgxpool.Pool, context.Context) {
 	t.Helper()
 	dsn := os.Getenv("TEST_DATABASE_URL")
@@ -38,13 +41,12 @@ func openAuthIntegrationPool(t *testing.T) (*pgxpool.Pool, context.Context) {
 
 func createActiveAuthUser(t *testing.T, ctx context.Context, pool *pgxpool.Pool, suffix string) string {
 	t.Helper()
-	const passwordHash = "$argon2id$v=19$m=19456,t=2,p=1$AAECAwQFBgcICQoLDA0ODw$AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
 	var userID string
 	email := fmt.Sprintf("session-%s@example.invalid", suffix)
 	if err := pool.QueryRow(ctx, `
 		INSERT INTO users(email_normalized, password_hash)
 		VALUES($1, $2) RETURNING id::text
-	`, email, passwordHash).Scan(&userID); err != nil {
+	`, email, integrationPasswordHash).Scan(&userID); err != nil {
 		t.Fatalf("create pending user: %v", err)
 	}
 	if _, err := pool.Exec(ctx, `
@@ -80,7 +82,7 @@ func TestSessionLifecycleAndLiveSellerScope(t *testing.T) {
 		t.Fatalf("create pending seller membership: %v", err)
 	}
 
-	issued, err := CreateSession(ctx, pool, userID)
+	issued, err := CreateSession(ctx, pool, userID, integrationPasswordHash)
 	if err != nil {
 		t.Fatalf("CreateSession: %v", err)
 	}
@@ -181,7 +183,7 @@ func TestSessionRejectsExpiredAndInactiveAccounts(t *testing.T) {
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
 	userID := createActiveAuthUser(t, ctx, pool, suffix)
 
-	expired, err := CreateSession(ctx, pool, userID)
+	expired, err := CreateSession(ctx, pool, userID, integrationPasswordHash)
 	if err != nil {
 		t.Fatalf("create expiring session: %v", err)
 	}
@@ -199,7 +201,7 @@ func TestSessionRejectsExpiredAndInactiveAccounts(t *testing.T) {
 		t.Fatalf("expired session error=%v, want ErrInvalidSession", err)
 	}
 
-	disabled, err := CreateSession(ctx, pool, userID)
+	disabled, err := CreateSession(ctx, pool, userID, integrationPasswordHash)
 	if err != nil {
 		t.Fatalf("create session before disabling account: %v", err)
 	}
@@ -212,24 +214,23 @@ func TestSessionRejectsExpiredAndInactiveAccounts(t *testing.T) {
 	if _, err := ResolveSession(ctx, pool, disabled.SessionToken); !errors.Is(err, ErrInvalidSession) {
 		t.Fatalf("disabled account session error=%v, want ErrInvalidSession", err)
 	}
-	if _, err := CreateSession(ctx, pool, userID); !errors.Is(err, ErrAccountNotActive) {
+	if _, err := CreateSession(ctx, pool, userID, integrationPasswordHash); !errors.Is(err, ErrAccountNotActive) {
 		t.Fatalf("CreateSession(disabled) error=%v, want ErrAccountNotActive", err)
 	}
 
 	pendingID := createPendingAuthUser(t, ctx, pool, suffix+"-pending")
-	if _, err := CreateSession(ctx, pool, pendingID); !errors.Is(err, ErrAccountNotActive) {
+	if _, err := CreateSession(ctx, pool, pendingID, integrationPasswordHash); !errors.Is(err, ErrAccountNotActive) {
 		t.Fatalf("CreateSession(unverified) error=%v, want ErrAccountNotActive", err)
 	}
 }
 
 func createPendingAuthUser(t *testing.T, ctx context.Context, pool *pgxpool.Pool, suffix string) string {
 	t.Helper()
-	const passwordHash = "$argon2id$v=19$m=19456,t=2,p=1$AAECAwQFBgcICQoLDA0ODw$AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
 	var userID string
 	if err := pool.QueryRow(ctx, `
 		INSERT INTO users(email_normalized, password_hash)
 		VALUES($1, $2) RETURNING id::text
-	`, "pending-"+suffix+"@example.invalid", passwordHash).Scan(&userID); err != nil {
+	`, "pending-"+suffix+"@example.invalid", integrationPasswordHash).Scan(&userID); err != nil {
 		t.Fatalf("create pending account: %v", err)
 	}
 	return userID
@@ -243,13 +244,13 @@ func TestRevokeUserSessionsIsTransactionalScopedAndAudited(t *testing.T) {
 
 	targetSessions := make([]IssuedSession, 0, 3)
 	for i := 0; i < 3; i++ {
-		issued, err := CreateSession(ctx, pool, targetID)
+		issued, err := CreateSession(ctx, pool, targetID, integrationPasswordHash)
 		if err != nil {
 			t.Fatalf("create target session %d: %v", i, err)
 		}
 		targetSessions = append(targetSessions, issued)
 	}
-	otherSession, err := CreateSession(ctx, pool, otherID)
+	otherSession, err := CreateSession(ctx, pool, otherID, integrationPasswordHash)
 	if err != nil {
 		t.Fatalf("create unrelated user's session: %v", err)
 	}
@@ -389,7 +390,7 @@ func TestSessionCreationSerializesWithAccountDisableAndBulkRevocation(t *testing
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
 	userID := createActiveAuthUser(t, ctx, pool, suffix+"-disable-race")
 
-	existing, err := CreateSession(ctx, pool, userID)
+	existing, err := CreateSession(ctx, pool, userID, integrationPasswordHash)
 	if err != nil {
 		t.Fatalf("create existing session: %v", err)
 	}
@@ -429,7 +430,7 @@ func TestSessionCreationSerializesWithAccountDisableAndBulkRevocation(t *testing
 	createResult := make(chan error, 1)
 	go func() {
 		close(started)
-		_, createErr := CreateSession(attemptCtx, pool, userID)
+		_, createErr := CreateSession(attemptCtx, pool, userID, integrationPasswordHash)
 		createResult <- createErr
 	}()
 	<-started
@@ -453,7 +454,7 @@ func TestSessionCreationSerializesWithAccountDisableAndBulkRevocation(t *testing
 	if _, err := ResolveSession(ctx, pool, existing.SessionToken); !errors.Is(err, ErrInvalidSession) {
 		t.Fatalf("pre-existing session resolve error = %v, want ErrInvalidSession", err)
 	}
-	if _, err := CreateSession(ctx, pool, userID); !errors.Is(err, ErrAccountNotActive) {
+	if _, err := CreateSession(ctx, pool, userID, integrationPasswordHash); !errors.Is(err, ErrAccountNotActive) {
 		t.Fatalf("CreateSession after account disable error = %v, want ErrAccountNotActive", err)
 	}
 
@@ -469,5 +470,84 @@ func TestSessionCreationSerializesWithAccountDisableAndBulkRevocation(t *testing
 	}
 	if disabledRevocations != 1 {
 		t.Fatalf("account-disable revocations = %d, want 1", disabledRevocations)
+	}
+}
+
+
+func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	userID := createActiveAuthUser(t, ctx, pool, suffix+"-password-change")
+
+	oldSessions := make([]IssuedSession, 0, 2)
+	for i := 0; i < 2; i++ {
+		issued, err := CreateSession(ctx, pool, userID, integrationPasswordHash)
+		if err != nil {
+			t.Fatalf("create old-credential session %d: %v", i, err)
+		}
+		oldSessions = append(oldSessions, issued)
+	}
+
+	actorID := userID
+	revoked, err := ChangePassword(
+		ctx, pool, userID, integrationPasswordHash, "new-password-value", &actorID,
+	)
+	if err != nil {
+		t.Fatalf("ChangePassword: %v", err)
+	}
+	if revoked != int64(len(oldSessions)) {
+		t.Fatalf("ChangePassword revoked %d sessions, want %d", revoked, len(oldSessions))
+	}
+
+	var storedHash string
+	if err := pool.QueryRow(ctx, `
+		SELECT password_hash FROM users WHERE id = $1
+	`, userID).Scan(&storedHash); err != nil {
+		t.Fatalf("read updated password hash: %v", err)
+	}
+	if storedHash == integrationPasswordHash {
+		t.Fatal("password change retained the previous credential hash")
+	}
+	if ok, err := VerifyPassword(storedHash, "new-password-value"); err != nil || !ok {
+		t.Fatalf("VerifyPassword(new password) = (%t, %v), want (true, nil)", ok, err)
+	}
+	if ok, err := VerifyPassword(storedHash, "old-password-value"); err != nil || ok {
+		t.Fatalf("VerifyPassword(wrong old password) = (%t, %v), want (false, nil)", ok, err)
+	}
+
+	// This simulates a login that verified the old password before the
+	// password-change transaction committed, but tried to issue its session
+	// only afterwards. The credential snapshot must now be rejected.
+	if _, err := CreateSession(ctx, pool, userID, integrationPasswordHash); !errors.Is(err, ErrCredentialsChanged) {
+		t.Fatalf("CreateSession with stale credential error = %v, want ErrCredentialsChanged", err)
+	}
+
+	current, err := CreateSession(ctx, pool, userID, storedHash)
+	if err != nil {
+		t.Fatalf("CreateSession with current credential: %v", err)
+	}
+	if _, err := ResolveSession(ctx, pool, current.SessionToken); err != nil {
+		t.Fatalf("resolve session issued with current credential: %v", err)
+	}
+	for i, issued := range oldSessions {
+		if _, err := ResolveSession(ctx, pool, issued.SessionToken); !errors.Is(err, ErrInvalidSession) {
+			t.Fatalf("old session %d resolve error = %v, want ErrInvalidSession", i, err)
+		}
+	}
+
+	var passwordEvents, revokedEvents, actorEvents int
+	if err := pool.QueryRow(ctx, `
+		SELECT
+			count(*) FILTER (WHERE event_type = 'auth.password.changed')::int,
+			count(*) FILTER (WHERE event_type = 'auth.session.revoked')::int,
+			count(*) FILTER (WHERE event_type = 'auth.password.changed' AND actor_user_id = $1)::int
+		FROM audit_events
+		WHERE subject_user_id = $1
+	`, userID).Scan(&passwordEvents, &revokedEvents, &actorEvents); err != nil {
+		t.Fatalf("read password-change audit events: %v", err)
+	}
+	if passwordEvents != 1 || revokedEvents != len(oldSessions) || actorEvents != 1 {
+		t.Fatalf("password events=%d revoked events=%d actor events=%d, want 1/%d/1",
+			passwordEvents, revokedEvents, actorEvents, len(oldSessions))
 	}
 }

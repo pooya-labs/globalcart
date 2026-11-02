@@ -175,6 +175,15 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** this is an internal transaction helper, not a password-change endpoint or authorization middleware. Callers must include the relevant credential/role/account update in the same transaction. No HTTP route, browser cookie, email flow or hosted database is enabled.
 
+### M04.5 — Atomic password change and stale-login rejection (implementation; CI pending, 2026-11-02)
+- [x] Require session creation to present the exact password-hash snapshot that was verified; compare it under the account row lock before issuing tokens.
+- [x] Add an internal password-change service that re-checks the expected old hash, updates the Argon2id hash, revokes every active session and audits the change in one transaction.
+- [x] Reject login attempts whose previously verified password hash became stale while waiting for the account lock.
+- [x] Add PostgreSQL integration coverage for multi-session revocation, old-password rejection, new-password verification and stale credential snapshots.
+- [ ] Verify Backend CI with PostgreSQL race tests and security scans on the implementation head.
+
+**Boundary:** this is an internal password-change primitive, not a public endpoint or password-reset-token flow. The caller must verify the old password against the supplied hash snapshot before invoking it. No login/register HTTP route, browser cookie, email delivery or hosted database is enabled.
+
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
 - [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).

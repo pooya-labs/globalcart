@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"crypto/subtle"
 	"errors"
 	"fmt"
 	"time"
@@ -18,6 +19,7 @@ const (
 var (
 	ErrAccountNotActive = errors.New("account is not active and verified")
 	ErrInvalidSession   = errors.New("invalid session")
+	ErrCredentialsChanged = errors.New("credentials changed since verification")
 )
 
 type IssuedSession struct {
@@ -50,9 +52,16 @@ func (p SessionPrincipal) VerifyCSRF(token string) bool {
 	return EqualTokenDigests(p.csrfDigest, digest)
 }
 
-// CreateSession inserts an opaque server-side session only for an active,
-// email-verified account. Raw session and CSRF tokens are returned once.
-func CreateSession(ctx context.Context, pool *pgxpool.Pool, userID string) (IssuedSession, error) {
+// CreateSession inserts an opaque server-side session only when the credential
+// hash verified by the caller is still current. The row lock serializes session
+// creation against password changes and account-state mutations. Raw session
+// and CSRF tokens are returned once.
+func CreateSession(
+	ctx context.Context,
+	pool *pgxpool.Pool,
+	userID string,
+	expectedPasswordHash string,
+) (IssuedSession, error) {
 	var issued IssuedSession
 	sessionToken, err := NewOpaqueToken()
 	if err != nil {
@@ -79,17 +88,21 @@ func CreateSession(ctx context.Context, pool *pgxpool.Pool, userID string) (Issu
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
-	var verifiedUserID string
+	var verifiedUserID, currentPasswordHash string
 	if err := tx.QueryRow(ctx, `
-		SELECT id::text
+		SELECT id::text, password_hash
 		FROM users
 		WHERE id = $1 AND status = 'active' AND email_verified_at IS NOT NULL
 		FOR UPDATE
-	`, userID).Scan(&verifiedUserID); err != nil {
+	`, userID).Scan(&verifiedUserID, &currentPasswordHash); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return issued, ErrAccountNotActive
 		}
 		return issued, fmt.Errorf("check session account: %w", err)
+	}
+	if expectedPasswordHash == "" ||
+		subtle.ConstantTimeCompare([]byte(currentPasswordHash), []byte(expectedPasswordHash)) != 1 {
+		return IssuedSession{}, ErrCredentialsChanged
 	}
 
 	err = tx.QueryRow(ctx, `

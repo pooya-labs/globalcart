@@ -545,3 +545,15 @@
 
 ### Verification
 - Backend CI [run 41393919125](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919125) and Security scans [run 41393919064](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919064) passed on code head `6e044b63048b0911c5a7078279e38fe354898605`, including race-enabled PostgreSQL tests and Docker image build.
+
+
+## Unreleased — atomic password changes and stale-login protection (implementation; CI pending, 2026-11-02)
+
+### Added
+- Require `CreateSession` callers to supply the password-hash snapshot they verified; the service compares it under the account row lock before issuing an opaque session.
+- Added internal `ChangePassword`, which verifies the expected old hash, stores a fresh Argon2id hash, revokes all active sessions and records a redacted password-change audit event in one transaction.
+- Added PostgreSQL integration coverage for multi-session invalidation, current-password verification and rejection of a stale login credential snapshot.
+- Kept the feature internal; no password-reset-token flow or public auth endpoint was enabled.
+
+### Verification
+- Backend CI and security scans are pending on the implementation head.
