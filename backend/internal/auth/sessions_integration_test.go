@@ -571,7 +571,6 @@ func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
 	}
 }
 
-
 func TestPasswordResetTokenIsDigestOnlyRotatesAndConsumesOnce(t *testing.T) {
 	pool, ctx := openAuthIntegrationPool(t)
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
