@@ -59,7 +59,7 @@ test("reduced-motion preference disables smooth scrolling and long UI motion", a
   await page.emulateMedia({ reducedMotion: "reduce" });
 
   const initialMotion = await page.evaluate(() => {
-    const image = document.querySelector(".product-media img");
+    const image = document.querySelector(".product-media > img");
     return {
       scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior,
       imageTransition: image ? getComputedStyle(image).transitionDuration : ""
