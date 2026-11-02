@@ -80,4 +80,3 @@ func TestVerifyPasswordRejectsInvalidPasswordInput(t *testing.T) {
 		t.Fatalf("VerifyPassword(empty) = (%t, %v), want ErrInvalidPassword", ok, err)
 	}
 }
-
