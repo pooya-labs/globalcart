@@ -74,7 +74,7 @@ func ChangePassword(
 			resource_type, resource_id, metadata
 		)
 		VALUES (
-			'auth.password.changed', $1, $2, 'account', $2,
+			'auth.password.changed', $1, $2, 'account', $2::text,
 			'{"origin":"internal"}'::jsonb
 		)
 	`, actorUserID, lockedUserID); err != nil {

@@ -477,9 +477,22 @@ func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
 	userID := createActiveAuthUser(t, ctx, pool, suffix+"-password-change")
 
+	oldPassword := "old-password-value"
+	oldPasswordHash, err := HashPassword(oldPassword)
+	if err != nil {
+		t.Fatalf("hash old password fixture: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `
+		UPDATE users
+		SET password_hash = $1, password_changed_at = now(), updated_at = now()
+		WHERE id = $2
+	`, oldPasswordHash, userID); err != nil {
+		t.Fatalf("install old password fixture: %v", err)
+	}
+
 	oldSessions := make([]IssuedSession, 0, 2)
 	for i := 0; i < 2; i++ {
-		issued, err := CreateSession(ctx, pool, userID, integrationPasswordHash)
+		issued, err := CreateSession(ctx, pool, userID, oldPasswordHash)
 		if err != nil {
 			t.Fatalf("create old-credential session %d: %v", i, err)
 		}
@@ -488,7 +501,7 @@ func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
 
 	actorID := userID
 	revoked, err := ChangePassword(
-		ctx, pool, userID, integrationPasswordHash, "new-password-value", &actorID,
+		ctx, pool, userID, oldPasswordHash, "new-password-value", &actorID,
 	)
 	if err != nil {
 		t.Fatalf("ChangePassword: %v", err)
@@ -503,20 +516,20 @@ func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
 	`, userID).Scan(&storedHash); err != nil {
 		t.Fatalf("read updated password hash: %v", err)
 	}
-	if storedHash == integrationPasswordHash {
+	if storedHash == oldPasswordHash {
 		t.Fatal("password change retained the previous credential hash")
 	}
 	if ok, err := VerifyPassword(storedHash, "new-password-value"); err != nil || !ok {
 		t.Fatalf("VerifyPassword(new password) = (%t, %v), want (true, nil)", ok, err)
 	}
-	if ok, err := VerifyPassword(storedHash, "old-password-value"); err != nil || ok {
+	if ok, err := VerifyPassword(storedHash, oldPassword); err != nil || ok {
 		t.Fatalf("VerifyPassword(wrong old password) = (%t, %v), want (false, nil)", ok, err)
 	}
 
 	// This simulates a login that verified the old password before the
 	// password-change transaction committed, but tried to issue its session
 	// only afterwards. The credential snapshot must now be rejected.
-	if _, err := CreateSession(ctx, pool, userID, integrationPasswordHash); !errors.Is(err, ErrCredentialsChanged) {
+	if _, err := CreateSession(ctx, pool, userID, oldPasswordHash); !errors.Is(err, ErrCredentialsChanged) {
 		t.Fatalf("CreateSession with stale credential error = %v, want ErrCredentialsChanged", err)
 	}
 
