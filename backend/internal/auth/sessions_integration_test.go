@@ -772,3 +772,241 @@ func TestPasswordResetTTLBounds(t *testing.T) {
 		})
 	}
 }
+
+
+func TestEmailVerificationTokenRotatesAndActivatesPendingAccount(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	userID := createPendingAuthUser(t, ctx, pool, suffix+"-email-verify")
+
+	var initialRoles []string
+	if err := pool.QueryRow(ctx, `
+		SELECT array_agg(role_key ORDER BY role_key)
+		FROM user_roles
+		WHERE user_id = $1 AND revoked_at IS NULL
+	`, userID).Scan(&initialRoles); err != nil {
+		t.Fatalf("read default account roles: %v", err)
+	}
+	if !slices.Equal(initialRoles, []string{"customer"}) {
+		t.Fatalf("pending account roles = %v, want [customer]", initialRoles)
+	}
+
+	first, err := IssueEmailVerificationToken(ctx, pool, userID, 0)
+	if err != nil {
+		t.Fatalf("issue first verification token: %v", err)
+	}
+	if first.Token == "" || first.ID == "" || !first.ExpiresAt.After(time.Now()) ||
+		first.ExpiresAt.After(time.Now().Add(DefaultEmailVerificationTTL+time.Minute)) {
+		t.Fatalf("invalid first verification token metadata: %+v", first)
+	}
+
+	firstDigest, err := DigestOpaqueToken(first.Token)
+	if err != nil {
+		t.Fatalf("digest first verification token: %v", err)
+	}
+	var storedDigest []byte
+	if err := pool.QueryRow(ctx, `
+		SELECT token_digest FROM auth_action_tokens WHERE id = $1
+	`, first.ID).Scan(&storedDigest); err != nil {
+		t.Fatalf("read stored verification-token digest: %v", err)
+	}
+	if !bytes.Equal(storedDigest, firstDigest[:]) || bytes.Equal(storedDigest, []byte(first.Token)) {
+		t.Fatal("verification token was not stored exclusively as its SHA-256 digest")
+	}
+
+	second, err := IssueEmailVerificationToken(ctx, pool, userID, 6*time.Hour)
+	if err != nil {
+		t.Fatalf("rotate verification token: %v", err)
+	}
+	var firstRevoked, secondRevoked bool
+	if err := pool.QueryRow(ctx, `
+		SELECT revoked_at IS NOT NULL FROM auth_action_tokens WHERE id = $1
+	`, first.ID).Scan(&firstRevoked); err != nil {
+		t.Fatalf("read first verification-token state: %v", err)
+	}
+	if err := pool.QueryRow(ctx, `
+		SELECT revoked_at IS NOT NULL FROM auth_action_tokens WHERE id = $1
+	`, second.ID).Scan(&secondRevoked); err != nil {
+		t.Fatalf("read second verification-token state: %v", err)
+	}
+	if !firstRevoked || secondRevoked {
+		t.Fatalf("verification token rotation first revoked=%t second revoked=%t, want true/false",
+			firstRevoked, secondRevoked)
+	}
+	if err := CompleteEmailVerification(ctx, pool, first.Token); !errors.Is(err, ErrInvalidActionToken) {
+		t.Fatalf("rotated verification-token completion error = %v, want ErrInvalidActionToken", err)
+	}
+	if err := CompleteEmailVerification(ctx, pool, second.Token); err != nil {
+		t.Fatalf("complete email verification: %v", err)
+	}
+	if err := CompleteEmailVerification(ctx, pool, second.Token); !errors.Is(err, ErrInvalidActionToken) {
+		t.Fatalf("replayed verification-token completion error = %v, want ErrInvalidActionToken", err)
+	}
+
+	var status string
+	var verified bool
+	if err := pool.QueryRow(ctx, `
+		SELECT status, email_verified_at IS NOT NULL FROM users WHERE id = $1
+	`, userID).Scan(&status, &verified); err != nil {
+		t.Fatalf("read activated account: %v", err)
+	}
+	if status != "active" || !verified {
+		t.Fatalf("activated account status=%q verified=%t, want active/true", status, verified)
+	}
+
+	var roles []string
+	if err := pool.QueryRow(ctx, `
+		SELECT array_agg(role_key ORDER BY role_key)
+		FROM user_roles
+		WHERE user_id = $1 AND revoked_at IS NULL
+	`, userID).Scan(&roles); err != nil {
+		t.Fatalf("read activated account roles: %v", err)
+	}
+	if !slices.Equal(roles, []string{"customer"}) {
+		t.Fatalf("verified account roles = %v, want [customer]", roles)
+	}
+	currentSession, err := CreateSession(ctx, pool, userID, integrationPasswordHash)
+	if err != nil {
+		t.Fatalf("create session after email verification: %v", err)
+	}
+	if _, err := ResolveSession(ctx, pool, currentSession.SessionToken); err != nil {
+		t.Fatalf("resolve session after email verification: %v", err)
+	}
+
+	var issuedEvents, completedEvents int
+	if err := pool.QueryRow(ctx, `
+		SELECT
+			count(*) FILTER (WHERE event_type = 'auth.email_verification.issued')::int,
+			count(*) FILTER (WHERE event_type = 'auth.email_verification.completed')::int
+		FROM audit_events
+		WHERE subject_user_id = $1
+	`, userID).Scan(&issuedEvents, &completedEvents); err != nil {
+		t.Fatalf("read email-verification audit events: %v", err)
+	}
+	if issuedEvents != 2 || completedEvents != 1 {
+		t.Fatalf("email-verification audit counts issued=%d completed=%d, want 2/1", issuedEvents, completedEvents)
+	}
+}
+
+func TestEmailVerificationRejectsExpiredAndDisabledAccounts(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	expiredUser := createPendingAuthUser(t, ctx, pool, suffix+"-expired")
+	expired, err := IssueEmailVerificationToken(ctx, pool, expiredUser, 10*time.Minute)
+	if err != nil {
+		t.Fatalf("issue expiring verification token: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `
+		UPDATE auth_action_tokens
+		SET created_at = now() - INTERVAL '2 hours',
+			expires_at = now() - INTERVAL '1 minute'
+		WHERE id = $1
+	`, expired.ID); err != nil {
+		t.Fatalf("expire verification-token fixture: %v", err)
+	}
+	if err := CompleteEmailVerification(ctx, pool, expired.Token); !errors.Is(err, ErrInvalidActionToken) {
+		t.Fatalf("expired verification token error = %v, want ErrInvalidActionToken", err)
+	}
+
+	disabledUser := createPendingAuthUser(t, ctx, pool, suffix+"-disabled")
+	disabled, err := IssueEmailVerificationToken(ctx, pool, disabledUser, 0)
+	if err != nil {
+		t.Fatalf("issue token before account disable: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `
+		UPDATE users
+		SET status = 'disabled', disabled_at = now(), updated_at = now()
+		WHERE id = $1
+	`, disabledUser); err != nil {
+		t.Fatalf("disable pending account: %v", err)
+	}
+	if err := CompleteEmailVerification(ctx, pool, disabled.Token); !errors.Is(err, ErrInvalidActionToken) {
+		t.Fatalf("disabled-account verification error = %v, want ErrInvalidActionToken", err)
+	}
+	var status string
+	if err := pool.QueryRow(ctx, `SELECT status FROM users WHERE id = $1`, disabledUser).Scan(&status); err != nil {
+		t.Fatalf("read disabled account status: %v", err)
+	}
+	if status != "disabled" {
+		t.Fatalf("disabled account status = %q, want disabled", status)
+	}
+}
+
+func TestConcurrentEmailVerificationConsumptionIsSingleUse(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	userID := createPendingAuthUser(t, ctx, pool, suffix+"-email-race")
+	issued, err := IssueEmailVerificationToken(ctx, pool, userID, 30*time.Minute)
+	if err != nil {
+		t.Fatalf("issue concurrent verification token: %v", err)
+	}
+
+	results := make(chan error, 2)
+	for i := 0; i < 2; i++ {
+		go func() {
+			results <- CompleteEmailVerification(ctx, pool, issued.Token)
+		}()
+	}
+	var successes, invalids int
+	for i := 0; i < 2; i++ {
+		switch err := <-results; {
+		case err == nil:
+			successes++
+		case errors.Is(err, ErrInvalidActionToken):
+			invalids++
+		default:
+			t.Fatalf("concurrent verification returned unexpected error: %v", err)
+		}
+	}
+	if successes != 1 || invalids != 1 {
+		t.Fatalf("concurrent verification outcomes successes=%d invalid=%d, want 1/1", successes, invalids)
+	}
+	var status string
+	var verified bool
+	if err := pool.QueryRow(ctx, `
+		SELECT status, email_verified_at IS NOT NULL FROM users WHERE id = $1
+	`, userID).Scan(&status, &verified); err != nil {
+		t.Fatalf("read concurrently verified account: %v", err)
+	}
+	if status != "active" || !verified {
+		t.Fatalf("concurrent verification state status=%q verified=%t, want active/true", status, verified)
+	}
+	var completed int
+	if err := pool.QueryRow(ctx, `
+		SELECT count(*)::int
+		FROM audit_events
+		WHERE subject_user_id = $1 AND event_type = 'auth.email_verification.completed'
+	`, userID).Scan(&completed); err != nil {
+		t.Fatalf("count concurrent verification audit events: %v", err)
+	}
+	if completed != 1 {
+		t.Fatalf("email-verification completion audit events = %d, want 1", completed)
+	}
+}
+
+func TestEmailVerificationTTLBounds(t *testing.T) {
+	cases := []struct {
+		name string
+		in   time.Duration
+		want time.Duration
+		err  error
+	}{
+		{name: "default", in: 0, want: DefaultEmailVerificationTTL},
+		{name: "minimum", in: MinimumEmailVerificationTTL, want: MinimumEmailVerificationTTL},
+		{name: "maximum", in: MaximumEmailVerificationTTL, want: MaximumEmailVerificationTTL},
+		{name: "negative", in: -time.Minute, err: ErrInvalidEmailVerificationTTL},
+		{name: "too short", in: time.Minute, err: ErrInvalidEmailVerificationTTL},
+		{name: "too long", in: MaximumEmailVerificationTTL + time.Second, err: ErrInvalidEmailVerificationTTL},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := normalizeEmailVerificationTTL(tc.in)
+			if !errors.Is(err, tc.err) {
+				t.Fatalf("normalizeEmailVerificationTTL error = %v, want %v", err, tc.err)
+			}
+			if err == nil && got != tc.want {
+				t.Fatalf("normalizeEmailVerificationTTL = %s, want %s", got, tc.want)
+			}
+		})
+	}
+}
