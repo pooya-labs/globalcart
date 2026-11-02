@@ -425,3 +425,14 @@
 
 ### Verification
 - Implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be passed Catalog CI push 41367502278, Catalog CI PR 41367539860 and Backend CI PR 41367539848.
+
+
+## Unreleased — Browser journey coverage (2026-11-02)
+
+### Added
+- Added Playwright desktop and mobile browser tests against the generated GitHub Pages static export, with external network calls blocked for repeatability.
+- Added browser coverage for locale/product navigation, keyboard search suggestions, command palette, saved-search persistence, cart drawer and simulated checkout.
+- Added an accessible label to the responsive cart trigger so the icon-only mobile button keeps a useful accessible name.
+
+### Verification
+- Commit `08c86aeb909228ecc1ba03d35195ad4fba6ab987` passed Browser E2E push `41369733216`, Browser E2E PR `41369737767`, Catalog CI PR `41369737769` and Backend CI PR `41369737810`.

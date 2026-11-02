@@ -502,3 +502,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - A fixture-only fallback is clearly distinguished from a generated snapshot. Empty filtered results continue to use the explicit no-results view.
 - Tests cover every state transition; latest implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be passed Catalog CI push 41367502278, Catalog CI PR 41367539860 and Backend CI PR 41367539848.
 - No source error path replaces a valid generated snapshot with an empty product collection.
+
+
+## M08.1 — Playwright static storefront journeys (CI verified, 2026-11-02)
+- `playwright.config.ts` builds and tests with `/globalcart/` as base path when running on GitHub Actions. `scripts/serve-static.mjs` safely serves only files beneath `out/`, rejects traversal and serves directory `index.html` output.
+- `e2e/storefront.spec.ts` runs against Chromium desktop and Pixel 7 mobile, blocks external hosts, and covers locale/product navigation, search suggestion keyboard operation, Ctrl/⌘+K command palette, saved-search persistence/apply/delete, cart drawer and simulated checkout.
+- Playwright runs after TypeScript validation, unit tests and a real `next build` with the GitHub Pages export configuration. Failure traces/screenshots and an HTML report are uploaded as a seven-day Actions artifact.
+- Product detail tests assert the actual static route without assuming a trailing slash. The mobile cart trigger now has an explicit accessible label because its visible text is hidden at small breakpoints.
+- Implementation head `08c86aeb909228ecc1ba03d35195ad4fba6ab987` passed Browser E2E push `41369733216`, Browser E2E PR `41369737767`, Catalog CI PR `41369737769` and Backend CI PR `41369737810`.
+- All checkout and order assertions remain explicitly demo-only; no payment provider or production order API was added.

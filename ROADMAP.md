@@ -655,3 +655,18 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539848) passed.
 
 **Safety:** a failed or empty refresh does not clear or overwrite the last-known-good generated snapshot.
+
+
+## M08.1 — Static storefront browser journeys — CI verified (2026-11-02)
+- [x] Add Playwright desktop Chromium and Pixel 7 mobile projects against the actual Next.js static export, served locally with the GitHub Pages `/globalcart/` base path.
+- [x] Block third-party network requests during browser tests so the committed catalog snapshot is the deterministic source of truth.
+- [x] Verify Persian/English locale switching and opening a pre-generated static product detail route.
+- [x] Verify accessible search suggestions with Arrow/Enter selection and the Ctrl/⌘+K command palette.
+- [x] Verify saved searches survive page reload, can be applied, and can be deleted from browser-local storage.
+- [x] Verify cart drawer and clearly simulated checkout/order completion without any real payment/shipping path.
+- [x] Add a static file server for E2E that enforces the configured base path and rejects path traversal.
+- [x] Add Playwright traces, screenshots on failure and a short-lived CI artifact for debugging.
+
+**Verification on implementation head 08c86aeb909228ecc1ba03d35195ad4fba6ab987:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369733216) and [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737767) passed, each running five journeys on desktop and mobile. [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737769) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737810) also passed, including PostgreSQL 17 checks and Docker build.
+
+**Coverage boundary:** this suite validates the existing demo storefront and does not imply live inventory, real payment, real order submission, or a hosted backend.
