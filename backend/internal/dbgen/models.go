@@ -8,6 +8,29 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AuditEvent struct {
+	ID            int64              `json:"id"`
+	EventType     string             `json:"event_type"`
+	ActorUserID   pgtype.UUID        `json:"actor_user_id"`
+	SubjectUserID pgtype.UUID        `json:"subject_user_id"`
+	ResourceType  *string            `json:"resource_type"`
+	ResourceID    *string            `json:"resource_id"`
+	RequestID     *string            `json:"request_id"`
+	Metadata      []byte             `json:"metadata"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+}
+
+type AuthActionToken struct {
+	ID          pgtype.UUID        `json:"id"`
+	UserID      pgtype.UUID        `json:"user_id"`
+	Purpose     string             `json:"purpose"`
+	TokenDigest []byte             `json:"token_digest"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	ExpiresAt   pgtype.Timestamptz `json:"expires_at"`
+	ConsumedAt  pgtype.Timestamptz `json:"consumed_at"`
+	RevokedAt   pgtype.Timestamptz `json:"revoked_at"`
+}
+
 type Cart struct {
 	ID             pgtype.UUID        `json:"id"`
 	OwnerTokenHash []byte             `json:"owner_token_hash"`
@@ -176,6 +199,57 @@ type ProductVariant struct {
 	IsActive   bool               `json:"is_active"`
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Role struct {
+	RoleKey     string             `json:"role_key"`
+	DisplayName string             `json:"display_name"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
+type SellerMembership struct {
+	ID               pgtype.UUID        `json:"id"`
+	UserID           pgtype.UUID        `json:"user_id"`
+	VendorID         int64              `json:"vendor_id"`
+	Status           string             `json:"status"`
+	ReviewedByUserID pgtype.UUID        `json:"reviewed_by_user_id"`
+	ActivatedAt      pgtype.Timestamptz `json:"activated_at"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+}
+
+type User struct {
+	ID                pgtype.UUID        `json:"id"`
+	EmailNormalized   string             `json:"email_normalized"`
+	PasswordHash      string             `json:"password_hash"`
+	Status            string             `json:"status"`
+	EmailVerifiedAt   pgtype.Timestamptz `json:"email_verified_at"`
+	DisabledAt        pgtype.Timestamptz `json:"disabled_at"`
+	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+}
+
+type UserRole struct {
+	ID              int64              `json:"id"`
+	UserID          pgtype.UUID        `json:"user_id"`
+	RoleKey         string             `json:"role_key"`
+	GrantedByUserID pgtype.UUID        `json:"granted_by_user_id"`
+	GrantedAt       pgtype.Timestamptz `json:"granted_at"`
+	RevokedAt       pgtype.Timestamptz `json:"revoked_at"`
+}
+
+type UserSession struct {
+	ID               pgtype.UUID        `json:"id"`
+	UserID           pgtype.UUID        `json:"user_id"`
+	TokenDigest      []byte             `json:"token_digest"`
+	CsrfTokenDigest  []byte             `json:"csrf_token_digest"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	LastSeenAt       pgtype.Timestamptz `json:"last_seen_at"`
+	IdleExpiresAt    pgtype.Timestamptz `json:"idle_expires_at"`
+	ExpiresAt        pgtype.Timestamptz `json:"expires_at"`
+	RevokedAt        pgtype.Timestamptz `json:"revoked_at"`
+	RevocationReason *string            `json:"revocation_reason"`
 }
 
 type Vendor struct {
