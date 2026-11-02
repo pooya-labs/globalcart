@@ -314,7 +314,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [ ] Demo role switcher with real authorization boundaries where API exists; no browser role impersonation is allowed before authenticated routes exist.
 - [ ] Admin overview UI and catalog/translation/price diagnostics; the internal aggregate service is implemented in M06.1 below.
 
-- [ ] Product create/edit/archive.
+- [ ] Admin-only manual product creation with generated identity and explicit source provenance.
+- [x] Admin-only product editorial edit, archive and restore with immutable revision history; M06.2 below.
 - [ ] Supplier connector configuration without secret exposure.
 - [ ] Seller profile, product management and demo analytics.
 
@@ -329,6 +330,21 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Backend CI [41465375163](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375163) and Security scans [41465375326](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375326) on implementation head `7ca99c04a348256aa0a6051241864213968f7f84`.
 
 **Boundary:** `backend/internal/admin.ReadOverview` is an internal Go service only. No HTTP route, UI, public role switcher, account bootstrap, hosted service or seller operation was enabled. The future dashboard must call this service only through approved authenticated middleware after same-site HTTPS hosting, email delivery and secret management are approved.
+
+### M06.2 — Internal product editorial management and archive — CI verified (2026-11-02)
+- [x] Add migration 013 with a separate administrator override table; preserve supplier-owned product fields and provenance.
+- [x] Add explicit `admin.products.manage` permission and revalidate the verified active account, exact live session and active admin role under row locks in the protected transaction.
+- [x] Support bounded title, description and brand overrides, including explicit clearing to restore the latest supplier value.
+- [x] Require the caller's expected product revision on edit/archive/restore; reject stale mutations instead of silently overwriting newer work.
+- [x] Archive without deleting the source product, variants, vendor offers or order references; restore the original product and retain editorial overrides.
+- [x] Record append-only before/after snapshots with both effective editorial values and source values, actor ID, action and monotonic revision; append a matching redacted audit event in the same transaction.
+- [x] Add bounded, administrator-only revision-history reads.
+- [x] Apply effective title/description/brand overrides to catalog list, detail, search ranking and brand filters; apply the same predicates to result counts and exclude archived products from list/detail/category counts.
+- [x] Verify supplier re-imports update source values without replacing editorial overrides.
+- [x] Add PostgreSQL integration tests for admin-only access, override/reset behavior, source preservation, stale revision conflicts, archive/restore visibility, history order and immutability.
+- [x] Verify Backend CI [41470687939](https://github.com/pooya16pg-spec/globalcart/actions/runs/41470687939) and Security scans [41470687949](https://github.com/pooya16pg-spec/globalcart/actions/runs/41470687949) on implementation head `675280435828bd408a5d59d08bd8baa4cfca2b1b`.
+
+**Boundary:** `backend/internal/admin` remains an internal Go service. No admin HTTP routes, manual product-creation API, browser dashboard, role switcher, seller interface or public write path is enabled. Manual product creation remains an open M06 item.
 
 ## M07 — Search and discovery
 - [x] Faceted filters for brand, rating, price and category across the storefront and read-only API.
