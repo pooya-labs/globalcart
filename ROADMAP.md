@@ -113,7 +113,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add local-only PostgreSQL 17 Docker Compose service with loopback-only port binding and persistent development volume.
 - [ ] Provision hosted PostgreSQL and production secret management after owner selects provider, region and budget.
 - [x] Define initial catalog schema with provenance, numeric constraints, JSONB images and category/search indexes.
-- [x] Extend catalog schema with normalized categories, product-to-category relationships and constrained product variants; users, roles, carts, orders and audit events remain pending.
+- [x] Extend catalog schema with normalized categories, product-to-category relationships and constrained product variants.
 - [x] Add embedded, versioned SQL migrations and transactional migration ledger for the initial catalog schema.
 - [ ] Define reviewed rollback/forward-fix policy for shared environments.
 - [x] Add Go REST API foundation, OpenAPI 3.1 contract, health/readiness probes, CORS allow-list and read-only catalog list/detail endpoints.
@@ -121,12 +121,24 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Document the API error response shape and list endpoint validation in OpenAPI.
 - [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
 - [x] Add sqlc configuration, parameterized catalog/variant query definitions and CI code generation for pgx/v5.\n- [x] Wire generated sqlc queries into product list/detail API handlers; importer remains transaction-oriented and uses explicit upsert SQL.
+- [x] Add PostgreSQL identity/session/RBAC schema foundation (migration 011); no authentication or commerce write routes are exposed.
 - [ ] Design authentication/session and role-based authorization.
 - [ ] Add idempotent Python ingestion/translation workers.
 - [ ] Add Redis only for measured cache/queue requirements.
 - [x] Add Go unit tests and backend CI for formatting, vet, race tests, builds and Docker image build.
 - [x] Add PostgreSQL integration tests for concurrent/idempotent migrations, catalog upserts and transaction rollback.
 - [ ] Add authorization integration tests after the authentication boundary exists.
+
+### M04.1 — Identity/session/RBAC database foundation (2026-11-02)
+- [x] Add migration 011 for users, migration-controlled customer/seller/admin roles and vendor-scoped seller memberships.
+- [x] Enforce normalized unique emails, Argon2id PHC password-hash format, verified-email activation and explicit account-disable state.
+- [x] Store only 32-byte SHA-256 session and CSRF token digests with bounded idle/absolute expiry and explicit revocation reasons.
+- [x] Store only hashed email-verification/password-reset action tokens; enforce expiry, single consumption and one active token per user/purpose.
+- [x] Add bounded/redacted audit metadata and database triggers rejecting UPDATE, DELETE and TRUNCATE.
+- [x] Make the migration runner safe for semicolons inside quoted values, comments and PostgreSQL dollar-quoted function bodies; add unit and PostgreSQL integration coverage.
+- [ ] Add auth/session HTTP handlers, cookies, CSRF middleware and authorization tests only after same-site HTTPS hosting, email delivery and secret storage are approved.
+
+**Boundary:** migration 011 is storage scaffolding only. It does not authenticate requests, issue browser cookies, expose seller/admin endpoints or connect a hosted database. ADR-010 remains proposed pending owner approval.
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
