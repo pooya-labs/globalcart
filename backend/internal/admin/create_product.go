@@ -132,7 +132,19 @@ func CreateManagedProduct(ctx context.Context, pool *pgxpool.Pool, sessionToken 
 	if err := persistProductOverrideState(queryCtx, tx, productID, actorID, state); err != nil {
 		return ProductManagementRecord{}, err
 	}
-	afterJSON, err := state.snapshot()
+	afterJSON, err := json.Marshal(struct {
+		Title string `json:"title"`
+		Description string `json:"description"`
+		Category string `json:"category"`
+		Brand string `json:"brand"`
+		Price string `json:"price"`
+		DiscountPercentage string `json:"discountPercentage"`
+		Rating string `json:"rating"`
+		Stock int32 `json:"stock"`
+		Source string `json:"source"`
+		VisibilityStatus string `json:"visibilityStatus"`
+	}{normalized.Title, normalized.Description, normalized.Category, normalized.Brand, normalized.Price,
+		normalized.DiscountPercentage, normalized.Rating, normalized.Stock, manualProductSource, "active"})
 	if err != nil {
 		return ProductManagementRecord{}, fmt.Errorf("encode manual product initial snapshot: %w", err)
 	}
