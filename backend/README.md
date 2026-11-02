@@ -41,6 +41,28 @@ docker compose -f backend/docker-compose.yml down
 
 Keep the database volume by default. To delete local development data permanently, use `docker compose -f backend/docker-compose.yml down -v`.
 
+## Runtime configuration
+
+The API reads these environment variables at startup:
+
+| Variable | Default / requirement | Validation |
+|---|---|---|
+| `APP_ENV` | `development` when omitted | Only `development`, `test` and `production` are accepted. |
+| `DATABASE_URL` | Required | Must be a PostgreSQL URL with a host and database name. Production must use `sslmode=require`, `verify-ca` or `verify-full`. |
+| `HTTP_ADDR` | `:8080` | Must be a valid `host:port` TCP listener with a port from 1 to 65535. |
+| `CORS_ORIGINS` | Empty allow-list | Comma-separated exact origins only. Wildcard and `null` are rejected; paths, credentials, queries and fragments are not accepted. Plain HTTP is limited to loopback origins in development/test; production requires HTTPS. |
+
+Local Compose sets `APP_ENV=development` and allows `http://localhost:3000`. For a future production deployment, set `APP_ENV=production`, use a TLS-capable PostgreSQL URL and list the exact HTTPS frontend origin. This validation does not terminate TLS, provision infrastructure or create/manage secrets; those remain deployment prerequisites.
+
+Example production-shaped values (placeholders only):
+
+```dotenv
+APP_ENV=production
+DATABASE_URL=postgres://globalcart:replace-me@db.example:5432/globalcart?sslmode=verify-full
+HTTP_ADDR=:8080
+CORS_ORIGINS=https://shop.example.com
+```
+
 ## Identity and authorization schema (migration 011)
 
 The local PostgreSQL schema now contains normalized users, migration-controlled customer/seller/admin roles, vendor-scoped seller memberships, server-side session digest records, single-use email-verification/password-reset token digests and append-only audit events. New accounts receive only the default customer role. The internal email-verification lifecycle reuses migration 011, stores only token digests, rotates previous tokens and activates only pending accounts; it preserves the customer role and cannot grant seller/admin access. Issuance and consumption have PostgreSQL race-enabled test coverage. Internal `GrantAdminRole` and `RevokeAdminRole` require a different active, verified admin actor, serialize role changes, revoke target sessions and append audit events atomically. The trusted caller must derive actor identity from a verified session; no HTTP role endpoint or bootstrap API exists. The pure `Authorize` policy evaluator accepts only a `SessionPrincipal` from `ResolveSession`, denies unknown actions and checks customer ownership, seller vendor scope and explicit admin actions. It does not replace canonical ownership/vendor checks in the protected service transaction and is not wired to HTTP. Seller-specific vendor read/price/stock methods now use `AuthorizeSellerVendorTx` to lock and revalidate the account, exact session, active vendor, seller role and active membership in the same PostgreSQL transaction as the operation. These methods derive vendor scope from the canonical offer record; cross-vendor IDOR and membership-revocation race tests pass. They remain internal and are not connected to HTTP. Internal seller-membership request/activation/suspension/revocation reuses migration 011, grants the seller role only after admin approval, preserves other active vendor scopes, removes seller role after the final scope is gone and revokes sessions/audits transactionally. No seller HTTP route or dashboard is enabled. The database rejects weak hash formats, malformed digest lengths, invalid expiry lifecycles, duplicate active grants/tokens and audit mutation.
