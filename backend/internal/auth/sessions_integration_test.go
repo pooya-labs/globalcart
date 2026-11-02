@@ -773,7 +773,6 @@ func TestPasswordResetTTLBounds(t *testing.T) {
 	}
 }
 
-
 func TestEmailVerificationTokenRotatesAndActivatesPendingAccount(t *testing.T) {
 	pool, ctx := openAuthIntegrationPool(t)
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
