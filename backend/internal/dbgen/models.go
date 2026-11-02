@@ -8,6 +8,32 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AdminProductOverride struct {
+	ProductID           int64              `json:"product_id"`
+	TitleOverride       *string            `json:"title_override"`
+	DescriptionOverride *string            `json:"description_override"`
+	BrandOverride       *string            `json:"brand_override"`
+	VisibilityStatus    string             `json:"visibility_status"`
+	Revision            int64              `json:"revision"`
+	CreatedByUserID     pgtype.UUID        `json:"created_by_user_id"`
+	UpdatedByUserID     pgtype.UUID        `json:"updated_by_user_id"`
+	ArchivedByUserID    pgtype.UUID        `json:"archived_by_user_id"`
+	ArchivedAt          pgtype.Timestamptz `json:"archived_at"`
+	CreatedAt           pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
+}
+
+type AdminProductRevision struct {
+	ID          int64              `json:"id"`
+	ProductID   int64              `json:"product_id"`
+	Revision    int64              `json:"revision"`
+	Action      string             `json:"action"`
+	BeforeState []byte             `json:"before_state"`
+	AfterState  []byte             `json:"after_state"`
+	ActorUserID pgtype.UUID        `json:"actor_user_id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
 type AuditEvent struct {
 	ID            int64              `json:"id"`
 	EventType     string             `json:"event_type"`
