@@ -111,7 +111,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Dedicated recently viewed page, homepage rail and browser-local visit history.
 
 ## M04 — Backend and database platform
-- [ ] Owner enables Go runtime and approves separate API hosting.
+- [ ] Owner approves separate public API hosting for the existing Go/PostgreSQL runtime after selecting a same-site HTTPS origin, provider/region, budget and secret-management approach.
 - [ ] Owner enables Python runtime or an approved worker runner.
 - [x] Add local-only PostgreSQL 17 Docker Compose service with loopback-only port binding and persistent development volume.
 - [ ] Provision hosted PostgreSQL and production secret management after owner selects provider, region and budget.
@@ -280,6 +280,17 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Backend CI [41415943162](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943162), Security scans [41415943090](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943090) and Pages deployment [41415943078](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943078); all passed on implementation/docs head `2cd5aaf72bbcddd14bfb1312768b6c708648f9d4`.
 
 **Boundary:** CI/local PostgreSQL only. This policy does not provision a hosted database or claim production backups, PITR, RPO/RTO or an approved rollback window.
+
+### M04.14 — Fail-closed backend runtime configuration (CI verified, 2026-11-02)
+- [x] Parse `APP_ENV` into explicit development, test and production modes; reject unknown values.
+- [x] Validate PostgreSQL URL scheme, host, database name, fragment and supported `sslmode`; require TLS in production.
+- [x] Validate `HTTP_ADDR` as a host/port listener with a non-ephemeral port in the valid TCP range.
+- [x] Accept only exact CORS origins; reject wildcard/null, credentials, paths, queries and fragments; permit plain HTTP only for loopback in development/test and require HTTPS in production.
+- [x] Add unit coverage for defaults, malformed database URLs, invalid listener addresses, normalized origins, unsafe CORS values and production TLS/HTTPS requirements.
+- [x] Verify Backend CI [41458549348](https://github.com/pooya16pg-spec/globalcart/actions/runs/41458549348) and Security scans [41458549236](https://github.com/pooya16pg-spec/globalcart/actions/runs/41458549236); both passed, including PostgreSQL 17 integration/race tests, logical backup/restore, API/importer builds and the container image.
+
+**Boundary:** configuration validation only. It does not provision a hosted database, terminate HTTPS, create secrets, or enable public authentication/commerce routes. The operator must still set `APP_ENV=production`, supply TLS-capable PostgreSQL settings and configure the exact production frontend origin.
+
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
 - [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).
