@@ -408,7 +408,7 @@ button:disabled{cursor:not-allowed;opacity:.55}
 }
 
 /* M07.6 — explicit catalog freshness and offline states */
-.catalog-status.snapshot-fallback{background:#f5f7f2;border:1px solid #e4eadc;border-radius:10px;color:#637a67}
+.catalog-status.snapshot-fallback{background:#f5f7f2;border:1px solid #e4eadc;border-radius:10px;color:#566d5b}
 .catalog-status.fixture-fallback{background:#fff8ef;border:1px solid #f2e5d6;border-radius:10px;color:#967348}
 .catalog-status[role="status"]{line-height:1.8}
 
