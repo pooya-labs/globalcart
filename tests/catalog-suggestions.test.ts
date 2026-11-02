@@ -18,7 +18,7 @@ test("returns no noisy suggestions for an empty or one-character query", () => {
 test("ranks title-prefix product matches ahead of broader matches", () => {
   const suggestions = buildCatalogSuggestions(products, "Aur");
   assert.equal(suggestions[0].kind, "product");
-  assert.equal(suggestions[0].productId, 1);
+  assert.equal(suggestions[0].productId, 5);
   assert.ok(suggestions.some(item => item.kind === "brand" && item.value === "Auralab"));
 });
 

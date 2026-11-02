@@ -224,6 +224,10 @@ export default function Home() {
     if(commandPaletteOpen)commandInputRef.current?.focus();
   },[commandPaletteOpen]);
 
+  useEffect(()=>{
+    if(mobileSearchOpen)searchInputRef.current?.focus();
+  },[mobileSearchOpen]);
+
   const submitAmazonLink=(event:FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
     const parsed=parseAmazonProductLink(amazonUrl);
@@ -416,7 +420,7 @@ export default function Home() {
                 id={searchListboxId+"-input"} ref={searchInputRef} autoFocus={mobileSearchOpen}
                 role="combobox" aria-label={t.search} aria-autocomplete="list"
                 aria-expanded={searchSuggestionsOpen&&searchSuggestions.length>0}
-                aria-controls={searchListboxId}
+                aria-controls={searchSuggestionsOpen&&searchSuggestions.length>0?searchListboxId:undefined}
                 aria-activedescendant={searchSuggestionsOpen&&activeSuggestionIndex>=0?searchListboxId+"-option-"+activeSuggestionIndex:undefined}
                 value={query}
                 onFocus={()=>setSearchSuggestionsOpen(true)}
