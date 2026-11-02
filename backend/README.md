@@ -3,7 +3,7 @@
 This is the first runnable backend slice. It is deliberately separate from the Next.js static export hosted on GitHub Pages.
 
 ## Included
-- Go REST API using the standard HTTP mux (module language baseline: Go 1.23; security-scanned CI and container build toolchain: Go 1.27.3).
+- Go REST API using the standard HTTP mux (module language baseline: Go 1.25; security-scanned CI and container build toolchain: Go 1.27.3).
 - PostgreSQL 17 as the system of record.
 - Embedded, versioned SQL migrations applied at API startup.\n- Catalog taxonomy with normalized category records and a backward-compatible product category link.\n- Product variants with constrained price/stock, optional unique SKU, source identity and JSONB attributes.
 - Read-only catalog endpoints with bounded pagination and category/text filters.
