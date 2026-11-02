@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import Link from "next/link";
 import { fetchDummyJsonCatalog } from "../lib/catalog";
 import { filterCatalogProducts } from "../lib/catalog/filtering";
+import { buildCatalogSuggestions, type CatalogSearchSuggestion } from "../lib/catalog/suggestions";
 import catalogSnapshot from "../data/catalog.json";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, Check, ChevronDown, ChevronLeft,
@@ -23,6 +24,13 @@ type Locale = "fa" | "en";
 const copy = {
   fa: {
     top: "تجربه‌ای تازه برای کشف چیزهای خوب", search: "جست‌وجوی محصول، برند یا دسته‌بندی...",
+    productSuggestion: "محصول", brandSuggestion: "برند", categorySuggestion: "دسته‌بندی",
+    commandPalette: "فرمان‌های سریع", commandSearch: "دنبال چه کاری می‌گردی؟",
+    commandHint: "برای اجرا Enter و برای بستن Esc را بزن", noCommands: "فرمانی پیدا نشد",
+    commandCatalog: "رفتن به ویترین", commandCategories: "نمایش دسته‌بندی‌ها",
+    commandCart: "باز کردن سبد خرید", commandFavorites: "علاقه‌مندی‌ها",
+    commandCompare: "باز کردن مقایسه", commandClear: "پاک کردن فیلترها",
+    commandLanguage: "تغییر زبان", keyboardHint: "Ctrl / ⌘ K",
     nav1: "فروشگاه", nav2: "دسته‌بندی‌ها", nav3: "پیشنهادهای منتخب", nav4: "درباره پروژه",
     heroEyebrow: "THE ART OF DISCOVERY", heroTitle: "چیزهای خوب،\nدرست همین‌جا پیدا می‌شوند.", heroDesc: "یک تجربه خرید مدرن برای کشف، مقایسه و انتخاب هوشمندانه؛ از محصولات روزمره تا انتخاب‌های خاص.",
     explore: "کشف محصولات", curated: "انتخاب‌های سردبیر", categories: "بر اساس علاقه بگرد", categoriesDesc: "از جایی شروع کن که به تو نزدیک‌تر است.",
@@ -43,6 +51,13 @@ const copy = {
   },
   en: {
     top: "A fresh perspective on finding good things", search: "Search products, brands or categories...",
+    productSuggestion: "Product", brandSuggestion: "Brand", categorySuggestion: "Category",
+    commandPalette: "Quick commands", commandSearch: "What would you like to do?",
+    commandHint: "Press Enter to run · Esc to close", noCommands: "No commands found",
+    commandCatalog: "Go to catalog", commandCategories: "Browse categories",
+    commandCart: "Open shopping bag", commandFavorites: "Open saved items",
+    commandCompare: "Open comparison", commandClear: "Clear all filters",
+    commandLanguage: "Switch language", keyboardHint: "Ctrl / ⌘ K",
     nav1: "Shop", nav2: "Categories", nav3: "Editor's picks", nav4: "About",
     heroEyebrow: "THE ART OF DISCOVERY", heroTitle: "Good things,\nright where you need them.", heroDesc: "A modern shopping experience to discover, compare and choose with confidence — from everyday essentials to thoughtful finds.",
     explore: "Explore products", curated: "Editor's selection", categories: "Browse by interest", categoriesDesc: "Start with what speaks to you.",
@@ -136,12 +151,23 @@ export default function Home() {
   const [brandFilter,setBrandFilter]=useState("");
   const [minRating,setMinRating]=useState(0);
   const [showFilters,setShowFilters]=useState(false);
+  const [searchSuggestionsOpen,setSearchSuggestionsOpen]=useState(false);
+  const [activeSuggestionIndex,setActiveSuggestionIndex]=useState(-1);
+  const [commandPaletteOpen,setCommandPaletteOpen]=useState(false);
+  const [commandQuery,setCommandQuery]=useState("");
+  const [activeCommandIndex,setActiveCommandIndex]=useState(0);
+  const searchInputRef=useRef<HTMLInputElement>(null);
+  const commandInputRef=useRef<HTMLInputElement>(null);
+  const searchListboxId=useId();
+  const commandInputId=useId();
   const t=copy[locale];
   const rtl=locale==="fa";
 
   useEffect(()=>{
     const handleEscape=(event:KeyboardEvent)=>{
       if(event.key!=="Escape")return;
+      if(commandPaletteOpen){setCommandPaletteOpen(false);setCommandQuery("");return;}
+      if(searchSuggestionsOpen){setSearchSuggestionsOpen(false);setActiveSuggestionIndex(-1);return;}
       if(checkout){setCheckout(false);return;}
       if(compareOpen){setCompareOpen(false);return;}
       if(quick){setQuick(null);return;}
@@ -152,9 +178,24 @@ export default function Home() {
     };
     window.addEventListener("keydown",handleEscape);
     return()=>window.removeEventListener("keydown",handleEscape);
-  },[checkout,compareOpen,quick,favoriteOpen,cartOpen,categoryMenu,mobileMenu]);
+  },[commandPaletteOpen,searchSuggestionsOpen,checkout,compareOpen,quick,favoriteOpen,cartOpen,categoryMenu,mobileMenu]);
 
-  const modalActive=checkout||compareOpen||Boolean(quick)||favoriteOpen||cartOpen;
+  const modalActive=commandPaletteOpen||checkout||compareOpen||Boolean(quick)||favoriteOpen||cartOpen;
+
+  useEffect(()=>{
+    const handleCommandShortcut=(event:KeyboardEvent)=>{
+      if(!(event.metaKey||event.ctrlKey)||event.key.toLowerCase()!=="k")return;
+      event.preventDefault();
+      if(modalActive)return;
+      setSearchSuggestionsOpen(false);
+      setActiveSuggestionIndex(-1);
+      setCommandQuery("");
+      setActiveCommandIndex(0);
+      setCommandPaletteOpen(true);
+    };
+    window.addEventListener("keydown",handleCommandShortcut);
+    return()=>window.removeEventListener("keydown",handleCommandShortcut);
+  },[modalActive]);
   useEffect(()=>{
     if(!modalActive)return;
     const dialog=document.querySelector<HTMLElement>('[role="dialog"][aria-modal="true"]');
@@ -177,7 +218,11 @@ export default function Home() {
       document.removeEventListener("keydown",trapTab);
       if(previouslyFocused?.isConnected)previouslyFocused.focus();
     };
-  },[modalActive,checkout,compareOpen,quick,favoriteOpen,cartOpen]);
+  },[modalActive,commandPaletteOpen,checkout,compareOpen,quick,favoriteOpen,cartOpen]);
+
+  useEffect(()=>{
+    if(commandPaletteOpen)commandInputRef.current?.focus();
+  },[commandPaletteOpen]);
 
   const submitAmazonLink=(event:FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
@@ -278,6 +323,77 @@ export default function Home() {
   );
   const categoryLabel=(id:string)=>{const known=categories.find(c=>c.id===id);return known?(rtl?known.fa:known.en):id.split("-").map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(" ");};
   const selectCategory=(id:string)=>{setCategory(id);setCategoryMenu(false);setMobileMenu(false);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});};
+  const searchSuggestions=useMemo(()=>buildCatalogSuggestions(products,query),[products,query]);
+  const selectSearchSuggestion=(suggestion:CatalogSearchSuggestion)=>{
+    setSearchSuggestionsOpen(false);
+    setActiveSuggestionIndex(-1);
+    setMobileSearchOpen(false);
+    if(suggestion.kind==="product"){
+      const product=products.find(item=>item.id===suggestion.productId);
+      setQuery("");
+      if(product)openProduct(product);
+      return;
+    }
+    setQuery("");
+    if(suggestion.kind==="brand"){
+      setCategory("all");
+      setBrandFilter(suggestion.value);
+      document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});
+      return;
+    }
+    selectCategory(suggestion.value);
+  };
+  const closeCommandPalette=()=>{
+    setCommandPaletteOpen(false);
+    setCommandQuery("");
+    setActiveCommandIndex(0);
+  };
+  const commandItems=[
+    {id:"catalog",label:t.commandCatalog,keywords:"shop products storefront catalog ویترین فروشگاه محصول"},
+    {id:"categories",label:t.commandCategories,keywords:"category categories browse دسته بندی گروه"},
+    {id:"cart",label:t.commandCart,keywords:"bag basket cart سبد خرید"},
+    {id:"favorites",label:t.commandFavorites,keywords:"saved favorite wishlist علاقه مندی ذخیره"},
+    {id:"compare",label:t.commandCompare,keywords:"comparison compare مقایسه"},
+    {id:"clear",label:t.commandClear,keywords:"reset filters پاک کردن فیلتر بازنشانی"},
+    {id:"language",label:t.commandLanguage,keywords:"locale فارسی english زبان"}
+  ].filter(item=>(item.label+" "+item.keywords).toLocaleLowerCase().includes(commandQuery.trim().toLocaleLowerCase()));
+  const runCommand=(id:string)=>{
+    closeCommandPalette();
+    if(id==="catalog"){document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});return;}
+    if(id==="categories"){setCategoryMenu(true);return;}
+    if(id==="cart"){setCartOpen(true);return;}
+    if(id==="favorites"){setFavoriteOpen(true);return;}
+    if(id==="compare"){
+      if(compareIds.length>=2)setCompareOpen(true);
+      else notify(t.compareNeed);
+      return;
+    }
+    if(id==="clear"){
+      setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);setQuery("");
+      document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});
+      return;
+    }
+    if(id==="language")setLocale(current=>current==="fa"?"en":"fa");
+  };
+  const handleSearchKeyDown=(event:ReactKeyboardEvent<HTMLInputElement>)=>{
+    if(event.key==="Escape"&&searchSuggestionsOpen){
+      event.preventDefault();event.stopPropagation();setSearchSuggestionsOpen(false);setActiveSuggestionIndex(-1);
+      return;
+    }
+    if(searchSuggestions.length===0)return;
+    if(event.key==="ArrowDown"){
+      event.preventDefault();setSearchSuggestionsOpen(true);
+      setActiveSuggestionIndex(current=>current<searchSuggestions.length-1?current+1:0);
+    }else if(event.key==="ArrowUp"){
+      event.preventDefault();setSearchSuggestionsOpen(true);
+      setActiveSuggestionIndex(current=>current>0?current-1:searchSuggestions.length-1);
+    }else if(event.key==="Enter"&&searchSuggestionsOpen&&activeSuggestionIndex>=0){
+      event.preventDefault();selectSearchSuggestion(searchSuggestions[activeSuggestionIndex]);
+    }else if(event.key==="Enter"){
+      setSearchSuggestionsOpen(false);setActiveSuggestionIndex(-1);
+      document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});
+    }
+  };
 
   return (
     <main id="top" className={rtl?"store rtl":"store ltr"} dir={rtl?"rtl":"ltr"}>
@@ -292,7 +408,41 @@ export default function Home() {
           <a href="#about" onClick={()=>setMobileMenu(false)}>{t.nav4}</a>
         </nav>
         <div className="header-actions">
-          <button type="button" className="mobile-search-trigger" onClick={()=>setMobileSearchOpen(v=>!v)} aria-label={mobileSearchOpen?t.searchClose:t.search} aria-expanded={mobileSearchOpen}><Search size={19}/></button><label className={mobileSearchOpen?"search-box search-open":"search-box"}><Search size={17}/><input autoFocus={mobileSearchOpen} value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Escape")setMobileSearchOpen(false);}} placeholder={t.search}/>{mobileSearchOpen&&<button type="button" className="search-close" onClick={()=>setMobileSearchOpen(false)} aria-label={t.searchClose}><X size={17}/></button>}</label>
+          <button type="button" className="mobile-search-trigger" onClick={()=>{setMobileSearchOpen(v=>!v);setSearchSuggestionsOpen(true);}} aria-label={mobileSearchOpen?t.searchClose:t.search} aria-expanded={mobileSearchOpen}><Search size={19}/></button>
+          <div className={mobileSearchOpen?"search-area search-area-open":"search-area"} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null)){setSearchSuggestionsOpen(false);setActiveSuggestionIndex(-1);}}}>
+            <label className={mobileSearchOpen?"search-box search-open":"search-box"}>
+              <Search size={17}/>
+              <input
+                id={searchListboxId+"-input"} ref={searchInputRef} autoFocus={mobileSearchOpen}
+                role="combobox" aria-label={t.search} aria-autocomplete="list"
+                aria-expanded={searchSuggestionsOpen&&searchSuggestions.length>0}
+                aria-controls={searchListboxId}
+                aria-activedescendant={searchSuggestionsOpen&&activeSuggestionIndex>=0?searchListboxId+"-option-"+activeSuggestionIndex:undefined}
+                value={query}
+                onFocus={()=>setSearchSuggestionsOpen(true)}
+                onChange={event=>{setQuery(event.target.value);setSearchSuggestionsOpen(true);setActiveSuggestionIndex(-1);}}
+                onKeyDown={handleSearchKeyDown}
+                placeholder={t.search}
+              />
+              <kbd aria-hidden="true">{t.keyboardHint}</kbd>
+              {mobileSearchOpen&&<button type="button" className="search-close" onClick={()=>{setMobileSearchOpen(false);setSearchSuggestionsOpen(false);}} aria-label={t.searchClose}><X size={17}/></button>}
+            </label>
+            {searchSuggestionsOpen&&searchSuggestions.length>0&&<div className="search-suggestions" id={searchListboxId} role="listbox" aria-label={rtl?"پیشنهادهای جست‌وجو":"Search suggestions"}>
+              {searchSuggestions.map((suggestion,index)=><button
+                type="button" role="option" id={searchListboxId+"-option-"+index}
+                aria-selected={activeSuggestionIndex===index}
+                className={activeSuggestionIndex===index?"search-suggestion active":"search-suggestion"}
+                key={suggestion.key}
+                onMouseDown={event=>event.preventDefault()}
+                onClick={()=>selectSearchSuggestion(suggestion)}
+              >
+                <span className="search-suggestion-kind">{suggestion.kind==="product"?t.productSuggestion:suggestion.kind==="brand"?t.brandSuggestion:t.categorySuggestion}</span>
+                <span className="search-suggestion-copy"><b>{suggestion.kind==="category"?categoryLabel(suggestion.label):suggestion.label}</b>{suggestion.detail&&<small>{suggestion.detail}</small>}</span>
+                <ArrowLeft size={14}/>
+              </button>)}
+            </div>}
+          </div>
+          <button className="command-shortcut" type="button" onClick={()=>{setCommandQuery("");setActiveCommandIndex(0);setCommandPaletteOpen(true);}} aria-label={t.commandPalette}><span>{t.keyboardHint}</span></button>
           <button className="locale-button" onClick={()=>setLocale(rtl?"en":"fa")}>{rtl?"EN":"فا"}</button>
           <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites}><Heart size={19}/><span>{favorites.length}</span></button>
           <button className="bag-button" onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
@@ -414,6 +564,32 @@ export default function Home() {
       <section className="about-section" id="about"><div><span className="section-kicker">04 / BUILT AS A PORTFOLIO PROJECT</span><h2>{t.why}</h2><p>{t.whyText}</p></div><div className="about-stats"><div><b>01</b><span>INDEPENDENT PRODUCT</span></div><div><b>RTL + LTR</b><span>BILINGUAL EXPERIENCE</span></div><div><b>DEMO</b><span>NO REAL TRANSACTIONS</span></div></div></section>
 
       <footer className="footer"><div className="footer-main"><div><a href="#top" className="brand footer-brand"><span className="brand-mark">g<span>.</span></span><span className="brand-name">globalcart<small>THE WORLD, WELL FOUND.</small></span></a><p>{t.footer}</p><span className="footer-owner">{t.owner}</span></div><div className="footer-links"><b>EXPLORE</b><a href="#catalog">{t.nav1}</a><a href="#categories">{t.nav2}</a><Link href="/recently-viewed">{t.recently}</Link><a href="#about">{t.nav4}</a><a href="https://github.com/pooya16pg-spec/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpLeftIcon/></a></div><div className="footer-disclaimer"><span><ShieldCheck size={17}/>{t.demo}</span><p>{t.noPayment}</p><small>PRODUCT DATA IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY.</small></div></div><div className="footer-bottom"><span>© 2026 GLOBALCART · POOYA GOODARZI</span><span>INDEPENDENTLY BUILT. THOUGHTFULLY ENGINEERED.</span></div></footer>
+
+      {commandPaletteOpen&&<div className="overlay modal-overlay command-palette-overlay" onMouseDown={event=>{if(event.target===event.currentTarget)closeCommandPalette();}}>
+        <section className="command-palette" role="dialog" aria-modal="true" aria-labelledby={commandInputId+"-title"} aria-describedby={commandInputId+"-hint"} tabIndex={-1}>
+          <div className="command-palette-heading"><div><span className="section-kicker">GLOBALCART / COMMANDS</span><h2 id={commandInputId+"-title"}>{t.commandPalette}</h2></div><button className="icon-button" onClick={closeCommandPalette} aria-label={t.close}><X size={18}/></button></div>
+          <label className="command-palette-search" htmlFor={commandInputId}><Search size={18}/><input
+            id={commandInputId} ref={commandInputRef} autoFocus value={commandQuery}
+            role="combobox" aria-autocomplete="list" aria-controls={commandInputId+"-list"}
+            aria-expanded={commandItems.length>0}
+            aria-activedescendant={commandItems[activeCommandIndex]?commandInputId+"-option-"+activeCommandIndex:undefined}
+            onChange={event=>{setCommandQuery(event.target.value);setActiveCommandIndex(0);}}
+            onKeyDown={event=>{
+              if(event.key==="ArrowDown"){event.preventDefault();setActiveCommandIndex(current=>commandItems.length?Math.min(current+1,commandItems.length-1):0);}
+              else if(event.key==="ArrowUp"){event.preventDefault();setActiveCommandIndex(current=>Math.max(current-1,0));}
+              else if(event.key==="Enter"){event.preventDefault();const chosen=commandItems[activeCommandIndex]??commandItems[0];if(chosen)runCommand(chosen.id);}
+            }}
+            placeholder={t.commandSearch}
+          /></label>
+          <div className="command-palette-list" id={commandInputId+"-list"} role="listbox" aria-label={t.commandPalette}>
+            {commandItems.length===0?<p className="command-palette-empty" role="status">{t.noCommands}</p>:commandItems.map((command,index)=><button type="button" role="option" id={commandInputId+"-option-"+index} aria-selected={index===activeCommandIndex} className={index===activeCommandIndex?"command-option active":"command-option"} key={command.id} onMouseEnter={()=>setActiveCommandIndex(index)} onClick={()=>runCommand(command.id)}>
+              <span className="command-option-icon">{command.id==="catalog"?<Search size={17}/>:command.id==="categories"?<LayoutGrid size={17}/>:command.id==="cart"?<ShoppingBag size={17}/>:command.id==="favorites"?<Heart size={17}/>:command.id==="compare"?<GitCompareArrows size={17}/>:command.id==="clear"?<X size={17}/>:<Zap size={17}/>}</span>
+              <b>{command.label}</b><span className="command-option-key">{index===activeCommandIndex?"↵":index+1}</span>
+            </button>)}
+          </div>
+          <div className="command-palette-footer" id={commandInputId+"-hint"}><span>{t.commandHint}</span><span><kbd>↑</kbd><kbd>↓</kbd><kbd>Enter</kbd><kbd>Esc</kbd></span></div>
+        </section>
+      </div>}
 
       {cartOpen&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setCartOpen(false);}}><aside className="side-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-dialog-title" tabIndex={-1}><div className="drawer-head"><div><span className="section-kicker">YOUR SELECTION</span><h3 id="cart-dialog-title">{t.cart} <small>({count})</small></h3></div><button className="icon-button" onClick={()=>setCartOpen(false)} aria-label={t.close}><X/></button></div>{cart.length===0?<div className="drawer-empty"><ShoppingBag size={38}/><b>{t.emptyCart}</b><button className="button-primary" onClick={()=>setCartOpen(false)}>{t.continue}</button></div>:<><div className="drawer-items">{cart.map(line=><div className="drawer-item" key={line.product.id}><img src={line.product.thumbnail} alt={line.product.title}/><div className="drawer-item-info"><b>{line.product.title}</b><strong>{formatPrice(line.product)}</strong><div className="quantity"><button aria-label={t.decrease} onClick={()=>changeQuantity(line.product.id,-1)}><Minus size={13}/></button><span>{line.quantity}</span><button aria-label={t.increase} onClick={()=>changeQuantity(line.product.id,1)}><Plus size={13}/></button></div></div><button className="remove-item" aria-label={t.remove} onClick={()=>setCart(old=>old.filter(x=>x.product.id!==line.product.id))}><X size={16}/></button></div>)}</div><div className="drawer-bottom"><div><span>{t.subtotal}</span><b>{rtl?money(subtotal,locale)+" تومان":usd(subtotal/rate)}</b></div><button className="button-primary full-button" onClick={()=>{setCartOpen(false);setCheckout(true);}}>{t.checkout}<ArrowLeft size={16}/></button><small>{t.noPayment}</small></div></>}</aside></div>}
 
