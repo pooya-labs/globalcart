@@ -396,7 +396,7 @@ func (s *Service) GetVendorOrderForCustomer(ctx context.Context, principal auth.
 	if vendorOrderID == "" {
 		return VendorOrderFullDetail{}, ErrOrderNotFound
 	}
-	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadOnly})
+	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return VendorOrderFullDetail{}, fmt.Errorf("begin customer vendor-order read: %w", err)
 	}
