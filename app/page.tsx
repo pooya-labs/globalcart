@@ -13,6 +13,7 @@ import catalogSnapshot from "../data/catalog.json";
 import fxSnapshot from "../data/fx-rate.json";
 import { calculateDemoPrice } from "../lib/pricing";
 import { getFxRateStatus, type FxRateStatus } from "../lib/fx/wallex";
+import { readLocalePreference, writeLocalePreference, type Locale } from "../lib/locale";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, BookmarkCheck, BookmarkPlus, Check, ChevronDown, ChevronLeft,
   ChevronRight, CircleHelp, Heart, LayoutGrid, Menu, Minus, Package, Plus,
@@ -26,7 +27,6 @@ type Product = {
   thumbnail: string; images?: string[]; source?: string;
 };
 type CartLine = { product: Product; quantity: number };
-type Locale = "fa" | "en";
 
 const copy = {
   fa: {
@@ -152,6 +152,15 @@ const parseAmazonProductLink=(raw:string):{asin:string;url:string}|null=>{
 
 export default function Home() {
   const [locale,setLocale]=useState<Locale>("fa");
+  useEffect(()=>{
+    const savedLocale=readLocalePreference();
+    if(savedLocale)setLocale(savedLocale);
+  },[]);
+  const toggleLocale=()=>setLocale(current=>{
+    const next=current==="fa"?"en":"fa";
+    writeLocalePreference(next);
+    return next;
+  });
   const [products,setProducts]=useState<Product[]>(snapshotProducts.length ? snapshotProducts : fallback);
   const [catalogSourceState,setCatalogSourceState]=useState<CatalogSourceStatus>(
     getCatalogSourceStatus(snapshotProducts.length>0,"pending")
@@ -496,7 +505,7 @@ export default function Home() {
       document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});
       return;
     }
-    if(id==="language")setLocale(current=>current==="fa"?"en":"fa");
+    if(id==="language")toggleLocale();
   };
   const handleSearchKeyDown=(event:ReactKeyboardEvent<HTMLInputElement>)=>{
     if(event.key==="Escape"&&searchSuggestionsOpen){
@@ -566,7 +575,7 @@ export default function Home() {
             </div>}
           </div>
           <button className="command-shortcut" type="button" onClick={openCommandPalette} aria-label={t.keyboardHint+" "+t.commandPalette}><span>{t.keyboardHint}</span></button>
-          <button className="locale-button" onClick={()=>setLocale(rtl?"en":"fa")}>{rtl?"EN":"فا"}</button>
+          <button className="locale-button" onClick={toggleLocale}>{rtl?"EN":"فا"}</button>
           <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites+" "+favorites.length}><Heart size={19}/><span>{favorites.length}</span></button>
           <button className="bag-button" onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
         </div>
