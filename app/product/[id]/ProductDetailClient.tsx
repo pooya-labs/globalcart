@@ -6,6 +6,7 @@ import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShieldCheck, Shoppin
 import { calculateDemoPrice } from "../../../lib/pricing";
 import fxSnapshot from "../../../data/fx-rate.json";
 import { getFxRateStatus, type FxRateStatus } from "../../../lib/fx/wallex";
+import { readLocalePreference, writeLocalePreference, type Locale } from "../../../lib/locale";
 
 type ProductVariant = {
   sku:string; title:string; price:number; stock:number;
@@ -43,7 +44,7 @@ const categoryNames:Record<string,{fa:string;en:string}> = {
 };
 
 export default function ProductDetailClient({product,related}:Props) {
-  const [locale,setLocale]=useState<"fa"|"en">("fa");
+  const [locale,setLocale]=useState<Locale>("fa");
   const [activeImage,setActiveImage]=useState(0);
   const [quantity,setQuantity]=useState(1);
   const [added,setAdded]=useState(false);
@@ -57,6 +58,10 @@ export default function ProductDetailClient({product,related}:Props) {
   const priceBreakdown=rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
   const fxTimestampLabel=fxSnapshot.candleStartedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.candleStartedAt)):null;
+  useEffect(()=>{
+    const savedLocale=readLocalePreference();
+    if(savedLocale)setLocale(savedLocale);
+  },[]);
   useEffect(()=>{setFxStatus(getFxRateStatus(fxSnapshot));},[]);
   useEffect(()=>{
     try{
@@ -98,7 +103,11 @@ export default function ProductDetailClient({product,related}:Props) {
   };
 
   return <main className={rtl?"product-page rtl":"product-page ltr"} dir={rtl?"rtl":"ltr"}>
-    <div className="product-page-top"><Link href="/"><span className="brand-mark">g<span>.</span></span><b>globalcart</b></Link><div><button onClick={()=>setLocale(rtl?"en":"fa")}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div></div>
+    <div className="product-page-top"><Link href="/"><span className="brand-mark">g<span>.</span></span><b>globalcart</b></Link><div><button onClick={()=>setLocale(current=>{
+       const next=current==="fa"?"en":"fa";
+       writeLocalePreference(next);
+       return next;
+     })}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div></div>
     <div className="product-breadcrumb"><Link href="/">{rtl?"خانه":"Home"}</Link><ChevronLeft size={13}/><Link href="/#categories">{rtl?"دسته‌بندی‌ها":"Categories"}</Link><ChevronLeft size={13}/><span>{rtl?category.fa:category.en}</span><ChevronLeft size={13}/><b>{product.title}</b></div>
     <section className="product-detail-layout">
       <div className="detail-gallery">
