@@ -266,6 +266,9 @@ func (s *Service) mutateCustomerCartItem(ctx context.Context, principal auth.Ses
 			if existing+quantity > 99 {
 				return Cart{}, ErrInvalidQuantity
 			}
+			if existing+quantity > stock {
+				return Cart{}, ErrInsufficientStock
+			}
 
 			if variantID == nil {
 				_, err = tx.Exec(ctx, `INSERT INTO cart_items
