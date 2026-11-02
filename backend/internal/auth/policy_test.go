@@ -105,6 +105,17 @@ func TestAuthorizeDenyByDefaultPolicyMatrix(t *testing.T) {
 			wantErr:   ErrForbidden,
 		},
 		{
+			name:      "customer cannot manage products",
+			principal: customer,
+			action:    AuthorizationAdminManageProducts,
+			wantErr:   ErrForbidden,
+		},
+		{
+			name:      "admin can manage products",
+			principal: admin,
+			action:    AuthorizationAdminManageProducts,
+		},
+		{
 			name:      "admin can read admin overview",
 			principal: admin,
 			action:    AuthorizationAdminReadOverview,
