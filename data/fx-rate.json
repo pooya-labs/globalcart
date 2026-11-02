@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "provider": "Nobitex",
+  "market": "USDTIRT",
+  "baseCurrency": "USDT",
+  "quoteCurrency": "IRT",
+  "rawQuoteUnit": "IRR",
+  "tomanPerUsdt": null,
+  "bestBidToman": null,
+  "bestAskToman": null,
+  "lastTradeToman": null,
+  "marketUpdatedAt": null
+}

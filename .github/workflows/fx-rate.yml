@@ -1,0 +1,64 @@
+name: Sync Nobitex FX snapshot
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/fx-rate.yml"
+      - "lib/fx/**"
+      - "scripts/sync-nobitex-fx.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nobitex-fx-snapshot
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit
+      - name: Fetch and validate the public Nobitex order book
+        run: npx tsx scripts/sync-nobitex-fx.ts
+      - name: Persist the validated quote without overwriting concurrent main updates
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          quote="$RUNNER_TEMP/fx-rate.json"
+          cp data/fx-rate.json "$quote"
+
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            cp "$quote" data/fx-rate.json
+            git add -- data/fx-rate.json
+
+            if git diff --cached --quiet; then
+              echo "Exchange quote is unchanged; no snapshot commit is needed."
+              exit 0
+            fi
+
+            git commit -m "chore(fx): refresh Nobitex USDT/IRT quote [skip ci]"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+
+            echo "main moved during FX snapshot persistence (attempt $attempt); retrying."
+          done
+
+          echo "::error::Could not persist the FX snapshot without a concurrent main update."
+          exit 1

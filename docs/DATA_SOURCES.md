@@ -16,15 +16,21 @@ Amazon is not connected. Do not scrape product pages or copy the catalog. A futu
 The code currently defines a provider interface and safe orchestration metadata. It does **not** yet automatically translate the full catalog. Until a provider adapter is configured, translated text is null and status is unavailable; source text must remain visible. A future scheduled job must translate title, description, category and attributes, preserve original fields, cache results, handle quotas/retries and record provider/locale/timestamp. API keys belong in GitHub Actions secrets and must never enter browser bundles or committed files.
 
 ## Foreign exchange
-The storefront currently uses a user-configurable illustrative USD-to-Toman rate. It is not a live market quote. Future FX providers must return source, currency pair, timestamp and rate; stale values must be labelled.
+The static storefront consumes `data/fx-rate.json`, refreshed every 15 minutes by `.github/workflows/fx-rate.yml` from Nobitex's public `GET https://apiv2.nobitex.ir/v3/orderbook/USDTIRT` endpoint. The endpoint is public and does not require a token. The pipeline uses the best bid/ask midpoint, converts the exchange's Rial-denominated prices to Toman (10 Rial = 1 Toman), and records the exchange's `lastUpdate` timestamp. It does not call the exchange from the browser and does not expose credentials.
+
+**Important currency distinction:** this is the Iranian exchange-market price of USDT (Tether), used as a practical USD proxy for the demo catalog. USDT is not identical to cash USD and can trade at a premium or discount. Do not describe this as an official USD rate, a guaranteed cash-exchange rate, or a checkout quote. The midpoint is indicative, not executable; the best bid and ask are retained in the snapshot for audit/context.
+
+Freshness uses the exchange timestamp: fresh up to 30 minutes, aging over 30 to 90 minutes, stale after 90 minutes, and unavailable when the quote/timestamp is missing or invalid. On fetch/validation failure, the last-known-good file is not overwritten; the UI labels it stale as its timestamp ages. When no valid snapshot exists, prices stay in USD rather than falling back to a hard-coded rate.
+
+The public API's market-data documentation lists the `USDTIRT` order book, bid/ask sides, `lastTradePrice` and millisecond `lastUpdate`, and marks the order-book endpoint as token-free. See https://github.com/nobitex/docs-api/blob/master/source/includes/_market_data.md.
 
 ## Provenance labels
 - **External demo source:** a sample record returned by DummyJSON.
 - **Local fallback:** fixture data included for offline resilience.
 - **Translated:** only when a provider returns a non-empty translation.
 - **Translation unavailable/error:** original text is retained.
-- **Illustrative price:** converted using a manually configured sample rate.
-- **Live external value:** only when its provider and timestamp are displayed.
+- **Exchange-derived estimate:** converted using the timestamped Nobitex USDT/IRT midpoint; the UI discloses that USDT is a USD proxy, not cash USD.
+- **Stale exchange quote:** the last-known-good rate remains visible only with an aging/stale warning; no hard-coded fallback is used.
 
 
 ## Supplier adapter contract (M08.3)

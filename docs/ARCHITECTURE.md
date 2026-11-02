@@ -86,7 +86,7 @@ This target architecture is not deployed. GitHub Pages cannot host the Go API, P
 Connectors preserve stable source ID, source name, source URL and import timestamp. Invalid records are rejected and duplicates are removed. Translation is a separate server-side/scheduled pipeline; preserve original and translated strings, locales, provider, status and timestamp. Missing credentials or provider failures must never silently replace source text.
 
 ## Pricing contract
-USD is quantized to integer cents, FX uses fixed-point micro-units and BigInt intermediates. Current UI FX is illustrative, not a live quote. Future feeds retain provider, timestamp and stale-rate status.
+Catalog USD prices remain quantized to integer cents; FX uses fixed-point micro-units and BigInt intermediates. The UI imports a timestamped Nobitex USDT/IRT order-book midpoint from `data/fx-rate.json`, converted from Rial to Toman. Freshness is evaluated from the exchange `lastUpdate` (30-minute fresh / 90-minute stale boundary). USDT is a market proxy, not cash USD; stale quotes are labelled and a missing quote never falls back to a hard-coded rate. A dedicated scheduled workflow updates the snapshot server-side; the static browser never calls the exchange.
 
 ## Static hosting
 GitHub Pages serves the Next.js export under /globalcart. No secrets or server-only code may enter the client bundle. Scheduled ingestion generates JSON before build. A failed refresh preserves last-known-good data.
