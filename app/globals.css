@@ -446,3 +446,19 @@ details>summary{min-height:28px;padding-block:5px;line-height:1.5}
 /* Final axe findings: visible text naming and secondary text contrast */
 .command-palette-footer{color:#536174}
 .detail-old-price s{color:#536174}
+
+/* Keep the cart's accessible text in the accessibility tree on small screens. */
+@media(max-width:760px){
+  .bag-button span{
+    display:block;
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
+}
