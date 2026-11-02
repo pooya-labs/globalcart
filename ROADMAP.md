@@ -272,12 +272,12 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 **Boundary:** account-backed service methods remain internal. No customer authentication, cart/order write, seller or admin HTTP route, cookie flow or public API was enabled.
 
 
-### M04.13 — Immutable migration checksums and recovery policy (implementation complete; CI verification pending)
+### M04.13 — Immutable migration checksums and recovery policy (CI verified, 2026-11-02)
 - [x] Extend schema_migrations with a SHA-256 checksum of each exact embedded SQL file; preserve compatibility with the original two-column ledger.
 - [x] Adopt pre-existing NULL checksums once, then enforce NOT NULL; reject checksum drift and applied ledger entries whose source migration file is missing.
 - [x] Add regression coverage for deterministic/content-sensitive checksums, legacy-ledger adoption and fail-closed drift detection.
 - [x] Document append-only migration rules, expand-and-contract rollout, transaction limitations, forward-fix decisions, backup/restore boundaries and an incident runbook in docs/DATABASE_MIGRATION_POLICY.md.
-- [ ] Verify Backend CI PostgreSQL integration/race tests, security scans and the resulting main-branch source after CI formatting/persistence.
+- [x] Verify Backend CI [41415943162](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943162), Security scans [41415943090](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943090) and Pages deployment [41415943078](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943078); all passed on implementation/docs head `2cd5aaf72bbcddd14bfb1312768b6c708648f9d4`.
 
 **Boundary:** CI/local PostgreSQL only. This policy does not provision a hosted database or claim production backups, PITR, RPO/RTO or an approved rollback window.
 ## M05 — Commerce simulation
