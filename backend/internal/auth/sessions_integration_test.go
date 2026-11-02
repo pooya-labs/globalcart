@@ -235,6 +235,7 @@ func createPendingAuthUser(t *testing.T, ctx context.Context, pool *pgxpool.Pool
 	return userID
 }
 
+
 func TestRevokeUserSessionsIsTransactionalScopedAndAudited(t *testing.T) {
 	pool, ctx := openAuthIntegrationPool(t)
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
@@ -341,7 +342,7 @@ func TestRevokeUserSessionsIsTransactionalScopedAndAudited(t *testing.T) {
 		SELECT
 			count(*) FILTER (WHERE event_type = 'auth.session.revoked')::int,
 			count(*) FILTER (WHERE metadata->>'reason' = 'password_changed')::int,
-			count(*) FILTER (WHERE actor_user_id = $1)::int
+			count(*) FILTER (WHERE event_type = 'auth.session.revoked' AND actor_user_id = $1)::int
 		FROM audit_events
 		WHERE subject_user_id = $1
 	`, targetID).Scan(&auditRows, &reasonRows, &actorRows); err != nil {
