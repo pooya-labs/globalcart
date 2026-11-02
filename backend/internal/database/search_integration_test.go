@@ -42,8 +42,8 @@ func TestCatalogSearchTrigramFallbackAndExactMatchRanking(t *testing.T) {
 			Source: "trigram-integration", SourceID: fmt.Sprintf("trigram-%d-a", baseID), ImportedAt: importedAt,
 		},
 		{
-			ID: baseID + 2, Title: "Wireless Hedphones", Description: "Typo fixture for fuzzy relevance",
-			Category: "Audio", Price: 69.99, Rating: 4.1, Stock: 5, Brand: "OtherSound",
+			ID: baseID + 2, Title: "Headphone Case", Description: "Protective case for headphones",
+			Category: "Accessories", Price: 19.99, Rating: 4.1, Stock: 5, Brand: "CaseCo",
 			Thumbnail: "https://example.invalid/hedphones.webp", Images: []string{},
 			Source: "trigram-integration", SourceID: fmt.Sprintf("trigram-%d-b", baseID), ImportedAt: importedAt,
 		},
@@ -96,6 +96,15 @@ func TestCatalogSearchTrigramFallbackAndExactMatchRanking(t *testing.T) {
 	if len(brandTypoRows) != 1 || brandTypoRows[0].ID != baseID+1 {
 		t.Fatalf("fuzzy brand results = %v; expected only %d", searchProductIDs(brandTypoRows), baseID+1)
 	}
+}
+
+func containsProductID(rows []dbgen.ListProductsRow, wanted int64) bool {
+	for _, row := range rows {
+		if row.ID == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 func searchProductIDs(rows []dbgen.ListProductsRow) []int64 {
