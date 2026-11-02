@@ -38,7 +38,7 @@ const copy = {
     feature1: "کشف هوشمند", feature1d: "جست‌وجو و فیلتر سریع", feature2: "اطلاعات شفاف", feature2d: "نمایش منبع و قیمت", feature3: "تجربه امن", feature3d: "بدون تراکنش واقعی",
     footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "طراحی و توسعه: پویا گودرزی",
     count: "محصول", menu: "منو", compare: "مقایسه", recently: "تازه بازدیدشده", emptyFav: "هنوز محصولی ذخیره نکرده‌ای.",
-    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "محصولت را در آمازون پیدا کردی؟", amazonDesc: "لینک مستقیم محصول را وارد کن تا درخواست بررسی آن در نسخه نمایشی ثبت شود.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "بررسی لینک محصول", amazonNote: "ثبت لینک در این نسخه نمایشی است؛ دریافت قیمت و موجودی زنده به دسترسی رسمی آمازون نیاز دارد.", amazonSuccess: "درخواست لینک محصول ذخیره شد", amazonInvalid: "لینک معتبر محصول آمازون با شناسه ASIN ده‌کاراکتری وارد کن.", decrease:"کاهش تعداد", increase:"افزایش تعداد", remove:"حذف محصول", searchClose:"بستن جست‌وجو"
+    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", brand: "برند", allBrands: "همه برندها", minRatingLabel: "حداقل امتیاز", anyRating: "همه امتیازها", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "محصولت را در آمازون پیدا کردی؟", amazonDesc: "لینک مستقیم محصول را وارد کن تا درخواست بررسی آن در نسخه نمایشی ثبت شود.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "بررسی لینک محصول", amazonNote: "ثبت لینک در این نسخه نمایشی است؛ دریافت قیمت و موجودی زنده به دسترسی رسمی آمازون نیاز دارد.", amazonSuccess: "درخواست لینک محصول ذخیره شد", amazonInvalid: "لینک معتبر محصول آمازون با شناسه ASIN ده‌کاراکتری وارد کن.", decrease:"کاهش تعداد", increase:"افزایش تعداد", remove:"حذف محصول", searchClose:"بستن جست‌وجو"
   },
   en: {
     top: "A fresh perspective on finding good things", search: "Search products, brands or categories...",
@@ -58,7 +58,7 @@ const copy = {
     feature1: "Smart discovery", feature1d: "Fast search and filters", feature2: "Clear information", feature2d: "Source and price context", feature3: "Safe experience", feature3d: "No real transactions",
     footer: "An independent commerce experience, built to showcase product engineering.", owner: "Designed & engineered by Pooya Goodarzi",
     count: "products", menu: "Menu", compare: "Compare", recently: "Recently viewed", emptyFav: "You have not saved anything yet.",
-    min: "Min price", max: "Max price", result: "Results", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "Found it on Amazon?", amazonDesc: "Paste the product link to save a sourcing request in this demo experience.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "Validate product link", amazonNote: "Link intake is simulated; live product data and pricing require authorized Amazon API access.", amazonSuccess: "Product link request saved", amazonInvalid: "Enter a valid Amazon product URL containing a 10-character ASIN.", decrease:"Decrease quantity", increase:"Increase quantity", remove:"Remove item", searchClose:"Close search"
+    min: "Min price", max: "Max price", result: "Results", brand: "Brand", allBrands: "All brands", minRatingLabel: "Minimum rating", anyRating: "Any rating", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "Found it on Amazon?", amazonDesc: "Paste the product link to save a sourcing request in this demo experience.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "Validate product link", amazonNote: "Link intake is simulated; live product data and pricing require authorized Amazon API access.", amazonSuccess: "Product link request saved", amazonInvalid: "Enter a valid Amazon product URL containing a 10-character ASIN.", decrease:"Decrease quantity", increase:"Increase quantity", remove:"Remove item", searchClose:"Close search"
   }
 } as const;
 
@@ -132,6 +132,8 @@ export default function Home() {
   const [hydrated,setHydrated]=useState(false);
   const [minPrice,setMinPrice]=useState(0);
   const [maxPrice,setMaxPrice]=useState(1000);
+  const [brandFilter,setBrandFilter]=useState("");
+  const [minRating,setMinRating]=useState(0);
   const [showFilters,setShowFilters]=useState(false);
   const t=copy[locale];
   const rtl=locale==="fa";
@@ -239,14 +241,17 @@ export default function Home() {
   const filtered=useMemo(()=>{
     let list=products.filter(p=>{
       const text=(p.title+" "+p.description+" "+(p.brand||"")+" "+p.category).toLocaleLowerCase();
-      return (category==="all"||p.category===category)&&text.includes(query.toLocaleLowerCase())&&p.price>=minPrice&&p.price<=maxPrice;
+      const normalizedBrand=(p.brand||"").trim().toLocaleLowerCase();
+      return (category==="all"||p.category===category)&&text.includes(query.toLocaleLowerCase())&&
+        p.price>=minPrice&&p.price<=maxPrice&&(!brandFilter||normalizedBrand===brandFilter.trim().toLocaleLowerCase())&&
+        p.rating>=minRating;
     });
     if(sort==="low")list.sort((a,b)=>a.price-b.price);
     else if(sort==="high")list.sort((a,b)=>b.price-a.price);
     else if(sort==="rating")list.sort((a,b)=>b.rating-a.rating);
     else list.sort((a,b)=>(b.rating*b.discountPercentage)-(a.rating*a.discountPercentage));
     return list;
-  },[products,category,query,sort,minPrice,maxPrice]);
+  },[products,category,query,sort,minPrice,maxPrice,brandFilter,minRating]);
 
   const count=cart.reduce((sum,line)=>sum+line.quantity,0);
   const subtotal=cart.reduce((sum,line)=>sum+line.product.price*(1-line.product.discountPercentage/100)*rate*line.quantity,0);
@@ -272,6 +277,10 @@ export default function Home() {
     setCompareIds(old=>[...old,id]);
   };
   const catalogCategories=useMemo(()=>Array.from(new Set(products.map(p=>p.category).filter(Boolean))).sort((a,b)=>a.localeCompare(b)),[products]);
+  const catalogBrands=useMemo(
+    ()=>Array.from(new Set(products.map(p=>p.brand?.trim()).filter((brand):brand is string=>Boolean(brand)))).sort((a,b)=>a.localeCompare(b)),
+    [products]
+  );
   const categoryLabel=(id:string)=>{const known=categories.find(c=>c.id===id);return known?(rtl?known.fa:known.en):id.split("-").map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(" ");};
   const selectCategory=(id:string)=>{setCategory(id);setCategoryMenu(false);setMobileMenu(false);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});};
 
@@ -364,15 +373,17 @@ export default function Home() {
         <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p></div><div className="catalog-tools"><button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select value={sort} onChange={e=>setSort(e.target.value)}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
         <div className="catalog-layout">
           <aside className={showFilters?"filter-panel filter-visible":"filter-panel"}>
-            <div className="filter-title"><b><SlidersHorizontal size={16}/>{t.filter}</b><button onClick={()=>{setCategory("all");setMinPrice(0);setMaxPrice(1000);setQuery("");}}>{t.clear}</button></div>
+            <div className="filter-title"><b><SlidersHorizontal size={16}/>{t.filter}</b><button onClick={()=>{setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);setQuery("");}}>{t.clear}</button></div>
             <div className="filter-group"><b>{t.category}</b>{categories.map(c=><button key={c.id} className={category===c.id?"filter-option active":"filter-option"} onClick={()=>setCategory(c.id)}>{rtl?c.fa:c.en}<span>{c.id==="all"?products.length:products.filter(p=>p.category===c.id).length}</span></button>)}</div>
             <div className="filter-group price-filter"><b>{rtl?"بازه قیمت (دلار)": "Price range (USD)"}</b><label>{t.min}<input type="number" min="0" value={minPrice} onChange={e=>setMinPrice(Math.max(0,Number(e.target.value)||0))}/></label><label>{t.max}<input type="number" min="0" value={maxPrice} onChange={e=>setMaxPrice(Math.max(0,Number(e.target.value)||0))}/></label></div>
+            <div className="filter-group facet-select-group"><b>{t.brand}</b><select aria-label={t.brand} value={brandFilter} onChange={e=>setBrandFilter(e.target.value)}><option value="">{t.allBrands}</option>{catalogBrands.map(brand=><option key={brand} value={brand}>{brand}</option>)}</select></div>
+            <div className="filter-group facet-select-group"><b>{t.minRatingLabel}</b><select aria-label={t.minRatingLabel} value={minRating} onChange={e=>setMinRating(Number(e.target.value))}><option value={0}>{t.anyRating}</option><option value={3}>3.0+</option><option value={4}>4.0+</option><option value={4.5}>4.5+</option></select></div>
             <div className="filter-note"><InfoIcon/>{rtl?"داده‌ها نمایشی هستند و قیمت‌ها تعهد خرید نیستند.":"Demo data only. Prices are not purchase offers."}</div>
           </aside>
           <div className="product-area">
             {(loading||usingFallback)&&<div className="catalog-status">{loading?<><span className="loader"></span>{t.loading}</>:<><InfoIcon/>{t.sourceFallback}</>}</div>}
             {order&&<div className="order-success" role="status"><Check size={17}/>{t.success} · {t.order}: {order}<button onClick={()=>setOrder("")}><X size={15}/></button></div>}
-            {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);}}>{t.clear}</button></div>:<div className="product-grid">
+            {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);}}>{t.clear}</button></div>:<div className="product-grid">
               {filtered.map((p,index)=><article className="product-card" key={p.id}>
                 <div className="product-media"><Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy"/></Link><span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
                 <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating"><span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span><small>{t.inStock}</small></div><div className="product-price"><div><b>{formatPrice(p)}</b><small>{usd(p.price)}</small></div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
