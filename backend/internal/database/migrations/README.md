@@ -23,3 +23,6 @@ Migration 009 enables `pg_trgm` and adds GIN indexes for normalized product titl
 
 
 Migration 010 adds a full-order demo return record, fixed reason codes and lifecycle constraints. Return requests are limited to paid simulated parent orders; approval records the persisted net order total and final completion changes parent/vendor child status to `refunded_simulated`. This is an internal state machine only: no payment provider or inventory mutation is involved, and no public HTTP route is enabled.
+
+
+Migration 011 adds the identity/session/RBAC schema foundation: normalized users, a migration-seeded role catalog, seller memberships, SHA-256 session/CSRF and action-token digests, and append-only audit events enforced by PostgreSQL triggers. New users receive only the customer role. This is storage-only; do not infer that authentication or seller authorization is available. The migration runner understands PostgreSQL dollar-quoted function bodies as well as ordinary quoted strings and comments.

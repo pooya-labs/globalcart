@@ -41,6 +41,12 @@ docker compose -f backend/docker-compose.yml down
 
 Keep the database volume by default. To delete local development data permanently, use `docker compose -f backend/docker-compose.yml down -v`.
 
+## Identity and authorization schema (migration 011)
+
+The local PostgreSQL schema now contains normalized users, migration-controlled customer/seller/admin roles, vendor-scoped seller memberships, server-side session digest records, single-use email-verification/password-reset token digests and append-only audit events. New accounts receive only the default customer role. The database rejects weak hash formats, malformed digest lengths, invalid expiry lifecycles, duplicate active grants/tokens and audit mutation.
+
+This is schema groundwork only. No password hashing or verification code, login/register/session HTTP handler, cookie, email provider, live user collection or seller/admin route is enabled. ADR-010 remains proposed until the owner approves same-site HTTPS hosting, email delivery and secret management.
+
 ## Local security boundary
 - Compose publishes PostgreSQL and API only on loopback (127.0.0.1).
 - The fallback password is for disposable local development only. Set `POSTGRES_PASSWORD` before using Compose and never reuse it in hosted environments.
@@ -50,7 +56,7 @@ Keep the database volume by default. To delete local development data permanentl
 - GitHub Pages remains a static frontend; it does not run this service.
 
 ## Remaining M04 gates
-1. Design and implement the identity/session/role boundary before exposing any cart, checkout, admin or seller write endpoint.
+1. Complete authentication/session/RBAC middleware and authorization tests on top of migration 011, only after same-site HTTPS hosting, email delivery and secret storage are approved.
 2. Approve the hosting provider, region, budget and secret-management approach before provisioning a managed PostgreSQL instance or public API.
 3. Approve a custom frontend domain and same-site HTTPS API origin before connecting the static storefront to the backend.
 4. Add deployment manifests, production secret handling, backup/restore and smoke tests only after the hosting decisions are approved.

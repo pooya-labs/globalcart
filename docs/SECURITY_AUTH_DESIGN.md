@@ -1,6 +1,8 @@
 # Authentication, Sessions and Authorization Design
 
 **Status:** Proposed design; implementation is gated on owner approval of API hosting and runtime.
+
+**Storage checkpoint (2026-11-02):** migration 011 implements the database schema for users, controlled roles, seller memberships, digest-only sessions/action tokens and append-only audit events. New users receive only the customer role. This does not implement authentication, session validation, CSRF middleware, cookies, email delivery or public routes. This document and ADR-010 remain proposed until deployment and secret-management prerequisites are approved.
 **Scope:** M04 identity boundary for the GlobalCart portfolio simulation.
 **Security posture:** deny by default; no real commerce, payment credentials or seller payouts.
 
