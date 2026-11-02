@@ -403,3 +403,14 @@
 ### Verification
 - Catalog CI push 41366011979 and PR 41366016027 passed for the storefront discovery feature.
 - Final combined head 87bc930da16367bd725b68fec460bae2fda6f26e passed Backend CI push 41366589804, Backend CI PR 41366594050 and Catalog CI PR 41366593947.
+
+
+## Unreleased — Explainable recommendations (2026-11-02)
+
+### Added
+- Replaced the storefront's opaque rating/discount multiplication with a documented 70/30 sample-signal score, a 50% discount contribution cap and stable six-decimal precision.
+- Added per-product explanation labels and a clear disclosure that the demo ranking is not personalized.
+- Added recommendation helper tests for weights, cap, reasons, tie-breakers, invalid inputs and source-array non-mutation.
+
+### Verification
+- Implementation head `09fd73ea1f1dcb1f01e5022c3f4380ec2832855a` passed Catalog CI push `41366975455`, Catalog CI PR `41366979976` and Backend CI PR `41366979999`.

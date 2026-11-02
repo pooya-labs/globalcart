@@ -148,7 +148,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Accessible product/brand/category suggestions and keyboard command palette (Ctrl/⌘+K), with Arrow/Enter/Escape controls.
 - [x] PostgreSQL full-text search baseline and indexed query path.
 - [x] PostgreSQL trigram typo tolerance for product titles and brands, with exact full-text matches ranked first and integration coverage.
-- [ ] Explainable ranking and recommendations.
+- [x] Explainable catalog ranking and recommendation reasons based on documented sample rating/discount signals.
 - [ ] Saved searches and preferences.
 - [ ] Empty, loading, offline and error states.
 
@@ -616,3 +616,16 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on final implementation head 87bc930da16367bd725b68fec460bae2fda6f26e:** [Backend CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366589804), [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366594050) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366593947) all succeeded.
 
 **Scope:** this changes only the local PostgreSQL search path. The public GitHub Pages storefront continues to search its generated static catalog; no hosted API connection is implied.
+
+
+### M07.4 — Explainable catalog recommendation ranking — CI verified (2026-11-02)
+- [x] Replace the opaque rating-times-discount order with a documented weighted score: 70% normalized rating and 30% normalized discount (discount contribution capped at 50%).
+- [x] Round scores to a stable six-decimal precision and use deterministic rating/price/ID tie-breakers without mutating the catalog.
+- [x] Show a short per-product reason (top rating, strong discount, both signals or balanced signals) in every product card.
+- [x] Explain that the recommendation order is a demo heuristic and is not personalized from browsing or purchase history.
+- [x] Add unit tests for score weights, discount cap, reason labels, deterministic ranking, invalid-signal bounds and non-mutation.
+- [x] Verify TypeScript, catalog/domain unit tests and production build in Catalog CI.
+
+**Verification on implementation head 09fd73ea1f1dcb1f01e5022c3f4380ec2832855a:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366975455) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366979976) passed. [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366979999) also passed, including PostgreSQL 17 tests and Docker image build.
+
+**Boundary:** ranking uses only the sample rating and discount fields already in the loaded catalog. It does not use personal data, purchase history, real popularity or live behavioral analytics.
