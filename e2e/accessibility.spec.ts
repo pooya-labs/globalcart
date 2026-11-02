@@ -47,3 +47,37 @@ test("static product detail page meets WCAG 2.1 AA automated checks", async ({ p
   await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
   await expectNoWcagViolations(page);
 });
+
+test("command palette traps keyboard focus and restores the invoking search field", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+
+  const mobileSearchTrigger = page.getByRole("button", {
+    name: "Search products, brands or categories..."
+  });
+  if (await mobileSearchTrigger.isVisible()) {
+    await mobileSearchTrigger.click();
+  }
+
+  const search = page.getByRole("combobox", {
+    name: "Search products, brands or categories..."
+  });
+  await search.focus();
+  await expect(search).toBeFocused();
+
+  await page.keyboard.press("Control+k");
+  const dialog = page.getByRole("dialog", { name: "Quick commands" });
+  await expect(dialog).toBeVisible();
+
+  const firstFocusable = dialog.locator(".command-palette-heading .icon-button");
+  const lastOption = dialog.getByRole("option").last();
+  await lastOption.focus();
+  await page.keyboard.press("Tab");
+  await expect(firstFocusable).toBeFocused();
+
+  await page.keyboard.press("Shift+Tab");
+  await expect(lastOption).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(search).toBeFocused();
+});
