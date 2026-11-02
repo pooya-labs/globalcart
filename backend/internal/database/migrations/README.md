@@ -26,3 +26,6 @@ Migration 010 adds a full-order demo return record, fixed reason codes and lifec
 
 
 Migration 011 adds the identity/session/RBAC schema foundation: normalized users, a migration-seeded role catalog, seller memberships, SHA-256 session/CSRF and action-token digests, and append-only audit events enforced by PostgreSQL triggers. New users receive only the customer role. This is storage-only; do not infer that authentication or seller authorization is available. The migration runner understands PostgreSQL dollar-quoted function bodies as well as ordinary quoted strings and comments.
+
+
+Migration 012 adds nullable `carts.owner_user_id` referencing `users(id)`, plus a partial index for account-owned cart history. The application binds carts only after validating both the existing guest capability digest and a live customer session. Ownership is resolved from PostgreSQL in the same transaction as each account-backed cart/order operation; no HTTP route is enabled by this schema change.

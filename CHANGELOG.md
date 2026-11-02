@@ -3,6 +3,9 @@
 ## Unreleased — 2026-11-02
 
 ### Added
+- Added M04.12 customer-account ownership operations for cart binding, cart read/add/set/remove, parent and vendor-child order reads, and unpaid simulated-order cancellation. Every account path revalidates the active customer session and canonical PostgreSQL owner inside the protected transaction.
+- Added PostgreSQL integration regression coverage for foreign and guest-only cart/order IDOR, customer cart mutations, vendor child-order reads, first-writer-wins binding races, expired carts, revoked sessions and idempotent cancellation.
+- Preserved the independent guest-cart capability path; cart capability possession does not create account identity or grant customer/seller/admin roles.
 - Added M04 migration 011 for identity/session/RBAC storage: normalized users, controlled roles, seller memberships, opaque session and action-token digests, and append-only audit events.
 - Added database constraints for Argon2id hash shape, verified account activation, session expiry/revocation, one active action token per purpose, and immutable audit history.
 - Added PostgreSQL-aware migration statement splitting for quoted strings, comments and dollar-quoted function bodies, plus unit and integration regression coverage.
@@ -14,6 +17,9 @@
 
 - Added Playwright axe coverage for the storefront in both Persian RTL and English LTR.
 - Added a desktop/mobile `prefers-reduced-motion` regression test for smooth scrolling, image transitions and modal overlay animation.
+
+### Verification
+- M04.12 implementation head `928c3867e2d8e109e4e6595f9ac0898cf51b25b9` passed [Backend CI 41403135351](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135351), [Security scans 41403135364](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135364) and [Pages deployment 41403135344](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135344). CI completed sqlc generation, gofmt, dependency vulnerability scan, vet, race-enabled tests, API/importer builds and Docker image build. Formatting-only generated commit: `5a5659d9b35789cf12072141152b0ab4be217c33`.
 
 ### Fixed
 - Increased the stale-catalog status foreground contrast from 4.32:1 to above 5:1 against its light background.

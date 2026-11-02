@@ -255,14 +255,17 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Backend CI [run 41399542624](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542539) and GitHub Pages deployment [run 41399542545](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542545) on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`; all passed, including PostgreSQL race tests, API/importer builds, Docker image, static build and Pages deploy.
 
 **Boundary:** service/application-layer enforcement only; no login, cookie, CSRF middleware or public route is enabled.
-### M04.12 — Customer resource ownership enforcement (next; implementation not started)
-- [ ] Identify customer-facing internal cart/order/account reads and mutations that accept resource IDs or capability selectors.
-- [ ] Resolve canonical resource ownership from PostgreSQL inside the same transaction as the protected operation, then apply the M04.10 customer policy.
-- [ ] Keep guest cart capabilities separate from authenticated identity; a cart capability must authorize only its own cart and never imply seller/admin privilege.
-- [ ] Add PostgreSQL tests for cross-customer order/cart IDOR, expired/revoked capabilities, ownership races and idempotent denial.
-- [ ] Keep customer HTTP routes disabled until same-site HTTPS hosting and owner-approved runtime/secret management exist.
+### M04.12 — Customer resource ownership enforcement (CI verified, 2026-11-02)
+- [x] Inventory internal customer cart/order resource operations and keep bearer-capability guest operations distinct from authenticated account operations.
+- [x] Add `carts.owner_user_id` (migration 012); bind a guest cart only when both its 32-byte capability digest and a live verified customer session are proven. The first account to bind wins.
+- [x] Add customer-owned cart read/add/set/remove operations and parent/vendor-child order reads plus unpaid-order cancellation. Resolve the owner from PostgreSQL and revalidate the session, customer role and resource ownership inside the protected transaction.
+- [x] Keep guest cart capabilities separate from account identity; the capability authorizes only its own cart and never grants a role or seller/admin scope.
+- [x] Add PostgreSQL integration coverage for foreign/guest-only cart and order denial, cart mutations, parent and vendor child-order reads, first-writer-wins binding races, expired carts, revoked sessions and idempotent cancellation.
+- [x] Keep customer HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret management and runtime are explicitly approved.
 
-**Boundary:** internal customer ownership enforcement only; no public customer-authentication route or browser cookie flow is enabled.
+**Verification on implementation head `928c3867e2d8e109e4e6595f9ac0898cf51b25b9`:** [Backend CI 41403135351](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135351), [Security scans 41403135364](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135364), and [GitHub Pages deployment 41403135344](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135344) all succeeded. Backend CI completed sqlc generation, Go formatting, dependency vulnerability scan, `go vet`, race-enabled Go tests, API/importer builds and Docker image build. The CI formatting-only commit is `5a5659d9b35789cf12072141152b0ab4be217c33`.
+
+**Boundary:** account-backed service methods remain internal. No customer authentication, cart/order write, seller or admin HTTP route, cookie flow or public API was enabled.
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).

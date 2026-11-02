@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M04 identity/session/RBAC design before commerce write APIs or seller/admin workspaces  
+**Active stage:** M04 identity/session/RBAC internal boundary; M04.12 customer resource ownership is CI-verified; public HTTP auth/write routes remain gated  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -134,6 +134,15 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - PostgreSQL tests cover own-vendor operations, cross-vendor IDOR denial, stale session denial, suspended membership denial, and membership revocation blocking on the protected transaction's account lock.
 - Backend CI [run 41399542624](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542539) and Pages deployment [run 41399542545](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542545) passed on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`.
 - No public seller route, dashboard, cookie authentication or CSRF middleware was enabled.
+
+## M04.12 customer resource ownership checkpoint — CI verified (2026-11-02)
+- Migration 012 adds nullable `carts.owner_user_id`. `BindCartToCustomer` requires both the existing guest capability digest and a currently valid, verified customer session; the cart row lock makes the first account binding win without disclosing a foreign cart.
+- `GetCartForCustomer`, `AddItemForCustomer`, `SetItemQuantityForCustomer` and `RemoveItemForCustomer` resolve canonical ownership from PostgreSQL, revalidate the live customer session/role and hold the cart row lock in the same transaction as the protected operation. Product/variant price, title and stock remain database-derived.
+- `GetOrderForCustomer`, `GetVendorOrderForCustomer` and `CancelOrderForCustomer` bind parent and child order access to the owning cart account. Foreign and guest-only order IDs return the same not-found error; cancellation preserves the existing reservation-release and simulated-order state machine.
+- Guest cart capabilities remain a separate bearer capability for one cart. They do not grant user identity, customer role, seller scope or admin authority. Customer methods do not accept client-supplied owner IDs.
+- `backend/internal/commerce/customer_ownership_integration_test.go` covers foreign cart/order IDOR, cart add/set/remove, parent and vendor-child order reads, cancellation/replay, concurrent first-writer-wins binding, expired carts and revoked sessions.
+- Backend CI [41403135351](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135351), Security scans [41403135364](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135364) and Pages deployment [41403135344](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135344) passed on implementation head `928c3867e2d8e109e4e6595f9ac0898cf51b25b9`. CI persisted a formatting-only test-file commit as `5a5659d9b35789cf12072141152b0ab4be217c33`.
+- No public customer/authentication route, cookie flow, seller/admin route or hosted backend was enabled.
 
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
