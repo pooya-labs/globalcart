@@ -63,6 +63,7 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 	description := ""
 	brand := "Studio Override"
 	updated, err := UpdateManagedProduct(ctx, pool, adminSession.SessionToken, productID, ProductUpdateInput{
+		ExpectedRevision: 0,
 		Title: &title, Description: &description, Brand: &brand,
 	})
 	if err != nil {
@@ -77,6 +78,12 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 	}
 	if updated.Revision != 1 || len(updated.OverriddenFields) != 3 {
 		t.Fatalf("revision/override fields = %d/%v, want 1 and all three", updated.Revision, updated.OverriddenFields)
+	}
+	staleTitle := "Stale administrator edit"
+	if _, err := UpdateManagedProduct(ctx, pool, adminSession.SessionToken, productID, ProductUpdateInput{
+		ExpectedRevision: 0, Title: &staleTitle,
+	}); !errors.Is(err, ErrStaleProductRevision) {
+		t.Fatalf("stale product update error = %v, want ErrStaleProductRevision", err)
 	}
 
 	// The public read-only catalog API applies the editorial view and brand
@@ -133,7 +140,7 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 		t.Fatalf("supplier refresh clobbered or hid editorial/source values: %+v", refreshed)
 	}
 
-	archived, err := ArchiveManagedProduct(ctx, pool, adminSession.SessionToken, productID)
+	archived, err := ArchiveManagedProduct(ctx, pool, adminSession.SessionToken, productID, 1)
 	if err != nil {
 		t.Fatalf("archive product: %v", err)
 	}
@@ -153,7 +160,7 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 		t.Fatalf("repeated archive error = %v, want ErrProductAlreadyArchived", err)
 	}
 
-	restored, err := RestoreManagedProduct(ctx, pool, adminSession.SessionToken, productID)
+	restored, err := RestoreManagedProduct(ctx, pool, adminSession.SessionToken, productID, 2)
 	if err != nil {
 		t.Fatalf("restore product: %v", err)
 	}
