@@ -115,13 +115,14 @@ func adjustVendorInventoryTx(
 func getVendorProduct(ctx context.Context, q vendorProductQuery, vendorID, offerID int64, lockForShare bool) (VendorProduct, error) {
 	var out VendorProduct
 	var variant pgtype.Int8
+	var sellerSKU pgtype.Text
 	query := "SELECT id,vendor_id,product_id,variant_id,seller_sku,price::text,currency,stock,status " +
 		"FROM vendor_products WHERE vendor_id=$1 AND id=$2"
 	if lockForShare {
 		query += " FOR SHARE"
 	}
 	err := q.QueryRow(ctx, query, vendorID, offerID).Scan(
-		&out.ID, &out.VendorID, &out.ProductID, &variant, &out.SellerSKU,
+		&out.ID, &out.VendorID, &out.ProductID, &variant, &sellerSKU,
 		&out.Price, &out.Currency, &out.Stock, &out.Status,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -133,6 +134,9 @@ func getVendorProduct(ctx context.Context, q vendorProductQuery, vendorID, offer
 	if variant.Valid {
 		id := variant.Int64
 		out.VariantID = &id
+	}
+	if sellerSKU.Valid {
+		out.SellerSKU = sellerSKU.String
 	}
 	return out, nil
 }
