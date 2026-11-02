@@ -206,6 +206,7 @@ export default function Home() {
   },[commandPaletteOpen,searchSuggestionsOpen,checkout,compareOpen,quick,favoriteOpen,cartOpen,categoryMenu,mobileMenu]);
 
   const modalActive=commandPaletteOpen||checkout||compareOpen||Boolean(quick)||favoriteOpen||cartOpen;
+  const overlayModalActive=checkout||compareOpen||Boolean(quick)||favoriteOpen||cartOpen;
 
   const openCommandPalette=()=>{
     commandPaletteReturnFocusRef.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
