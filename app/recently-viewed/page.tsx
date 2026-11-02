@@ -5,6 +5,7 @@ import Link from "next/link";
 import catalogSnapshot from "../../data/catalog.json";
 import fxSnapshot from "../../data/fx-rate.json";
 import { calculateDemoPrice } from "../../lib/pricing";
+import { readLocalePreference, writeLocalePreference } from "../../lib/locale";
 import { ArrowLeft, Clock3, Trash2 } from "lucide-react";
 
 type Product = {
@@ -28,6 +29,11 @@ export default function RecentlyViewedPage() {
   const rtl=locale==="fa";
 
   useEffect(()=>{
+    const savedLocale=readLocalePreference();
+    if(savedLocale)setLocale(savedLocale);
+  },[]);
+
+  useEffect(()=>{
     try{
       const raw=localStorage.getItem("globalcart-state-v1");
       const state=raw?JSON.parse(raw):{};
@@ -39,6 +45,12 @@ export default function RecentlyViewedPage() {
   const format=(p:Product)=>rtl&&rate!==null
     ?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:p.price,fxRate:rate,discountPercentage:p.discountPercentage}).toman)+" تومان"
     :"$"+(p.price*(1-p.discountPercentage/100)).toFixed(2);
+
+  const toggleLocale=()=>{
+    const nextLocale=rtl?"en":"fa";
+    setLocale(nextLocale);
+    writeLocalePreference(nextLocale);
+  };
 
   const clearHistory=()=>{
     setIds([]);
@@ -52,7 +64,7 @@ export default function RecentlyViewedPage() {
   return <main className={rtl?"history-page rtl":"history-page ltr"} dir={rtl?"rtl":"ltr"}>
     <header className="history-topbar">
       <Link href="/"><span className="brand-mark">g<span>.</span></span><b>globalcart</b></Link>
-      <div><button onClick={()=>setLocale(rtl?"en":"fa")} aria-label={rtl?"Switch language to English":"تغییر زبان به فارسی"}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div>
+      <div><button onClick={toggleLocale} aria-label={rtl?"Switch language to English":"تغییر زبان به فارسی"}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div>
     </header>
     <section className="history-content">
       <div className="history-heading"><div><span className="section-kicker">GLOBALCART / BROWSING HISTORY</span><h1>{rtl?"محصولات بازدیدشده":"Recently viewed products"}</h1><p>{rtl?"محصولاتی که در همین مرورگر بررسی کرده‌ای؛ تاریخچه به حساب کاربری یا سرور ارسال نمی‌شود.":"Products you opened in this browser. This history is stored locally and is not sent to an account or server."}</p></div>{products.length>0&&<button className="history-clear" onClick={clearHistory} aria-label={rtl?"پاک کردن تاریخچه بازدید محصولات":"Clear recently viewed history"}><Trash2 size={15}/>{rtl?"پاک کردن تاریخچه":"Clear history"}</button>}</div>
