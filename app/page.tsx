@@ -182,6 +182,7 @@ export default function Home() {
   const [activeCommandIndex,setActiveCommandIndex]=useState(0);
   const searchInputRef=useRef<HTMLInputElement>(null);
   const commandInputRef=useRef<HTMLInputElement>(null);
+  const commandPaletteReturnFocusRef=useRef<HTMLElement|null>(null);
   const searchListboxId=useId();
   const commandInputId=useId();
   const t=copy[locale];
@@ -190,7 +191,7 @@ export default function Home() {
   useEffect(()=>{
     const handleEscape=(event:KeyboardEvent)=>{
       if(event.key!=="Escape")return;
-      if(commandPaletteOpen){setCommandPaletteOpen(false);setCommandQuery("");return;}
+      if(commandPaletteOpen){closeCommandPalette();return;}
       if(searchSuggestionsOpen){setSearchSuggestionsOpen(false);setActiveSuggestionIndex(-1);return;}
       if(checkout){setCheckout(false);return;}
       if(compareOpen){setCompareOpen(false);return;}
@@ -206,6 +207,12 @@ export default function Home() {
 
   const modalActive=commandPaletteOpen||checkout||compareOpen||Boolean(quick)||favoriteOpen||cartOpen;
 
+  const openCommandPalette=()=>{
+    commandPaletteReturnFocusRef.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
+    setCommandQuery("");
+    setActiveCommandIndex(0);
+    setCommandPaletteOpen(true);
+  };
   useEffect(()=>{
     const handleCommandShortcut=(event:KeyboardEvent)=>{
       if(!(event.metaKey||event.ctrlKey)||event.key.toLowerCase()!=="k")return;
@@ -213,9 +220,7 @@ export default function Home() {
       if(modalActive)return;
       setSearchSuggestionsOpen(false);
       setActiveSuggestionIndex(-1);
-      setCommandQuery("");
-      setActiveCommandIndex(0);
-      setCommandPaletteOpen(true);
+      openCommandPalette();
     };
     window.addEventListener("keydown",handleCommandShortcut);
     return()=>window.removeEventListener("keydown",handleCommandShortcut);
@@ -245,7 +250,14 @@ export default function Home() {
   },[modalActive,commandPaletteOpen,checkout,compareOpen,quick,favoriteOpen,cartOpen]);
 
   useEffect(()=>{
-    if(commandPaletteOpen)commandInputRef.current?.focus();
+    if(commandPaletteOpen){
+      commandInputRef.current?.focus();
+      return;
+    }
+    const target=commandPaletteReturnFocusRef.current;
+    if(!target)return;
+    commandPaletteReturnFocusRef.current=null;
+    requestAnimationFrame(()=>{if(target.isConnected)target.focus();});
   },[commandPaletteOpen]);
 
   useEffect(()=>{
@@ -513,7 +525,7 @@ export default function Home() {
               </button>)}
             </div>}
           </div>
-          <button className="command-shortcut" type="button" onClick={()=>{setCommandQuery("");setActiveCommandIndex(0);setCommandPaletteOpen(true);}} aria-label={t.keyboardHint+" "+t.commandPalette}><span>{t.keyboardHint}</span></button>
+          <button className="command-shortcut" type="button" onClick={openCommandPalette} aria-label={t.keyboardHint+" "+t.commandPalette}><span>{t.keyboardHint}</span></button>
           <button className="locale-button" onClick={()=>setLocale(rtl?"en":"fa")}>{rtl?"EN":"فا"}</button>
           <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites+" "+favorites.length}><Heart size={19}/><span>{favorites.length}</span></button>
           <button className="bag-button" onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
