@@ -32,7 +32,7 @@ func TestAuthorizeDenyByDefaultPolicyMatrix(t *testing.T) {
 		name      string
 		principal SessionPrincipal
 		action    AuthorizationAction
-		resource AuthorizationResource
+		resource  AuthorizationResource
 		wantErr   error
 	}{
 		{
