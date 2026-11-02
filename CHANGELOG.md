@@ -8,6 +8,9 @@
 - Added PostgreSQL-aware migration statement splitting for quoted strings, comments and dollar-quoted function bodies, plus unit and integration regression coverage.
 - Added internal Argon2id password hash/verify and rehash-check helpers with strict PHC parsing and bounded verification resource costs.
 - Added 256-bit cryptographically random opaque token generation, SHA-256 digest helpers and constant-time digest comparison.
+- Added an internal PostgreSQL-backed session lifecycle: active/verified account creation, separate session and CSRF tokens, digest-only persistence, 15-minute idle refresh bounded by a 24-hour absolute expiry, and current DB-backed role/vendor-scope resolution.
+- Added session-bound CSRF verification and transactional logout revocation/audit events, with PostgreSQL integration coverage for expiry, disabled accounts and seller membership state.
+
 
 - Added Playwright axe coverage for the storefront in both Persian RTL and English LTR.
 - Added a desktop/mobile `prefers-reduced-motion` regression test for smooth scrolling, image transitions and modal overlay animation.

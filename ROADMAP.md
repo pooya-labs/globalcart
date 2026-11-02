@@ -149,7 +149,20 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add tests for correct/incorrect passwords, malformed/over-budget PHC strings, legacy rehash decisions, invalid password inputs, token entropy/shape and digest validation.
 - [x] Verify Backend CI [41385892498](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892498), Security scans [41385892505](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892505) and GitHub Pages deployment [41385892515](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892515) on implementation head `862ffb30edefb23695e34e407bfe7ea8180162ef`.
 
-**Boundary:** these internal primitives are not connected to registration, login, session middleware, cookies, CSRF validation, email delivery or public HTTP routes. Benchmark the hash parameters and add request rate limits on the approved runtime before enabling authentication.
+**Boundary:** these primitives and session-store methods remain internal; no registration/login handler, cookie, CSRF middleware, email delivery or public HTTP route is enabled. Benchmark hash parameters and add rate limits before authentication is activated.
+
+### M04.3 — Internal server-side session lifecycle (CI pending)
+- [x] Create sessions only for active, email-verified accounts; generate independent 256-bit session and CSRF tokens and persist only SHA-256 digests.
+- [x] Use a 15-minute sliding idle timeout capped by a 24-hour absolute expiry.
+- [x] Resolve session validity and current user roles in one database statement; reject expired, revoked, disabled or unverified accounts.
+- [x] Grant effective seller access only when the user has an active seller role, active membership and an active vendor; refresh scope from PostgreSQL rather than browser claims.
+- [x] Validate the session-bound CSRF token using constant-time digest comparison.
+- [x] Revoke sessions on logout and append creation/revocation audit events in the same transaction.
+- [x] Add PostgreSQL integration coverage for raw-token non-persistence, CSRF, pending/active seller memberships, expiry, disabled/unverified accounts, idempotency boundary and audit events.
+- [ ] Add bulk revocation for password change/reset and privilege/account-status changes.
+- [ ] Wire this internal service into HTTP authentication middleware only after same-site HTTPS hosting, cookie configuration, email delivery and secret storage are approved.
+
+**Boundary:** internal store/service only. No browser cookie, route, middleware, public authentication flow or hosted database has been enabled.
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
