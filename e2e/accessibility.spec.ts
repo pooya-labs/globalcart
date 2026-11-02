@@ -46,8 +46,47 @@ async function expectDialogFocusLoop(page: Page, dialog: ReturnType<Page["locato
   await expect(last).toBeFocused();
 }
 
-test("storefront homepage meets WCAG 2.1 AA automated checks", async ({ page }) => {
+test("storefront homepage meets WCAG checks in RTL and LTR", async ({ page }) => {
+  await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
   await expectNoWcagViolations(page);
+
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
+  await expectNoWcagViolations(page);
+});
+
+test("reduced-motion preference disables smooth scrolling and long UI motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+
+  const initialMotion = await page.evaluate(() => {
+    const image = document.querySelector(".product-media > img");
+    return {
+      scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior,
+      imageTransition: image ? getComputedStyle(image).transitionDuration : ""
+    };
+  });
+  expect(initialMotion.scrollBehavior).toBe("auto");
+  expect(initialMotion.imageTransition).not.toBe("");
+  for (const duration of initialMotion.imageTransition.split(",")) {
+    expect(Number.parseFloat(duration.trim())).toBeLessThanOrEqual(0.001);
+  }
+
+  const firstProduct = page.locator(".product-card").first();
+  const quickView = firstProduct.locator(".quick-view");
+  const isMobileViewport = await page.evaluate(() => window.matchMedia("(max-width: 760px)").matches);
+  if (!isMobileViewport) await firstProduct.hover();
+  await quickView.click();
+  await expect(page.locator(".quick-modal[role='dialog']")).toBeVisible();
+
+  const overlayDuration = await page.locator(".overlay").first().evaluate(
+    element => getComputedStyle(element).animationDuration
+  );
+  for (const duration of overlayDuration.split(",")) {
+    expect(Number.parseFloat(duration.trim())).toBeLessThanOrEqual(0.001);
+  }
+
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".quick-modal[role='dialog']")).toBeHidden();
 });
 
 test("command palette dialog remains accessible when open", async ({ page }) => {
