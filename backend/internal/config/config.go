@@ -18,9 +18,9 @@ const (
 )
 
 type Config struct {
-	Environment  Environment
-	HTTPAddr     string
-	DatabaseURL  string
+	Environment   Environment
+	HTTPAddr      string
+	DatabaseURL   string
 	AllowedOrigin map[string]bool
 }
 
