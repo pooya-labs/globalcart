@@ -2,10 +2,15 @@ import { notFound } from "next/navigation";
 import catalogSnapshot from "../../../data/catalog.json";
 import ProductDetailClient from "./ProductDetailClient";
 
+type ProductVariant = {
+  sku:string; title:string; price:number; stock:number;
+  attributes?:Record<string,unknown>; source:string; sourceId:string; isActive:boolean;
+};
 type Product = {
   id:number; title:string; description:string; category:string; price:number;
   discountPercentage:number; rating:number; stock:number; brand?:string;
-  thumbnail:string; images?:string[]; source?:string; sourceUrl?:string;
+  thumbnail:string; images?:string[]; source?:string; sourceId?:string;
+  sourceUrl?:string; importedAt?:string; variants?:ProductVariant[];
 };
 
 const products = catalogSnapshot.products as unknown as Product[];

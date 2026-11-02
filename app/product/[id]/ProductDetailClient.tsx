@@ -4,11 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
 import { calculateDemoPrice } from "../../../lib/pricing";
+import fxSnapshot from "../../../data/fx-rate.json";
+import { getFxRateStatus, type FxRateStatus } from "../../../lib/fx/nobitex";
 
+type ProductVariant = {
+  sku:string; title:string; price:number; stock:number;
+  attributes?:Record<string,unknown>; source:string; sourceId:string; isActive:boolean;
+};
 type Product = {
   id:number; title:string; description:string; category:string; price:number;
   discountPercentage:number; rating:number; stock:number; brand?:string;
-  thumbnail:string; images?:string[]; source?:string; sourceUrl?:string;
+  thumbnail:string; images?:string[]; source?:string; sourceId?:string;
+  sourceUrl?:string; importedAt?:string; variants?:ProductVariant[];
 };
 type Props = { product:Product; related:Product[] };
 type CartLine = { product:Product; quantity:number };
@@ -41,23 +48,26 @@ export default function ProductDetailClient({product,related}:Props) {
   const [quantity,setQuantity]=useState(1);
   const [added,setAdded]=useState(false);
   const [saved,setSaved]=useState(false);
-  const [rate,setRate]=useState(69000);
+  const rate = typeof fxSnapshot.tomanPerUsdt === "number" && Number.isFinite(fxSnapshot.tomanPerUsdt) && fxSnapshot.tomanPerUsdt > 0 ? fxSnapshot.tomanPerUsdt : null;
+  const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const rtl=locale==="fa";
   const images=useMemo(()=>Array.from(new Set([product.thumbnail,...(product.images||[])].filter(Boolean))),[product]);
   const image=images[Math.min(activeImage,images.length-1)]||product.thumbnail;
   const discounted=product.price*(1-product.discountPercentage/100);
-  const priceBreakdown=calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
+  const priceBreakdown=rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
+  const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
+  const fxTimestampLabel=fxSnapshot.marketUpdatedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.marketUpdatedAt)):null;
+  useEffect(()=>{setFxStatus(getFxRateStatus(fxSnapshot));},[]);
   useEffect(()=>{
     try{
       const raw=localStorage.getItem("globalcart-state-v1");
       const state=raw?JSON.parse(raw):{};
-      if(Number.isFinite(state.rate)&&state.rate>0)setRate(state.rate);
       if(Array.isArray(state.favorites))setSaved(state.favorites.includes(product.id));
       const recentIds:number[]=Array.isArray(state.recent)?state.recent:[];
       localStorage.setItem("globalcart-state-v1",JSON.stringify({...state,recent:[product.id,...recentIds.filter(id=>id!==product.id)].slice(0,8)}));
     }catch{/* Ignore invalid local demo state. */}
   },[product.id]);
-  const format=(value:number)=>rtl
+  const format=(value:number)=>rtl&&rate!==null
     ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(value*rate)+" تومان"
     : "$"+value.toFixed(2);
   const category=categoryNames[product.category]||{fa:product.category,en:product.category.replaceAll("-"," ")};
@@ -102,12 +112,41 @@ export default function ProductDetailClient({product,related}:Props) {
         <p className="detail-description">{product.description}</p>
         <div className="detail-highlights"><div><ShieldCheck/><span><b>{rtl?"اطلاعات شفاف":"Clear information"}</b><small>{rtl?"قیمت و منبع داده مشخص است":"Price and data source disclosed"}</small></span></div><div><Truck/><span><b>{rtl?"تجربه خرید نمایشی":"Demo shopping experience"}</b><small>{rtl?"بدون ارسال یا موجودی واقعی":"No real shipping or inventory"}</small></span></div></div>
         <div className="detail-specs"><div><span>{rtl?"دسته‌بندی":"Category"}</span><b>{rtl?category.fa:category.en}</b></div><div><span>{rtl?"برند":"Brand"}</span><b>{product.brand||"Global Select"}</b></div><div><span>{rtl?"امتیاز نمونه":"Sample rating"}</span><b>{product.rating.toFixed(1)} / 5</b></div><div><span>{rtl?"موجودی در منبع نمونه":"Source stock figure"}</span><b>{product.stock}</b></div></div>
+        <section className="detail-provenance" aria-label={rtl?"منشأ و ویژگی‌های داده":"Data provenance and attributes"}>
+          <div className="detail-provenance-heading"><b>{rtl?"منشأ و ویژگی‌های داده":"Data provenance & attributes"}</b><span>{product.source||"Unknown source"}</span></div>
+          <div className="detail-provenance-grid">
+            <div><span>{rtl?"شناسه در منبع":"Source record ID"}</span><b>{product.sourceId||String(product.id)}</b></div>
+            <div><span>{rtl?"زمان ورود به کاتالوگ":"Imported into catalog"}</span><b>{product.importedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",dateStyle:"medium",timeStyle:"short"}).format(new Date(product.importedAt)):(rtl?"نامشخص":"Unknown")}</b></div>
+            <div><span>{rtl?"زمینه امتیاز":"Rating context"}</span><b>{rtl?"امتیاز نمونه منبع؛ تعداد نظر ارائه نشده":"Source sample rating; review count not supplied"}</b></div>
+            {product.sourceUrl&&/^https:\/\//i.test(product.sourceUrl)&&<div><span>{rtl?"پیوند منبع":"Source record URL"}</span><a href={product.sourceUrl} target="_blank" rel="noreferrer">{rtl?"مشاهده رکورد منبع":"View source record"}</a></div>}
+          </div>
+          <div className="detail-attributes">
+            <b>{rtl?"ویژگی‌ها و گزینه‌ها":"Attributes & options"}</b>
+            {(product.variants?.length??0)>0
+              ? product.variants?.map(variant=><div className="detail-variant" key={variant.source+"-"+variant.sourceId}>
+                  <strong>{variant.title||variant.sku||variant.sourceId}</strong>
+                  {Object.entries(variant.attributes??{}).map(([key,value])=><span key={key}>{key}: {typeof value==="string"||typeof value==="number"||typeof value==="boolean"?String(value):JSON.stringify(value)}</span>)}
+                  <small>{variant.isActive?(rtl?"فعال":"Active"):(rtl?"غیرفعال":"Inactive")} · {format(variant.price)} · {rtl?"موجودی منبع":"Source stock"}: {variant.stock}</small>
+                </div>)
+              : <p>{rtl?"منبع نمونه برای این محصول، گزینه یا ویژگی ساختاریافته‌ای ارسال نکرده است.":"The sample source did not provide structured variants or product attributes for this item."}</p>}
+          </div>
+        </section>
       </div>
       <aside className="detail-buybox">
-        <span className="buybox-kicker">{rtl?"قیمت نمایشی":"ILLUSTRATIVE PRICE"}</span>
-        <div className="detail-price">{rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)}</div>
+        <span className="buybox-kicker">{rtl?"برآورد قیمت با نرخ بازار":"EXCHANGE-BASED ESTIMATE"}</span>
+        <div className="detail-price">{priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
         <div className="detail-old-price"><s>{format(product.price)}</s><span>{rtl?"قیمت قبل از تخفیف":"Before discount"}</span></div>
-        <details className="price-breakdown"><summary>{rtl?"جزئیات محاسبه قیمت":"How this price is calculated"}</summary><div><span>{rtl?"قیمت منبع (دلار)":"Source price (USD)"}</span><b>${priceBreakdown.sourcePrice.toFixed(2)}</b></div><div><span>{rtl?"تخفیف نمونه (دلار)":"Catalog discount (USD)"}</span><b>− ${(priceBreakdown.sourcePrice-priceBreakdown.discountedUsd).toFixed(2)}</b></div><div><span>{rtl?"نرخ تبدیل نمایشی":"Illustrative FX rate"}</span><b>{new Intl.NumberFormat(rtl?"fa-IR":"en-US").format(priceBreakdown.fxRate)} {rtl?"تومان / دلار":"Toman / USD"}</b></div><small>{rtl?"محاسبه بر اساس قیمت نمونه و نرخ دستی مرورگر است؛ نرخ زنده، هزینه ارسال یا مالیات در آن لحاظ نشده است.":"Calculated from sample catalog price and the browser’s illustrative rate. No live FX, shipping or tax is included."}</small></details>
+        <details className="price-breakdown"><summary>{rtl?"منبع و جزئیات نرخ تبدیل":"FX source and calculation"}</summary>
+          <div><span>{rtl?"قیمت منبع (USD)":"Source catalog price (USD)"}</span><b>${product.price.toFixed(2)}</b></div>
+          <div><span>{rtl?"تخفیف نمونه":"Catalog sample discount"}</span><b>{product.discountPercentage.toFixed(2)}%</b></div>
+          {priceBreakdown?<>
+            <div><span>{rtl?"نرخ میانی نوبیتکس":"Nobitex bid-ask midpoint"}</span><b>{new Intl.NumberFormat(rtl?"fa-IR":"en-US",{maximumFractionDigits:0}).format(priceBreakdown.fxRate)} {rtl?"تومان / تتر":"Toman / USDT"}</b></div>
+            <div><span>{rtl?"آخرین به‌روزرسانی بازار":"Exchange order-book update"}</span><b>{fxTimestampLabel??fxStatusLabel}</b></div>
+            <small>{rtl?"مبنای تبدیل، میانه بهترین سفارش خرید و فروش بازار USDT/IRT نوبیتکس است. این نرخ، نرخ تتر است و ممکن است با دلار نقدی تفاوت داشته باشد.":"Conversion uses the midpoint of the best bid and ask in Nobitex USDT/IRT. This is a Tether market quote and can differ from cash USD."}</small>
+            {fxStatus!=="fresh"&&<small className="fx-warning">{rtl?"هشدار تازگی نرخ: "+fxStatusLabel:"FX freshness warning: "+fxStatusLabel}</small>}
+          </>:<small>{rtl?"نرخ معتبر صرافی فعلاً در دسترس نیست؛ مبلغ اصلی به دلار نمایش داده می‌شود.":"A valid exchange quote is currently unavailable, so the source USD price is shown."}</small>}
+          <small>{rtl?"قیمت‌ها نمایشی‌اند و شامل هزینه ارسال، مالیات، کارمزد پرداخت یا تعهد خرید نیستند.":"Demo prices only; no shipping, tax, payment fees or purchase commitment are included."}</small>
+        </details>
         <div className="buybox-stock"><span/> {rtl?"موجود در کاتالوگ نمونه":"Listed in sample catalog"}</div>
         <div className="buybox-quantity"><span>{rtl?"تعداد":"Quantity"}</span><div><button onClick={()=>setQuantity(q=>Math.max(1,q-1))} aria-label={rtl?"کاهش تعداد":"Decrease quantity"}><Minus size={15}/></button><b>{quantity}</b><button onClick={()=>setQuantity(q=>Math.min(10,q+1))} aria-label={rtl?"افزایش تعداد":"Increase quantity"}><Plus size={15}/></button></div></div>
         <button className="buybox-add" onClick={addToCart}><ShoppingBag size={17}/>{rtl?"افزودن به سبد خرید":"Add to bag"}</button>
@@ -117,7 +156,7 @@ export default function ProductDetailClient({product,related}:Props) {
         <small className="buybox-source">{rtl?"منبع اطلاعات":"Data source"}: {product.source||"DummyJSON public demo API"}</small>
       </aside>
     </section>
-    <section className="detail-description-panel"><span className="section-kicker">PRODUCT OVERVIEW</span><h2>{rtl?"درباره محصول":"About this product"}</h2><p>{product.description}</p><div><span>{rtl?"شناسه منبع":"Source ID"}</span><b>{product.id}</b><span>{rtl?"آخرین قیمت نمونه":"Sample price"}</span><b>{format(discounted)}</b></div></section>
+    <section className="detail-description-panel"><span className="section-kicker">PRODUCT OVERVIEW</span><h2>{rtl?"درباره محصول":"About this product"}</h2><p>{product.description}</p><div><span>{rtl?"شناسه منبع":"Source ID"}</span><b>{product.sourceId||product.id}</b><span>{rtl?"آخرین قیمت نمونه":"Sample price"}</span><b>{format(discounted)}</b></div></section>
     {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={item.thumbnail} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{item.title}</b><strong>{format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
     <footer className="product-page-footer"><Link href="/">globalcart</Link><span>{rtl?"پروژه مستقل نمایشی · توسعه و طراحی پویا گودرزی":"Independent portfolio demo · Designed & built by Pooya Goodarzi"}</span></footer>
   </main>;
