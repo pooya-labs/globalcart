@@ -2,7 +2,9 @@
 
 **Status:** Proposed design; implementation is gated on owner approval of API hosting and runtime.
 
-**Storage checkpoint (2026-11-02):** migration 011 implements the database schema for users, controlled roles, seller memberships, digest-only sessions/action tokens and append-only audit events. New users receive only the customer role. This does not implement authentication, session validation, CSRF middleware, cookies, email delivery or public routes. This document and ADR-010 remain proposed until deployment and secret-management prerequisites are approved.
+**Implementation checkpoint (2026-11-02):** migration 011 adds normalized identity, role, seller-membership, digest-only session/action-token and append-only audit storage. The internal `backend/internal/auth` package now provides Argon2id PHC password hashing/verification and rehash checks, plus 256-bit opaque token generation, SHA-256 digests and constant-time digest comparison. New users receive only the customer role. These are foundations only: no authentication, session validation, CSRF middleware, cookies, email delivery or public routes are enabled. Benchmark Argon2id costs and add rate limiting on the approved runtime. ADR-010 remains proposed pending same-site HTTPS hosting, email delivery and secret-management approval.
+
+The current Argon2id baseline is `m=19456 KiB, t=2, p=1`, matching OWASP's recommended minimum configuration. Verification accepts only bounded PHC resource costs (up to 64 MiB, five passes and four lanes) and supports rehashing bounded legacy hashes. See the [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) and [RFC 9106](https://www.rfc-editor.org/rfc/rfc9106).
 **Scope:** M04 identity boundary for the GlobalCart portfolio simulation.
 **Security posture:** deny by default; no real commerce, payment credentials or seller payouts.
 

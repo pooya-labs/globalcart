@@ -95,6 +95,10 @@ GitHub Pages serves the Next.js export under /globalcart. No secrets or server-o
 Until M04/M05, cart, favorites and checkout are browser-local. Future persisted payment/order records remain simulated and never trigger real payment or fulfillment.
 
 
+## Internal authentication primitives
+
+`backend/internal/auth` implements Argon2id password hash/verify using bounded PHC parsing, a rehash decision helper, and 256-bit opaque-token generation/digest helpers. The package is not connected to HTTP handlers; the public API remains read-only and ADR-010 deployment gates still apply.
+
 ## Current backend read API
 - `GET /healthz` — process liveness.
 - `GET /readyz` — PostgreSQL readiness.
