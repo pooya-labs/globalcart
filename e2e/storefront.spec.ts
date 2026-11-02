@@ -19,7 +19,7 @@ test("switches locale and opens a statically exported product detail page", asyn
   await page.getByRole("button", { name: "EN" }).click();
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
-  await page.getByRole("link", { name: "Essence Mascara Lash Princess" }).click();
+  await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
   await expect(page.getByRole("heading", { name: "Essence Mascara Lash Princess" })).toBeVisible();
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
