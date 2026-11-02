@@ -4,29 +4,28 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/auth"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/database"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
 )
 
-func createProductManagementAdmin(t *testing.T, ctx context.Context, pool interface {
-	Exec(context.Context, string, ...any) (pgconn.CommandTag, error)
-	QueryRow(context.Context, string, ...any) pgx.Row
-}, suffix string) (string, auth.IssuedSession) {
+func createProductManagementAdmin(t *testing.T, ctx context.Context, pool *pgxpool.Pool, suffix string) (string, auth.IssuedSession) {
 	t.Helper()
-	userID := createOverviewUser(t, ctx, pool.(*pgxpool.Pool), suffix)
+	userID := createOverviewUser(t, ctx, pool, suffix)
 	if _, err := pool.Exec(ctx, `
 		INSERT INTO user_roles(user_id, role_key, granted_by_user_id)
 		VALUES($1, 'admin', NULL)
 	`, userID); err != nil {
 		t.Fatalf("grant product-management admin fixture role: %v", err)
 	}
-	session := createOverviewSession(t, ctx, pool.(*pgxpool.Pool), userID)
+	session := createOverviewSession(t, ctx, pool, userID)
 	return userID, session
 }
 
