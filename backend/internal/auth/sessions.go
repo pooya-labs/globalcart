@@ -259,7 +259,6 @@ func RevokeSession(ctx context.Context, pool *pgxpool.Pool, rawToken string) err
 	return nil
 }
 
-
 // SessionRevocationReason is a database-approved reason for revoking every
 // active session belonging to one account.
 type SessionRevocationReason string

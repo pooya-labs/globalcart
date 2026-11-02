@@ -235,7 +235,6 @@ func createPendingAuthUser(t *testing.T, ctx context.Context, pool *pgxpool.Pool
 	return userID
 }
 
-
 func TestRevokeUserSessionsIsTransactionalScopedAndAudited(t *testing.T) {
 	pool, ctx := openAuthIntegrationPool(t)
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
