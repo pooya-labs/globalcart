@@ -295,7 +295,7 @@ func setManagedProductArchived(
 	if err != nil {
 		return ProductManagementRecord{}, fmt.Errorf("encode product visibility after state: %w", err)
 	}
-	if err := persistProductOverrideState(queryCtx, tx, productID, actorID, before, after); err != nil {
+	if err := persistProductOverrideState(queryCtx, tx, productID, actorID, after); err != nil {
 		return ProductManagementRecord{}, err
 	}
 	if err := appendProductRevision(queryCtx, tx, productID, actorID, action, after.Revision, beforeJSON, afterJSON, []string{"visibilityStatus"}, after.VisibilityStatus); err != nil {
