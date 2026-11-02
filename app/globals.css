@@ -406,3 +406,8 @@ button:disabled{cursor:not-allowed;opacity:.55}
   .saved-search-item{gap:6px;padding:8px}
   .saved-search-apply{padding:0 7px;font-size:8px}
 }
+
+/* M07.6 — explicit catalog freshness and offline states */
+.catalog-status.snapshot-fallback{background:#f5f7f2;border:1px solid #e4eadc;border-radius:10px;color:#637a67}
+.catalog-status.fixture-fallback{background:#fff8ef;border:1px solid #f2e5d6;border-radius:10px;color:#967348}
+.catalog-status[role="status"]{line-height:1.8}

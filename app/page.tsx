@@ -47,7 +47,7 @@ const copy = {
     demoCheckout: "تکمیل سفارش آزمایشی", demoText: "این مرحله فقط برای نمایش تجربه کاربری است. هیچ پرداخت یا سفارش واقعی ثبت نمی‌شود.",
     confirm: "ثبت سفارش آزمایشی", success: "سفارش نمایشی ساخته شد", order: "شناسه سفارش", continue: "بازگشت به فروشگاه",
     source: "منبع", rate: "نرخ نمایشی هر دلار (تومان)", inStock: "موجود در کاتالوگ نمونه", off: "تخفیف",
-    searchResults: "نتایج جست‌وجو", loading: "در حال دریافت کاتالوگ...", sourceFallback: "منبع آنلاین پاسخ نداد؛ محصولات نمونه محلی نمایش داده شده‌اند.",
+    searchResults: "نتایج جست‌وجو", loading: "در حال دریافت کاتالوگ...", sourceFallback: "منبع آنلاین در دسترس نیست؛ داده‌های نمونه محلی نمایش داده شده‌اند.", snapshotFallback: "به‌روزرسانی آنلاین در دسترس نیست؛ آخرین کاتالوگ تولیدشده نمایش داده می‌شود.",
     why: "چرا GlobalCart؟", whyText: "یک پروژه مستقل برای نمایش مهندسی محصول، معماری فرانت‌اند، یکپارچه‌سازی داده و طراحی تجربه تجارت الکترونیک.",
     feature1: "کشف هوشمند", feature1d: "جست‌وجو و فیلتر سریع", feature2: "اطلاعات شفاف", feature2d: "نمایش منبع و قیمت", feature3: "تجربه امن", feature3d: "بدون تراکنش واقعی",
     footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "طراحی و توسعه: پویا گودرزی",
@@ -81,7 +81,7 @@ const copy = {
     demoCheckout: "Demo checkout", demoText: "This step demonstrates the user experience only. No real order or payment will be created.",
     confirm: "Place demo order", success: "Demo order created", order: "Order reference", continue: "Back to store",
     source: "Source", rate: "Illustrative USD rate (Toman)", inStock: "Sample catalog item", off: "OFF",
-    searchResults: "Search results", loading: "Loading catalog...", sourceFallback: "Live source did not respond; showing the local sample catalog.",
+    searchResults: "Search results", loading: "Loading catalog...", sourceFallback: "Live source is unavailable; showing local demo fixtures.", snapshotFallback: "Live refresh is unavailable; showing the last generated catalog snapshot.",
     why: "Why GlobalCart?", whyText: "An independent portfolio project showcasing product engineering, frontend architecture, data integration and commerce experience design.",
     feature1: "Smart discovery", feature1d: "Fast search and filters", feature2: "Clear information", feature2d: "Source and price context", feature3: "Safe experience", feature3d: "No real transactions",
     footer: "An independent commerce experience, built to showcase product engineering.", owner: "Designed & engineered by Pooya Goodarzi",
@@ -138,8 +138,9 @@ const parseAmazonProductLink=(raw:string):{asin:string;url:string}|null=>{
 export default function Home() {
   const [locale,setLocale]=useState<Locale>("fa");
   const [products,setProducts]=useState<Product[]>(snapshotProducts.length ? snapshotProducts : fallback);
-  const [loading,setLoading]=useState(snapshotProducts.length===0);
-  const [usingFallback,setUsingFallback]=useState(snapshotProducts.length===0);
+  const [catalogSourceState,setCatalogSourceState]=useState<CatalogSourceStatus>(
+    getCatalogSourceStatus(snapshotProducts.length>0,"pending")
+  );
   const [query,setQuery]=useState("");
   const [category,setCategory]=useState("all");
   const [sort,setSort]=useState<SavedCatalogSearch["sort"]>("popular");
@@ -283,7 +284,10 @@ export default function Home() {
     let active=true;
     fetchDummyJsonCatalog()
       .then(records=>{
-        if(!active||!records.length)return;
+        if(!active)return;
+        const nextState=getCatalogSourceStatus(snapshotProducts.length>0,"success",records.length);
+        setCatalogSourceState(nextState);
+        if(nextState!=="live")return;
         const mapped:Product[]=records.map(p=>({
           id:p.id,title:p.title,description:p.description,category:p.category,
           price:p.price,discountPercentage:p.discountPercentage,rating:p.rating,
@@ -291,16 +295,13 @@ export default function Home() {
           source:p.source
         }));
         setProducts(mapped);
-        setUsingFallback(false);
       })
       .catch(()=>{
         if(active){
-          // Keep the last successfully generated static snapshot when the live source is unavailable.
-          setUsingFallback(snapshotProducts.length===0);
-          if(snapshotProducts.length===0)setProducts(fallback);
+          // Preserve the generated snapshot or fixture and surface its freshness state.
+          setCatalogSourceState(getCatalogSourceStatus(snapshotProducts.length>0,"error"));
         }
-      })
-      .finally(()=>{if(active)setLoading(false);});
+      });
     return()=>{active=false;};
   },[]);
 
@@ -613,7 +614,9 @@ export default function Home() {
             <div className="filter-note"><InfoIcon/>{rtl?"داده‌ها نمایشی هستند و قیمت‌ها تعهد خرید نیستند.":"Demo data only. Prices are not purchase offers."}</div>
           </aside>
           <div className="product-area">
-            {(loading||usingFallback)&&<div className="catalog-status">{loading?<><span className="loader"></span>{t.loading}</>:<><InfoIcon/>{t.sourceFallback}</>}</div>}
+            {catalogSourceState==="loading"&&<div className="catalog-status" role="status" aria-live="polite"><span className="loader"></span>{t.loading}</div>}
+            {catalogSourceState==="snapshot-fallback"&&<div className="catalog-status snapshot-fallback" role="status" aria-live="polite"><InfoIcon/>{t.snapshotFallback}</div>}
+            {catalogSourceState==="fixture-fallback"&&<div className="catalog-status fixture-fallback" role="status" aria-live="polite"><InfoIcon/>{t.sourceFallback}</div>}
             {order&&<div className="order-success" role="status"><Check size={17}/>{t.success} · {t.order}: {order}<button onClick={()=>setOrder("")}><X size={15}/></button></div>}
             {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);}}>{t.clear}</button></div>:<div className="product-grid">
               {filtered.map((p,index)=><article className="product-card" key={p.id}>
@@ -621,7 +624,7 @@ export default function Home() {
                 <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating"><span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span><small>{t.inStock}</small></div><div className="recommendation-reason">{(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b><small>{usd(p.price)}</small></div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
               </article>)}
             </div>}
-            <div className="catalog-foot"><span>{t.result}: {filtered.length} / {products.length}</span><span>{t.source}: {usingFallback?"Local demo fixture":"DummyJSON public demo API"}</span></div>
+            <div className="catalog-foot"><span>{t.result}: {filtered.length} / {products.length}</span><span>{t.source}: {catalogSourceState==="live"?"DummyJSON public demo API":catalogSourceState==="fixture-fallback"?"Local demo fixture":"Generated catalog snapshot"}</span></div>
           </div>
         </div>
       </section>
