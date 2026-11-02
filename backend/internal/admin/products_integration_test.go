@@ -147,6 +147,9 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 	if archived.VisibilityStatus != "archived" || archived.Revision != 2 {
 		t.Fatalf("archive state/revision = %s/%d, want archived/2", archived.VisibilityStatus, archived.Revision)
 	}
+	if _, err := RestoreManagedProduct(ctx, pool, adminSession.SessionToken, productID, 1); !errors.Is(err, ErrStaleProductRevision) {
+		t.Fatalf("stale restore error = %v, want ErrStaleProductRevision", err)
+	}
 	archivedRows, err := queries.ListProducts(ctx, dbgen.ListProductsParams{
 		Category: category, PageLimit: 10,
 	})
@@ -195,6 +198,19 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 	if revisionCount != 3 || updateEvents != 1 || archiveEvents != 1 || restoreEvents != 1 {
 		t.Fatalf("revision/audit counts = %d/%d/%d/%d, want 3/1/1/1",
 			revisionCount, updateEvents, archiveEvents, restoreEvents)
+	}
+	history, err := ReadProductRevisionHistory(ctx, pool, adminSession.SessionToken, productID, 10, 0)
+	if err != nil {
+		t.Fatalf("read administrator product revision history: %v", err)
+	}
+	if len(history) != 3 || history[0].Revision != 3 || history[0].Action != "restored" ||
+		history[1].Revision != 2 || history[1].Action != "archived" ||
+		history[2].Revision != 1 || history[2].Action != "updated" {
+		t.Fatalf("revision history ordering/content = %+v, want newest-first restored/archived/updated", history)
+	}
+	if !strings.Contains(string(history[2].After), "Curated Editorial Camera") ||
+		!strings.Contains(string(history[2].Before), "Original Supplier Camera") {
+		t.Fatalf("revision history did not preserve before/after snapshots: %+v", history[2])
 	}
 	if _, err := pool.Exec(ctx, `
 		UPDATE admin_product_revisions SET action = action WHERE product_id = $1
