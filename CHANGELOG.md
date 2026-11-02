@@ -539,7 +539,7 @@
 ### Added
 - Added an allow-listed `SessionRevocationReason` and `RevokeUserSessions` helper for password changes/resets, account disablement, privilege changes, administrative revocation and security rotation.
 - The helper accepts the caller's `pgx.Tx`, locks the account row to serialize against session creation, revokes all currently active sessions and appends one redacted audit event per session.
-- Added PostgreSQL integration coverage for caller rollback, invalid reasons, per-user isolation, audit attribution and idempotent repeated calls.
+- Added PostgreSQL integration coverage for caller rollback, invalid reasons, per-user isolation, audit attribution scoped specifically to revocation events, and idempotent repeated calls.
 - Kept the helper internal; no auth HTTP route, cookie or hosted infrastructure was enabled.
 
 ### Verification
