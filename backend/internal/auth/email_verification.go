@@ -18,7 +18,7 @@ const (
 
 var (
 	ErrAccountNotPendingVerification = errors.New("account is not pending email verification")
-	ErrInvalidEmailVerificationTTL = errors.New("email-verification token TTL must be between 5 minutes and 72 hours")
+	ErrInvalidEmailVerificationTTL   = errors.New("email-verification token TTL must be between 5 minutes and 72 hours")
 )
 
 type IssuedEmailVerificationToken struct {
