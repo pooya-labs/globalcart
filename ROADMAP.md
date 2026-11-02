@@ -167,9 +167,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 **Boundary:** storefront facets currently run against the local generated catalog snapshot. The Go API and PostgreSQL remain local/unhosted; no public API connection or production deployment is implied.
 
 ## M08 — Quality and hardening
-- [ ] Playwright tests for critical shopping journeys.
-- [ ] RTL/LTR accessibility, keyboard, labels and contrast audit.
-- [ ] Performance and image-loading audit.
+- [x] Playwright tests for critical shopping journeys.
+- [ ] RTL/LTR accessibility, keyboard, labels and contrast audit (automated axe and Command Palette keyboard checks are verified; manual screen-reader and broader keyboard review remains open).
+- [ ] Performance and image-loading audit (image policy and first-party JS/CSS budgets are automated; live CDN image timing and Core Web Vitals review remains open).
 - [ ] Dependency, secret, static-analysis and API security checks.
 - [ ] Database backup/restore and migration verification.
 - [ ] Reproducible build and deployment smoke test.
@@ -695,3 +695,16 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on implementation head 8937b54f0f631695ee02e51a128cc42815988f43:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375898314), [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903109), [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903056), and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903095) all succeeded. Browser E2E reports 18 passed across desktop and mobile.
 
 **Coverage boundary:** this automated keyboard test covers the Command Palette, not every dialog or every screen-reader combination. Manual keyboard walkthrough and assistive-technology review remain open.
+
+
+## M08.4 — Image loading policy and first-party asset budgets — CI verified (2026-11-02)
+- [x] Prioritize the homepage hero image with eager loading, high fetch priority and asynchronous decoding; reduce its requested width/quality to a responsive 1200px / q80 source.
+- [x] Prioritize the product-detail main image and defer gallery thumbnails, related products, catalog cards, merchandising rails, recent items and modal imagery with lazy loading and asynchronous decoding.
+- [x] Preserve fixed media-container dimensions so image loading does not change reserved layout geometry.
+- [x] Add desktop/mobile browser tests that enforce one critical eager image on the homepage and one on product detail, with all non-critical images lazy and asynchronously decoded.
+- [x] Measure first-party initial-route JavaScript and CSS transfer sizes in Chromium and assert budgets of 750 KB JS, 120 KB CSS, no more than 10 JS requests and 2 CSS requests.
+- [x] Verify the full 24-test Browser E2E suite on Push and PR, plus Catalog CI and Backend CI PR, on the same head.
+
+**Measured baseline on implementation head `a741cf60ab44a17acf31bba43f47eb40204f2be5`:** 512,814 bytes of JavaScript across 7 requests and 67,702 bytes of CSS across 1 request. Browser E2E [Push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376758145) and [PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763890) passed with 24 tests; [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763985) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763923) also passed.
+
+**Coverage boundary:** E2E intentionally blocks remote hosts to stay deterministic. These budgets measure first-party JavaScript/CSS and markup loading policy, not actual CDN image payloads, real-network image latency, LCP/CLS or third-party font delivery. Those checks remain open for a network-enabled performance audit.

@@ -527,3 +527,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - `app/page.tsx` stores the active element when the palette opens via Ctrl/⌘+K or the command button, then restores focus after the dialog closes and is removed from the DOM.
 - Browser E2E on final implementation head `8937b54f0f631695ee02e51a128cc42815988f43` passed Push `41375898314` and PR `41375903109` (18 tests passed). Catalog CI PR `41375903056` and Backend CI PR `41375903095` also passed.
 - This is automated coverage for the Command Palette only. Other dialogs and manual screen-reader/browser review remain future QA.
+
+
+## M08.4 — Image-loading and first-party asset baseline (CI verified, 2026-11-02)
+- Homepage hero and product-detail main image use `loading="eager"`, `fetchPriority="high"` and `decoding="async"`. Other catalog, rail, recently viewed, editorial, gallery, related-product and modal images use lazy loading and async decoding.
+- Fixed media containers reserve layout geometry while images are loaded. `e2e/performance.spec.ts` verifies the image-loading policy and first-party asset budgets on desktop Chromium and Pixel 7 mobile.
+- CI baseline: 512,814 bytes JS / 7 requests and 67,702 bytes CSS / 1 request; enforced budgets: 750,000 bytes JS / 10 requests and 120,000 bytes CSS / 2 requests.
+- Implementation head `a741cf60ab44a17acf31bba43f47eb40204f2be5` passed Browser E2E push `41376758145`, Browser E2E PR `41376763890` (24 tests), Catalog CI PR `41376763985` and Backend CI PR `41376763923`.
+- E2E blocks external hosts deliberately. No claim is made about real CDN payload size, live image latency, LCP/CLS or external fonts; network-enabled measurement remains open.

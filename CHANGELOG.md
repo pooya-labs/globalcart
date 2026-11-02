@@ -459,3 +459,14 @@
 
 ### Verification
 - Commit `8937b54f0f631695ee02e51a128cc42815988f43` passed Browser E2E push `41375898314` and PR `41375903109` (18 passed), Catalog CI PR `41375903056`, and Backend CI PR `41375903095`.
+
+
+## Unreleased — Image loading and performance budgets (2026-11-02)
+
+### Improved
+- Prioritized the homepage hero and product-detail main images, reduced the hero source request to 1200px/q80, and deferred non-critical images with lazy loading and async decoding.
+- Added desktop/mobile regression checks for image loading policy, reserved media geometry and first-party JS/CSS transfer budgets.
+
+### Verification
+- Commit `a741cf60ab44a17acf31bba43f47eb40204f2be5` passed Browser E2E push `41376758145` and PR `41376763890` (24 passed), Catalog CI PR `41376763985`, and Backend CI PR `41376763923`.
+- Baseline was 512,814 bytes of JS and 67,702 bytes of CSS on the initial route. External CDN image timing and Core Web Vitals were not measured because browser tests block external hosts.
