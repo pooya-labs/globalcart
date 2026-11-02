@@ -102,6 +102,19 @@ type DemoOrderItem struct {
 	VendorOrderID        pgtype.UUID    `json:"vendor_order_id"`
 }
 
+type DemoReturn struct {
+	ID           pgtype.UUID        `json:"id"`
+	OrderID      pgtype.UUID        `json:"order_id"`
+	Reason       string             `json:"reason"`
+	Status       string             `json:"status"`
+	Currency     string             `json:"currency"`
+	RefundAmount pgtype.Numeric     `json:"refund_amount"`
+	ReviewedAt   pgtype.Timestamptz `json:"reviewed_at"`
+	RefundedAt   pgtype.Timestamptz `json:"refunded_at"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+}
+
 type DemoVendorOrder struct {
 	ID             pgtype.UUID        `json:"id"`
 	OrderID        pgtype.UUID        `json:"order_id"`
