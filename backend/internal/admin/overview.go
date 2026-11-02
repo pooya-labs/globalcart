@@ -108,12 +108,18 @@ func ReadOverview(ctx context.Context, pool *pgxpool.Pool, sessionToken string) 
 	if err != nil {
 		return overview, err
 	}
-	if err := auth.Authorize(principal, auth.AuthorizationAdminReadOverview, auth.AuthorizationResource{}); err != nil {
+
+	tx, err := pool.Begin(queryCtx)
+	if err != nil {
+		return overview, fmt.Errorf("begin admin overview read: %w", err)
+	}
+	defer func() { _ = tx.Rollback(queryCtx) }()
+	if err := auth.AuthorizeAdminTx(queryCtx, tx, principal, auth.AuthorizationAdminReadOverview); err != nil {
 		return overview, err
 	}
 
 	var lastImportedAt, lastPriceChangeAt, lastAuditEventAt pgtype.Timestamptz
-	err = pool.QueryRow(queryCtx, `
+	err = tx.QueryRow(queryCtx, `
 		SELECT
 			now(),
 			(SELECT count(*)::bigint FROM products),
@@ -192,7 +198,7 @@ func ReadOverview(ctx context.Context, pool *pgxpool.Pool, sessionToken string) 
 		Detail: "Translation is intentionally paused; no translation worker or provider is configured.",
 	}
 
-	rows, err := pool.Query(queryCtx, `
+	rows, err := tx.Query(queryCtx, `
 		SELECT source, count(*)::bigint AS product_count
 		FROM products
 		GROUP BY source
@@ -214,6 +220,10 @@ func ReadOverview(ctx context.Context, pool *pgxpool.Pool, sessionToken string) 
 	}
 	if err := rows.Err(); err != nil {
 		return Overview{}, fmt.Errorf("iterate admin catalog source summary: %w", err)
+	}
+	rows.Close()
+	if err := tx.Commit(queryCtx); err != nil {
+		return Overview{}, fmt.Errorf("commit admin overview read: %w", err)
 	}
 	return overview, nil
 }
