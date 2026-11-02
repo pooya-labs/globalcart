@@ -74,10 +74,10 @@ func ChangePassword(
 			resource_type, resource_id, metadata
 		)
 		VALUES (
-			'auth.password.changed', $1, $2, 'account', $2::text,
+			'auth.password.changed', $1, $2, 'account', $3,
 			'{"origin":"internal"}'::jsonb
 		)
-	`, actorUserID, lockedUserID); err != nil {
+	`, actorUserID, lockedUserID, lockedUserID); err != nil {
 		return 0, fmt.Errorf("audit password change: %w", err)
 	}
 
