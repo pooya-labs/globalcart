@@ -159,7 +159,7 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 	if _, err := queries.GetProduct(ctx, productID); !errors.Is(err, pgx.ErrNoRows) {
 		t.Fatalf("archived product detail error = %v, want pgx.ErrNoRows", err)
 	}
-	if _, err := ArchiveManagedProduct(ctx, pool, adminSession.SessionToken, productID); !errors.Is(err, ErrProductAlreadyArchived) {
+	if _, err := ArchiveManagedProduct(ctx, pool, adminSession.SessionToken, productID, 2); !errors.Is(err, ErrProductAlreadyArchived) {
 		t.Fatalf("repeated archive error = %v, want ErrProductAlreadyArchived", err)
 	}
 
@@ -252,6 +252,9 @@ func TestManagedProductRequiresAdminAndValidInput(t *testing.T) {
 	title := "Customer must not edit"
 	if _, err := UpdateManagedProduct(ctx, pool, customerSession.SessionToken, productID, ProductUpdateInput{Title: &title}); !errors.Is(err, auth.ErrForbidden) {
 		t.Fatalf("customer edit managed product error = %v, want auth.ErrForbidden", err)
+	}
+	if _, err := ReadProductRevisionHistory(ctx, pool, customerSession.SessionToken, productID, 10, 0); !errors.Is(err, auth.ErrForbidden) {
+		t.Fatalf("customer read product revision history error = %v, want auth.ErrForbidden", err)
 	}
 
 	tooLong := strings.Repeat("x", 301)
