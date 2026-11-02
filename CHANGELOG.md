@@ -436,3 +436,14 @@
 
 ### Verification
 - Commit `08c86aeb909228ecc1ba03d35195ad4fba6ab987` passed Browser E2E push `41369733216`, Browser E2E PR `41369737767`, Catalog CI PR `41369737769` and Backend CI PR `41369737810`.
+
+
+## Unreleased — Accessibility improvements (2026-11-02)
+
+### Added
+- Added axe-core Playwright audits for the homepage, command palette and static product detail page on desktop Chromium and Pixel 7 mobile.
+- Improved muted-text, rating and discount contrast; enlarged FAQ and footer navigation targets; fixed the responsive cart's accessible name and labeled the sort select.
+
+### Verification
+- Commit `e515d696873aa2811c3edb35fc89ace74ae874df` passed Browser E2E push `41370817992`, Browser E2E PR `41370823048`, Catalog CI PR `41370822987` and Backend CI PR `41370823026`.
+- The automated scan covers selected states and is not a replacement for manual assistive-technology review.

@@ -670,3 +670,16 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on implementation head 08c86aeb909228ecc1ba03d35195ad4fba6ab987:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369733216) and [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737767) passed, each running five journeys on desktop and mobile. [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737769) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737810) also passed, including PostgreSQL 17 checks and Docker build.
 
 **Coverage boundary:** this suite validates the existing demo storefront and does not imply live inventory, real payment, real order submission, or a hosted backend.
+
+
+## M08.2 — Automated accessibility checks and remediation — CI verified (2026-11-02)
+- [x] Add axe-core Playwright checks for the storefront homepage, open command-palette dialog and static product detail page.
+- [x] Run checks on Chromium desktop and Pixel 7 mobile, using WCAG 2.0 A/AA, WCAG 2.1 A/AA and WCAG 2.2 AA rule tags.
+- [x] Fix detected low-contrast muted text in catalog/product metadata, recommendation explanations, discount/rating badges, modal footer and product pricing.
+- [x] Increase FAQ summary and footer navigation target sizes to at least the automated 24 CSS-pixel target-size threshold.
+- [x] Make responsive cart text available to assistive technology without overriding its natural accessible name; align other icon/button labels with visible content and name the sort select.
+- [x] Verify Browser E2E Push and PR after remediation; Catalog CI and Backend CI PR checks also pass.
+
+**Verification on implementation head e515d696873aa2811c3edb35fc89ace74ae874df:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370817992), [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370823048), [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370822987) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370823026) all succeeded.
+
+**Coverage boundary:** this is an automated axe scan of the three listed states at two viewport profiles. It is not a legal accessibility certification and does not replace manual screen-reader, keyboard-only usability and human contrast review.

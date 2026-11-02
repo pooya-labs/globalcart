@@ -511,3 +511,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Product detail tests assert the actual static route without assuming a trailing slash. The mobile cart trigger now has an explicit accessible label because its visible text is hidden at small breakpoints.
 - Implementation head `08c86aeb909228ecc1ba03d35195ad4fba6ab987` passed Browser E2E push `41369733216`, Browser E2E PR `41369737767`, Catalog CI PR `41369737769` and Backend CI PR `41369737810`.
 - All checkout and order assertions remain explicitly demo-only; no payment provider or production order API was added.
+
+
+## M08.2 — Automated accessibility baseline (CI verified, 2026-11-02)
+- `@axe-core/playwright` 4.14.0 is integrated in `e2e/accessibility.spec.ts` and audits the homepage, open command palette and static product detail page.
+- The scan uses WCAG 2.0 A/AA, WCAG 2.1 A/AA and WCAG 2.2 AA tags in both Chromium desktop and Pixel 7 mobile projects.
+- Contrast fixes darken the low-contrast supporting text and sample rating/discount accents while preserving the main green palette. FAQ summaries and footer links now expose larger touch/click targets.
+- The cart's text label remains in the accessibility tree when visually hidden on mobile, allowing the native button name to include both cart label and count without an aria-label mismatch.
+- Implementation head `e515d696873aa2811c3edb35fc89ace74ae874df` passed Browser E2E push `41370817992`, Browser E2E PR `41370823048`, Catalog CI PR `41370822987` and Backend CI PR `41370823026`.
+- Automated checks are limited to the tested routes/states. Manual screen-reader and keyboard-only review remain open quality work.
