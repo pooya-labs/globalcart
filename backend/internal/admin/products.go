@@ -205,7 +205,7 @@ func UpdateManagedProduct(
 	if err != nil {
 		return ProductManagementRecord{}, fmt.Errorf("encode product revision after state: %w", err)
 	}
-	if err := persistProductOverrideState(queryCtx, tx, productID, actorID, before, after); err != nil {
+	if err := persistProductOverrideState(queryCtx, tx, productID, actorID, after); err != nil {
 		return ProductManagementRecord{}, err
 	}
 	if err := appendProductRevision(queryCtx, tx, productID, actorID, "updated", after.Revision, beforeJSON, afterJSON, changed, after.VisibilityStatus); err != nil {
@@ -280,13 +280,11 @@ func setManagedProductArchived(
 
 	after := before
 	action := "archived"
-	eventType := "admin.product.archived"
 	if archive {
 		after.VisibilityStatus = "archived"
 	} else {
 		after.VisibilityStatus = "active"
 		action = "restored"
-		eventType = "admin.product.restored"
 	}
 	beforeJSON, err := before.snapshot()
 	if err != nil {
@@ -303,10 +301,6 @@ func setManagedProductArchived(
 	if err := appendProductRevision(queryCtx, tx, productID, actorID, action, after.Revision, beforeJSON, afterJSON, []string{"visibilityStatus"}, after.VisibilityStatus); err != nil {
 		return ProductManagementRecord{}, err
 	}
-	if eventType == "" {
-		return ProductManagementRecord{}, errors.New("invalid product visibility event")
-	}
-
 	record, err := readManagedProductTx(queryCtx, tx, productID, false)
 	if err != nil {
 		return ProductManagementRecord{}, err
@@ -339,7 +333,11 @@ func normalizeProductUpdate(input ProductUpdateInput) (ProductUpdateInput, map[s
 			return nil, fmt.Errorf("%w: field %q cannot be set and cleared together", ErrInvalidProductInput, name)
 		}
 		if (!allowEmpty && value == "") || utf8.RuneCountInString(value) > maxRunes {
-			return nil, fmt.Errorf("%w: field %q must contain %s and be at most %d characters", ErrInvalidProductInput, name, map[bool]string{true: "text", false: "non-empty text"}[allowEmpty], maxRunes)
+			requirement := "text"
+			if !allowEmpty {
+				requirement = "non-empty text"
+			}
+			return nil, fmt.Errorf("%w: field %q must contain %s and be at most %d characters", ErrInvalidProductInput, name, requirement, maxRunes)
 		}
 		normalizedValue := value
 		return &normalizedValue, nil
@@ -403,13 +401,10 @@ func persistProductOverrideState(
 	tx pgx.Tx,
 	productID int64,
 	actorID string,
-	before productOverrideState,
 	after productOverrideState,
 ) error {
-	var archivedAt any
 	var archivedBy any
 	if after.VisibilityStatus == "archived" {
-		archivedAt = time.Now().UTC()
 		archivedBy = actorID
 	}
 	_, err := tx.Exec(ctx, `
@@ -418,7 +413,8 @@ func persistProductOverrideState(
 			visibility_status, revision, created_by_user_id, updated_by_user_id,
 			archived_by_user_id, archived_at
 		)
-		VALUES($1,$2,$3,$4,$5,$6,$7,$7,$8,$9)
+		VALUES($1,$2,$3,$4,$5,$6,$7,$7,$8,
+			CASE WHEN $5 = 'archived' THEN now() ELSE NULL END)
 		ON CONFLICT(product_id) DO UPDATE SET
 			title_override = EXCLUDED.title_override,
 			description_override = EXCLUDED.description_override,
@@ -438,7 +434,7 @@ func persistProductOverrideState(
 			END,
 			updated_at = now()
 	`, productID, beforeOrAfterString(after.Title), beforeOrAfterString(after.Description),
-		beforeOrAfterString(after.Brand), after.VisibilityStatus, after.Revision, actorID, archivedBy, archivedAt)
+		beforeOrAfterString(after.Brand), after.VisibilityStatus, after.Revision, actorID, archivedBy)
 	if err != nil {
 		return fmt.Errorf("persist product editorial state: %w", err)
 	}
