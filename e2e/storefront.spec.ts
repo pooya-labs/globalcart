@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
 
 test("switches locale and opens a statically exported product detail page", async ({ page }) => {
   await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
-  await page.getByRole("button", { name: "EN" }).click();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
@@ -25,7 +25,7 @@ test("switches locale and opens a statically exported product detail page", asyn
 });
 
 test("search suggestions support keyboard navigation and selection", async ({ page }) => {
-  await page.getByRole("button", { name: "EN" }).click();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   const search = page.getByRole("combobox", { name: "Search products, brands or categories..." });
   await search.fill("Esse");
 
@@ -42,7 +42,7 @@ test("search suggestions support keyboard navigation and selection", async ({ pa
 });
 
 test("Ctrl+K command palette opens the local shopping bag", async ({ page }) => {
-  await page.getByRole("button", { name: "EN" }).click();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.keyboard.press("Control+k");
 
   const palette = page.getByRole("dialog", { name: "Quick commands" });
@@ -54,7 +54,7 @@ test("Ctrl+K command palette opens the local shopping bag", async ({ page }) => 
 });
 
 test("saved searches persist locally and can be applied and deleted", async ({ page }) => {
-  await page.getByRole("button", { name: "EN" }).click();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   const search = page.getByRole("combobox", { name: "Search products, brands or categories..." });
   if (await page.getByRole("button", { name: "Search products, brands or categories..." }).isVisible()) {
     await page.getByRole("button", { name: "Search products, brands or categories..." }).click();
@@ -84,7 +84,7 @@ test("saved searches persist locally and can be applied and deleted", async ({ p
 });
 
 test("cart and checkout remain a clearly simulated local flow", async ({ page }) => {
-  await page.getByRole("button", { name: "EN" }).click();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.locator(".product-card").first().getByRole("button", { name: "Add to bag" }).click();
   await page.getByRole("button", { name: /Your bag/ }).click();
   await expect(page.getByText("Essence Mascara Lash Princess")).toBeVisible();
