@@ -93,7 +93,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Translation intentionally paused; no translation secrets or external translation service required for CI.
 - [x] Translate title, description, category and brand while preserving original source fields and provenance.
 - [x] Translation cache via source-content fingerprints, sequential throttling, bounded retries and per-product error reporting.
-- [x] Show the last successful source-fetch time or generated snapshot timestamp and classify its age as fresh (≤36h), aging (>36h to 72h), stale (>72h) or unknown; update the indicator for both Persian and English storefronts. The timestamp describes when GlobalCart fetched/generated the displayed catalog, not when the upstream supplier last changed its data.
+- [x] Show the last successful source-fetch time or generated snapshot timestamp and classify its age as fresh (≤36h), aging (>36h to 72h), stale (>72h) or unknown in Persian and English. Verified by Catalog CI [41406450515](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450515), Browser E2E [41406450651](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450651), Pages deploy + published smoke test [41406450478](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450478), and Security scans [41406450499](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450499). The timestamp measures GlobalCart fetch/generation time, not supplier modification time.
 - [ ] Add other suppliers only through authorized APIs/feeds.
 **Acceptance:** products import automatically, the storefront survives source outages, and original source text remains intact. Translation is out of scope until explicitly reactivated.
 

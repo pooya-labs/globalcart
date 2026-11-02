@@ -654,9 +654,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) passed on `bc97475c0cce7f8de6aebe72071813c942b6a3d0`.
 
 
-## Latest catalog diagnostics checkpoint — M02 (implementation pending CI, 2026-11-02)
-- The storefront now displays the timestamp of the currently displayed catalog: the last successful browser fetch when the live source succeeds, otherwise the committed snapshot's `generatedAt`.
-- A small status label classifies that timestamp as fresh (up to 36 hours), aging (36–72 hours), stale (over 72 hours) or unknown, in both Persian and English.
-- The date is formatted in the browser's local timezone. If a live refresh fails, the timestamp stays anchored to the last-known-good snapshot instead of being reset to the failed attempt.
-- This measures GlobalCart's fetch/snapshot generation time, not an upstream supplier's last-modified timestamp. The scheduled source is a public demo API, not a contracted commercial feed.
-- TypeScript, unit tests, production build and Pages deployment verification are pending for this implementation.
+## Latest catalog diagnostics checkpoint — M02 (CI verified, 2026-11-02)
+- Implementation commit: `4c0365a82908551b81f52f9301b5356b0db6f041`; Pages workflow persisted the refreshed catalog snapshot in follow-up commit `3cfba3647b5ac86ceaf51cb2560e393ebc193ea6`.
+- Catalog CI [41406450515](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450515) passed npm lockfile install, dependency audit, TypeScript validation, all catalog/domain unit tests (including freshness boundary tests) and production build.
+- Browser E2E [41406450651](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450651) passed desktop Chromium and Pixel 7 mobile browser journeys.
+- GitHub Pages [41406450478](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450478) passed production static export, deployment and the post-deploy HTTPS homepage, `/globalcart/_next/static/` asset and catalog-backed product deep-link smoke checks.
+- Security scans [41406450499](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450499) passed on the implementation commit.
+- The storefront shows the displayed catalog's last successful browser-fetch time or generated snapshot time. If live fetch fails, the timestamp remains tied to the last-known-good snapshot. Persian/English labels use browser-local date formatting and fresh (at most 36h), aging (over 36h to 72h), stale (over 72h) or unknown states.
+- This timestamp measures GlobalCart fetch/snapshot generation time, not an upstream supplier's last-modified timestamp. The scheduled source is a public demo API, not a contracted commercial feed.
+- Other supplier onboarding remains gated by approved API/feed access and rights; no live commercial supplier credentials or feeds were connected.

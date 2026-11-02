@@ -4,6 +4,7 @@
 
 ### Added
 - Added catalog source freshness diagnostics to the storefront: show the last successful fetch or snapshot generation timestamp and classify its age as fresh, aging, stale or unknown in Persian and English. The displayed timestamp explicitly refers to GlobalCart fetch/generation time, not supplier modification time.
+- Verified M02 freshness diagnostics on implementation commit `4c0365a82908551b81f52f9301b5356b0db6f041`: Catalog CI [41406450515](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450515), Browser E2E [41406450651](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450651), Pages deployment + smoke test [41406450478](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450478), and Security scans [41406450499](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450499) all passed.
 - Added a committed npm lockfile and lockfile-aware install flow: Pages, Catalog CI and Browser E2E use `npm ci` once the lockfile exists. The bootstrap path persists the generated lockfile with the catalog snapshot and validates it with a clean `npm ci` before the frontend build.
 - Added a post-deployment GitHub Pages smoke test for the HTTPS homepage, a Next.js JavaScript asset under the `/globalcart/` base path and one product detail deep link chosen from the generated catalog.
 - Added a PostgreSQL 17 custom-format logical backup/restore regression to Backend CI. It restores into a fresh database and compares the migration ledger, key table counts, validated constraints and `pg_trgm` version.
