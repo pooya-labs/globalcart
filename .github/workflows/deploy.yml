@@ -16,6 +16,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      smoke_product_id: ${{ steps.smoke_product.outputs.product_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,6 +27,18 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Refresh static catalog snapshot
         run: npm run catalog:sync
+      - name: Select a static product route for deployment smoke test
+        id: smoke_product
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const catalog = JSON.parse(fs.readFileSync("data/catalog.json", "utf8"));
+          const product = catalog.products?.find((item) =>
+            Number.isSafeInteger(item.id) && item.id > 0 && typeof item.title === "string" && item.title.trim()
+          );
+          if (!product) throw new Error("Catalog snapshot has no valid product route for the deployment smoke test.");
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `product_id=${product.id}\\n`);
+          NODE
       - name: Persist refreshed catalog snapshot safely
         shell: bash
         run: |
@@ -84,3 +98,60 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Smoke test published Pages homepage, assets and product deep link
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          PRODUCT_ID: ${{ needs.build.outputs.smoke_product_id }}
+        run: |
+          set -euo pipefail
+          base_url="${PAGE_URL%/}/"
+          home_html="$(mktemp)"
+          product_html="$(mktemp)"
+          trap 'rm -f "$home_html" "$product_html"' EXIT
+
+          case "$base_url" in
+            https://*) ;;
+            *) echo "Expected HTTPS Pages URL, received: $base_url" >&2; exit 1 ;;
+          esac
+          test -n "$PRODUCT_ID"
+
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
+            "$base_url" --output "$home_html"
+
+          # Resolve the first built JavaScript chunk and verify the repository basePath
+          # is present in its URL before requesting the actual asset from Pages.
+          asset_url="$(node - "$home_html" "$base_url" <<'NODE'
+          const fs = require("node:fs");
+          const html = fs.readFileSync(process.argv[2], "utf8");
+          const base = new URL(process.argv[3]);
+          const script = [...html.matchAll(/<script[^>]+src=["']([^"']+\.js(?:[?#][^"']*)?)["'][^>]*>/g)]
+            .map((match) => match[1])
+            .find((value) => value.includes("/_next/static/"));
+          if (!script) throw new Error("Published homepage does not reference a Next.js static JavaScript asset.");
+          const asset = new URL(script, base);
+          const expectedPrefix = base.pathname.endsWith("/") ? base.pathname : base.pathname + "/";
+          if (!asset.pathname.startsWith(expectedPrefix + "_next/static/")) {
+            throw new Error(`Static asset escaped the GitHub Pages base path: ${asset.pathname}`);
+          }
+          process.stdout.write(asset.href);
+          NODE
+          )"
+
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
+            "$asset_url" --output /dev/null
+
+          product_url="${base_url}product/${PRODUCT_ID}/"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
+            "$product_url" --output "$product_html"
+
+          node - "$product_html" "$PRODUCT_ID" <<'NODE'
+          const fs = require("node:fs");
+          const html = fs.readFileSync(process.argv[2], "utf8");
+          const productID = process.argv[3];
+          if (!/<h1\\b[^>]*>/.test(html) || !html.includes(productID) || /<title>404[ -]/i.test(html)) {
+            throw new Error(`Published product deep link is not the expected product page: ${productID}`);
+          }
+          NODE
+
+          echo "GitHub Pages smoke test passed: homepage, basePath JavaScript asset and product route $PRODUCT_ID."
