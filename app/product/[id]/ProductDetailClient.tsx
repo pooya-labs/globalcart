@@ -52,6 +52,11 @@ export default function ProductDetailClient({product,related}:Props) {
   const rate = typeof fxSnapshot.tomanPerUsdt === "number" && Number.isFinite(fxSnapshot.tomanPerUsdt) && fxSnapshot.tomanPerUsdt > 0 ? fxSnapshot.tomanPerUsdt : null;
   const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const rtl=locale==="fa";
+  const toggleLocale=()=>{
+    const next=rtl?"en":"fa";
+    setLocale(next);
+    writeLocalePreference(next);
+  };
   const images=useMemo(()=>Array.from(new Set([product.thumbnail,...(product.images||[])].filter(Boolean))),[product]);
   const image=images[Math.min(activeImage,images.length-1)]||product.thumbnail;
   const discounted=product.price*(1-product.discountPercentage/100);
@@ -103,11 +108,7 @@ export default function ProductDetailClient({product,related}:Props) {
   };
 
   return <main className={rtl?"product-page rtl":"product-page ltr"} dir={rtl?"rtl":"ltr"}>
-    <div className="product-page-top"><Link href="/"><span className="brand-mark">g<span>.</span></span><b>globalcart</b></Link><div><button onClick={()=>setLocale(current=>{
-       const next=current==="fa"?"en":"fa";
-       writeLocalePreference(next);
-       return next;
-     })}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div></div>
+    <div className="product-page-top"><Link href="/"><span className="brand-mark">g<span>.</span></span><b>globalcart</b></Link><div><button onClick={toggleLocale}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div></div>
     <div className="product-breadcrumb"><Link href="/">{rtl?"خانه":"Home"}</Link><ChevronLeft size={13}/><Link href="/#categories">{rtl?"دسته‌بندی‌ها":"Categories"}</Link><ChevronLeft size={13}/><span>{rtl?category.fa:category.en}</span><ChevronLeft size={13}/><b>{product.title}</b></div>
     <section className="product-detail-layout">
       <div className="detail-gallery">
