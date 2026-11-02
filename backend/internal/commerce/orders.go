@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/pooya16pg-spec/globalcart/backend/internal/auth"
 )
 
 var ErrOrderNotFound = errors.New("order not found")
@@ -85,6 +86,17 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 		return OrderDetail{}, fmt.Errorf("read owned order: %w", err)
 	}
 
+	if err := loadOrderRelations(ctx, tx, orderID, &detail); err != nil {
+		return OrderDetail{}, err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return OrderDetail{}, fmt.Errorf("commit order read: %w", err)
+	}
+	return detail, nil
+}
+
+
+func loadOrderRelations(ctx context.Context, tx pgx.Tx, orderID string, detail *OrderDetail) error {
 	rows, err := tx.Query(ctx, `SELECT oi.product_id,oi.variant_id,oi.quantity,oi.unit_price_snapshot::text,oi.currency,
 		oi.product_title_snapshot,oi.variant_title_snapshot,oi.vendor_product_id,oi.vendor_order_id,
 		vo.vendor_id,COALESCE(v.display_name,'')
@@ -93,7 +105,7 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 		LEFT JOIN vendors v ON v.id=vo.vendor_id
 		WHERE oi.order_id=$1 ORDER BY oi.id`, orderID)
 	if err != nil {
-		return OrderDetail{}, fmt.Errorf("read order items: %w", err)
+		return fmt.Errorf("read order items: %w", err)
 	}
 	detail.Items = make([]OrderItem, 0)
 	for rows.Next() {
@@ -102,7 +114,7 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 		var vendorOrder pgtype.Text
 		if err := rows.Scan(&item.ProductID, &variant, &item.Quantity, &item.UnitPrice, &item.Currency, &item.ProductTitle, &item.VariantTitle, &vendorProduct, &vendorOrder, &vendorID, &item.VendorName); err != nil {
 			rows.Close()
-			return OrderDetail{}, fmt.Errorf("scan order item: %w", err)
+			return fmt.Errorf("scan order item: %w", err)
 		}
 		if variant.Valid {
 			id := variant.Int64
@@ -124,7 +136,7 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 	}
 	if err := rows.Err(); err != nil {
 		rows.Close()
-		return OrderDetail{}, fmt.Errorf("iterate order items: %w", err)
+		return fmt.Errorf("iterate order items: %w", err)
 	}
 	rows.Close()
 
@@ -133,44 +145,108 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 		FROM demo_vendor_orders vo JOIN vendors v ON v.id=vo.vendor_id
 		WHERE vo.order_id=$1 ORDER BY vo.vendor_id,vo.id`, orderID)
 	if err != nil {
-		return OrderDetail{}, fmt.Errorf("read vendor child orders: %w", err)
+		return fmt.Errorf("read vendor child orders: %w", err)
 	}
 	detail.VendorOrders = make([]VendorOrderDetail, 0)
 	for vendorRows.Next() {
 		var child VendorOrderDetail
 		if err := vendorRows.Scan(&child.ID, &child.VendorID, &child.VendorName, &child.Status, &child.Currency, &child.Subtotal, &child.DiscountAmount, &child.Total, &child.CreatedAt); err != nil {
 			vendorRows.Close()
-			return OrderDetail{}, fmt.Errorf("scan vendor child order: %w", err)
+			return fmt.Errorf("scan vendor child order: %w", err)
 		}
 		detail.VendorOrders = append(detail.VendorOrders, child)
 	}
 	if err := vendorRows.Err(); err != nil {
 		vendorRows.Close()
-		return OrderDetail{}, fmt.Errorf("iterate vendor child orders: %w", err)
+		return fmt.Errorf("iterate vendor child orders: %w", err)
 	}
 	vendorRows.Close()
 
 	eventRows, err := tx.Query(ctx, `SELECT event_type,payload,created_at FROM demo_order_events
 		WHERE order_id=$1 ORDER BY created_at,id`, orderID)
 	if err != nil {
-		return OrderDetail{}, fmt.Errorf("read order events: %w", err)
+		return fmt.Errorf("read order events: %w", err)
 	}
 	detail.Events = make([]OrderEvent, 0)
 	for eventRows.Next() {
 		var event OrderEvent
 		if err := eventRows.Scan(&event.Type, &event.Payload, &event.CreatedAt); err != nil {
 			eventRows.Close()
-			return OrderDetail{}, fmt.Errorf("scan order event: %w", err)
+			return fmt.Errorf("scan order event: %w", err)
 		}
 		detail.Events = append(detail.Events, event)
 	}
 	if err := eventRows.Err(); err != nil {
 		eventRows.Close()
-		return OrderDetail{}, fmt.Errorf("iterate order events: %w", err)
+		return fmt.Errorf("iterate order events: %w", err)
 	}
 	eventRows.Close()
+	return nil
+}
+
+
+// GetOrderForCustomer reads an order through account ownership attached to its
+// cart. The order/cart owner is resolved from PostgreSQL under a row lock;
+// foreign and guest-only orders return the same ErrOrderNotFound response.
+func (s *Service) GetOrderForCustomer(
+	ctx context.Context,
+	principal auth.SessionPrincipal,
+	orderID string,
+) (OrderDetail, error) {
+	if orderID == "" {
+		return OrderDetail{}, ErrOrderNotFound
+	}
+	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
+	if err != nil {
+		return OrderDetail{}, fmt.Errorf("begin customer order read: %w", err)
+	}
+	defer func() { _ = tx.Rollback(context.Background()) }()
+
+	if err := auth.AuthorizeCustomerSessionTx(ctx, tx, principal); err != nil {
+		return OrderDetail{}, err
+	}
+
+	var ownerUserID pgtype.Text
+	err = tx.QueryRow(ctx,
+		"SELECT c.owner_user_id::text FROM demo_orders o "+
+			"JOIN carts c ON c.id = o.cart_id WHERE o.id = $1 "+
+			"FOR SHARE OF o, c",
+		orderID,
+	).Scan(&ownerUserID)
+	if errors.Is(err, pgx.ErrNoRows) || !ownerUserID.Valid {
+		return OrderDetail{}, ErrOrderNotFound
+	}
+	if err != nil {
+		return OrderDetail{}, fmt.Errorf("read customer order owner: %w", err)
+	}
+	if err := auth.Authorize(
+		principal,
+		auth.AuthorizationCustomerReadOwnResource,
+		auth.AuthorizationResource{OwnerUserID: ownerUserID.String},
+	); err != nil {
+		return OrderDetail{}, ErrOrderNotFound
+	}
+
+	var detail OrderDetail
+	err = tx.QueryRow(ctx,
+		"SELECT id::text,status,currency,subtotal::text,discount_amount::text,total::text,created_at "+
+			"FROM demo_orders WHERE id = $1",
+		orderID,
+	).Scan(
+		&detail.ID, &detail.Status, &detail.Currency, &detail.Subtotal,
+		&detail.DiscountAmount, &detail.Total, &detail.CreatedAt,
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return OrderDetail{}, ErrOrderNotFound
+	}
+	if err != nil {
+		return OrderDetail{}, fmt.Errorf("read customer order: %w", err)
+	}
+	if err := loadOrderRelations(ctx, tx, orderID, &detail); err != nil {
+		return OrderDetail{}, err
+	}
 	if err := tx.Commit(ctx); err != nil {
-		return OrderDetail{}, fmt.Errorf("commit order read: %w", err)
+		return OrderDetail{}, fmt.Errorf("commit customer order read: %w", err)
 	}
 	return detail, nil
 }
