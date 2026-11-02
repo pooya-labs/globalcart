@@ -92,8 +92,8 @@ export default function ProductDetailClient({product,related}:Props) {
     <div className="product-breadcrumb"><Link href="/">{rtl?"خانه":"Home"}</Link><ChevronLeft size={13}/><Link href="/#categories">{rtl?"دسته‌بندی‌ها":"Categories"}</Link><ChevronLeft size={13}/><span>{rtl?category.fa:category.en}</span><ChevronLeft size={13}/><b>{product.title}</b></div>
     <section className="product-detail-layout">
       <div className="detail-gallery">
-        <div className="detail-main-image"><img src={image} alt={product.title}/><span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span></div>
-        <div className="detail-thumbnails">{images.map((src,index)=><button key={src} className={activeImage===index?"active":""} onClick={()=>setActiveImage(index)} aria-label={rtl?`تصویر ${index+1}`:`Image ${index+1}`} aria-pressed={activeImage===index}><img src={src} alt=""/></button>)}</div>
+        <div className="detail-main-image"><img src={image} alt={product.title} loading="eager" fetchPriority="high" decoding="async"/><span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span></div>
+        <div className="detail-thumbnails">{images.map((src,index)=><button key={src} className={activeImage===index?"active":""} onClick={()=>setActiveImage(index)} aria-label={rtl?`تصویر ${index+1}`:`Image ${index+1}`} aria-pressed={activeImage===index}><img src={src} alt="" loading="lazy" decoding="async"/></button>)}</div>
       </div>
       <div className="detail-information">
         <span className="detail-brand">{product.brand||"GLOBAL SELECT"}</span>
@@ -118,7 +118,7 @@ export default function ProductDetailClient({product,related}:Props) {
       </aside>
     </section>
     <section className="detail-description-panel"><span className="section-kicker">PRODUCT OVERVIEW</span><h2>{rtl?"درباره محصول":"About this product"}</h2><p>{product.description}</p><div><span>{rtl?"شناسه منبع":"Source ID"}</span><b>{product.id}</b><span>{rtl?"آخرین قیمت نمونه":"Sample price"}</span><b>{format(discounted)}</b></div></section>
-    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={item.thumbnail} alt={item.title}/><span>{item.brand||"GLOBAL SELECT"}</span><b>{item.title}</b><strong>{format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
+    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={item.thumbnail} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{item.title}</b><strong>{format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
     <footer className="product-page-footer"><Link href="/">globalcart</Link><span>{rtl?"پروژه مستقل نمایشی · توسعه و طراحی پویا گودرزی":"Independent portfolio demo · Designed & built by Pooya Goodarzi"}</span></footer>
   </main>;
 }
