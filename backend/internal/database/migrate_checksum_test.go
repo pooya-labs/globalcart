@@ -71,7 +71,11 @@ func TestMigrateBackfillsLegacyChecksumsAndRejectsAppliedFileDrift(t *testing.T)
 	}
 	expectedChecksum = migrationChecksum(contents)
 
-	// Simulate a database whose ledger predates checksum tracking.
+	// Simulate a database whose ledger predates checksum tracking by
+	// temporarily removing the post-backfill NOT NULL invariant.
+	if _, err := pool.Exec(ctx, "ALTER TABLE schema_migrations ALTER COLUMN checksum DROP NOT NULL"); err != nil {
+		t.Fatalf("prepare legacy checksum ledger: %v", err)
+	}
 	if _, err := pool.Exec(ctx, "UPDATE schema_migrations SET checksum=NULL WHERE version=$1", migrationName); err != nil {
 		t.Fatalf("clear checksum to simulate legacy ledger: %v", err)
 	}
