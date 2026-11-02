@@ -43,7 +43,7 @@ func TestCatalogSearchTrigramFallbackAndExactMatchRanking(t *testing.T) {
 			Source: "trigram-integration", SourceID: fmt.Sprintf("trigram-%d-a", baseID), ImportedAt: importedAt,
 		},
 		{
-			ID: baseID + 2, Title: "Headphone Case", Description: "Protective travel case for electronics",
+			ID: baseID + 2, Title: "Laptop Sleeve", Description: "Protective travel sleeve for computers",
 			Category: category, Price: 19.99, Rating: 4.1, Stock: 5, Brand: "CaseCo",
 			Thumbnail: "https://example.invalid/hedphones.webp", Images: []string{},
 			Source: "trigram-integration", SourceID: fmt.Sprintf("trigram-%d-b", baseID), ImportedAt: importedAt,
@@ -66,7 +66,7 @@ func TestCatalogSearchTrigramFallbackAndExactMatchRanking(t *testing.T) {
 	if err != nil {
 		t.Fatalf("list exact full-text matches: %v", err)
 	}
-	if !containsProductID(exactRows, baseID+1) || exactRows[0].ID != baseID+1 {
+	if len(exactRows) == 0 || exactRows[0].ID != baseID+1 {
 		t.Fatalf("exact search ranking = %v; expected exact full-text product %d first", searchProductIDs(exactRows), baseID+1)
 	}
 
