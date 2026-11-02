@@ -5,7 +5,7 @@
 ### Fixed
 - Corrected the Wallex/product-provenance Playwright journey: the product detail page has its own locale state, so the test now switches that page to English before asserting English copy. Browser E2E [41412932870](https://github.com/pooya16pg-spec/globalcart/actions/runs/41412932870) and Pages deployment [41412932549](https://github.com/pooya16pg-spec/globalcart/actions/runs/41412932549) passed.
 - Aligned the data-source provenance description with the active Wallex USDTTMN Toman candle-close feed; removed the obsolete Nobitex midpoint description.
-- Moved the Wallex scheduled refresh from minute zero to `2-59/5` to avoid the busy hour boundary. The push-triggered verification run [41413175324](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413175324) was queued; periodic schedule recovery is not yet verified, and the last committed candle remains stale until refreshed.
+- Moved the Wallex scheduled refresh from minute zero to `2-59/5` to avoid the busy hour boundary. Push-triggered refresh [41413175324](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413175324) passed, validated and persisted the 08:27 UTC candle at 272,892 Toman per USDT. A fresh push-triggered data refresh is verified; the recurring `schedule` event still needs independent confirmation.
 
 ### Added
 - Switched the FX feed from Nobitex (HTTP 403 from GitHub-hosted runners) to Wallex's public USDTTMN one-minute UDF candle close. Initial live snapshot succeeded in [Sync Wallex FX run 41409982177](https://github.com/pooya16pg-spec/globalcart/actions/runs/41409982177); the UI identifies the Tether/Toman pair and candle timestamp, uses 5/15-minute freshness labels, and has no hard-coded fallback.
