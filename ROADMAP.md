@@ -151,7 +151,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** these primitives and session-store methods remain internal; no registration/login handler, cookie, CSRF middleware, email delivery or public HTTP route is enabled. Benchmark hash parameters and add rate limits before authentication is activated.
 
-### M04.3 — Internal server-side session lifecycle (CI pending)
+### M04.3 — Internal server-side session lifecycle (CI verified, 2026-11-02)
 - [x] Create sessions only for active, email-verified accounts; generate independent 256-bit session and CSRF tokens and persist only SHA-256 digests.
 - [x] Use a 15-minute sliding idle timeout capped by a 24-hour absolute expiry.
 - [x] Resolve session validity and current user roles in one database statement; reject expired, revoked, disabled or unverified accounts.
@@ -159,10 +159,21 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Validate the session-bound CSRF token using constant-time digest comparison.
 - [x] Revoke sessions on logout and append creation/revocation audit events in the same transaction.
 - [x] Add PostgreSQL integration coverage for raw-token non-persistence, CSRF, pending/active seller memberships, expiry, disabled/unverified accounts, idempotency boundary and audit events.
-- [ ] Add bulk revocation for password change/reset and privilege/account-status changes.
+- [x] Add transaction-bound bulk revocation for password change/reset and privilege/account-status changes; verify rollback, owner isolation, allow-listed reasons and per-session audit events.
 - [ ] Wire this internal service into HTTP authentication middleware only after same-site HTTPS hosting, cookie configuration, email delivery and secret storage are approved.
 
 **Boundary:** internal store/service only. No browser cookie, route, middleware, public authentication flow or hosted database has been enabled.
+
+### M04.4 — Transaction-bound bulk session revocation (implementation; CI pending, 2026-11-02)
+- [x] Add an allow-listed revocation-reason type matching migration 011 constraints.
+- [x] Lock the account row and serialize bulk revocation with session creation.
+- [x] Accept the caller's PostgreSQL transaction so account/password/privilege mutation and session revocation can commit or roll back together.
+- [x] Revoke every active session for one user and append one redacted audit event per session, with an optional actor identity.
+- [x] Return the affected count; repeated revocation is a no-op and does not create duplicate audit events.
+- [x] Add integration coverage for rollback, invalid reasons, user isolation, audit actor/reason and idempotency.
+- [ ] Verify the complete race-enabled PostgreSQL Backend CI suite and security scans on the implementation head.
+
+**Boundary:** this is an internal transaction helper, not a password-change endpoint or authorization middleware. Callers must include the relevant credential/role/account update in the same transaction. No HTTP route, browser cookie, email flow or hosted database is enabled.
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).

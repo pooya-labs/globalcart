@@ -64,6 +64,17 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Internal sessions are created only for active verified accounts, store only session/CSRF digests, use a 15-minute idle timeout capped by a 24-hour absolute lifetime, resolve effective roles and active seller vendor scopes from PostgreSQL, and revoke/audit logout atomically.
 - No login/register/session HTTP endpoints, email delivery, cookie handling, live user data or hosted infrastructure was enabled. ADR-010 remains proposed; approval for same-site HTTPS frontend/API hosting, email delivery and secret management remains a prerequisite.
 
+
+## M04.3 session lifecycle checkpoint — CI verified (2026-11-02)
+- Internal session creation, refresh/role resolution, session-bound CSRF verification and logout revocation are implemented in `backend/internal/auth/sessions.go`.
+- Backend CI [41387103123](https://github.com/pooya16pg-spec/globalcart/actions/runs/41387103123), Security scans [41387103141](https://github.com/pooya16pg-spec/globalcart/actions/runs/41387103141) and GitHub Pages deployment [41387103149](https://github.com/pooya16pg-spec/globalcart/actions/runs/41387103149) passed on the code/documentation head immediately before the catalog-only snapshot refresh.
+
+## M04.4 bulk session revocation checkpoint — implementation pushed; CI pending (2026-11-02)
+- Added `RevokeUserSessions`, which requires the caller's open `pgx.Tx`, locks the target user row, and serializes against `CreateSession`.
+- Reasons are a typed allow-list matching migration 011; every revoked session receives one append-only, redacted audit event. The optional actor ID supports self-service, administrator and system-initiated mutations.
+- Integration coverage verifies caller rollback, rejected reasons, per-user isolation, audit attribution and idempotent repeated calls.
+- The helper is intentionally not wired to HTTP. Password, role and account-status mutation services must invoke it in the same transaction as their own database changes.
+
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
@@ -87,11 +98,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Manual screen-reader, real-device and full-site/deep-link QA remain open.
 
 ## Immediate next actions
-1. Design the identity/session/deny-by-default RBAC boundary, including seller membership, CSRF, audit events and an admin-review permission model. Keep all commerce write and return-review methods off HTTP until the security and hosting gates are approved.
-2. Complete manual responsive and RTL/LTR QA on real devices, including screen-reader, broader keyboard, reduced-motion and published deep-link checks. Automated axe, focus and browser journeys are already CI-verified.
-3. Obtain owner approval and documented rights for a named supplier API/feed before implementing live catalog onboarding; do not scrape or fabricate inventory.
-4. Select an authorized FX provider and define source timestamp and stale-rate policy; keep the current rate illustrative until then.
-5. Improve catalog source attributes, rating context and freshness diagnostics using the existing source-safe pipeline. Keep Amazon retrieval disabled until authorized access is approved.
+1. Keep auth HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Reuse `RevokeUserSessions` inside the same transaction as future password, privilege and account-status mutations.
+2. Add concurrency-focused session creation/revocation tests before exposing authentication; then implement deny-by-default middleware and seller-membership authorization only behind the approved deployment boundary.
+3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
+4. Obtain owner approval and documented rights for a named supplier API/feed before live catalog onboarding; do not scrape or fabricate inventory.
+5. Select an authorized FX provider and define source timestamp/stale-rate policy; keep the current rate illustrative until then.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.

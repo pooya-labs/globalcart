@@ -234,3 +234,153 @@ func createPendingAuthUser(t *testing.T, ctx context.Context, pool *pgxpool.Pool
 	}
 	return userID
 }
+
+
+func TestRevokeUserSessionsIsTransactionalScopedAndAudited(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	targetID := createActiveAuthUser(t, ctx, pool, suffix+"-bulk-target")
+	otherID := createActiveAuthUser(t, ctx, pool, suffix+"-bulk-other")
+
+	targetSessions := make([]IssuedSession, 0, 3)
+	for i := 0; i < 3; i++ {
+		issued, err := CreateSession(ctx, pool, targetID)
+		if err != nil {
+			t.Fatalf("create target session %d: %v", i, err)
+		}
+		targetSessions = append(targetSessions, issued)
+	}
+	otherSession, err := CreateSession(ctx, pool, otherID)
+	if err != nil {
+		t.Fatalf("create unrelated user's session: %v", err)
+	}
+
+	actorID := targetID
+	rollbackTx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("begin rollback transaction: %v", err)
+	}
+	rolledBackCount, err := RevokeUserSessions(
+		ctx, rollbackTx, targetID, &actorID, SessionRevocationPasswordChanged,
+	)
+	if err != nil {
+		_ = rollbackTx.Rollback(ctx)
+		t.Fatalf("RevokeUserSessions before rollback: %v", err)
+	}
+	if rolledBackCount != int64(len(targetSessions)) {
+		_ = rollbackTx.Rollback(ctx)
+		t.Fatalf("revoked %d sessions before rollback, want %d", rolledBackCount, len(targetSessions))
+	}
+	if err := rollbackTx.Rollback(ctx); err != nil {
+		t.Fatalf("rollback revocation transaction: %v", err)
+	}
+	for i, issued := range targetSessions {
+		if _, err := ResolveSession(ctx, pool, issued.SessionToken); err != nil {
+			t.Fatalf("session %d became invalid after caller rollback: %v", i, err)
+		}
+	}
+
+	invalidTx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("begin invalid-reason transaction: %v", err)
+	}
+	if _, err := RevokeUserSessions(
+		ctx, invalidTx, targetID, &actorID, SessionRevocationReason("unapproved_reason"),
+	); !errors.Is(err, ErrInvalidSessionRevocationReason) {
+		_ = invalidTx.Rollback(ctx)
+		t.Fatalf("invalid reason error = %v, want ErrInvalidSessionRevocationReason", err)
+	}
+	if err := invalidTx.Rollback(ctx); err != nil {
+		t.Fatalf("rollback invalid-reason transaction: %v", err)
+	}
+
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("begin committed revocation transaction: %v", err)
+	}
+	revokedCount, err := RevokeUserSessions(
+		ctx, tx, targetID, &actorID, SessionRevocationPasswordChanged,
+	)
+	if err != nil {
+		_ = tx.Rollback(ctx)
+		t.Fatalf("RevokeUserSessions: %v", err)
+	}
+	if revokedCount != int64(len(targetSessions)) {
+		_ = tx.Rollback(ctx)
+		t.Fatalf("revoked %d sessions, want %d", revokedCount, len(targetSessions))
+	}
+	if err := tx.Commit(ctx); err != nil {
+		t.Fatalf("commit bulk revocation: %v", err)
+	}
+
+	for i, issued := range targetSessions {
+		if _, err := ResolveSession(ctx, pool, issued.SessionToken); !errors.Is(err, ErrInvalidSession) {
+			t.Fatalf("target session %d resolve error = %v, want ErrInvalidSession", i, err)
+		}
+	}
+	if _, err := ResolveSession(ctx, pool, otherSession.SessionToken); err != nil {
+		t.Fatalf("bulk revocation affected another user's session: %v", err)
+	}
+
+	var revokedRows, passwordChangedRows int
+	if err := pool.QueryRow(ctx, `
+		SELECT
+			count(*) FILTER (WHERE revoked_at IS NOT NULL)::int,
+			count(*) FILTER (WHERE revocation_reason = 'password_changed')::int
+		FROM user_sessions
+		WHERE user_id = $1
+	`, targetID).Scan(&revokedRows, &passwordChangedRows); err != nil {
+		t.Fatalf("read bulk-revoked sessions: %v", err)
+	}
+	if revokedRows != len(targetSessions) || passwordChangedRows != len(targetSessions) {
+		t.Fatalf("revoked rows=%d password_changed rows=%d, want %d each",
+			revokedRows, passwordChangedRows, len(targetSessions))
+	}
+
+	var auditRows, reasonRows, actorRows int
+	if err := pool.QueryRow(ctx, `
+		SELECT
+			count(*) FILTER (WHERE event_type = 'auth.session.revoked')::int,
+			count(*) FILTER (WHERE metadata->>'reason' = 'password_changed')::int,
+			count(*) FILTER (WHERE actor_user_id = $1)::int
+		FROM audit_events
+		WHERE subject_user_id = $1
+	`, targetID).Scan(&auditRows, &reasonRows, &actorRows); err != nil {
+		t.Fatalf("read bulk-revocation audit events: %v", err)
+	}
+	if auditRows != len(targetSessions) || reasonRows != len(targetSessions) ||
+		actorRows != len(targetSessions) {
+		t.Fatalf("audit rows=%d reason rows=%d actor rows=%d, want %d each",
+			auditRows, reasonRows, actorRows, len(targetSessions))
+	}
+
+	idempotentTx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("begin repeated revocation transaction: %v", err)
+	}
+	repeatedCount, err := RevokeUserSessions(
+		ctx, idempotentTx, targetID, &actorID, SessionRevocationPrivilegeChanged,
+	)
+	if err != nil {
+		_ = idempotentTx.Rollback(ctx)
+		t.Fatalf("repeat RevokeUserSessions: %v", err)
+	}
+	if repeatedCount != 0 {
+		_ = idempotentTx.Rollback(ctx)
+		t.Fatalf("repeat revocation affected %d sessions, want 0", repeatedCount)
+	}
+	if err := idempotentTx.Commit(ctx); err != nil {
+		t.Fatalf("commit repeated revocation: %v", err)
+	}
+
+	if err := pool.QueryRow(ctx, `
+		SELECT count(*)::int
+		FROM audit_events
+		WHERE subject_user_id = $1 AND event_type = 'auth.session.revoked'
+	`, targetID).Scan(&auditRows); err != nil {
+		t.Fatalf("count audit events after idempotent retry: %v", err)
+	}
+	if auditRows != len(targetSessions) {
+		t.Fatalf("idempotent retry added audit events: got %d, want %d", auditRows, len(targetSessions))
+	}
+}

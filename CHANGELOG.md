@@ -532,3 +532,15 @@
 ### Verification
 - Commit `a741cf60ab44a17acf31bba43f47eb40204f2be5` passed Browser E2E push `41376758145` and PR `41376763890` (24 passed), Catalog CI PR `41376763985`, and Backend CI PR `41376763923`.
 - Baseline was 512,814 bytes of JS and 67,702 bytes of CSS on the initial route. External CDN image timing and Core Web Vitals were not measured because browser tests block external hosts.
+
+
+## Unreleased — transaction-bound bulk session revocation (implementation; CI pending, 2026-11-02)
+
+### Added
+- Added an allow-listed `SessionRevocationReason` and `RevokeUserSessions` helper for password changes/resets, account disablement, privilege changes, administrative revocation and security rotation.
+- The helper accepts the caller's `pgx.Tx`, locks the account row to serialize against session creation, revokes all currently active sessions and appends one redacted audit event per session.
+- Added PostgreSQL integration coverage for caller rollback, invalid reasons, per-user isolation, audit attribution and idempotent repeated calls.
+- Kept the helper internal; no auth HTTP route, cookie or hosted infrastructure was enabled.
+
+### Verification
+- Backend CI and security scans are pending on the implementation head.

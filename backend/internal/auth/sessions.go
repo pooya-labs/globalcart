@@ -258,3 +258,94 @@ func RevokeSession(ctx context.Context, pool *pgxpool.Pool, rawToken string) err
 	}
 	return nil
 }
+
+
+// SessionRevocationReason is a database-approved reason for revoking every
+// active session belonging to one account.
+type SessionRevocationReason string
+
+const (
+	SessionRevocationPasswordChanged  SessionRevocationReason = "password_changed"
+	SessionRevocationAccountDisabled  SessionRevocationReason = "account_disabled"
+	SessionRevocationPrivilegeChanged SessionRevocationReason = "privilege_changed"
+	SessionRevocationAdminRevocation  SessionRevocationReason = "admin_revocation"
+	SessionRevocationSecurityRotation SessionRevocationReason = "security_rotation"
+)
+
+var (
+	ErrInvalidSessionRevocationReason = errors.New("invalid session revocation reason")
+	ErrUserNotFound                   = errors.New("user not found")
+)
+
+func validSessionRevocationReason(reason SessionRevocationReason) bool {
+	switch reason {
+	case SessionRevocationPasswordChanged,
+		SessionRevocationAccountDisabled,
+		SessionRevocationPrivilegeChanged,
+		SessionRevocationAdminRevocation,
+		SessionRevocationSecurityRotation:
+		return true
+	default:
+		return false
+	}
+}
+
+// RevokeUserSessions revokes all active sessions for userID and appends one
+// redacted audit event per revoked session. It deliberately accepts the
+// caller's transaction so password, role or account-state changes can commit
+// atomically with revocation. actorUserID may be nil for a system action.
+//
+// The user row is locked before touching sessions. CreateSession takes the
+// same lock, so a concurrently created session is either included in this
+// revocation or is created after the caller commits its account change.
+func RevokeUserSessions(
+	ctx context.Context,
+	tx pgx.Tx,
+	userID string,
+	actorUserID *string,
+	reason SessionRevocationReason,
+) (int64, error) {
+	if !validSessionRevocationReason(reason) {
+		return 0, ErrInvalidSessionRevocationReason
+	}
+
+	var lockedUserID string
+	if err := tx.QueryRow(ctx, `
+		SELECT id::text
+		FROM users
+		WHERE id = $1
+		FOR UPDATE
+	`, userID).Scan(&lockedUserID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, ErrUserNotFound
+		}
+		return 0, fmt.Errorf("lock session owner: %w", err)
+	}
+
+	var revokedCount int64
+	err := tx.QueryRow(ctx, `
+		WITH revoked AS (
+			UPDATE user_sessions
+			SET revoked_at = now(), revocation_reason = $2
+			WHERE user_id = $1 AND revoked_at IS NULL
+			RETURNING id, user_id
+		),
+		audited AS (
+			INSERT INTO audit_events(
+				event_type, actor_user_id, subject_user_id,
+				resource_type, resource_id, metadata
+			)
+			SELECT
+				'auth.session.revoked', $3, revoked.user_id,
+				'session', revoked.id::text,
+				jsonb_build_object('reason', $2::text, 'origin', 'internal')
+			FROM revoked
+			RETURNING id
+		)
+		SELECT count(*)::bigint FROM audited
+	`, lockedUserID, string(reason), actorUserID).Scan(&revokedCount)
+	if err != nil {
+		return 0, fmt.Errorf("revoke user sessions: %w", err)
+	}
+	return revokedCount, nil
+}
