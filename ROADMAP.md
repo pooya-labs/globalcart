@@ -185,6 +185,18 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** this is an internal password-change primitive, not a public endpoint or password-reset-token flow. The caller must verify the old password against the supplied hash snapshot before invoking it. No login/register HTTP route, browser cookie, email delivery or hosted database is enabled.
 
+### M04.6 — One-time password-reset token lifecycle (implementation; CI pending, 2026-11-02)
+- [x] Reuse migration 011 `auth_action_tokens`; do not create a duplicate token table or migration.
+- [x] Issue 256-bit opaque reset tokens and persist only SHA-256 digests with a bounded 5-minute to 1-hour TTL (30-minute default).
+- [x] Rotate prior outstanding reset tokens on issuance, including expired rows that still occupy the partial unique index.
+- [x] Consume tokens once and atomically update the Argon2id password, revoke sibling reset tokens and active sessions, and append a redacted audit event.
+- [x] Lock the user before token rows in issue/consume/change flows to avoid lock-order deadlocks; re-check expiry and single-use state inside the transaction.
+- [x] Invalidate outstanding reset tokens when a normal password change succeeds.
+- [x] Add PostgreSQL tests for digest-only storage, rotation, expiry, single use, concurrent double consumption and session invalidation.
+- [ ] Verify PostgreSQL race-enabled Backend CI and security scans on the implementation head.
+
+**Boundary:** no email is sent and no public password-reset endpoint is enabled. The raw token is returned once to an internal caller for delivery by a future approved email worker; HTTP responses must not expose account existence.
+
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
 - [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).

@@ -557,3 +557,16 @@
 
 ### Verification
 - Backend CI [run 41395032305](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032305), Security scans [run 41395032374](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032374) and Pages deployment [run 41395032292](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032292) passed on code head `fe2ec6b9bfce6ec4aa20ea004029e2a68d5b05ab`.
+
+
+## Unreleased — one-time password-reset token lifecycle (implementation; CI pending, 2026-11-02)
+
+### Added
+- Reused migration 011 `auth_action_tokens` to issue digest-only, opaque password-reset tokens with a bounded lifetime and rotation of previous outstanding tokens.
+- Added atomic token consumption, Argon2id password update, sibling-token revocation, active-session revocation and redacted audit events.
+- Normal password changes now invalidate outstanding password-reset tokens.
+- Added PostgreSQL tests for digest-only storage, expiry, rotation, single use and concurrent double consumption.
+- No email delivery or public reset route was enabled.
+
+### Verification
+- Backend CI and security scans are pending on the implementation head.

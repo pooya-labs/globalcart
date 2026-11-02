@@ -490,6 +490,11 @@ func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
 		t.Fatalf("install old password fixture: %v", err)
 	}
 
+	resetToken, err := IssuePasswordResetToken(ctx, pool, userID, 0)
+	if err != nil {
+		t.Fatalf("issue reset token before password change: %v", err)
+	}
+
 	oldSessions := make([]IssuedSession, 0, 2)
 	for i := 0; i < 2; i++ {
 		issued, err := CreateSession(ctx, pool, userID, oldPasswordHash)
@@ -532,6 +537,9 @@ func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
 	if _, err := CreateSession(ctx, pool, userID, oldPasswordHash); !errors.Is(err, ErrCredentialsChanged) {
 		t.Fatalf("CreateSession with stale credential error = %v, want ErrCredentialsChanged", err)
 	}
+	if _, err := CompletePasswordReset(ctx, pool, resetToken.Token, "must-not-replace-new-password"); !errors.Is(err, ErrInvalidActionToken) {
+		t.Fatalf("reset token issued before password change error = %v, want ErrInvalidActionToken", err)
+	}
 
 	current, err := CreateSession(ctx, pool, userID, storedHash)
 	if err != nil {
@@ -560,5 +568,207 @@ func TestChangePasswordRevokesSessionsAndRejectsStaleCredential(t *testing.T) {
 	if passwordEvents != 1 || revokedEvents != len(oldSessions) || actorEvents != 1 {
 		t.Fatalf("password events=%d revoked events=%d actor events=%d, want 1/%d/1",
 			passwordEvents, revokedEvents, actorEvents, len(oldSessions))
+	}
+}
+
+
+func TestPasswordResetTokenIsDigestOnlyRotatesAndConsumesOnce(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	userID := createActiveAuthUser(t, ctx, pool, suffix+"-reset-flow")
+	oldSession, err := CreateSession(ctx, pool, userID, integrationPasswordHash)
+	if err != nil {
+		t.Fatalf("create pre-reset session: %v", err)
+	}
+
+	first, err := IssuePasswordResetToken(ctx, pool, userID, 0)
+	if err != nil {
+		t.Fatalf("issue first reset token: %v", err)
+	}
+	if first.Token == "" || first.ID == "" || !first.ExpiresAt.After(time.Now()) ||
+		first.ExpiresAt.After(time.Now().Add(DefaultPasswordResetTTL+time.Minute)) {
+		t.Fatalf("invalid first reset token metadata: %+v", first)
+	}
+	firstDigest, err := DigestOpaqueToken(first.Token)
+	if err != nil {
+		t.Fatalf("digest first reset token: %v", err)
+	}
+	var storedDigest []byte
+	if err := pool.QueryRow(ctx, `
+		SELECT token_digest FROM auth_action_tokens WHERE id = $1
+	`, first.ID).Scan(&storedDigest); err != nil {
+		t.Fatalf("read stored reset-token digest: %v", err)
+	}
+	if !bytes.Equal(storedDigest, firstDigest[:]) || bytes.Equal(storedDigest, []byte(first.Token)) {
+		t.Fatal("password-reset token was not stored exclusively as its SHA-256 digest")
+	}
+
+	second, err := IssuePasswordResetToken(ctx, pool, userID, 10*time.Minute)
+	if err != nil {
+		t.Fatalf("rotate password-reset token: %v", err)
+	}
+	var firstRevoked, secondRevoked bool
+	if err := pool.QueryRow(ctx, `
+		SELECT revoked_at IS NOT NULL FROM auth_action_tokens WHERE id = $1
+	`, first.ID).Scan(&firstRevoked); err != nil {
+		t.Fatalf("read first token state: %v", err)
+	}
+	if err := pool.QueryRow(ctx, `
+		SELECT revoked_at IS NOT NULL FROM auth_action_tokens WHERE id = $1
+	`, second.ID).Scan(&secondRevoked); err != nil {
+		t.Fatalf("read second token state: %v", err)
+	}
+	if !firstRevoked || secondRevoked {
+		t.Fatalf("token rotation states first revoked=%t second revoked=%t, want true/false",
+			firstRevoked, secondRevoked)
+	}
+	if _, err := CompletePasswordReset(ctx, pool, first.Token, "first-token-password"); !errors.Is(err, ErrInvalidActionToken) {
+		t.Fatalf("rotated token completion error = %v, want ErrInvalidActionToken", err)
+	}
+
+	revokedSessions, err := CompletePasswordReset(ctx, pool, second.Token, "password-reset-success")
+	if err != nil {
+		t.Fatalf("complete password reset: %v", err)
+	}
+	if revokedSessions != 1 {
+		t.Fatalf("password reset revoked %d sessions, want 1", revokedSessions)
+	}
+	if _, err := CompletePasswordReset(ctx, pool, second.Token, "second-use-password"); !errors.Is(err, ErrInvalidActionToken) {
+		t.Fatalf("second token use error = %v, want ErrInvalidActionToken", err)
+	}
+
+	var newHash string
+	if err := pool.QueryRow(ctx, `
+		SELECT password_hash FROM users WHERE id = $1
+	`, userID).Scan(&newHash); err != nil {
+		t.Fatalf("read reset password hash: %v", err)
+	}
+	if ok, err := VerifyPassword(newHash, "password-reset-success"); err != nil || !ok {
+		t.Fatalf("VerifyPassword(reset password) = (%t, %v), want (true, nil)", ok, err)
+	}
+	if _, err := CreateSession(ctx, pool, userID, integrationPasswordHash); !errors.Is(err, ErrCredentialsChanged) {
+		t.Fatalf("old credential after reset error = %v, want ErrCredentialsChanged", err)
+	}
+	if _, err := ResolveSession(ctx, pool, oldSession.SessionToken); !errors.Is(err, ErrInvalidSession) {
+		t.Fatalf("pre-reset session resolve error = %v, want ErrInvalidSession", err)
+	}
+	current, err := CreateSession(ctx, pool, userID, newHash)
+	if err != nil {
+		t.Fatalf("create session after reset with current password hash: %v", err)
+	}
+	if _, err := ResolveSession(ctx, pool, current.SessionToken); err != nil {
+		t.Fatalf("resolve session after reset: %v", err)
+	}
+
+	var issuedEvents, completedEvents int
+	if err := pool.QueryRow(ctx, `
+		SELECT
+			count(*) FILTER (WHERE event_type = 'auth.password_reset.issued')::int,
+			count(*) FILTER (WHERE event_type = 'auth.password_reset.completed')::int
+		FROM audit_events
+		WHERE subject_user_id = $1
+	`, userID).Scan(&issuedEvents, &completedEvents); err != nil {
+		t.Fatalf("read reset audit events: %v", err)
+	}
+	if issuedEvents != 2 || completedEvents != 1 {
+		t.Fatalf("reset audit counts issued=%d completed=%d, want 2/1", issuedEvents, completedEvents)
+	}
+}
+
+func TestPasswordResetRejectsExpiredToken(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	userID := createActiveAuthUser(t, ctx, pool, suffix+"-reset-expired")
+	issued, err := IssuePasswordResetToken(ctx, pool, userID, 5*time.Minute)
+	if err != nil {
+		t.Fatalf("issue expiring reset token: %v", err)
+	}
+	if _, err := pool.Exec(ctx, `
+		UPDATE auth_action_tokens
+		SET expires_at = now() - INTERVAL '1 minute'
+		WHERE id = $1
+	`, issued.ID); err != nil {
+		t.Fatalf("expire reset-token fixture: %v", err)
+	}
+	if _, err := CompletePasswordReset(ctx, pool, issued.Token, "expired-token-password"); !errors.Is(err, ErrInvalidActionToken) {
+		t.Fatalf("expired token completion error = %v, want ErrInvalidActionToken", err)
+	}
+}
+
+func TestConcurrentPasswordResetTokenConsumptionIsSingleUse(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	userID := createActiveAuthUser(t, ctx, pool, suffix+"-reset-concurrent")
+	issued, err := IssuePasswordResetToken(ctx, pool, userID, 10*time.Minute)
+	if err != nil {
+		t.Fatalf("issue concurrent reset token: %v", err)
+	}
+
+	type result struct {
+		password string
+		revoked  int64
+		err      error
+	}
+	results := make(chan result, 2)
+	for _, password := range []string{"concurrent-reset-a", "concurrent-reset-b"} {
+		password := password
+		go func() {
+			count, resetErr := CompletePasswordReset(ctx, pool, issued.Token, password)
+			results <- result{password: password, revoked: count, err: resetErr}
+		}()
+	}
+
+	var successes, invalids int
+	var successfulPassword string
+	for i := 0; i < 2; i++ {
+		got := <-results
+		switch {
+		case got.err == nil:
+			successes++
+			successfulPassword = got.password
+		case errors.Is(got.err, ErrInvalidActionToken):
+			invalids++
+		default:
+			t.Fatalf("concurrent reset returned unexpected error: %v", got.err)
+		}
+	}
+	if successes != 1 || invalids != 1 {
+		t.Fatalf("concurrent reset outcomes successes=%d invalid=%d, want 1/1", successes, invalids)
+	}
+	var storedHash string
+	if err := pool.QueryRow(ctx, `
+		SELECT password_hash FROM users WHERE id = $1
+	`, userID).Scan(&storedHash); err != nil {
+		t.Fatalf("read concurrently reset password: %v", err)
+	}
+	if ok, err := VerifyPassword(storedHash, successfulPassword); err != nil || !ok {
+		t.Fatalf("stored password does not match the sole successful reset: (%t, %v)", ok, err)
+	}
+}
+
+func TestPasswordResetTTLBounds(t *testing.T) {
+	cases := []struct {
+		name string
+		in   time.Duration
+		want time.Duration
+		err  error
+	}{
+		{name: "default", in: 0, want: DefaultPasswordResetTTL},
+		{name: "minimum", in: MinimumPasswordResetTTL, want: MinimumPasswordResetTTL},
+		{name: "maximum", in: MaximumPasswordResetTTL, want: MaximumPasswordResetTTL},
+		{name: "negative", in: -time.Minute, err: ErrInvalidActionTokenTTL},
+		{name: "too short", in: time.Minute, err: ErrInvalidActionTokenTTL},
+		{name: "too long", in: MaximumPasswordResetTTL + time.Second, err: ErrInvalidActionTokenTTL},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := normalizePasswordResetTTL(tc.in)
+			if !errors.Is(err, tc.err) {
+				t.Fatalf("normalizePasswordResetTTL error = %v, want %v", err, tc.err)
+			}
+			if err == nil && got != tc.want {
+				t.Fatalf("normalizePasswordResetTTL = %s, want %s", got, tc.want)
+			}
+		})
 	}
 }

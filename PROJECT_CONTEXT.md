@@ -84,6 +84,14 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Integration coverage verifies session revocation, new-password verification and stale snapshot rejection using a real Argon2id old-password hash.
 - Backend CI [run 41395032305](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032305), Security scans [run 41395032374](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032374) and Pages deployment [run 41395032292](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032292) passed on implementation head `fe2ec6b9bfce6ec4aa20ea004029e2a68d5b05ab`.
 
+
+## M04.6 password-reset token lifecycle checkpoint — implementation pushed; CI pending (2026-11-02)
+- Reuses migration 011 `auth_action_tokens`; no new table or migration was added.
+- Internal token issuance stores only a SHA-256 digest, bounds expiry to 5 minutes–1 hour (30-minute default) and rotates previous outstanding reset tokens.
+- Internal completion re-checks token validity while holding the user row lock, consumes once, updates the Argon2id hash, revokes sibling reset tokens and all active sessions, and appends a redacted audit event in one transaction.
+- Normal password changes now revoke outstanding reset tokens too. No email delivery or HTTP reset endpoint is enabled.
+- PostgreSQL coverage includes digest-only storage, rotation, expiry, repeated/concurrent consumption and session invalidation. Backend CI is pending.
+
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions

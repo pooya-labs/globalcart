@@ -60,6 +60,16 @@ func ChangePassword(
 	`, newPasswordHash, lockedUserID); err != nil {
 		return 0, fmt.Errorf("update account password: %w", err)
 	}
+	if _, err := tx.Exec(ctx, `
+		UPDATE auth_action_tokens
+		SET revoked_at = now()
+		WHERE user_id = $1
+			AND purpose = 'password_reset'
+			AND consumed_at IS NULL
+			AND revoked_at IS NULL
+	`, lockedUserID); err != nil {
+		return 0, fmt.Errorf("revoke stale password-reset tokens: %w", err)
+	}
 
 	revokedCount, err := RevokeUserSessions(
 		ctx, tx, lockedUserID, actorUserID, SessionRevocationPasswordChanged,
