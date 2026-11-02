@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 var (
@@ -164,34 +163,18 @@ func (s *Service) UpdateVendorPrice(ctx context.Context, vendorID, offerID int64
 		return fmt.Errorf("begin price update: %w", err)
 	}
 	defer func() { _ = tx.Rollback(context.Background()) }()
-	var oldPrice, currency, status string
-	err = tx.QueryRow(ctx, `SELECT vp.price::text,vp.currency,v.status FROM vendor_products vp JOIN vendors v ON v.id=vp.vendor_id WHERE vp.id=$1 AND vp.vendor_id=$2 FOR UPDATE OF vp,v`, offerID, vendorID).Scan(&oldPrice, &currency, &status)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return ErrVendorProductNotFound
+	if err := updateVendorPriceTx(ctx, tx, vendorID, offerID, newPrice); err != nil {
+		return err
 	}
-	if err != nil {
-		return fmt.Errorf("lock offer price: %w", err)
-	}
-	if status != "active" {
-		return ErrVendorInactive
-	}
-	var updated string
-	if err = tx.QueryRow(ctx, "UPDATE vendor_products SET price=$3::numeric,updated_at=now() WHERE id=$1 AND vendor_id=$2 RETURNING price::text", offerID, vendorID, newPrice).Scan(&updated); err != nil {
-		return fmt.Errorf("update offer price: %w", err)
-	}
-	if oldPrice != updated {
-		if _, err = tx.Exec(ctx, `INSERT INTO vendor_price_history(vendor_product_id,old_price,new_price,currency,change_source) VALUES($1,$2::numeric,$3::numeric,$4,'merchant_update')`, offerID, oldPrice, updated, currency); err != nil {
-			return fmt.Errorf("append price history: %w", err)
-		}
-	}
-	if err = tx.Commit(ctx); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("commit price update: %w", err)
 	}
 	return nil
 }
 
 func (s *Service) AdjustVendorInventory(ctx context.Context, vendorID, offerID int64, delta int32, reason, reference string) (int32, error) {
-	if vendorID <= 0 || offerID <= 0 || delta == 0 || (reason != "stock_adjustment" && reason != "restock" && reason != "return" && reason != "correction") {
+	if vendorID <= 0 || offerID <= 0 || delta == 0 ||
+		(reason != "stock_adjustment" && reason != "restock" && reason != "return" && reason != "correction") {
 		return 0, ErrInvalidVendorInput
 	}
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
@@ -199,50 +182,21 @@ func (s *Service) AdjustVendorInventory(ctx context.Context, vendorID, offerID i
 		return 0, fmt.Errorf("begin stock adjustment: %w", err)
 	}
 	defer func() { _ = tx.Rollback(context.Background()) }()
-	var stock int32
-	var status string
-	err = tx.QueryRow(ctx, `SELECT vp.stock,v.status FROM vendor_products vp JOIN vendors v ON v.id=vp.vendor_id WHERE vp.id=$1 AND vp.vendor_id=$2 FOR UPDATE OF vp,v`, offerID, vendorID).Scan(&stock, &status)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return 0, ErrVendorProductNotFound
-	}
+	result, err := adjustVendorInventoryTx(ctx, tx, vendorID, offerID, delta, reason, reference)
 	if err != nil {
-		return 0, fmt.Errorf("lock vendor stock: %w", err)
+		return 0, err
 	}
-	if status != "active" {
-		return 0, ErrVendorInactive
-	}
-	next := int64(stock) + int64(delta)
-	if next < 0 || next > 2147483647 {
-		return 0, ErrInsufficientStock
-	}
-	var result int32
-	if err = tx.QueryRow(ctx, "UPDATE vendor_products SET stock=$3,updated_at=now() WHERE id=$1 AND vendor_id=$2 RETURNING stock", offerID, vendorID, next).Scan(&result); err != nil {
-		return 0, fmt.Errorf("update vendor stock: %w", err)
-	}
-	if _, err = tx.Exec(ctx, `INSERT INTO vendor_inventory_events(vendor_product_id,quantity_delta,resulting_stock,reason,reference) VALUES($1,$2,$3,$4,$5)`, offerID, delta, result, reason, nullIfEmpty(reference)); err != nil {
-		return 0, fmt.Errorf("append inventory event: %w", err)
-	}
-	if err = tx.Commit(ctx); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		return 0, fmt.Errorf("commit stock adjustment: %w", err)
 	}
 	return result, nil
 }
 
 func (s *Service) GetVendorProduct(ctx context.Context, vendorID, offerID int64) (VendorProduct, error) {
-	var out VendorProduct
-	var variant pgtype.Int8
-	err := s.pool.QueryRow(ctx, `SELECT id,vendor_id,product_id,variant_id,seller_sku,price::text,currency,stock,status FROM vendor_products WHERE vendor_id=$1 AND id=$2`, vendorID, offerID).Scan(&out.ID, &out.VendorID, &out.ProductID, &variant, &out.SellerSKU, &out.Price, &out.Currency, &out.Stock, &out.Status)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return VendorProduct{}, ErrVendorProductNotFound
+	if vendorID <= 0 || offerID <= 0 {
+		return VendorProduct{}, ErrInvalidVendorInput
 	}
-	if err != nil {
-		return VendorProduct{}, fmt.Errorf("read vendor offer: %w", err)
-	}
-	if variant.Valid {
-		id := variant.Int64
-		out.VariantID = &id
-	}
-	return out, nil
+	return getVendorProduct(ctx, s.pool, vendorID, offerID, false)
 }
 
 func nullIfEmpty(v string) any {
