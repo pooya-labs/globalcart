@@ -20,12 +20,15 @@ test("homepage prioritizes its hero and defers non-critical images", async ({ pa
   await expect(hero).toHaveAttribute("decoding", "async");
 
   const imagePolicy = await page.locator("img").evaluateAll(images =>
-    images.map(image => ({
-      source: image.getAttribute("src") ?? "",
-      loading: image.loading,
-      decoding: image.decoding,
-      isHero: image.matches(".hero-visual > img")
-    }))
+    images.map(node => {
+      const image = node as HTMLImageElement;
+      return {
+        source: image.getAttribute("src") ?? "",
+        loading: image.loading,
+        decoding: image.decoding,
+        isHero: image.matches(".hero-visual > img")
+      };
+    })
   );
   const nonCritical = imagePolicy.filter(image => !image.isHero);
   expect(nonCritical.length).toBeGreaterThan(0);
@@ -57,8 +60,11 @@ test("product detail prioritizes the main image and defers gallery extras", asyn
   await expect(mainImage).toHaveAttribute("decoding", "async");
 
   const extras = await page.locator("img").evaluateAll(images =>
-    images.filter(image => !image.matches(".detail-main-image > img"))
-      .map(image => ({ loading: image.loading, decoding: image.decoding }))
+    images.filter(node => !(node as HTMLImageElement).matches(".detail-main-image > img"))
+      .map(node => {
+        const image = node as HTMLImageElement;
+        return { loading: image.loading, decoding: image.decoding };
+      })
   );
   expect(extras.length).toBeGreaterThan(0);
   expect(extras.filter(image => image.loading !== "lazy")).toEqual([]);
