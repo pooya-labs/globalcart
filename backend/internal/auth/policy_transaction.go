@@ -169,3 +169,72 @@ func AuthorizeCustomerSessionTx(ctx context.Context, tx pgx.Tx, principal Sessio
 	}
 	return nil
 }
+
+// AuthorizeAdminTx revalidates a privileged administrator session under
+// account, session and role row locks. The caller must keep protected reads or
+// writes in this transaction so a concurrent account/session/role revocation
+// cannot race a successful authorization decision.
+func AuthorizeAdminTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	principal SessionPrincipal,
+	action AuthorizationAction,
+) error {
+	switch action {
+	case AuthorizationAdminReadOverview,
+		AuthorizationAdminManageUsers,
+		AuthorizationAdminReviewMembership,
+		AuthorizationAdminManageRoles:
+	default:
+		return ErrForbidden
+	}
+	if err := Authorize(principal, action, AuthorizationResource{}); err != nil {
+		return err
+	}
+
+	var accountActive bool
+	err := tx.QueryRow(ctx,
+		"SELECT status = 'active' AND email_verified_at IS NOT NULL\n"+
+			"FROM users WHERE id = $1 FOR UPDATE",
+		principal.UserID,
+	).Scan(&accountActive)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrInvalidSession
+		}
+		return fmt.Errorf("lock administrator account for authorization: %w", err)
+	}
+	if !accountActive {
+		return ErrInvalidSession
+	}
+
+	var lockedSessionID string
+	err = tx.QueryRow(ctx,
+		"SELECT id::text FROM user_sessions\n"+
+			"WHERE id = $1 AND user_id = $2\n"+
+			"AND revoked_at IS NULL AND idle_expires_at > now() AND expires_at > now()\n"+
+			"FOR UPDATE",
+		principal.ID, principal.UserID,
+	).Scan(&lockedSessionID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrInvalidSession
+		}
+		return fmt.Errorf("lock administrator session for authorization: %w", err)
+	}
+
+	var activeAdminRole string
+	err = tx.QueryRow(ctx,
+		"SELECT id::text FROM user_roles\n"+
+			"WHERE user_id = $1 AND role_key = 'admin' AND revoked_at IS NULL\n"+
+			"ORDER BY granted_at DESC, id DESC LIMIT 1 FOR UPDATE",
+		principal.UserID,
+	).Scan(&activeAdminRole)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrForbidden
+		}
+		return fmt.Errorf("lock administrator role for authorization: %w", err)
+	}
+	return nil
+}
