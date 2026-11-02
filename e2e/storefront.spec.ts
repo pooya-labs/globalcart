@@ -20,12 +20,14 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
-  await expect(page.getByRole("heading", { name: "Essence Mascara Lash Princess" })).toBeVisible();
+  await expect(page.locator("#quick-dialog-title")).toHaveText("Essence Mascara Lash Princess");
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
 
 test("search suggestions support keyboard navigation and selection", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
+  const mobileSearchButton = page.getByRole("button", { name: "Search products, brands or categories...", exact: true });
+  if (await mobileSearchButton.isVisible()) await mobileSearchButton.click();
   const search = page.getByRole("combobox", { name: "Search products, brands or categories..." });
   await search.fill("Esse");
 
@@ -69,6 +71,7 @@ test("saved searches persist locally and can be applied and deleted", async ({ p
 
   await page.reload();
   await expect(page.locator(".product-card").first()).toBeVisible();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.getByRole("button", { name: /Saved searches/ }).click();
   await expect(page.getByText("Essence picks")).toBeVisible();
 
@@ -85,9 +88,10 @@ test("saved searches persist locally and can be applied and deleted", async ({ p
 
 test("cart and checkout remain a clearly simulated local flow", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.locator(".product-card").first().getByRole("button", { name: "Add to bag" }).click();
+  const targetProduct = page.locator(".product-card").filter({ hasText: "Essence Mascara Lash Princess" });
+  await targetProduct.getByRole("button", { name: "Add to bag" }).click();
   await page.getByRole("button", { name: /Your bag/ }).click();
-  await expect(page.getByText("Essence Mascara Lash Princess")).toBeVisible();
+  await expect(page.getByRole("dialog").getByText("Essence Mascara Lash Princess", { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Continue to demo checkout" }).click();
   await expect(page.getByRole("heading", { name: "Demo checkout" })).toBeVisible();
