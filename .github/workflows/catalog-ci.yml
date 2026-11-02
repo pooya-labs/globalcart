@@ -33,6 +33,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Audit JavaScript dependencies
+        run: npm audit --audit-level=high
       - name: TypeScript validation
         run: npm run typecheck
       - name: Catalog and domain unit tests

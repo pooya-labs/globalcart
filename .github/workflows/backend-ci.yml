@@ -64,6 +64,8 @@ jobs:
             echo "Unable to persist generated Go files after three push attempts" >&2
             exit 1
           fi
+      - name: Scan Go dependencies for known vulnerabilities
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
       - name: Vet
         run: go vet ./...
       - name: Unit tests
