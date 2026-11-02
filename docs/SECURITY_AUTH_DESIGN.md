@@ -89,3 +89,11 @@ The current commerce package contains vendor-scoped operations that accept a `ve
 - Every seller read/write must constrain the target by the resolved vendor scope and have negative cross-vendor tests. Missing and foreign resources should use a non-enumerating response policy appropriate to the endpoint.
 
 This interim restriction is intentional: internal service methods are not yet safe to publish as seller APIs merely because they accept a vendor ID or enforce a SQL `vendor_id` predicate.
+
+## M06.1 — Internal admin overview authorization boundary (CI verified, 2026-11-02)
+
+The internal `backend/internal/admin.ReadOverview` service accepts an opaque server-side session token, resolves current roles from PostgreSQL and requires the explicit `admin.overview.read` action. Before returning aggregates it begins a database transaction and calls `auth.AuthorizeAdminTx`, which locks and revalidates the active verified account, exact live session and active admin-role grant. The overview query remains inside that same transaction; concurrent account disable, session revocation or admin-role revocation must serialize with the protected read.
+
+The result contains aggregate catalog/source, vendor/offer, seller-membership, account-status, price-history and audit-activity diagnostics only. It includes an explicit `paused` translation status and does not return account emails, password hashes, raw token material, token digests or audit payloads. PostgreSQL integration coverage verifies customer/seller denial, active-admin success, stale role/session rejection and sensitive-field non-disclosure. Backend CI [41465375163](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375163) and Security scans [41465375326](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375326) passed on implementation head `7ca99c04a348256aa0a6051241864213968f7f84`.
+
+This is an internal service, not an HTTP route or frontend dashboard. The future HTTP handler must still obtain the token only from the approved Secure/HttpOnly cookie middleware, verify CSRF/Origin as appropriate for state-changing actions, and keep the route disabled until same-site HTTPS hosting, email delivery and secret management are approved.
