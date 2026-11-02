@@ -323,3 +323,51 @@ func (s *Service) GetCart(ctx context.Context, ownerTokenHash []byte) (Cart, err
 	}
 	return cart, nil
 }
+
+
+type cartItemsReader interface {
+	Query(context.Context, string, ...any) (pgx.Rows, error)
+}
+
+func loadCartItems(ctx context.Context, queryer cartItemsReader, cartID string) ([]CartItem, error) {
+	rows, err := queryer.Query(ctx, `SELECT ci.product_id,ci.variant_id,ci.quantity,ci.unit_price_snapshot::text,ci.currency,
+		ci.product_title_snapshot,ci.variant_title_snapshot,ci.vendor_product_id,
+		vp.vendor_id,COALESCE(v.display_name,'')
+		FROM cart_items ci
+		LEFT JOIN vendor_products vp ON vp.id=ci.vendor_product_id
+		LEFT JOIN vendors v ON v.id=vp.vendor_id
+		WHERE ci.cart_id=$1 ORDER BY ci.id`, cartID)
+	if err != nil {
+		return nil, fmt.Errorf("read cart items: %w", err)
+	}
+	defer rows.Close()
+	items := make([]CartItem, 0)
+	for rows.Next() {
+		var item CartItem
+		var variant, vendorProduct, vendorID pgtype.Int8
+		if err := rows.Scan(
+			&item.ProductID, &variant, &item.Quantity, &item.UnitPrice,
+			&item.Currency, &item.ProductTitle, &item.VariantTitle,
+			&vendorProduct, &vendorID, &item.VendorName,
+		); err != nil {
+			return nil, fmt.Errorf("scan cart item: %w", err)
+		}
+		if variant.Valid {
+			id := variant.Int64
+			item.VariantID = &id
+		}
+		if vendorProduct.Valid {
+			id := vendorProduct.Int64
+			item.VendorProductID = &id
+		}
+		if vendorID.Valid {
+			id := vendorID.Int64
+			item.VendorID = &id
+		}
+		items = append(items, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate cart items: %w", err)
+	}
+	return items, nil
+}
