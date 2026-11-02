@@ -35,7 +35,7 @@ func TestAuthorizeSellerVendorTxRevalidatesMembershipAndSession(t *testing.T) {
 	adminID := createActiveAuthUser(t, ctx, pool, suffix+"-policy-admin")
 	sellerID := createActiveAuthUser(t, ctx, pool, suffix+"-policy-seller")
 	grantAdminRoleFixture(t, ctx, pool, adminID)
-	vendorID := createActiveSellerVendorFixture(t, ctx, pool, suffix+"-policy-vendor")
+	vendorID := createActiveSellerVendorFixture(t, pool, ctx, suffix+"-policy-vendor")
 
 	request, err := RequestSellerMembership(ctx, pool, sellerID, vendorID)
 	if err != nil {
@@ -106,7 +106,7 @@ func TestSellerAuthorizationSerializesWithMembershipRevocation(t *testing.T) {
 	adminID := createActiveAuthUser(t, ctx, pool, suffix+"-policy-race-admin")
 	sellerID := createActiveAuthUser(t, ctx, pool, suffix+"-policy-race-seller")
 	grantAdminRoleFixture(t, ctx, pool, adminID)
-	vendorID := createActiveSellerVendorFixture(t, ctx, pool, suffix+"-policy-race-vendor")
+	vendorID := createActiveSellerVendorFixture(t, pool, ctx, suffix+"-policy-race-vendor")
 	request, err := RequestSellerMembership(ctx, pool, sellerID, vendorID)
 	if err != nil {
 		t.Fatalf("request seller race membership: %v", err)
