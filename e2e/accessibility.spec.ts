@@ -36,6 +36,7 @@ test("storefront homepage meets WCAG 2.1 AA automated checks", async ({ page }) 
 });
 
 test("command palette dialog remains accessible when open", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("dialog", { name: "Quick commands" })).toBeVisible();
   await expectNoWcagViolations(page);

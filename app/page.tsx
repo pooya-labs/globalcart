@@ -513,10 +513,10 @@ export default function Home() {
               </button>)}
             </div>}
           </div>
-          <button className="command-shortcut" type="button" onClick={()=>{setCommandQuery("");setActiveCommandIndex(0);setCommandPaletteOpen(true);}} aria-label={t.commandPalette}><span>{t.keyboardHint}</span></button>
+          <button className="command-shortcut" type="button" onClick={()=>{setCommandQuery("");setActiveCommandIndex(0);setCommandPaletteOpen(true);}} aria-label={t.keyboardHint+" "+t.commandPalette}><span>{t.keyboardHint}</span></button>
           <button className="locale-button" onClick={()=>setLocale(rtl?"en":"fa")}>{rtl?"EN":"فا"}</button>
-          <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites}><Heart size={19}/><span>{favorites.length}</span></button>
-          <button className="bag-button" aria-label={t.cart+" ("+count+")"} onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
+          <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites+" "+favorites.length}><Heart size={19}/><span>{favorites.length}</span></button>
+          <button className="bag-button" aria-label={t.cart+" "+count} onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
         </div>
       </header>
 
@@ -589,7 +589,7 @@ export default function Home() {
         <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p>{sort==="popular"&&<small className="recommendation-basis">{t.recommendationBasis}</small>}</div><div className="catalog-tools">
           <button type="button" className="saved-search-trigger" onClick={()=>{setSaveSearchFormOpen(value=>!value);setSavedSearchPanelOpen(false);setSavedSearchNotice("");}} aria-expanded={saveSearchFormOpen}><BookmarkPlus size={15}/>{t.saveSearch}</button>
           <button type="button" className="saved-search-trigger" onClick={()=>{setSavedSearchPanelOpen(value=>!value);setSaveSearchFormOpen(false);setSavedSearchNotice("");}} aria-expanded={savedSearchPanelOpen}><BookmarkCheck size={15}/>{t.savedSearches} <span>{savedSearches.length}</span></button>
-          <button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select value={sort} onChange={e=>setSort(e.target.value as SavedCatalogSearch["sort"])}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
+          <button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select aria-label={t.sort} value={sort} onChange={e=>setSort(e.target.value as SavedCatalogSearch["sort"])}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
         {(saveSearchFormOpen||savedSearchPanelOpen)&&<div className="saved-search-panel">
           {saveSearchFormOpen&&<form className="saved-search-form" onSubmit={saveCurrentSearch}>
             <label htmlFor="saved-search-name">{t.savedSearchName}</label>
