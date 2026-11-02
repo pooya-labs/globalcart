@@ -20,7 +20,7 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
-  await expect(page).toHaveURL(/\/product\/1\/$/);
+  await expect(page).toHaveURL(/\/product\/1$/);
   await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });

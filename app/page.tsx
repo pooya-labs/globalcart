@@ -516,7 +516,7 @@ export default function Home() {
           <button className="command-shortcut" type="button" onClick={()=>{setCommandQuery("");setActiveCommandIndex(0);setCommandPaletteOpen(true);}} aria-label={t.commandPalette}><span>{t.keyboardHint}</span></button>
           <button className="locale-button" onClick={()=>setLocale(rtl?"en":"fa")}>{rtl?"EN":"فا"}</button>
           <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites}><Heart size={19}/><span>{favorites.length}</span></button>
-          <button className="bag-button" onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
+          <button className="bag-button" aria-label={t.cart+" ("+count+")"} onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
         </div>
       </header>
 
