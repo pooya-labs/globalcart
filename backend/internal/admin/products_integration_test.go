@@ -64,7 +64,7 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 	brand := "Studio Override"
 	updated, err := UpdateManagedProduct(ctx, pool, adminSession.SessionToken, productID, ProductUpdateInput{
 		ExpectedRevision: 0,
-		Title: &title, Description: &description, Brand: &brand,
+		Title:            &title, Description: &description, Brand: &brand,
 	})
 	if err != nil {
 		t.Fatalf("update product editorial overrides: %v", err)

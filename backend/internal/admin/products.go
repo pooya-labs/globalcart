@@ -52,10 +52,10 @@ type ProductManagementRecord struct {
 // removes an override and restores the current supplier value for that field.
 type ProductUpdateInput struct {
 	ExpectedRevision int64    `json:"expectedRevision"`
-	Title       *string  `json:"title,omitempty"`
-	Description *string  `json:"description,omitempty"`
-	Brand       *string  `json:"brand,omitempty"`
-	ClearFields []string `json:"clearFields,omitempty"`
+	Title            *string  `json:"title,omitempty"`
+	Description      *string  `json:"description,omitempty"`
+	Brand            *string  `json:"brand,omitempty"`
+	ClearFields      []string `json:"clearFields,omitempty"`
 }
 
 type productOverrideState struct {

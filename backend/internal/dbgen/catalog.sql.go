@@ -34,7 +34,7 @@ WHERE COALESCE(apo.visibility_status, 'active') <> 'archived'
   ))
   AND (
        f.query IS NULL
-       OR to_tsvector('simple', p.title || ' ' || p.description) @@ plainto_tsquery('simple', f.query)
+       OR to_tsvector('simple', COALESCE(apo.title_override, p.title) || ' ' || COALESCE(apo.description_override, p.description)) @@ plainto_tsquery('simple', f.query)
        OR (
            length(f.query) >= 3
            AND (
@@ -275,8 +275,8 @@ WHERE COALESCE(apo.visibility_status, 'active') <> 'archived'
 ORDER BY
     CASE
         WHEN f.query IS NULL THEN 0::real
-        WHEN to_tsvector('simple', p.title || ' ' || p.description) @@ plainto_tsquery('simple', f.query)
-            THEN 2::real + ts_rank(to_tsvector('simple', p.title || ' ' || p.description), plainto_tsquery('simple', f.query))
+        WHEN to_tsvector('simple', COALESCE(apo.title_override, p.title) || ' ' || COALESCE(apo.description_override, p.description)) @@ plainto_tsquery('simple', f.query)
+            THEN 2::real + ts_rank(to_tsvector('simple', COALESCE(apo.title_override, p.title) || ' ' || COALESCE(apo.description_override, p.description)), plainto_tsquery('simple', f.query))
         ELSE GREATEST(
             word_similarity(lower(f.query), lower(COALESCE(apo.title_override, p.title))),
             similarity(lower(COALESCE(apo.title_override, p.title)), lower(f.query)),
