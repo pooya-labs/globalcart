@@ -620,7 +620,7 @@ export default function Home() {
         <div><span className="benefit-icon"><Truck size={18}/></span><span><b>{t.feature3}</b><small>{t.feature3d}</small></span></div>
         <div className="fx-control" data-status={fxStatus} role="status" aria-live="polite">
           <span><b>{t.fxTitle}</b><small>{t.fxProvider}</small></span>
-          <strong>{rate===null?t.fxUnavailable:money(rate,locale)+" تومان / USDT"}</strong>
+          <strong>{rate===null?t.fxUnavailable:(rtl?money(rate,locale)+" تومان / تتر":money(rate,locale)+" Toman / USDT")}</strong>
           <small>{fxTimestampLabel??t.fxUnknown} · {fxStatusLabel}</small>
           <small className="fx-caveat">{t.fxCaveat}</small>
           {rate===null&&<small>{t.fxUnavailableNote}</small>}
