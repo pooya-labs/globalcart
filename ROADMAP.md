@@ -233,14 +233,24 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** internal membership administration only; no seller self-approval, payouts, seller dashboard or public seller endpoint.
 
-### M04.10 — Deny-by-default internal authorization policy (next; implementation not started)
-- [ ] Define explicit action/resource policy types for customer ownership, seller vendor scope and administrator-only operations.
-- [ ] Use only a `SessionPrincipal` resolved from the server-side session store; no role, owner, or vendor IDs from request payloads may authorize an action.
-- [ ] Deny unknown actions/resources by default and return a typed forbidden result without disclosing cross-tenant resource existence.
-- [ ] Add table-driven tests for customer ownership, assigned/unassigned seller vendors, missing/inactive sessions, admin-only actions and unknown policy combinations.
-- [ ] Keep policy evaluation internal; no middleware or public protected route until same-site HTTPS hosting and runtime approval.
+### M04.10 — Deny-by-default internal authorization policy (CI verified, 2026-11-02)
+- [x] Define explicit `AuthorizationAction` and `AuthorizationResource` types for customer ownership, seller vendor scope and administrator-only actions.
+- [x] Require a `SessionPrincipal` resolved by `ResolveSession`; browser role claims or request-body owner/vendor IDs must never construct trusted principal state.
+- [x] Deny unknown actions/resources by default; return typed `ErrUnauthenticated`/`ErrForbidden` without revealing cross-tenant resource existence.
+- [x] Add table-driven policy tests for customer ownership, assigned/unassigned vendor scopes, seller role without a live scope, admin-only actions, unknown actions, missing session identity and client-supplied vendor scope.
+- [x] Keep the evaluator pure/internal; no middleware, public protected route or cookie flow was enabled.
 
-**Boundary:** pure/internal authorization policy only. Public handlers, cookies, CSRF middleware and deployment remain blocked on ADR-010 owner approval.
+- [x] Verify Backend CI [run 41398064895](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064895), Security scans [run 41398064885](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064885) and GitHub Pages deployment [run 41398064905](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064905) on implementation head `c1b4b0ccfbd132ee95f8dc757a3518ff9b04899a`; all passed.
+
+**Boundary:** pure/internal authorization policy only. Its caller must pass a `SessionPrincipal` returned from `ResolveSession`; this evaluator does not authenticate, refresh sessions or replace transaction-level ownership checks. Public handlers, cookies, CSRF middleware and deployment remain blocked on ADR-010 owner approval.
+### M04.11 — Service-boundary authorization and cross-tenant IDOR enforcement (next; implementation not started)
+- [ ] Identify internal customer and seller service methods that accept owner/vendor selectors and wrap them with authorization checks based on a session-resolved principal.
+- [ ] Load canonical resource ownership and current vendor state from PostgreSQL in the same transaction as the protected read/mutation; do not trust supplied owner/vendor IDs.
+- [ ] Ensure admin-only review and role changes use the same verified actor boundary as M04.8/M04.9.
+- [ ] Add PostgreSQL-backed cross-customer and cross-vendor IDOR tests, including membership revocation racing a seller operation.
+- [ ] Keep all protected HTTP routes disabled until same-site HTTPS hosting, runtime, email and secret-management approvals exist.
+
+**Boundary:** service/application-layer enforcement only; no login, cookie, CSRF middleware or public route is enabled.
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).

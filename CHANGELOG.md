@@ -612,3 +612,14 @@
 ### Verification
 - Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226) and Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) passed on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`.
 - GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) also passed.
+
+## Unreleased — deny-by-default internal authorization policy (CI verified, 2026-11-02)
+
+### Added
+- Added a pure internal action/resource policy evaluator for customer-owned resources, seller vendor scope and administrator-only operations.
+- Require a `SessionPrincipal` resolved through the server-side session store; deny missing identity, unassigned vendor scopes and unknown actions by default.
+- Added table-driven tests for ownership, scope boundaries, admin-only operations, missing identity and client-supplied scope attempts.
+- No authentication middleware, cookies, CSRF route or public protected endpoint was enabled.
+
+### Verification
+- Backend CI [run 41398064895](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064895), Security scans [run 41398064885](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064885) and Pages deployment [run 41398064905](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064905) passed on implementation head `c1b4b0ccfbd132ee95f8dc757a3518ff9b04899a`.
