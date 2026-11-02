@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased — 2026-11-02
+
+### Fixed
+- Preserve the original invoking control when Command Palette actions transition directly into cart, favorites or comparison dialogs.
+- Keep dialog focus contained and restore focus after Escape dismissal across cart, favorites, quick view, comparison and checkout.
+
+### Added
+- Playwright regression coverage for Tab/Shift+Tab wrapping, Escape dismissal, focus restoration and the mobile Command Palette-to-saved-items path.
+- Touch-appropriate Quick View interaction in mobile tests; the test no longer assumes a hover-capable pointer on a touch viewport.
+
+### Verification
+- Browser E2E push run [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR run [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed: 28 Playwright tests, including desktop Chromium and Pixel 7 mobile.
+- On final feature head `2182bbb1c55ad265e4264c1a0389fb0353f0010a`, Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) passed.
+
+
 ## 0.1.3 — 2026-11-01
 
 ### Added

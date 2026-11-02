@@ -34,13 +34,13 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 |---|---:|---|---|
 | M00 | 0.1.0 | Product definition, independence, governance and handoff | Complete |
 | M01 | 0.1.x | Storefront foundation, bilingual shell and deployment | Implemented; redesign supersedes original visual direction |
-| M02 | 0.2.x | Automated catalog import, normalization and snapshots | Catalog sync active; translation paused |
+| M02 | 0.2.x | Automated catalog import, normalization and snapshots | Snapshot pipeline implemented; authorized supplier feeds remain gated; translation paused |
 | M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Product detail, gallery, comparison and illustrative price breakdown implemented; live FX provenance remains |
-| M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Local foundation implemented; CI/hosting gates remain |
-| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo services implemented; returns and API exposure gated |
+| M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Read-only local Go/PostgreSQL foundation implemented; authentication, workers and hosting gates remain |
+| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo cart, checkout, order, coupon and vendor-split foundations implemented; returns and API exposure gated |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
-| M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Planned |
-| M08 | 0.8.0 | Browser tests, accessibility, security and performance | Planned |
+| M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
+| M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget and CI security checks implemented; manual QA and operational recovery remain |
 | M09 | 1.0.0 | Portfolio case study, release and public demo QA | Planned |
 
 ## M00 — Product and governance
@@ -170,9 +170,19 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Playwright tests for critical shopping journeys.
 - [ ] RTL/LTR accessibility, keyboard, labels and contrast audit (automated axe and Command Palette keyboard checks are verified; manual screen-reader and broader keyboard review remains open).
 - [ ] Performance and image-loading audit (image policy and first-party JS/CSS budgets are automated; live CDN image timing and Core Web Vitals review remains open).
-- [ ] Dependency, secret, static-analysis and API security checks.
+- [x] Automated repository secret scan (Gitleaks), Go dependency vulnerability scan and `go vet` in CI; hosted API penetration/security review remains gated.
 - [ ] Database backup/restore and migration verification.
 - [ ] Reproducible build and deployment smoke test.
+
+### M08.10 — Shopping-dialog focus regression coverage (CI verified, 2026-11-02)
+- [x] Keep Tab and Shift+Tab navigation inside cart, favorites, quick-view, comparison and checkout dialogs.
+- [x] Dismiss dialogs with Escape and restore focus to the invoking control.
+- [x] Preserve the original opener when a Command Palette action opens a replacement dialog, including the mobile saved-items route.
+- [x] Use touch-appropriate Quick View interaction in mobile browser tests instead of assuming pointer hover.
+- [x] Verify the final feature-branch head `2182bbb1c55ad265e4264c1a0389fb0353f0010a`: Browser E2E push run [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR run [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed (28 Playwright tests).
+- [x] On the same PR head, Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) passed.
+
+**Boundary:** this is automated keyboard/focus coverage for the tested dialogs and desktop/mobile viewports. Manual screen-reader, physical-device, broader RTL/LTR and reduced-motion review remains open.
 
 ## M09 — Portfolio release
 - [ ] Persian and English case study.

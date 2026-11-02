@@ -49,7 +49,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Keyboard support includes Escape dismissal for overlays, dialog semantics, visible focus styles and live announcements for key feedback states.
 - Comparison supports up to four products and is persisted in browser local storage.
 - Homepage merchandising rails are derived from the current sample catalog (discounts, ratings and discovery).
-- Homepage overlay interactions support Escape dismissal; major drawers/modals expose dialog semantics and labelled headings. Modal dialogs now trap keyboard focus and restore it to the invoking element when closed; manual assistive-technology QA remains outstanding.
+- Homepage overlay interactions support Escape dismissal; cart, favorites, quick view, comparison and checkout dialogs expose labelled dialog semantics, trap Tab/Shift+Tab focus and restore focus on close. When a mobile Command Palette action opens another dialog, the original opener is retained for focus restoration. The desktop/mobile Playwright regression suite verifies these paths; manual assistive-technology QA remains outstanding.
 - Recently viewed product IDs are stored in browser local storage, shown in a homepage rail and on /recently-viewed; the footer links to the history page. There is no server-side account history.
 - Product detail pages expose source USD price, sample discount, illustrative user-configured FX rate and converted demo price. No live FX provider is connected.
 - Amazon URL intake validates supported Amazon domains and ASINs, then saves requests in browser local storage. Live Amazon data is not fetched.
@@ -62,12 +62,18 @@ Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
 Actions run 41299677941 (Run #135) passed catalog refresh, snapshot persistence, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment. This run includes the dedicated recently viewed page, homepage history rail and browser-local history controls.
 https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
+## Latest feature-branch verification — 2026-11-02
+- Final code head: `2182bbb1c55ad265e4264c1a0389fb0353f0010a` on `feat/m04-go-postgres-foundation`; PR #1 remains a draft and has not been merged.
+- Browser E2E push [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed, with 28 desktop/mobile Playwright tests.
+- Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) all passed on that head.
+- No production API, hosted database, payment gateway or supplier feed was provisioned or connected.
+
 ## Immediate next actions
-1. Complete responsive, RTL/LTR, keyboard, screen-reader, reduced-motion and published deep-link QA.
-2. Add an authorized FX provider with source timestamp and stale-rate policy; keep the current rate clearly illustrative until then.
-3. Improve source attributes, rating context and catalog freshness diagnostics.
-4. Build seller/admin workspaces only after the catalog UX and role boundaries are defined.
-5. Defer live Amazon product retrieval until approved API/feed credentials and usage rights are available.
+1. Complete manual responsive and RTL/LTR QA on real devices, including screen-reader, broader keyboard, reduced-motion and published deep-link checks. Automated axe, focus and browser journeys are already CI-verified.
+2. Obtain owner approval and documented rights for a named supplier API/feed before implementing live catalog onboarding; do not scrape or fabricate inventory.
+3. Select an authorized FX provider and define source timestamp and stale-rate policy; keep the current rate illustrative until then.
+4. Improve catalog source attributes, rating context and freshness diagnostics using the existing source-safe pipeline.
+5. Design authentication, role boundaries and hosting decisions before exposing persistent cart/order APIs or building functional seller/admin workspaces. Keep Amazon retrieval disabled until authorized access is approved.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.
@@ -82,7 +88,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 ## M04 backend foundation (branch work; not yet merged)
 - Branch: `feat/m04-go-postgres-foundation`.
-- Go API uses the standard HTTP mux and pgx v5; `go.mod` retains its Go 1.25 language baseline, while CI and the container builder use patched Go 1.27.3.
+- Go API uses the standard HTTP mux and pgx v5; `go.mod` retains its Go 1.26.0 language baseline, while CI and the container builder use patched Go 1.27.3.
 - PostgreSQL 17 is the primary system of record; local Compose binds ports to 127.0.0.1 only.
 - Embedded transactional migration ledger creates an initial products table with source provenance, numeric constraints, JSONB image arrays and indexes.
 - Read-only API routes: `GET /healthz`, `GET /readyz`, `GET /api/v1/products`, `GET /api/v1/products/{id}`.
