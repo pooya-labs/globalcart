@@ -6,6 +6,9 @@
 - Added M04 migration 011 for identity/session/RBAC storage: normalized users, controlled roles, seller memberships, opaque session and action-token digests, and append-only audit events.
 - Added database constraints for Argon2id hash shape, verified account activation, session expiry/revocation, one active action token per purpose, and immutable audit history.
 - Added PostgreSQL-aware migration statement splitting for quoted strings, comments and dollar-quoted function bodies, plus unit and integration regression coverage.
+- Added internal Argon2id password hash/verify and rehash-check helpers with strict PHC parsing and bounded verification resource costs.
+- Added 256-bit cryptographically random opaque token generation, SHA-256 digest helpers and constant-time digest comparison.
+
 - Added Playwright axe coverage for the storefront in both Persian RTL and English LTR.
 - Added a desktop/mobile `prefers-reduced-motion` regression test for smooth scrolling, image transitions and modal overlay animation.
 
@@ -14,6 +17,7 @@
 - Made reduced-motion overlay coverage use the touch-safe cart drawer rather than a hover-dependent quick-view control.
 
 ### Verification
+- Backend CI [41385892498](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892498), Security scans [41385892505](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892505) and Pages deployment [41385892515](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892515) passed on auth primitive implementation head `862ffb30edefb23695e34e407bfe7ea8180162ef`.
 - Backend CI [41384871633](https://github.com/pooya16pg-spec/globalcart/actions/runs/41384871633), Security scans [41384871597](https://github.com/pooya16pg-spec/globalcart/actions/runs/41384871597) and GitHub Pages deployment [41384871618](https://github.com/pooya16pg-spec/globalcart/actions/runs/41384871618) passed on the identity schema implementation commit.
 - Browser E2E [41383420470](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420470) passed all 30 Playwright tests across desktop Chromium and Pixel 7 mobile on `9653fc7d2d03e45f726b7e6a0e47fd7cbd1295dc`.
 - Security scans [41383420409](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420409) and GitHub Pages deployment [41383420345](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420345) passed on the same implementation head.

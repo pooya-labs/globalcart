@@ -140,6 +140,17 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** migration 011 is storage scaffolding only. It does not authenticate requests, issue browser cookies, expose seller/admin endpoints or connect a hosted database. ADR-010 remains proposed pending owner approval.
 
+### M04.2 — Internal authentication cryptographic primitives (CI verified, 2026-11-02)
+- [x] Pin maintained `golang.org/x/crypto` Argon2id implementation and hash passwords with a unique 16-byte random salt using the OWASP baseline `m=19456 KiB, t=2, p=1`.
+- [x] Encode hashes as Argon2id PHC strings; strictly parse versions, parameters and canonical base64 before verification.
+- [x] Bound verification work to at most 64 MiB, 5 passes and 4 lanes; allow bounded legacy hashes to verify and flag for rehash rather than downgrading new hashes.
+- [x] Compare derived password keys in constant time and reject empty, invalid UTF-8 or oversized password inputs.
+- [x] Generate canonical opaque tokens from 256 bits of cryptographic randomness, persist only SHA-256 digests and compare digests in constant time.
+- [x] Add tests for correct/incorrect passwords, malformed/over-budget PHC strings, legacy rehash decisions, invalid password inputs, token entropy/shape and digest validation.
+- [x] Verify Backend CI [41385892498](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892498), Security scans [41385892505](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892505) and GitHub Pages deployment [41385892515](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892515) on implementation head `862ffb30edefb23695e34e407bfe7ea8180162ef`.
+
+**Boundary:** these internal primitives are not connected to registration, login, session middleware, cookies, CSRF validation, email delivery or public HTTP routes. Benchmark the hash parameters and add request rate limits on the approved runtime before enabling authentication.
+
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
 - [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).
