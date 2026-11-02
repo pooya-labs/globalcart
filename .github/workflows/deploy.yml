@@ -23,8 +23,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
+      - name: Install dependencies from the committed lockfile
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit
+          else
+            npm install --no-audit --no-fund
+          fi
       - name: Refresh static catalog snapshot
         run: npm run catalog:sync
       - name: Select a static product route for deployment smoke test
@@ -39,7 +44,7 @@ jobs:
           if (!product) throw new Error("Catalog snapshot has no valid product route for the deployment smoke test.");
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `product_id=${product.id}\n`);
           NODE
-      - name: Persist refreshed catalog snapshot safely
+      - name: Persist refreshed catalog snapshot and npm lockfile safely
         shell: bash
         run: |
           set -euo pipefail
@@ -50,7 +55,10 @@ jobs:
           # leaves the old index intact and can therefore delete concurrent main
           # changes when the bot creates its commit.
           snapshot="$RUNNER_TEMP/catalog.json"
+          package_lock="$RUNNER_TEMP/package-lock.json"
           cp data/catalog.json "$snapshot"
+          test -f package-lock.json
+          cp package-lock.json "$package_lock"
 
           # Rebuild a catalog-only commit from the latest main on every attempt.
           # A non-fast-forward push is retried; force-push is never used.
@@ -58,14 +66,15 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             cp "$snapshot" data/catalog.json
-            git add -- data/catalog.json
+            cp "$package_lock" package-lock.json
+            git add -- data/catalog.json package-lock.json
 
             if git diff --cached --quiet; then
               echo "Catalog snapshot is unchanged."
               exit 0
             fi
 
-            git commit -m "chore(catalog): refresh snapshot [skip ci]"
+            git commit -m "chore(ci): persist npm lockfile and catalog snapshot [skip ci]"
             if git push origin HEAD:main; then
               exit 0
             fi
