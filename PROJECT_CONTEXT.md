@@ -159,7 +159,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - PR #1 is closed and merged: https://github.com/pooya16pg-spec/globalcart/pull/1
 
 ## Latest quality checkpoint — M08.13 (CI verified, 2026-11-02)
-- Frontend deployment workflow implementation commit: `8fec0d0c9bbb845fb7b1dc0788970929828e0a2a`; lockfile plus refreshed catalog snapshot were persisted to `main` in `a9aa72606839d04329837c570fd2cbf492499299` (the latest non-documentation implementation commit for this checkpoint).
+- Frontend deployment workflow implementation commit: `8fec0d0c9bbb845fb7b1dc0788970929828e0a2a`; the initial lockfile bootstrap and catalog snapshot were persisted to `main` in `a9aa72606839d04329837c570fd2cbf492499299`; later catalog-only refresh commits do not alter the dependency lockfile.
 - GitHub Pages run [41405289322](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289322) passed dependency bootstrap, clean `npm ci`, TypeScript validation, unit tests, production static export, artifact upload, deployment and the published-site smoke test.
 - The post-deployment smoke test fetched the HTTPS homepage, verified and fetched a Next.js JavaScript asset under `/globalcart/_next/static/`, then fetched the generated product detail route for the selected catalog product.
 - Security scans [41405289317](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289317) passed on the same workflow implementation commit.
