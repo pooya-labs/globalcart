@@ -134,7 +134,8 @@ test("shopping drawers and modals trap focus and restore their opener", async ({
 
   const firstProduct = page.locator(".product-card").first();
   const quickViewTrigger = firstProduct.locator(".quick-view");
-  await quickViewTrigger.hover();
+  const isMobileViewport = await page.evaluate(() => window.matchMedia("(max-width: 760px)").matches);
+  if (!isMobileViewport) await firstProduct.hover();
   await quickViewTrigger.click();
   dialog = page.locator(".quick-modal[role='dialog']");
   await expect(dialog).toBeVisible();
