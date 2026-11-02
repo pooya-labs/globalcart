@@ -169,7 +169,7 @@ func auditSellerMembershipChange(ctx context.Context, tx pgx.Tx, eventType, acto
 	return nil
 }
 
-func beginSellerMembershipAdminMutation(ctx context.Context, pool *pgxpool.Pool, actorID, membershipID string) (pgx.Tx, SellerMembership, error) {
+func beginSellerMembershipAdminMutation(ctx context.Context, pool *pgxpool.Pool, actorID, membershipID string, requireActiveTarget bool) (pgx.Tx, SellerMembership, error) {
 	targetID, err := findSellerMembershipOwner(ctx, pool, membershipID)
 	if err != nil {
 		return nil, SellerMembership{}, err
@@ -178,7 +178,7 @@ func beginSellerMembershipAdminMutation(ctx context.Context, pool *pgxpool.Pool,
 	if err != nil {
 		return nil, SellerMembership{}, err
 	}
-	if target.status != "active" || !target.emailVerified {
+	if requireActiveTarget && (target.status != "active" || !target.emailVerified) {
 		_ = tx.Rollback(ctx)
 		return nil, SellerMembership{}, ErrAccountNotActive
 	}
@@ -193,7 +193,7 @@ func beginSellerMembershipAdminMutation(ctx context.Context, pool *pgxpool.Pool,
 // ActivateSellerMembership approves a pending request. Seller role grant,
 // session invalidation and both audit records commit atomically.
 func ActivateSellerMembership(ctx context.Context, pool *pgxpool.Pool, actorID, membershipID string) (int64, error) {
-	tx, m, err := beginSellerMembershipAdminMutation(ctx, pool, actorID, membershipID)
+	tx, m, err := beginSellerMembershipAdminMutation(ctx, pool, actorID, membershipID, true)
 	if err != nil {
 		return 0, err
 	}
@@ -228,7 +228,7 @@ func ActivateSellerMembership(ctx context.Context, pool *pgxpool.Pool, actorID, 
 // SuspendSellerMembership removes one active vendor scope. The seller role is
 // kept only when another active membership on an active vendor remains.
 func SuspendSellerMembership(ctx context.Context, pool *pgxpool.Pool, actorID, membershipID string) (int64, error) {
-	tx, m, err := beginSellerMembershipAdminMutation(ctx, pool, actorID, membershipID)
+	tx, m, err := beginSellerMembershipAdminMutation(ctx, pool, actorID, membershipID, false)
 	if err != nil {
 		return 0, err
 	}
@@ -269,7 +269,7 @@ func SuspendSellerMembership(ctx context.Context, pool *pgxpool.Pool, actorID, m
 // RevokeSellerMembership terminates a pending, active or suspended membership.
 // Seller role is revoked only when no other active vendor scope remains.
 func RevokeSellerMembership(ctx context.Context, pool *pgxpool.Pool, actorID, membershipID string) (int64, error) {
-	tx, m, err := beginSellerMembershipAdminMutation(ctx, pool, actorID, membershipID)
+	tx, m, err := beginSellerMembershipAdminMutation(ctx, pool, actorID, membershipID, false)
 	if err != nil {
 		return 0, err
 	}
