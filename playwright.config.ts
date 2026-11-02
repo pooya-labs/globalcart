@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const basePath = process.env.GITHUB_ACTIONS === "true" ? "/globalcart" : "";
-const baseURL = "http://127.0.0.1:4173" + basePath;
+const baseURL = "http://127.0.0.1:4173" + (basePath ? basePath + "/" : "/");
 
 export default defineConfig({
   testDir: "./e2e",
@@ -28,7 +28,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "node scripts/serve-static.mjs",
-    url: baseURL + "/",
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 15_000,
     env: {

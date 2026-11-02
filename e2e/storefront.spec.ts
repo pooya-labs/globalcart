@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
     }
     return route.abort();
   });
-  await page.goto("/");
+  await page.goto("./");
   await expect(page.locator(".product-card").first()).toBeVisible();
 });
 
