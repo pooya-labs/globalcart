@@ -133,7 +133,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).
 - [x] Define demo-only order states and reservation release semantics; no payment provider is contacted.
 - [x] Add demo order ledger, immutable line snapshots, per-cart idempotency and append-oriented events (schema only; API not exposed).
-- [ ] Coupons and promotions.
+- [x] Internal demo coupon validation/application, hashed coupon codes, usage limits and discount allocation during vendor split-checkout (CI-verified; public administration remains unavailable).
 - [ ] Returns/refund simulation.
 
 ## M06 — Admin and seller workspaces
