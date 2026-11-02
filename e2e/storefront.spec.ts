@@ -25,6 +25,36 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
 
+test("shows the Nobitex exchange source and product provenance without a hard-coded FX fallback", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+
+  const fxPanel = page.locator(".fx-control");
+  await expect(fxPanel).toBeVisible();
+  await expect(fxPanel).toContainText("Nobitex · USDT/IRT");
+
+  const displayedRate = await fxPanel.locator("strong").innerText();
+  if (displayedRate.includes("Rate unavailable")) {
+    await expect(fxPanel).toContainText("Prices remain in USD until a valid exchange quote is available.");
+  } else {
+    await expect(fxPanel).toContainText("Toman / USDT");
+    await expect(fxPanel).toContainText(/Fresh|Aging|Stale/);
+  }
+
+  await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
+  await expect(page).toHaveURL(/\\/product\\/1\\/?$/);
+  await expect(page.locator(".detail-provenance")).toContainText("DummyJSON public demo API");
+  await expect(page.locator(".detail-provenance")).toContainText("Source record ID");
+  await expect(page.locator(".detail-provenance")).toContainText("Source sample rating; review count not supplied");
+
+  const priceBreakdown = page.locator(".price-breakdown");
+  if (await priceBreakdown.getByText("Nobitex bid-ask midpoint", { exact: false }).count()) {
+    await expect(priceBreakdown).toContainText("Toman / USDT");
+    await expect(priceBreakdown).toContainText("cash USD");
+  } else {
+    await expect(priceBreakdown).toContainText("A valid exchange quote is currently unavailable");
+  }
+});
+
 test("search suggestions support keyboard navigation and selection", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   const mobileSearchButton = page.getByRole("button", { name: "Search products, brands or categories...", exact: true });
