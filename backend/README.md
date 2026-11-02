@@ -88,3 +88,9 @@ The read-only catalog API also exposes `GET /api/v1/products/{id}/variants` for 
 The paginated rows and `total` count use the same predicates. Invalid numeric input, precision, range or inverted bounds returns HTTP 400 before the database is queried. Migration 008 adds supporting brand, price and rating indexes. PostgreSQL integration tests cover combined filters and count/page consistency.
 
 The storefront currently applies the corresponding brand and minimum-rating facets locally against the generated catalog snapshot. It is not wired to this local-only API; that integration remains gated on approved hosting and same-site HTTPS.
+
+
+## Internal demo return/refund simulation (M05.1)
+Migration 010 and `backend/internal/commerce/returns.go` support one full-order return request for a paid simulated order, fixed reason codes, internal approve/reject review and owner-scoped simulated refund completion. The refund amount is the persisted net order total, including coupon discounts. Parent and vendor child order states are updated transactionally and an append-only order event is recorded. Integration tests are in `returns_integration_test.go`.
+
+These methods are not registered with the HTTP router. The review operation has no authenticated reviewer identity yet, so it must remain internal until identity/session/RBAC, audit policy and hosting are approved. No real payment provider, movement of funds, shipment or inventory adjustment occurs.

@@ -5,7 +5,7 @@
 **Source repository:** https://github.com/pooya16pg-spec/globalcart  
 **Public preview:** https://pooya16pg-spec.github.io/globalcart/
 
-GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no payment, inventory reservation, shipment, seller payout or refund is processed.
+GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
 
 ## Current status — v0.2.3-dev · marketplace redesign
 
@@ -30,7 +30,7 @@ Implemented:
 In progress / not yet claimed as complete:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval, price/stock synchronization and a production FX feed require authorized provider access.
-- Seller/admin workspaces and account-backed order history remain planned; current cart and checkout behavior is a browser-local simulation.
+- Seller/admin workspaces and account-backed order history remain planned; cart, checkout, returns and refunds are simulations/internal services, not live commerce.
 - Search suggestions, the keyboard command palette, explainable sample recommendations and saved-search flows are implemented.
 - Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI; manual assistive-technology/RTL/LTR QA and live CDN/Core Web Vitals review remain open.
 
@@ -99,6 +99,6 @@ GlobalCart follows semantic versioning. Every release must update package.json, 
 
 
 ## Backend foundation (local development)
-The M04 backend starter is available on the `feat/m04-go-postgres-foundation` branch. It includes a Go REST API, PostgreSQL 17 Docker Compose setup, versioned SQL migrations, catalog snapshot importer and OpenAPI 3.1 contract. It is a local development environment only; the public GitHub Pages demo remains static and no cloud database or API has been provisioned.
+The M04 backend foundation is merged into `main`. It includes a Go REST API, PostgreSQL 17 Docker Compose setup, versioned SQL migrations, sqlc-generated query layer, catalog snapshot importer and OpenAPI 3.1 contract. It remains local-development infrastructure; the public GitHub Pages demo is static and no cloud database or API has been provisioned.
 
-Latest backend PR verification passed in [run 41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722), including PostgreSQL integration tests and Docker image build. The latest feature-branch verification also passed Browser E2E, Catalog CI and Security scans. See [backend/README.md](backend/README.md) for local setup and [backend/openapi.yaml](backend/openapi.yaml) for the read-only API contract.
+Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and GitHub Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) passed on the current `main` implementation. See [backend/README.md](backend/README.md) for local setup and [backend/openapi.yaml](backend/openapi.yaml) for the read-only API contract.

@@ -2,13 +2,13 @@
 
 **Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
-**Branch:** feat/m04-go-postgres-foundation (M04 backend foundation; PR pending)  
+**Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.9 authorized supplier onboarding (blocked pending owner-approved source/feed)  
+**Active stage:** M06 identity/session/RBAC foundations before seller/admin workspaces  
 **Last updated:** 2026-11-02
 
 ## Product definition
-GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, orders, inventory reservations, fulfillment, seller payouts or refunds occur.
+GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
 
 ## Non-negotiable invariants
 - Keep this repository independent from all other portfolio projects.
@@ -38,7 +38,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering, search-suggestion, recommendation, saved-search and source-status tests, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - `ROADMAP.md` — authoritative milestone checklist.
-- `backend/` — Go REST API, PostgreSQL migrations, local Docker Compose, catalog importer and OpenAPI contract.
+- `backend/` — Go REST API, PostgreSQL migrations, local Docker Compose, catalog importer, internal demo-commerce/return services and OpenAPI contract.
 - `go.mod` — Go module at repository root.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
@@ -62,18 +62,19 @@ Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
 Actions run 41299677941 (Run #135) passed catalog refresh, snapshot persistence, TypeScript validation, unit tests, production static export, Pages artifact upload and GitHub Pages deployment. This run includes the dedicated recently viewed page, homepage history rail and browser-local history controls.
 https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
-## Latest feature-branch verification — 2026-11-02
-- Final code head: `2182bbb1c55ad265e4264c1a0389fb0353f0010a` on `feat/m04-go-postgres-foundation`; PR #1 remains a draft and has not been merged.
-- Browser E2E push [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed, with 28 desktop/mobile Playwright tests.
-- Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) all passed on that head.
-- No production API, hosted database, payment gateway or supplier feed was provisioned or connected.
+## Main branch and merge status — 2026-11-02
+- PR #1, `feat(globalcart): consolidate marketplace and backend foundation`, was squash-merged into `main` at `dc9b520b026a508825eb3dd1f6cbc3655be5f039`.
+- The follow-up internal return/refund simulation is implemented on `main` at `bc97475c0cce7f8de6aebe72071813c942b6a3d0`.
+- Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and GitHub Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) all passed on that implementation commit.
+- The backend remains local-development scaffolding. No hosted database/API, real payment/refund provider, production secrets or paid service was provisioned.
+- PR #1 is closed and merged: https://github.com/pooya16pg-spec/globalcart/pull/1
 
 ## Immediate next actions
-1. Complete manual responsive and RTL/LTR QA on real devices, including screen-reader, broader keyboard, reduced-motion and published deep-link checks. Automated axe, focus and browser journeys are already CI-verified.
-2. Obtain owner approval and documented rights for a named supplier API/feed before implementing live catalog onboarding; do not scrape or fabricate inventory.
-3. Select an authorized FX provider and define source timestamp and stale-rate policy; keep the current rate illustrative until then.
-4. Improve catalog source attributes, rating context and freshness diagnostics using the existing source-safe pipeline.
-5. Design authentication, role boundaries and hosting decisions before exposing persistent cart/order APIs or building functional seller/admin workspaces. Keep Amazon retrieval disabled until authorized access is approved.
+1. Design the identity/session/deny-by-default RBAC boundary, including seller membership, CSRF, audit events and an admin-review permission model. Keep all commerce write and return-review methods off HTTP until the security and hosting gates are approved.
+2. Complete manual responsive and RTL/LTR QA on real devices, including screen-reader, broader keyboard, reduced-motion and published deep-link checks. Automated axe, focus and browser journeys are already CI-verified.
+3. Obtain owner approval and documented rights for a named supplier API/feed before implementing live catalog onboarding; do not scrape or fabricate inventory.
+4. Select an authorized FX provider and define source timestamp and stale-rate policy; keep the current rate illustrative until then.
+5. Improve catalog source attributes, rating context and freshness diagnostics using the existing source-safe pipeline. Keep Amazon retrieval disabled until authorized access is approved.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.
@@ -86,8 +87,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 
 
-## M04 backend foundation (branch work; not yet merged)
-- Branch: `feat/m04-go-postgres-foundation`.
+## M04 backend foundation — merged into main (2026-11-02)
+- PR #1 squash-merge: `dc9b520b026a508825eb3dd1f6cbc3655be5f039`.
+- Go API, PostgreSQL 17 migrations, sqlc-generated catalog queries, local Compose, catalog importer and OpenAPI 3.1 contract are now on `main`.
+- Read-only catalog/category/variant endpoints and local development CI are verified; hosted API/database, authentication, write endpoints and workers remain gated.
+
 - Go API uses the standard HTTP mux and pgx v5; `go.mod` retains its Go 1.26.0 language baseline, while CI and the container builder use patched Go 1.27.3.
 - PostgreSQL 17 is the primary system of record; local Compose binds ports to 127.0.0.1 only.
 - Embedded transactional migration ledger creates an initial products table with source provenance, numeric constraints, JSONB image arrays and indexes.
@@ -541,3 +545,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - CI baseline: 512,814 bytes JS / 7 requests and 67,702 bytes CSS / 1 request; enforced budgets: 750,000 bytes JS / 10 requests and 120,000 bytes CSS / 2 requests.
 - Implementation head `a741cf60ab44a17acf31bba43f47eb40204f2be5` passed Browser E2E push `41376758145`, Browser E2E PR `41376763890` (24 tests), Catalog CI PR `41376763985` and Backend CI PR `41376763923`.
 - E2E blocks external hosts deliberately. No claim is made about real CDN payload size, live image latency, LCP/CLS or external fonts; network-enabled measurement remains open.
+
+
+## M05.1 — Internal full-order return and simulated refund (CI verified, 2026-11-02)
+- Migration 010 adds one full-order return request per parent order, a fixed reason allow-list and reviewed/refunded timestamps.
+- The internal Go service supports owner-scoped request, internal approve/reject review and owner-scoped completion of a simulated full-order refund.
+- Approval snapshots the persisted net order total including coupon discount. Completion moves parent and vendor child orders to `refunded_simulated` and appends an audit event atomically.
+- Requests/reviews/refunds are idempotent where applicable. Rejected returns and unpaid orders cannot be refunded.
+- The feature is not exposed over HTTP and never calls a provider, moves money, or changes stock/reservations.
+- Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) passed on `bc97475c0cce7f8de6aebe72071813c942b6a3d0`.

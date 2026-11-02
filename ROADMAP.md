@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08.9 — Authorized supplier onboarding (blocked pending owner-approved source/feed)  
+**Active stage:** M06 — Identity/session/RBAC foundations before seller/admin workspaces  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -26,7 +26,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **API decision:** REST + OpenAPI first. GraphQL only if real client query patterns justify it. Use versioned migrations and parameterized SQL.
 
-**Runtime gate:** Local Go/PostgreSQL development and CI are permitted on the isolated backend branch. Public API/database hosting, Python worker deployment, production secrets and paid services remain gated on explicit owner approval.
+**Runtime gate:** Local Go/PostgreSQL development and CI are implemented on `main`. Public API/database hosting, Python worker deployment, production secrets and paid services remain gated on explicit owner approval.
 
 ## Release and stage map
 
@@ -37,7 +37,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | M02 | 0.2.x | Automated catalog import, normalization and snapshots | Snapshot pipeline implemented; authorized supplier feeds remain gated; translation paused |
 | M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Product detail, gallery, comparison and illustrative price breakdown implemented; live FX provenance remains |
 | M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Read-only local Go/PostgreSQL foundation implemented; authentication, workers and hosting gates remain |
-| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo cart, checkout, order, coupon and vendor-split foundations implemented; returns and API exposure gated |
+| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo cart, checkout, order, coupon, vendor-split and full-order return/refund simulation implemented; public API exposure gated |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
 | M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
 | M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget and CI security checks implemented; manual QA and operational recovery remain |
@@ -134,7 +134,18 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Define demo-only order states and reservation release semantics; no payment provider is contacted.
 - [x] Add demo order ledger, immutable line snapshots, per-cart idempotency and append-oriented events (schema only; API not exposed).
 - [x] Internal demo coupon validation/application, hashed coupon codes, usage limits and discount allocation during vendor split-checkout (CI-verified; public administration remains unavailable).
-- [ ] Returns/refund simulation.
+- [x] Full-order return request, internal approval/rejection and simulated refund completion (migration 010; owner-scoped, idempotent, no payment provider, no stock mutation, no HTTP route).
+
+### M05.1 — Internal full-order return and simulated refund — CI verified (2026-11-02)
+- [x] Add one return request per paid simulated parent order with a fixed reason allow-list and database-enforced lifecycle.
+- [x] Enforce cart-capability ownership for requests and refund completion; reject unpaid orders, invalid reasons, duplicate conflicting requests and rejected returns.
+- [x] Add internal approve/reject review. Approval snapshots the order's net persisted total, including coupon discount.
+- [x] Atomically update parent order, vendor child orders, return state and append-only event on simulated refund completion.
+- [x] Keep review and completion off the public HTTP router; never call a payment provider or mutate vendor/product stock.
+- [x] Add PostgreSQL integration tests for owner isolation, idempotency, approval/rejection, refund state, event history and unchanged stock.
+- [x] Verify Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and GitHub Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) on final implementation head `bc97475c0cce7f8de6aebe72071813c942b6a3d0`.
+
+**Boundary:** this is a full-order portfolio simulation only. No real money, refund provider, customer login, item-level return, shipment or stock adjustment exists.
 
 ## M06 — Admin and seller workspaces
 - [ ] Demo role switcher with real authorization boundaries where API exists.
@@ -179,8 +190,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Dismiss dialogs with Escape and restore focus to the invoking control.
 - [x] Preserve the original opener when a Command Palette action opens a replacement dialog, including the mobile saved-items route.
 - [x] Use touch-appropriate Quick View interaction in mobile browser tests instead of assuming pointer hover.
-- [x] Verify the final feature-branch head `2182bbb1c55ad265e4264c1a0389fb0353f0010a`: Browser E2E push run [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR run [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed (28 Playwright tests).
-- [x] On the same PR head, Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) passed.
+- [x] Verify implementation head `2182bbb1c55ad265e4264c1a0389bf0353f0010a` before merge: Browser E2E push [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed (28 Playwright tests).
+- [x] On the same pre-merge PR head, Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) passed.
 
 **Boundary:** this is automated keyboard/focus coverage for the tested dialogs and desktop/mobile viewports. Manual screen-reader, physical-device, broader RTL/LTR and reduced-motion review remains open.
 

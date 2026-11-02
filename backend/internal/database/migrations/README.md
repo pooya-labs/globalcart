@@ -20,3 +20,6 @@ Migration 007 adds the missing PostgreSQL upper bound for product ratings (`rati
 
 
 Migration 009 enables `pg_trgm` and adds GIN indexes for normalized product titles and brands. Catalog search keeps PostgreSQL full-text matching as its primary path, then uses trigram/word similarity as a bounded fallback for queries of at least three characters. Exact full-text matches rank ahead of fuzzy matches. Keep both the list and count query predicates aligned.
+
+
+Migration 010 adds a full-order demo return record, fixed reason codes and lifecycle constraints. Return requests are limited to paid simulated parent orders; approval records the persisted net order total and final completion changes parent/vendor child status to `refunded_simulated`. This is an internal state machine only: no payment provider or inventory mutation is involved, and no public HTTP route is enabled.

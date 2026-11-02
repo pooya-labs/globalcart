@@ -2,6 +2,24 @@
 
 ## Unreleased — 2026-11-02
 
+### Added
+- Added migration 010 for one full-order return request per paid simulated order, fixed reason codes, review timestamps and terminal `refunded_simulated` states.
+- Added internal Go services for owner-scoped return requests, approve/reject review and idempotent full-order simulated refund completion.
+- Added PostgreSQL integration coverage for ownership isolation, unpaid-order rejection, invalid/duplicate reasons, request/review/refund idempotency, parent/vendor child state transitions, event history and unchanged inventory.
+
+### Fixed
+- Explicitly typed JSON event parameters as text to avoid PostgreSQL's indeterminate parameter type error in `jsonb_build_object`.
+
+### Safety boundary
+- Return review and refund completion are not exposed through HTTP. No payment provider, money movement, shipment or stock mutation occurs.
+
+### Verification
+- Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) passed on `bc97475c0cce7f8de6aebe72071813c942b6a3d0`.
+- PR #1 was squash-merged into `main` at `dc9b520b026a508825eb3dd1f6cbc3655be5f039`.
+
+
+## Unreleased — 2026-11-02
+
 ### Fixed
 - Preserve the original invoking control when Command Palette actions transition directly into cart, favorites or comparison dialogs.
 - Keep dialog focus contained and restore focus after Escape dismissal across cart, favorites, quick view, comparison and checkout.

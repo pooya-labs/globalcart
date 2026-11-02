@@ -1,7 +1,7 @@
 # Demo cart, checkout and order design
 
 **Status:** Schema and internal transactional checkout service implemented and CI-verified; no commerce HTTP write API is enabled.
-**Scope:** Portfolio simulation only. No real payment, fulfillment, inventory adjustment, customer account or seller payout.
+**Scope:** Portfolio simulation only. No real payment, money refund, fulfillment, inventory adjustment, customer account or seller payout. A full-order return/refund state machine is simulated internally only.
 
 ## 1. Ownership and deployment boundary
 
@@ -63,7 +63,7 @@ The row lock serializes competing reservations for the same product/variant. Res
 
 ## 7. Explicit non-goals
 
-No real payment gateway, card/bank data, order fulfillment, shipment, refund, seller payout, customer identity, email delivery or public deployment is implemented or authorized.
+No real payment gateway, card/bank data, order fulfillment, shipment, money refund, seller payout, customer identity, email delivery or public commerce deployment is implemented or authorized. The internal return/refund state machine is a demo-only simulation and is not exposed over HTTP.
 
 
 ## 8. Implemented service boundary
@@ -106,3 +106,13 @@ Migration `005_vendor_foundation.sql` introduces:
 Important compatibility boundary: current cart and checkout services still read `products` / `product_variants` stock and price. Migration 005 does not redirect those services to `vendor_products`, does not split orders by vendor, and does not alter the current public read API. This avoids silently changing checkout semantics before a vendor-aware cart line and order-group transaction can be tested end to end. New products imported after this migration do not automatically receive an offer yet; catalog-import integration is a follow-up task.
 
 No seller membership table is created before verified account identity and role authorization exist. No seller API, seller dashboard, payouts, commission, shipment or production service is enabled.
+
+
+## 14. Internal full-order return and simulated refund
+Migration `010_demo_returns.sql` allows one full-order return request per parent order. Only an order in `paid_simulated` may be returned. The request accepts one of four fixed reason codes: `changed_mind`, `damaged_demo`, `not_as_described` or `wrong_item`; arbitrary free text is not stored.
+
+The owner capability is checked through the order's cart. Unknown and wrong-owner requests return the same not-found result. Repeating a request with the same reason is idempotent; attempting another request for the same order is rejected.
+
+An internal-only review step transitions `requested` to `approved` or `rejected`. Approval snapshots the full persisted net order total (including coupon discount) as the simulated refund amount. A rejected request cannot be refunded. A separate owner-scoped completion step moves the parent order, all vendor child orders and the return record to `refunded_simulated` and appends an order event in one transaction. Repeated review decisions and refund completion are idempotent.
+
+The operation does not call a payment provider, accept payment data, move funds, create shipment labels, or alter product/vendor stock or inventory reservations. The internal review function has no authenticated reviewer identity today; it must remain off the HTTP router until identity, deny-by-default RBAC, audit policy and deployment gates are implemented. The current v1 supports one full-order return, not partial/item-level returns.
