@@ -156,11 +156,11 @@ export default function Home() {
     const savedLocale=readLocalePreference();
     if(savedLocale)setLocale(savedLocale);
   },[]);
-  const toggleLocale=()=>setLocale(current=>{
-    const next=current==="fa"?"en":"fa";
+  const toggleLocale=()=>{
+    const next=locale==="fa"?"en":"fa";
+    setLocale(next);
     writeLocalePreference(next);
-    return next;
-  });
+  };
   const [products,setProducts]=useState<Product[]>(snapshotProducts.length ? snapshotProducts : fallback);
   const [catalogSourceState,setCatalogSourceState]=useState<CatalogSourceStatus>(
     getCatalogSourceStatus(snapshotProducts.length>0,"pending")
