@@ -9,7 +9,8 @@ Mandatory reading for every assistant, coding agent or human contributor taking 
 4. docs/ARCHITECTURE.md — current and target architecture.
 5. docs/DECISIONS.md — accepted decisions.
 6. docs/SECURITY_AUTH_DESIGN.md before identity/session/RBAC implementation.
-7. package.json and relevant source files.
+7. docs/DATABASE_MIGRATION_POLICY.md before changing, applying or recovering PostgreSQL migrations.
+8. package.json and relevant source files.
 
 ## Non-negotiable requirements
 - Work only in pooya16pg-spec/globalcart; keep it independent from other portfolio projects.
@@ -24,6 +25,7 @@ Mandatory reading for every assistant, coding agent or human contributor taking 
 - Every visible control must work or show a clear unavailable state.
 - Prioritize polished, modern, accessible UX and responsive behavior over decorative effects.
 - PostgreSQL is the planned primary database; Redis is optional and not a source of truth.
+- Applied SQL migrations are immutable; use forward-fix migrations and preserve the migration ledger/checksums.
 - Ask the owner before adding Go/Python services, PostgreSQL hosting, external infrastructure or paid APIs. The owner can enable extra runtimes when requested.
 
 ## Target stack

@@ -108,3 +108,9 @@ The storefront currently applies the corresponding brand and minimum-rating face
 Migration 010 and `backend/internal/commerce/returns.go` support one full-order return request for a paid simulated order, fixed reason codes, internal approve/reject review and owner-scoped simulated refund completion. The refund amount is the persisted net order total, including coupon discounts. Parent and vendor child order states are updated transactionally and an append-only order event is recorded. Integration tests are in `returns_integration_test.go`.
 
 These methods are not registered with the HTTP router. The review operation has no authenticated reviewer identity yet, so it must remain internal until identity/session/RBAC, audit policy and hosting are approved. No real payment provider, movement of funds, shipment or inventory adjustment occurs.
+
+## Migration integrity and recovery
+
+The migration ledger stores the applied filename, timestamp and SHA-256 checksum of the exact SQL file bytes. Startup fails closed if an applied migration is modified or its source file disappears. Existing pre-checksum ledger rows are backfilled once; new rows require a checksum. Each file and ledger insert commit atomically, and the runner serializes concurrent startup attempts with a PostgreSQL advisory lock.
+
+Applied migrations are immutable. Use a new numbered forward-fix migration; do not delete ledger entries or assume schema rollback is safe. The current runner executes each migration in a transaction, so non-transactional statements such as CREATE INDEX CONCURRENTLY require a separately designed operational procedure. See docs/DATABASE_MIGRATION_POLICY.md for expand-and-contract, backup/restore, rollback decisions and the incident runbook.

@@ -59,3 +59,8 @@ See `docs/SECURITY_AUTH_DESIGN.md` for the complete schema, flow, endpoint and t
 **Status:** Accepted for local schema design; write API remains gated
 
 Guest carts use high-entropy opaque bearer capabilities whose SHA-256 digests alone are persisted. Checkout is designed as one PostgreSQL transaction with cart and stock-row locks, immutable order-line snapshots, expiring reservations and per-cart idempotency. Payment outcomes are simulated only; reservation completion never mutates imported stock or triggers fulfillment. Do not expose browser write routes until same-site HTTPS hosting, CSRF, secret management and authorization are approved. See `docs/COMMERCE_DESIGN.md`.
+
+## ADR-012 — Immutable checksummed migrations and forward-fix recovery
+**Status:** Accepted · 2026-11-02
+
+Applied SQL migrations are immutable artifacts. The migration runner records a SHA-256 checksum of each exact embedded file, rejects drift or missing applied files, and commits each migration with its ledger entry in one transaction under an advisory lock. Shared-environment recovery defaults to an application rollback only when schema compatibility is proven; database correction uses a new forward-fix migration. Destructive restore/cutover requires an isolated restore rehearsal and explicit owner approval. See docs/DATABASE_MIGRATION_POLICY.md for the operational procedure and current hosting/backup limitations.

@@ -29,3 +29,9 @@ Migration 011 adds the identity/session/RBAC schema foundation: normalized users
 
 
 Migration 012 adds nullable `carts.owner_user_id` referencing `users(id)`, plus a partial index for account-owned cart history. The application binds carts only after validating both the existing guest capability digest and a live customer session. Ownership is resolved from PostgreSQL in the same transaction as each account-backed cart/order operation; no HTTP route is enabled by this schema change.
+
+## Migration integrity and recovery policy
+
+The startup runner serializes migration work with a PostgreSQL advisory lock, applies each file and its ledger insert in one transaction, and stores the SHA-256 checksum of the exact embedded SQL bytes. It fails closed if an applied file changes or an applied ledger version has no matching embedded file. Legacy ledger rows with a NULL checksum are adopted once from the current canonical source tree; subsequent startup checks enforce the stored checksum. Never edit, rename or delete an applied migration, and never delete a ledger row to force a rerun.
+
+Use a new numbered forward-fix migration for shared environments. Schema rollback is not automated. The current runner is transactional per file, so statements such as CREATE INDEX CONCURRENTLY are not supported inside embedded migrations. Read docs/DATABASE_MIGRATION_POLICY.md before creating, changing or recovering a migration.

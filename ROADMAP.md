@@ -118,7 +118,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Define initial catalog schema with provenance, numeric constraints, JSONB images and category/search indexes.
 - [x] Extend catalog schema with normalized categories, product-to-category relationships and constrained product variants.
 - [x] Add embedded, versioned SQL migrations and transactional migration ledger for the initial catalog schema.
-- [ ] Define reviewed rollback/forward-fix policy for shared environments.
+- [x] Record SHA-256 checksums for applied migration files; reject changed or missing applied migrations and adopt legacy NULL checksums once.
+- [x] Define reviewed rollback/forward-fix policy for shared environments in docs/DATABASE_MIGRATION_POLICY.md.
 - [x] Add Go REST API foundation, OpenAPI 3.1 contract, health/readiness probes, CORS allow-list and read-only catalog list/detail endpoints.
 - [x] Validate catalog pagination bounds and query/category lengths with stable 400 error codes.
 - [x] Document the API error response shape and list endpoint validation in OpenAPI.
@@ -270,6 +271,15 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** account-backed service methods remain internal. No customer authentication, cart/order write, seller or admin HTTP route, cookie flow or public API was enabled.
 
+
+### M04.13 — Immutable migration checksums and recovery policy (implementation complete; CI verification pending)
+- [x] Extend schema_migrations with a SHA-256 checksum of each exact embedded SQL file; preserve compatibility with the original two-column ledger.
+- [x] Adopt pre-existing NULL checksums once, then enforce NOT NULL; reject checksum drift and applied ledger entries whose source migration file is missing.
+- [x] Add regression coverage for deterministic/content-sensitive checksums, legacy-ledger adoption and fail-closed drift detection.
+- [x] Document append-only migration rules, expand-and-contract rollout, transaction limitations, forward-fix decisions, backup/restore boundaries and an incident runbook in docs/DATABASE_MIGRATION_POLICY.md.
+- [ ] Verify Backend CI PostgreSQL integration/race tests, security scans and the resulting main-branch source after CI formatting/persistence.
+
+**Boundary:** CI/local PostgreSQL only. This policy does not provision a hosted database or claim production backups, PITR, RPO/RTO or an approved rollback window.
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
 - [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).
