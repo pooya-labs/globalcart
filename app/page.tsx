@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { fetchDummyJsonCatalog } from "../lib/catalog";
+import { filterCatalogProducts } from "../lib/catalog/filtering";
 import catalogSnapshot from "../data/catalog.json";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, Check, ChevronDown, ChevronLeft,
@@ -239,13 +240,7 @@ export default function Home() {
   },[hydrated,cart,favorites,recent,rate,compareIds]);
 
   const filtered=useMemo(()=>{
-    let list=products.filter(p=>{
-      const text=(p.title+" "+p.description+" "+(p.brand||"")+" "+p.category).toLocaleLowerCase();
-      const normalizedBrand=(p.brand||"").trim().toLocaleLowerCase();
-      return (category==="all"||p.category===category)&&text.includes(query.toLocaleLowerCase())&&
-        p.price>=minPrice&&p.price<=maxPrice&&(!brandFilter||normalizedBrand===brandFilter.trim().toLocaleLowerCase())&&
-        p.rating>=minRating;
-    });
+    const list=filterCatalogProducts(products,{category,query,minPrice,maxPrice,brand:brandFilter,minRating});
     if(sort==="low")list.sort((a,b)=>a.price-b.price);
     else if(sort==="high")list.sort((a,b)=>b.price-a.price);
     else if(sort==="rating")list.sort((a,b)=>b.rating-a.rating);
