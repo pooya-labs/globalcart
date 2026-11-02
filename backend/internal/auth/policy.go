@@ -13,7 +13,7 @@ const (
 	AuthorizationCustomerWriteOwnResource AuthorizationAction = "customer.resource.write"
 	AuthorizationSellerReadVendor         AuthorizationAction = "seller.vendor.read"
 	AuthorizationSellerWriteVendor        AuthorizationAction = "seller.vendor.write"
-	AuthorizationAdminReadOverview       AuthorizationAction = "admin.overview.read"
+	AuthorizationAdminReadOverview        AuthorizationAction = "admin.overview.read"
 	AuthorizationAdminManageUsers         AuthorizationAction = "admin.users.manage"
 	AuthorizationAdminReviewMembership    AuthorizationAction = "admin.seller_membership.review"
 	AuthorizationAdminManageRoles         AuthorizationAction = "admin.roles.manage"
