@@ -140,20 +140,50 @@ type ProductUpdateInput struct {
 }
 
 type productOverrideState struct {
-	Title            *string `json:"title"`
-	Description      *string `json:"description"`
-	Brand            *string `json:"brand"`
-	VisibilityStatus string  `json:"visibilityStatus"`
-	Revision         int64   `json:"-"`
+	Title             *string `json:"-"`
+	Description       *string `json:"-"`
+	Brand             *string `json:"-"`
+	SourceTitle       string  `json:"-"`
+	SourceDescription string  `json:"-"`
+	SourceBrand       string  `json:"-"`
+	VisibilityStatus  string  `json:"-"`
+	Revision          int64   `json:"-"`
 }
 
 func (s productOverrideState) snapshot() ([]byte, error) {
+	effective := func(override *string, source string) string {
+		if override != nil {
+			return *override
+		}
+		return source
+	}
 	return json.Marshal(struct {
-		Title            *string `json:"title"`
-		Description      *string `json:"description"`
-		Brand            *string `json:"brand"`
-		VisibilityStatus string  `json:"visibilityStatus"`
-	}{s.Title, s.Description, s.Brand, s.VisibilityStatus})
+		Title             string `json:"title"`
+		Description       string `json:"description"`
+		Brand             string `json:"brand"`
+		SourceTitle       string `json:"sourceTitle"`
+		SourceDescription string `json:"sourceDescription"`
+		SourceBrand       string `json:"sourceBrand"`
+		Overrides struct {
+			Title       *string `json:"title"`
+			Description *string `json:"description"`
+			Brand       *string `json:"brand"`
+		} `json:"overrides"`
+		VisibilityStatus string `json:"visibilityStatus"`
+	}{
+		Title: effective(s.Title, s.SourceTitle),
+		Description: effective(s.Description, s.SourceDescription),
+		Brand: effective(s.Brand, s.SourceBrand),
+		SourceTitle: s.SourceTitle,
+		SourceDescription: s.SourceDescription,
+		SourceBrand: s.SourceBrand,
+		Overrides: struct {
+			Title       *string `json:"title"`
+			Description *string `json:"description"`
+			Brand       *string `json:"brand"`
+		}{s.Title, s.Description, s.Brand},
+		VisibilityStatus: s.VisibilityStatus,
+	})
 }
 
 func beginAdminProductTransaction(
@@ -254,6 +284,9 @@ func UpdateManagedProduct(
 	if !exists {
 		before.VisibilityStatus = "active"
 	}
+	before.SourceTitle = record.OriginalTitle
+	before.SourceDescription = record.OriginalDescription
+	before.SourceBrand = record.OriginalBrand
 	if before.Revision != input.ExpectedRevision {
 		return ProductManagementRecord{}, ErrStaleProductRevision
 	}
@@ -350,7 +383,8 @@ func setManagedProductArchived(
 	defer cancel()
 	defer func() { _ = tx.Rollback(queryCtx) }()
 
-	if _, err := readManagedProductTx(queryCtx, tx, productID, true); err != nil {
+	sourceRecord, err := readManagedProductTx(queryCtx, tx, productID, true)
+	if err != nil {
 		return ProductManagementRecord{}, err
 	}
 	before, exists, err := loadProductOverrideState(queryCtx, tx, productID)
@@ -360,6 +394,9 @@ func setManagedProductArchived(
 	if !exists {
 		before.VisibilityStatus = "active"
 	}
+	before.SourceTitle = sourceRecord.OriginalTitle
+	before.SourceDescription = sourceRecord.OriginalDescription
+	before.SourceBrand = sourceRecord.OriginalBrand
 	if before.Revision != expectedRevision {
 		return ProductManagementRecord{}, ErrStaleProductRevision
 	}
