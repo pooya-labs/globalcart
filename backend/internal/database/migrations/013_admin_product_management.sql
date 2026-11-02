@@ -17,7 +17,6 @@ CREATE TABLE admin_product_overrides (
     CONSTRAINT admin_product_title_override_check CHECK (
         title_override IS NULL OR (
             length(btrim(title_override)) BETWEEN 1 AND 300
-            AND position(chr(0) IN title_override) = 0
         )
     ),
     CONSTRAINT admin_product_description_override_check CHECK (
