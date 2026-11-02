@@ -229,24 +229,25 @@ func TestManagedProductEditorialOverridesArchiveAndRestore(t *testing.T) {
 	}
 }
 
-
 func TestCreateManagedProductCreatesAuditedPlatformDemoOffer(t *testing.T) {
 	pool, ctx := openOverviewIntegrationPool(t)
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
 	_, adminSession := createProductManagementAdmin(t, ctx, pool, suffix+"-create")
 	input := ProductCreateInput{
-		Title: "Hand-created Studio Headphones",
-		Description: "Administrator-authored sample product",
-		Category: "  Manual Audio  ",
-		Brand: "GlobalCart Studio",
-		Price: "89.90",
+		Title:              "Hand-created Studio Headphones",
+		Description:        "Administrator-authored sample product",
+		Category:           "  Manual Audio  ",
+		Brand:              "GlobalCart Studio",
+		Price:              "89.90",
 		DiscountPercentage: "10",
-		Rating: "4.75",
-		Stock: 7,
-		Images: []string{"https://example.invalid/manual-headphones.webp"},
+		Rating:             "4.75",
+		Stock:              7,
+		Images:             []string{"https://example.invalid/manual-headphones.webp"},
 	}
 	created, err := CreateManagedProduct(ctx, pool, adminSession.SessionToken, input)
-	if err != nil { t.Fatalf("create admin manual product: %v", err) }
+	if err != nil {
+		t.Fatalf("create admin manual product: %v", err)
+	}
 	if created.ID < 8000000000000000000 || created.Title != input.Title ||
 		created.Category != "Manual Audio" || created.Brand != input.Brand ||
 		created.Source != manualProductSource || created.SourceID == "" ||
