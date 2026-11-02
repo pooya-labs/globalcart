@@ -52,6 +52,8 @@ The storefront consumes a generated JSON snapshot. Scheduled/manual GitHub Actio
 Use versioned Argon2id password hashes, opaque high-entropy server-side sessions with only token digests stored, host-only Secure/HttpOnly/SameSite cookies, synchronizer CSRF protection and exact Origin/CORS allow-lists. Roles are customer/seller/admin; seller operations are additionally scoped to an active seller membership. Privileged role grants are audited and never self-assigned. Authorization is database-backed and deny-by-default. Do not implement browser login until the owner approves HTTPS same-site frontend/API hosting, email delivery and secret management; the current GitHub Pages origin is not a suitable cross-site cookie deployment.
 See `docs/SECURITY_AUTH_DESIGN.md` for the complete schema, flow, endpoint and test proposal.
 
+**Implementation note — 2026-11-02:** migration 011 adds the database storage foundation only. ADR-010 remains Proposed; login, cookies, CSRF middleware and protected endpoints stay disabled pending owner approval of same-site HTTPS hosting, email delivery and secret management.
+
 
 ## ADR-011 — Guest cart capability and demo-only order ledger
 **Status:** Accepted for local schema design; write API remains gated

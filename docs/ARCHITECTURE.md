@@ -30,9 +30,9 @@ Browser-local cart / favorites / simulated checkout
 
 The browser may attempt a live catalog refresh. If it fails, the storefront keeps the generated snapshot; local fixtures are used only if no snapshot exists.
 
-## Backend foundation (M04 branch; local development only)
+## Backend foundation (main; local development only)
 
-The branch `feat/m04-go-postgres-foundation` adds a runnable Go API and PostgreSQL 17 Compose environment. The API applies embedded versioned migrations on startup, exposes liveness/readiness probes and read-only catalog list/detail endpoints, and uses a local CLI to import the normalized static catalog snapshot. OpenAPI is maintained in `backend/openapi.yaml`. The Compose ports bind to loopback; this is not a public or production deployment. The branch now also includes normalized catalog categories and product variants while preserving the current product API shape. The repository now defines a sqlc-generated pgx/v5 typed catalog query layer; API wiring is the next step. Authentication, write endpoints and hosted infrastructure remain future work. PostgreSQL integration tests currently cover concurrent/idempotent migrations, catalog upserts and transactional rollback.
+The merged `main` branch contains a runnable Go API and PostgreSQL 17 Compose environment. The API applies embedded versioned migrations on startup, exposes liveness/readiness probes and read-only catalog list/detail endpoints, and uses a local CLI to import the normalized static catalog snapshot. OpenAPI is maintained in `backend/openapi.yaml`. The Compose ports bind to loopback; this is not a public or production deployment. The branch now also includes normalized catalog categories and product variants while preserving the current product API shape. The repository now defines a sqlc-generated pgx/v5 typed catalog query layer; API wiring is the next step. Migration 011 now provides identity/session/RBAC storage scaffolding, but authentication, write endpoints and hosted infrastructure remain gated future work. PostgreSQL integration tests currently cover concurrent/idempotent migrations, catalog upserts and transactional rollback.
 
 ## Target platform architecture (M04+)
 
@@ -103,7 +103,7 @@ Until M04/M05, cart, favorites and checkout are browser-local. Future persisted 
 - `GET /api/v1/products/{id}/variants` — active variants with stock and JSON attributes.
 - `GET /api/v1/categories` — normalized categories with parent IDs and product counts.
 
-All endpoints are read-only. Authentication, user data and write operations are not yet implemented.
+All HTTP endpoints are read-only. Migration 011 defines identity storage tables, but no accounts are collected, no sessions are issued and no authentication or write operations are exposed.
 
 
 Product list pagination returns both `count` (items in the current page) and `total` (all matching products before limit/offset). Category filters match normalized category names case-insensitively and trim surrounding whitespace. Both list and count use the same search/category predicates.
