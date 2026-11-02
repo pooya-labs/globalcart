@@ -442,3 +442,7 @@ details>summary{min-height:28px;padding-block:5px;line-height:1.5}
   .footer-links>a{min-height:30px;padding-block:7px}
   details>summary{min-height:30px;padding-block:6px}
 }
+
+/* Final axe findings: visible text naming and secondary text contrast */
+.command-palette-footer{color:#536174}
+.detail-old-price s{color:#536174}
