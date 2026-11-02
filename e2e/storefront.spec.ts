@@ -18,9 +18,12 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
+  await page.reload();
+  await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
   await expect(page).toHaveURL(/\/product\/1$/);
+  await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
   await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
@@ -42,9 +45,8 @@ test("shows the Wallex exchange candle and product provenance without a hard-cod
 
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
   await expect(page).toHaveURL(/\/product\/1\/?$/);
-  // Product detail is an independent client surface and starts in Persian.
-  // Switch it explicitly so the English provenance assertions test the intended locale.
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  // The selected storefront locale must persist across the product route.
+  await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
   await expect(page.locator(".detail-provenance")).toContainText("DummyJSON public demo API");
   await expect(page.locator(".detail-provenance")).toContainText("Source record ID");
   await expect(page.locator(".detail-provenance")).toContainText("Source sample rating; review count not supplied");
