@@ -12,25 +12,54 @@ import (
 )
 
 const countProducts = `-- name: CountProducts :one
+WITH filter_values AS (
+    SELECT
+        NULLIF($1::text, '') AS category,
+        NULLIF($2::text, '') AS query,
+        NULLIF($3::text, '') AS brand,
+        NULLIF($4::text, '')::numeric AS min_price,
+        NULLIF($5::text, '')::numeric AS max_price,
+        NULLIF($6::text, '')::numeric AS min_rating,
+        NULLIF($7::text, '')::numeric AS max_rating
+)
 SELECT count(*)::bigint
-FROM products
-WHERE ($1::text = '' OR EXISTS (
+FROM products AS p
+CROSS JOIN filter_values AS f
+WHERE (f.category IS NULL OR EXISTS (
     SELECT 1 FROM categories AS c
-    WHERE c.id = products.category_id
-      AND lower(btrim(c.name)) = lower(btrim($1::text))
+    WHERE c.id = p.category_id
+      AND lower(btrim(c.name)) = lower(btrim(f.category))
   ))
-  AND ($2::text = '' OR
-       to_tsvector('simple', title || ' ' || description) @@
-       plainto_tsquery('simple', $2::text))
+  AND (f.query IS NULL OR
+       to_tsvector('simple', p.title || ' ' || p.description) @@
+       plainto_tsquery('simple', f.query))
+  AND (f.brand IS NULL OR lower(btrim(p.brand)) = lower(btrim(f.brand)))
+  AND (f.min_price IS NULL OR p.price >= f.min_price)
+  AND (f.max_price IS NULL OR p.price <= f.max_price)
+  AND (f.min_rating IS NULL OR p.rating >= f.min_rating)
+  AND (f.max_rating IS NULL OR p.rating <= f.max_rating)
 `
 
 type CountProductsParams struct {
-	Category string `json:"category"`
-	Query    string `json:"query"`
+	Category  string `json:"category"`
+	Query     string `json:"query"`
+	Brand     string `json:"brand"`
+	MinPrice  string `json:"min_price"`
+	MaxPrice  string `json:"max_price"`
+	MinRating string `json:"min_rating"`
+	MaxRating string `json:"max_rating"`
 }
 
 func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countProducts, arg.Category, arg.Query)
+	row := q.db.QueryRow(ctx, countProducts,
+		arg.Category,
+		arg.Query,
+		arg.Brand,
+		arg.MinPrice,
+		arg.MaxPrice,
+		arg.MinRating,
+		arg.MaxRating,
+	)
 	var column_1 int64
 	err := row.Scan(&column_1)
 	return column_1, err
@@ -184,28 +213,49 @@ func (q *Queries) ListProductVariants(ctx context.Context, productID int64) ([]L
 }
 
 const listProducts = `-- name: ListProducts :many
-SELECT id, title, description, category, price::float8 AS price,
-       discount_percentage::float8 AS discount_percentage, rating::float8 AS rating,
-       stock, brand, thumbnail, images, source, source_id, source_url, imported_at
-FROM products
-WHERE ($1::text = '' OR EXISTS (
+WITH filter_values AS (
+    SELECT
+        NULLIF($3::text, '') AS category,
+        NULLIF($4::text, '') AS query,
+        NULLIF($5::text, '') AS brand,
+        NULLIF($6::text, '')::numeric AS min_price,
+        NULLIF($7::text, '')::numeric AS max_price,
+        NULLIF($8::text, '')::numeric AS min_rating,
+        NULLIF($9::text, '')::numeric AS max_rating
+)
+SELECT p.id, p.title, p.description, p.category, p.price::float8 AS price,
+       p.discount_percentage::float8 AS discount_percentage, p.rating::float8 AS rating,
+       p.stock, p.brand, p.thumbnail, p.images, p.source, p.source_id, p.source_url, p.imported_at
+FROM products AS p
+CROSS JOIN filter_values AS f
+WHERE (f.category IS NULL OR EXISTS (
     SELECT 1 FROM categories AS c
-    WHERE c.id = products.category_id
-      AND lower(btrim(c.name)) = lower(btrim($1::text))
+    WHERE c.id = p.category_id
+      AND lower(btrim(c.name)) = lower(btrim(f.category))
   ))
-  AND ($2::text = '' OR
-       to_tsvector('simple', title || ' ' || description) @@
-       plainto_tsquery('simple', $2::text))
-ORDER BY id
-LIMIT $4::integer
-OFFSET $3::integer
+  AND (f.query IS NULL OR
+       to_tsvector('simple', p.title || ' ' || p.description) @@
+       plainto_tsquery('simple', f.query))
+  AND (f.brand IS NULL OR lower(btrim(p.brand)) = lower(btrim(f.brand)))
+  AND (f.min_price IS NULL OR p.price >= f.min_price)
+  AND (f.max_price IS NULL OR p.price <= f.max_price)
+  AND (f.min_rating IS NULL OR p.rating >= f.min_rating)
+  AND (f.max_rating IS NULL OR p.rating <= f.max_rating)
+ORDER BY p.id
+LIMIT $2::integer
+OFFSET $1::integer
 `
 
 type ListProductsParams struct {
-	Category   string `json:"category"`
-	Query      string `json:"query"`
 	PageOffset int32  `json:"page_offset"`
 	PageLimit  int32  `json:"page_limit"`
+	Category   string `json:"category"`
+	Query      string `json:"query"`
+	Brand      string `json:"brand"`
+	MinPrice   string `json:"min_price"`
+	MaxPrice   string `json:"max_price"`
+	MinRating  string `json:"min_rating"`
+	MaxRating  string `json:"max_rating"`
 }
 
 type ListProductsRow struct {
@@ -228,10 +278,15 @@ type ListProductsRow struct {
 
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error) {
 	rows, err := q.db.Query(ctx, listProducts,
-		arg.Category,
-		arg.Query,
 		arg.PageOffset,
 		arg.PageLimit,
+		arg.Category,
+		arg.Query,
+		arg.Brand,
+		arg.MinPrice,
+		arg.MaxPrice,
+		arg.MinRating,
+		arg.MaxRating,
 	)
 	if err != nil {
 		return nil, err
