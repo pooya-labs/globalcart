@@ -213,11 +213,14 @@ func (s *Service) GetOrderForCustomer(
 			"FOR SHARE OF o, c",
 		orderID,
 	).Scan(&ownerUserID)
-	if errors.Is(err, pgx.ErrNoRows) || !ownerUserID.Valid {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return OrderDetail{}, ErrOrderNotFound
 	}
 	if err != nil {
 		return OrderDetail{}, fmt.Errorf("read customer order owner: %w", err)
+	}
+	if !ownerUserID.Valid {
+		return OrderDetail{}, ErrOrderNotFound
 	}
 	if err := auth.Authorize(
 		principal,
