@@ -383,3 +383,92 @@ func TestRevokeUserSessionsIsTransactionalScopedAndAudited(t *testing.T) {
 		t.Fatalf("idempotent retry added audit events: got %d, want %d", auditRows, len(targetSessions))
 	}
 }
+
+
+func TestSessionCreationSerializesWithAccountDisableAndBulkRevocation(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	userID := createActiveAuthUser(t, ctx, pool, suffix+"-disable-race")
+
+	existing, err := CreateSession(ctx, pool, userID)
+	if err != nil {
+		t.Fatalf("create existing session: %v", err)
+	}
+
+	// Keep the account row locked while disabling the account and revoking
+	// its existing sessions in one transaction.
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("begin account-disable transaction: %v", err)
+	}
+	if _, err := tx.Exec(ctx, `
+		UPDATE users
+		SET status = 'disabled', disabled_at = now(), updated_at = now()
+		WHERE id = $1
+	`, userID); err != nil {
+		_ = tx.Rollback(ctx)
+		t.Fatalf("disable account inside transaction: %v", err)
+	}
+
+	revoked, err := RevokeUserSessions(
+		ctx, tx, userID, &userID, SessionRevocationAccountDisabled,
+	)
+	if err != nil {
+		_ = tx.Rollback(ctx)
+		t.Fatalf("revoke sessions inside account-disable transaction: %v", err)
+	}
+	if revoked != 1 {
+		_ = tx.Rollback(ctx)
+		t.Fatalf("revoked %d sessions, want 1", revoked)
+	}
+
+	// CreateSession must wait on the same user-row lock. Its bounded context
+	// proves it cannot slip through while the account mutation is uncommitted.
+	attemptCtx, cancelAttempt := context.WithTimeout(ctx, 300*time.Millisecond)
+	defer cancelAttempt()
+	started := make(chan struct{})
+	createResult := make(chan error, 1)
+	go func() {
+		close(started)
+		_, createErr := CreateSession(attemptCtx, pool, userID)
+		createResult <- createErr
+	}()
+	<-started
+
+	select {
+	case createErr := <-createResult:
+		if !errors.Is(createErr, context.DeadlineExceeded) {
+			_ = tx.Rollback(ctx)
+			t.Fatalf("concurrent CreateSession error = %v, want lock-wait deadline exceeded", createErr)
+		}
+	case <-time.After(2 * time.Second):
+		cancelAttempt()
+		_ = tx.Rollback(ctx)
+		t.Fatal("concurrent CreateSession did not finish after its bounded lock-wait context")
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		t.Fatalf("commit account disable and session revocation: %v", err)
+	}
+
+	if _, err := ResolveSession(ctx, pool, existing.SessionToken); !errors.Is(err, ErrInvalidSession) {
+		t.Fatalf("pre-existing session resolve error = %v, want ErrInvalidSession", err)
+	}
+	if _, err := CreateSession(ctx, pool, userID); !errors.Is(err, ErrAccountNotActive) {
+		t.Fatalf("CreateSession after account disable error = %v, want ErrAccountNotActive", err)
+	}
+
+	var disabledRevocations int
+	if err := pool.QueryRow(ctx, `
+		SELECT count(*)::int
+		FROM user_sessions
+		WHERE user_id = $1
+			AND revoked_at IS NOT NULL
+			AND revocation_reason = 'account_disabled'
+	`, userID).Scan(&disabledRevocations); err != nil {
+		t.Fatalf("count account-disable revocations: %v", err)
+	}
+	if disabledRevocations != 1 {
+		t.Fatalf("account-disable revocations = %d, want 1", disabledRevocations)
+	}
+}
