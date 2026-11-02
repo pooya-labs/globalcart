@@ -37,7 +37,7 @@ jobs:
             Number.isSafeInteger(item.id) && item.id > 0 && typeof item.title === "string" && item.title.trim()
           );
           if (!product) throw new Error("Catalog snapshot has no valid product route for the deployment smoke test.");
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `product_id=${product.id}\\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `product_id=${product.id}\n`);
           NODE
       - name: Persist refreshed catalog snapshot safely
         shell: bash
@@ -149,7 +149,7 @@ jobs:
           const fs = require("node:fs");
           const html = fs.readFileSync(process.argv[2], "utf8");
           const productID = process.argv[3];
-          if (!/<h1\\b[^>]*>/.test(html) || !html.includes(productID) || /<title>404[ -]/i.test(html)) {
+          if (!/<h1\b[^>]*>/.test(html) || !html.includes(productID) || /<title>404[ -]/i.test(html)) {
             throw new Error(`Published product deep link is not the expected product page: ${productID}`);
           }
           NODE
