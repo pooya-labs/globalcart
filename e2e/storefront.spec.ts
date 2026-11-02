@@ -41,12 +41,13 @@ test("shows the Nobitex exchange source and product provenance without a hard-co
   }
 
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
-  await expect(page).toHaveURL(/\\/product\\/1\\/?$/);
+  await expect(page).toHaveURL(/\/product\/1\/?$/);
   await expect(page.locator(".detail-provenance")).toContainText("DummyJSON public demo API");
   await expect(page.locator(".detail-provenance")).toContainText("Source record ID");
   await expect(page.locator(".detail-provenance")).toContainText("Source sample rating; review count not supplied");
 
   const priceBreakdown = page.locator(".price-breakdown");
+  await priceBreakdown.locator("summary").click();
   if (await priceBreakdown.getByText("Nobitex bid-ask midpoint", { exact: false }).count()) {
     await expect(priceBreakdown).toContainText("Toman / USDT");
     await expect(priceBreakdown).toContainText("cash USD");
