@@ -45,7 +45,9 @@ Keep the database volume by default. To delete local development data permanentl
 
 The local PostgreSQL schema now contains normalized users, migration-controlled customer/seller/admin roles, vendor-scoped seller memberships, server-side session digest records, single-use email-verification/password-reset token digests and append-only audit events. New accounts receive only the default customer role. The database rejects weak hash formats, malformed digest lengths, invalid expiry lifecycles, duplicate active grants/tokens and audit mutation.
 
-This is schema groundwork only. No password hashing or verification code, login/register/session HTTP handler, cookie, email provider, live user collection or seller/admin route is enabled. ADR-010 remains proposed until the owner approves same-site HTTPS hosting, email delivery and secret management.
+The internal `backend/internal/auth` package now provides Argon2id password hashing and verification with bounded PHC parsing, a rehash decision helper, cryptographically random 256-bit opaque-token generation, SHA-256 digesting and constant-time digest comparison. The default Argon2id cost is 19 MiB, 2 iterations and 1 lane; benchmark this on the selected runtime and put rate limiting in front of expensive verification before enabling login.
+
+These are isolated cryptographic primitives, not a complete authentication service. They are not wired to any handler. No login/register/session HTTP endpoint, cookie, email provider, live user collection or seller/admin route is enabled. ADR-010 remains proposed until the owner approves same-site HTTPS hosting, email delivery and secret management.
 
 ## Local security boundary
 - Compose publishes PostgreSQL and API only on loopback (127.0.0.1).
