@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M04 — Identity/session/RBAC design before commerce write APIs or seller/admin workspaces  
+**Active stage:** M06 — Admin/seller internal foundations; public workspaces remain gated by M04 hosting and identity prerequisites  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -38,7 +38,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Wallex USDTTMN candle feed and pricing provenance are integrated and deployed; recurring refresh reliability remains under observation |
 | M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Read-only local Go/PostgreSQL foundation implemented; authentication, workers and hosting gates remain |
 | M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo cart, checkout, order, coupon, vendor-split and full-order return/refund simulation implemented; public API exposure gated |
-| M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
+| M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Internal read-only admin overview service CI-verified; UI and seller tools remain planned/gated |
 | M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
 | M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget and CI security checks implemented; manual QA and operational recovery remain |
 | M09 | 1.0.0 | Portfolio case study, release and public demo QA | Planned |
@@ -311,11 +311,24 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 **Boundary:** this is a full-order portfolio simulation only. No real money, refund provider, customer login, item-level return, shipment or stock adjustment exists.
 
 ## M06 — Admin and seller workspaces
-- [ ] Demo role switcher with real authorization boundaries where API exists.
-- [ ] Admin overview and catalog/translation/price diagnostics.
+- [ ] Demo role switcher with real authorization boundaries where API exists; no browser role impersonation is allowed before authenticated routes exist.
+- [ ] Admin overview UI and catalog/translation/price diagnostics; the internal aggregate service is implemented in M06.1 below.
+
 - [ ] Product create/edit/archive.
 - [ ] Supplier connector configuration without secret exposure.
 - [ ] Seller profile, product management and demo analytics.
+
+### M06.1 — Internal admin overview service foundation — CI verified (2026-11-02)
+- [x] Add a dedicated deny-by-default `admin.overview.read` authorization action.
+- [x] Resolve an opaque server-side session token from PostgreSQL and require an active administrator role; customer and seller sessions are denied.
+- [x] Revalidate the active account, session and administrator role under row locks in the same transaction as the overview read, preventing stale-role/session authorization races.
+- [x] Aggregate catalog/product/category/variant quality and source diagnostics; vendor and offer state; seller membership and account state; price-history coverage and last update; and audit event volume/recency.
+- [x] Report translation as intentionally paused; do not imply a worker/provider is active.
+- [x] Return aggregate-only data without account emails, password hashes, raw session/CSRF tokens, token digests or audit payloads.
+- [x] Add PostgreSQL integration tests for customer/seller denial, active-admin reads, fixture diagnostics, stale role/session revocation and sensitive-field non-disclosure.
+- [x] Verify Backend CI [41465375163](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375163) and Security scans [41465375326](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375326) on implementation head `7ca99c04a348256aa0a6051241864213968f7f84`.
+
+**Boundary:** `backend/internal/admin.ReadOverview` is an internal Go service only. No HTTP route, UI, public role switcher, account bootstrap, hosted service or seller operation was enabled. The future dashboard must call this service only through approved authenticated middleware after same-site HTTPS hosting, email delivery and secret management are approved.
 
 ## M07 — Search and discovery
 - [x] Faceted filters for brand, rating, price and category across the storefront and read-only API.
