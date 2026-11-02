@@ -173,6 +173,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add integration coverage for rollback, invalid reasons, user isolation, audit actor/reason and idempotency.
 - [x] Verify the complete race-enabled PostgreSQL Backend CI suite and security scans: Backend CI [run 41393919125](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919125) and Security scans [run 41393919064](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919064) both passed on code head `6e044b63048b0911c5a7078279e38fe354898605`.
 - [x] Verify the concurrent session-creation/account-disable regression: Backend CI [run 41394508053](https://github.com/pooya16pg-spec/globalcart/actions/runs/41394508053) passed the PostgreSQL race-enabled suite on implementation head `4e74a223e87ee55f84127039be99735eb30b089e`.
+- [x] Re-run the full current auth integration suite, including the session/account-disable race, password change and password-reset revocation paths: Backend CI [run 41395571464](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571464) passed on code head `8a504dca8ae23ca2c06143808452898281216abe`.
 
 **Boundary:** this is an internal transaction helper, not a password-change endpoint or authorization middleware. Callers must include the relevant credential/role/account update in the same transaction. No HTTP route, browser cookie, email flow or hosted database is enabled.
 
@@ -185,7 +186,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** this is an internal password-change primitive, not a public endpoint or password-reset-token flow. The caller must verify the old password against the supplied hash snapshot before invoking it. No login/register HTTP route, browser cookie, email delivery or hosted database is enabled.
 
-### M04.6 — One-time password-reset token lifecycle (implementation; CI pending, 2026-11-02)
+### M04.6 — One-time password-reset token lifecycle (CI verified, 2026-11-02)
 - [x] Reuse migration 011 `auth_action_tokens`; do not create a duplicate token table or migration.
 - [x] Issue 256-bit opaque reset tokens and persist only SHA-256 digests with a bounded 5-minute to 1-hour TTL (30-minute default).
 - [x] Rotate prior outstanding reset tokens on issuance, including expired rows that still occupy the partial unique index.
@@ -193,9 +194,19 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Lock the user before token rows in issue/consume/change flows to avoid lock-order deadlocks; re-check expiry and single-use state inside the transaction.
 - [x] Invalidate outstanding reset tokens when a normal password change succeeds.
 - [x] Add PostgreSQL tests for digest-only storage, rotation, expiry, single use, concurrent double consumption and session invalidation.
-- [ ] Verify PostgreSQL race-enabled Backend CI and security scans on the implementation head.
+- [x] Verify PostgreSQL race-enabled Backend CI [run 41395571464](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571464), Security scans [run 41395571531](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571531) and GitHub Pages deployment [run 41395571666](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571666) on code head `8a504dca8ae23ca2c06143808452898281216abe`; all passed.
 
 **Boundary:** no email is sent and no public password-reset endpoint is enabled. The raw token is returned once to an internal caller for delivery by a future approved email worker; HTTP responses must not expose account existence.
+
+### M04.7 — Email-verification token lifecycle and pending-account activation (next; implementation not started)
+- [ ] Reuse migration 011 `auth_action_tokens` with purpose `email_verification`; do not add a duplicate token table.
+- [ ] Add internal issuance with digest-only token storage, bounded expiry, token rotation and non-enumerating registration behavior at any future HTTP boundary.
+- [ ] Consume a verification token once, activate only the matching pending account, and revoke stale verification tokens transactionally.
+- [ ] Audit issuance and successful verification without storing raw token/email secrets.
+- [ ] Test expiry, duplicate/replayed token, token rotation, disabled account behavior, and concurrent verification attempts in PostgreSQL.
+- [ ] Keep email delivery and public registration/verification routes disabled until hosting, email provider and secret management are approved.
+
+**Boundary:** pending-account activation only; this does not grant seller/admin roles or enable a public registration endpoint.
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).

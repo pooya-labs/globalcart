@@ -85,12 +85,13 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Backend CI [run 41395032305](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032305), Security scans [run 41395032374](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032374) and Pages deployment [run 41395032292](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032292) passed on implementation head `fe2ec6b9bfce6ec4aa20ea004029e2a68d5b05ab`.
 
 
-## M04.6 password-reset token lifecycle checkpoint — implementation pushed; CI pending (2026-11-02)
+## M04.6 password-reset token lifecycle checkpoint — CI verified (2026-11-02)
 - Reuses migration 011 `auth_action_tokens`; no new table or migration was added.
 - Internal token issuance stores only a SHA-256 digest, bounds expiry to 5 minutes–1 hour (30-minute default) and rotates previous outstanding reset tokens.
 - Internal completion re-checks token validity while holding the user row lock, consumes once, updates the Argon2id hash, revokes sibling reset tokens and all active sessions, and appends a redacted audit event in one transaction.
 - Normal password changes now revoke outstanding reset tokens too. No email delivery or HTTP reset endpoint is enabled.
-- PostgreSQL coverage includes digest-only storage, rotation, expiry, repeated/concurrent consumption and session invalidation. Backend CI is pending.
+- PostgreSQL coverage includes digest-only storage, rotation, expiry, repeated/concurrent consumption and session invalidation.
+- Backend CI [run 41395571464](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571464), Security scans [run 41395571531](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571531) and Pages deployment [run 41395571666](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571666) passed on implementation head `8a504dca8ae23ca2c06143808452898281216abe`.
 
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
@@ -115,11 +116,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Manual screen-reader, real-device and full-site/deep-link QA remain open.
 
 ## Immediate next actions
-1. Keep auth HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Use `ChangePassword` and `RevokeUserSessions` only inside their documented internal transaction boundary.
-2. Finish stale-credential, session-creation/revocation concurrency and password-reset token consumption tests before implementing deny-by-default middleware and seller-membership authorization behind the approved deployment boundary.
-3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
-4. Obtain owner approval and documented rights for a named supplier API/feed before live catalog onboarding; do not scrape or fabricate inventory.
-5. Select an authorized FX provider and define source timestamp/stale-rate policy; keep the current rate illustrative until then.
+1. Keep auth HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. The internal password-change, password-reset and session helpers remain non-HTTP primitives.
+2. Implement M04.7 email-verification token consumption and pending-account activation using the existing `auth_action_tokens` table; do not add another token table.
+3. After identity primitives are complete, build and test deny-by-default internal authorization policies and seller-membership scope checks before any public protected route is considered.
+4. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
+5. Obtain owner approval and documented rights for a named supplier API/feed, and an authorized FX provider/rate-staleness policy, before enabling either integration.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.

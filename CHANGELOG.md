@@ -559,7 +559,7 @@
 - Backend CI [run 41395032305](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032305), Security scans [run 41395032374](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032374) and Pages deployment [run 41395032292](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032292) passed on code head `fe2ec6b9bfce6ec4aa20ea004029e2a68d5b05ab`.
 
 
-## Unreleased — one-time password-reset token lifecycle (implementation; CI pending, 2026-11-02)
+## Unreleased — one-time password-reset token lifecycle (CI verified, 2026-11-02)
 
 ### Added
 - Reused migration 011 `auth_action_tokens` to issue digest-only, opaque password-reset tokens with a bounded lifetime and rotation of previous outstanding tokens.
@@ -569,4 +569,4 @@
 - No email delivery or public reset route was enabled.
 
 ### Verification
-- Backend CI and security scans are pending on the implementation head.
+- Backend CI [run 41395571464](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571464), Security scans [run 41395571531](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571531) and Pages deployment [run 41395571666](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571666) passed on code head `8a504dca8ae23ca2c06143808452898281216abe`.
