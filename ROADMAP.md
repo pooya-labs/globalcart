@@ -102,10 +102,10 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M03 — Pricing and product experience
 - [x] Integer-cent pricing, fixed-point FX and BigInt intermediate arithmetic.
 - [x] Explicit rounding and invalid-input tests.
-- [ ] FX provider, source timestamp and stale-rate policy.
-- [x] Transparent illustrative source-price, discount and FX breakdown on product pages (browser-local rate only; no live FX, markup, shipping or tax quote).
+- [x] Add a timestamped Wallex USDTTMN one-minute candle-close feed with 5/15-minute freshness states, no-key server-side refresh, and no hard-coded fallback. First live snapshot is persisted to `data/fx-rate.json`; Browser E2E and Pages verification are still required.
+- [x] Transparent source-price, discount and exchange-derived Tether/Toman estimate breakdown on product pages (no shipping, tax, payment fees or executable checkout quote).
 - [x] Dedicated static product details for the imported catalog, responsive image gallery and related products.
-- [ ] Attributes, ratings context and source provenance.
+- [x] Show source record ID, import time, source URL when present, provided variants/attributes, and disclose when source review count is not supplied.
 - [x] Product comparison modal and persistent comparison shortlist.
 - [x] Dedicated recently viewed page, homepage rail and browser-local visit history.
 

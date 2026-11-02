@@ -663,3 +663,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The storefront shows the displayed catalog's last successful browser-fetch time or generated snapshot time. If live fetch fails, the timestamp remains tied to the last-known-good snapshot. Persian/English labels use browser-local date formatting and fresh (at most 36h), aging (over 36h to 72h), stale (over 72h) or unknown states.
 - This timestamp measures GlobalCart fetch/snapshot generation time, not an upstream supplier's last-modified timestamp. The scheduled source is a public demo API, not a contracted commercial feed.
 - Other supplier onboarding remains gated by approved API/feed access and rights; no live commercial supplier credentials or feeds were connected.
+
+
+## Latest M03 exchange-price checkpoint — Wallex live snapshot obtained (storefront CI verification pending, 2026-11-02)
+- Nobitex public USDT/IRT orderbook requests from GitHub-hosted runners returned HTTP 403; it was removed without using proxies or bypassing provider access controls.
+- Wallex public TradingView UDF history for `USDTTMN`, resolution `1` minute, succeeded in GitHub Actions [run 41409982177](https://github.com/pooya16pg-spec/globalcart/actions/runs/41409982177). The validated snapshot is persisted on `main`; at the latest verified refresh it recorded 271,995 Toman per USDT with candle start `2026-11-02T07:59:00Z`.
+- The stored rate is the latest one-minute candle close (already in Toman), not a bid/ask midpoint and not cash USD. Freshness thresholds are 5 minutes fresh, 5–15 minutes aging, and over 15 minutes stale. Invalid/missing responses preserve last-known-good data; there is no hard-coded fallback.
+- Homepage, product detail and recently-viewed UI now refer to the Wallex candle and timestamp; E2E assertions were updated. Catalog CI and Pages still need to pass on the UI-alignment commit before storefront deployment is claimed.
