@@ -243,14 +243,26 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Backend CI [run 41398064895](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064895), Security scans [run 41398064885](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064885) and GitHub Pages deployment [run 41398064905](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064905) on implementation head `c1b4b0ccfbd132ee95f8dc757a3518ff9b04899a`; all passed.
 
 **Boundary:** pure/internal authorization policy only. Its caller must pass a `SessionPrincipal` returned from `ResolveSession`; this evaluator does not authenticate, refresh sessions or replace transaction-level ownership checks. Public handlers, cookies, CSRF middleware and deployment remain blocked on ADR-010 owner approval.
-### M04.11 — Service-boundary authorization and cross-tenant IDOR enforcement (next; implementation not started)
-- [ ] Identify internal customer and seller service methods that accept owner/vendor selectors and wrap them with authorization checks based on a session-resolved principal.
-- [ ] Load canonical resource ownership and current vendor state from PostgreSQL in the same transaction as the protected read/mutation; do not trust supplied owner/vendor IDs.
-- [ ] Ensure admin-only review and role changes use the same verified actor boundary as M04.8/M04.9.
-- [ ] Add PostgreSQL-backed cross-customer and cross-vendor IDOR tests, including membership revocation racing a seller operation.
-- [ ] Keep all protected HTTP routes disabled until same-site HTTPS hosting, runtime, email and secret-management approvals exist.
+### M04.11 — Service-boundary authorization and cross-tenant IDOR enforcement (CI verified, 2026-11-02)
+- [x] Add `AuthorizeSellerVendorTx` to revalidate a resolved session, active account, live seller role, active vendor and exact membership under row locks inside the caller's transaction.
+- [x] Add seller-scoped read, price-update and inventory-adjustment methods that derive vendor scope from the canonical offer row; the caller cannot select or override a vendor ID.
+- [x] Reuse the existing price-history/inventory-event transaction helpers rather than duplicating commerce mutation logic; preserve the legacy internal untrusted-ID methods as non-HTTP helpers.
+- [x] Add PostgreSQL coverage for own-offer success, cross-vendor read/write denial, stale/revoked session rejection, suspended membership and membership-revocation serialization with a protected seller transaction.
+- [x] Keep protected HTTP routes disabled; no cookies, middleware, CSRF route or public seller endpoints were enabled.
+
+- [x] Verify Backend CI [run 41399542624](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542539) and GitHub Pages deployment [run 41399542545](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542545) on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`; all passed, including PostgreSQL race tests, API/importer builds, Docker image, static build and Pages deploy.
+
+- [x] Verify Backend CI [run 41399542624](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542539) and GitHub Pages deployment [run 41399542545](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542545) on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`; all passed, including PostgreSQL race tests, API/importer builds, Docker image, static build and Pages deploy.
 
 **Boundary:** service/application-layer enforcement only; no login, cookie, CSRF middleware or public route is enabled.
+### M04.12 — Customer resource ownership enforcement (next; implementation not started)
+- [ ] Identify customer-facing internal cart/order/account reads and mutations that accept resource IDs or capability selectors.
+- [ ] Resolve canonical resource ownership from PostgreSQL inside the same transaction as the protected operation, then apply the M04.10 customer policy.
+- [ ] Keep guest cart capabilities separate from authenticated identity; a cart capability must authorize only its own cart and never imply seller/admin privilege.
+- [ ] Add PostgreSQL tests for cross-customer order/cart IDOR, expired/revoked capabilities, ownership races and idempotent denial.
+- [ ] Keep customer HTTP routes disabled until same-site HTTPS hosting and owner-approved runtime/secret management exist.
+
+**Boundary:** internal customer ownership enforcement only; no public customer-authentication route or browser cookie flow is enabled.
 
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).

@@ -623,3 +623,15 @@
 
 ### Verification
 - Backend CI [run 41398064895](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064895), Security scans [run 41398064885](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064885) and Pages deployment [run 41398064905](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064905) passed on implementation head `c1b4b0ccfbd132ee95f8dc757a3518ff9b04899a`.
+ 
+## Unreleased — transactional seller service authorization (CI verified, 2026-11-02)
+
+### Added
+- Added a transaction-bound seller guard that rechecks active account, session, seller role, active vendor and exact active membership while holding PostgreSQL row locks.
+- Added seller-scoped offer read, price update and stock adjustment methods that derive the vendor from the canonical offer record rather than client input.
+- Reused existing commerce price-history and inventory-event helpers to keep behavior consistent.
+- Added PostgreSQL integration coverage for own-vendor success, cross-vendor IDOR denial, stale/revoked session denial and membership-revocation serialization against an in-flight seller operation.
+- No public seller route, browser cookie or middleware was enabled.
+
+### Verification
+- Backend CI [run 41399542624](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542539) and Pages deployment [run 41399542545](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542545) passed on code head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`.

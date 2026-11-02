@@ -128,6 +128,13 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Table-driven tests cover own/foreign customer resources, assigned/unassigned seller vendors, seller role without a live scope, admin actions, unknown actions, missing session identity and attempted client-supplied vendor scope.
 - Backend CI [run 41398064895](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064895), Security scans [run 41398064885](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064885) and Pages deployment [run 41398064905](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064905) passed on implementation head `c1b4b0ccfbd132ee95f8dc757a3518ff9b04899a`.
 - No HTTP middleware, cookie authentication, CSRF route or public protected endpoint was enabled.
+## M04.11 service-boundary seller authorization checkpoint — CI verified (2026-11-02)
+- `backend/internal/auth/policy_transaction.go` adds `AuthorizeSellerVendorTx`: it applies the pure M04.10 policy, then locks/revalidates active verified user, current session, active vendor, seller role and exact active membership inside the protected transaction.
+- `backend/internal/commerce/vendors_authorized.go` adds seller-scoped offer read, price update and stock adjustment. Each derives vendor ID from the canonical offer row; no client vendor selector is accepted. Existing internal commerce mutation helpers are shared to avoid duplicate logic.
+- PostgreSQL tests cover own-vendor operations, cross-vendor IDOR denial, stale session denial, suspended membership denial, and membership revocation blocking on the protected transaction's account lock.
+- Backend CI [run 41399542624](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542539) and Pages deployment [run 41399542545](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542545) passed on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`.
+- No public seller route, dashboard, cookie authentication or CSRF middleware was enabled.
+
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
@@ -152,8 +159,8 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 ## Immediate next actions
 1. Keep authentication, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.
-2. Implement M04.11 service-boundary enforcement: derive resource owners and vendor scopes from PostgreSQL inside the protected transaction, then apply the M04.10 policy to the resolved principal.
-3. Add PostgreSQL-backed cross-customer/cross-vendor IDOR tests, including membership revocation racing a seller operation, before any protected HTTP route is considered.
+2. Implement M04.12 customer resource ownership enforcement for cart/order/account services; preserve the separation between guest cart capability and authenticated identity.
+3. Add PostgreSQL-backed cross-customer cart/order IDOR and ownership-race tests before any customer protected HTTP route is considered.
 4. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
 5. Obtain owner approval and documented rights for a named supplier API/feed and an authorized FX provider/rate-staleness policy before enabling either integration.
 
