@@ -144,3 +144,13 @@ Applied migrations are immutable. Use a new numbered forward-fix migration; do n
 The service revalidates the account, session and active admin-role rows under locks in the same transaction as the overview query. A stale in-memory role/session principal is not sufficient. The response intentionally excludes emails, password hashes, raw or hashed session/CSRF tokens, and audit-event metadata/payloads.
 
 The service is internal-only and is not registered on `backend/internal/httpapi`. No dashboard, public admin route, role switcher, user bootstrap, account mutation or seller write operation is enabled. Do not expose it until the approved same-site HTTPS identity middleware and hosting/email/secret prerequisites are complete. The test suite exercises PostgreSQL-backed customer/seller denial, administrator access, account/session/role revocation and aggregate data boundaries.
+
+## Internal admin product editorial management (M06.2; not an HTTP endpoint)
+
+Migration 013 adds `admin_product_overrides` and append-only `admin_product_revisions`. The internal `backend/internal/admin` service supports administrator-only product reads, bounded title/description/brand overrides, explicit reset-to-current-supplier values, archive/restore and bounded revision-history reads.
+
+Edits never write to supplier-owned `products` fields. Source imports continue updating their own record, while the catalog read model applies editorial overrides to effective title, description and brand. Archived products are filtered from catalog list/detail, search results, totals and category product counts without deleting source rows, variants or vendor offers.
+
+Every mutating call must provide the expected current revision. Stale edits or archive/restore attempts fail with `ErrStaleProductRevision`. The service resolves the opaque session token, requires `admin.products.manage`, then revalidates the verified account, exact live session and admin grant under row locks in the same transaction as the protected read/write. Before/after revision snapshots retain both effective and supplier values; the revision table is append-only and a redacted audit event is written atomically.
+
+This remains an internal service only. No admin HTTP route, manual product-creation endpoint, dashboard, browser role switcher or public catalog write path is enabled. Manual product creation remains a separate open roadmap item.
