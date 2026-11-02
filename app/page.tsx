@@ -7,6 +7,7 @@ import { filterCatalogProducts } from "../lib/catalog/filtering";
 import { buildCatalogSuggestions, type CatalogSearchSuggestion } from "../lib/catalog/suggestions";
 import { getCatalogRecommendationReason, rankCatalogRecommendations } from "../lib/catalog/recommendations";
 import { hasSameSavedSearchFilters, normalizeSavedCatalogSearches, type SavedCatalogSearch } from "../lib/catalog/saved-searches";
+import { getCatalogSourceStatus, type CatalogSourceStatus } from "../lib/catalog/source-status";
 import catalogSnapshot from "../data/catalog.json";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, BookmarkCheck, BookmarkPlus, Check, ChevronDown, ChevronLeft,
