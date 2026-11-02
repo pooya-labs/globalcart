@@ -384,7 +384,6 @@ func TestRevokeUserSessionsIsTransactionalScopedAndAudited(t *testing.T) {
 	}
 }
 
-
 func TestSessionCreationSerializesWithAccountDisableAndBulkRevocation(t *testing.T) {
 	pool, ctx := openAuthIntegrationPool(t)
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
