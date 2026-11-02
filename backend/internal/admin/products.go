@@ -24,6 +24,7 @@ var (
 	ErrNoProductChanges       = errors.New("product update contains no changes")
 	ErrProductAlreadyArchived = errors.New("product is already archived")
 	ErrProductNotArchived     = errors.New("product is not archived")
+	ErrStaleProductRevision   = errors.New("product revision is stale")
 )
 
 type ProductManagementRecord struct {
@@ -50,6 +51,7 @@ type ProductManagementRecord struct {
 // ProductUpdateInput uses nil to leave a field unchanged. ClearFields explicitly
 // removes an override and restores the current supplier value for that field.
 type ProductUpdateInput struct {
+	ExpectedRevision int64    `json:"expectedRevision"`
 	Title       *string  `json:"title,omitempty"`
 	Description *string  `json:"description,omitempty"`
 	Brand       *string  `json:"brand,omitempty"`
@@ -142,7 +144,7 @@ func UpdateManagedProduct(
 	productID int64,
 	input ProductUpdateInput,
 ) (ProductManagementRecord, error) {
-	if productID <= 0 {
+	if productID <= 0 || input.ExpectedRevision < 0 {
 		return ProductManagementRecord{}, ErrInvalidProductInput
 	}
 	normalized, clear, err := normalizeProductUpdate(input)
@@ -170,6 +172,9 @@ func UpdateManagedProduct(
 	}
 	if !exists {
 		before.VisibilityStatus = "active"
+	}
+	if before.Revision != input.ExpectedRevision {
+		return ProductManagementRecord{}, ErrStaleProductRevision
 	}
 
 	after := before
@@ -229,8 +234,9 @@ func ArchiveManagedProduct(
 	pool *pgxpool.Pool,
 	sessionToken string,
 	productID int64,
+	expectedRevision int64,
 ) (ProductManagementRecord, error) {
-	return setManagedProductArchived(ctx, pool, sessionToken, productID, true)
+	return setManagedProductArchived(ctx, pool, sessionToken, productID, expectedRevision, true)
 }
 
 // RestoreManagedProduct makes an archived source product visible again while
@@ -240,8 +246,9 @@ func RestoreManagedProduct(
 	pool *pgxpool.Pool,
 	sessionToken string,
 	productID int64,
+	expectedRevision int64,
 ) (ProductManagementRecord, error) {
-	return setManagedProductArchived(ctx, pool, sessionToken, productID, false)
+	return setManagedProductArchived(ctx, pool, sessionToken, productID, expectedRevision, false)
 }
 
 func setManagedProductArchived(
@@ -249,9 +256,10 @@ func setManagedProductArchived(
 	pool *pgxpool.Pool,
 	sessionToken string,
 	productID int64,
+	expectedRevision int64,
 	archive bool,
 ) (ProductManagementRecord, error) {
-	if productID <= 0 {
+	if productID <= 0 || expectedRevision < 0 {
 		return ProductManagementRecord{}, ErrInvalidProductInput
 	}
 	queryCtx, cancel, tx, actorID, err := beginAdminProductTransaction(ctx, pool, sessionToken)
@@ -270,6 +278,9 @@ func setManagedProductArchived(
 	}
 	if !exists {
 		before.VisibilityStatus = "active"
+	}
+	if before.Revision != expectedRevision {
+		return ProductManagementRecord{}, ErrStaleProductRevision
 	}
 	if archive && before.VisibilityStatus == "archived" {
 		return ProductManagementRecord{}, ErrProductAlreadyArchived
