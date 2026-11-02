@@ -82,7 +82,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 ## M04 backend foundation (branch work; not yet merged)
 - Branch: `feat/m04-go-postgres-foundation`.
-- Go 1.23 API uses the standard HTTP mux and pgx v5.
+- Go API uses the standard HTTP mux and pgx v5; `go.mod` retains its Go 1.23 language baseline, while CI and the container builder use patched Go 1.27.3.
 - PostgreSQL 17 is the primary system of record; local Compose binds ports to 127.0.0.1 only.
 - Embedded transactional migration ledger creates an initial products table with source provenance, numeric constraints, JSONB image arrays and indexes.
 - Read-only API routes: `GET /healthz`, `GET /readyz`, `GET /api/v1/products`, `GET /api/v1/products/{id}`.
