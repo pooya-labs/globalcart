@@ -122,12 +122,12 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
 - [x] Add sqlc configuration, parameterized catalog/variant query definitions and CI code generation for pgx/v5.\n- [x] Wire generated sqlc queries into product list/detail API handlers; importer remains transaction-oriented and uses explicit upsert SQL.
 - [x] Add PostgreSQL identity/session/RBAC schema foundation (migration 011); no authentication or commerce write routes are exposed.
-- [ ] Design authentication/session and role-based authorization.
+- [x] Design the internal authentication/session and deny-by-default role-based authorization boundary (M04.1–M04.12); public middleware remains deployment-gated.
 - [ ] Add idempotent Python ingestion/translation workers.
 - [ ] Add Redis only for measured cache/queue requirements.
 - [x] Add Go unit tests and backend CI for formatting, vet, race tests, builds and Docker image build.
 - [x] Add PostgreSQL integration tests for concurrent/idempotent migrations, catalog upserts and transaction rollback.
-- [ ] Add authorization integration tests after the authentication boundary exists.
+- [x] Add PostgreSQL authorization integration tests for seller vendor-scope and customer cart/order ownership, cross-tenant IDOR, revoked sessions and ownership races.
 
 ### M04.1 — Identity/session/RBAC database foundation (2026-11-02)
 - [x] Add migration 011 for users, migration-controlled customer/seller/admin roles and vendor-scoped seller memberships.
