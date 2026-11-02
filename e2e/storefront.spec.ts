@@ -25,12 +25,12 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
 
-test("shows the Nobitex exchange source and product provenance without a hard-coded FX fallback", async ({ page }) => {
+test("shows the Wallex exchange candle and product provenance without a hard-coded FX fallback", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
 
   const fxPanel = page.locator(".fx-control");
   await expect(fxPanel).toBeVisible();
-  await expect(fxPanel).toContainText("Nobitex · USDT/IRT");
+  await expect(fxPanel).toContainText("Wallex · USDTTMN");
 
   const displayedRate = await fxPanel.locator("strong").innerText();
   if (displayedRate.includes("Rate unavailable")) {
@@ -48,9 +48,10 @@ test("shows the Nobitex exchange source and product provenance without a hard-co
 
   const priceBreakdown = page.locator(".price-breakdown");
   await priceBreakdown.locator("summary").click();
-  if (await priceBreakdown.getByText("Nobitex bid-ask midpoint", { exact: false }).count()) {
+  if (await priceBreakdown.getByText("Wallex one-minute candle close", { exact: false }).count()) {
     await expect(priceBreakdown).toContainText("Toman / USDT");
     await expect(priceBreakdown).toContainText("cash USD");
+    await expect(priceBreakdown).toContainText("one-minute candle close");
   } else {
     await expect(priceBreakdown).toContainText("A valid exchange quote is currently unavailable");
   }

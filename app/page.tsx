@@ -12,7 +12,7 @@ import { getCatalogFreshness, type CatalogFreshnessStatus } from "../lib/catalog
 import catalogSnapshot from "../data/catalog.json";
 import fxSnapshot from "../data/fx-rate.json";
 import { calculateDemoPrice } from "../lib/pricing";
-import { getFxRateStatus, type FxRateStatus } from "../lib/fx/nobitex";
+import { getFxRateStatus, type FxRateStatus } from "../lib/fx/wallex";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, BookmarkCheck, BookmarkPlus, Check, ChevronDown, ChevronLeft,
   ChevronRight, CircleHelp, Heart, LayoutGrid, Menu, Minus, Package, Plus,
@@ -51,7 +51,7 @@ const copy = {
     subtotal: "جمع جزء", checkout: "ادامه و ثبت سفارش نمایشی", demo: "نسخه نمایشی", noPayment: "پرداخت واقعی غیرفعال است؛ این پروژه فروشگاه واقعی نیست.",
     demoCheckout: "تکمیل سفارش آزمایشی", demoText: "این مرحله فقط برای نمایش تجربه کاربری است. هیچ پرداخت یا سفارش واقعی ثبت نمی‌شود.",
     confirm: "ثبت سفارش آزمایشی", success: "سفارش نمایشی ساخته شد", order: "شناسه سفارش", continue: "بازگشت به فروشگاه",
-    source: "منبع", fxTitle: "نرخ بازار تتر", fxProvider: "نوبیتکس · USDT/IRT", fxFresh: "به‌روز", fxAging: "در حال کهنه‌شدن", fxStale: "قدیمی", fxUnavailable: "نرخ در دسترس نیست", fxUnknown: "زمان نامشخص", fxCaveat: "تتر دقیقاً معادل دلار نقدی نیست.", fxUnavailableNote: "تا دریافت نرخ معتبر، قیمت به دلار نمایش داده می‌شود.", inStock: "موجود در کاتالوگ نمونه", off: "تخفیف",
+    source: "منبع", fxTitle: "نرخ بازار تتر", fxProvider: "والکس · USDTTMN", fxFresh: "به‌روز", fxAging: "در حال کهنه‌شدن", fxStale: "قدیمی", fxUnavailable: "نرخ در دسترس نیست", fxUnknown: "زمان نامشخص", fxCaveat: "تتر دلار نقدی نیست؛ مبنا قیمت بسته‌شدن آخرین کندل یک‌دقیقه‌ای است.", fxUnavailableNote: "تا دریافت نرخ معتبر، قیمت به دلار نمایش داده می‌شود.", inStock: "موجود در کاتالوگ نمونه", off: "تخفیف",
     searchResults: "نتایج جست‌وجو", loading: "در حال دریافت کاتالوگ...", sourceFallback: "منبع آنلاین در دسترس نیست؛ داده‌های نمونه محلی نمایش داده شده‌اند.", snapshotFallback: "به‌روزرسانی آنلاین در دسترس نیست؛ آخرین کاتالوگ تولیدشده نمایش داده می‌شود.",
     catalogLastChecked: "آخرین بررسی منبع", snapshotGenerated: "زمان تولید کاتالوگ", freshnessFresh: "تازه", freshnessAging: "در حال کهنه‌شدن", freshnessStale: "قدیمی", freshnessUnknown: "زمان نامشخص",
     why: "چرا GlobalCart؟", whyText: "یک پروژه مستقل برای نمایش مهندسی محصول، معماری فرانت‌اند، یکپارچه‌سازی داده و طراحی تجربه تجارت الکترونیک.",
@@ -86,7 +86,7 @@ const copy = {
     subtotal: "Subtotal", checkout: "Continue to demo checkout", demo: "DEMO", noPayment: "Real payments are disabled. This is not a live store.",
     demoCheckout: "Demo checkout", demoText: "This step demonstrates the user experience only. No real order or payment will be created.",
     confirm: "Place demo order", success: "Demo order created", order: "Order reference", continue: "Back to store",
-    source: "Source", fxTitle: "Live Tether market quote", fxProvider: "Nobitex · USDT/IRT", fxFresh: "Fresh", fxAging: "Aging", fxStale: "Stale", fxUnavailable: "Rate unavailable", fxUnknown: "Timestamp unavailable", fxCaveat: "USDT is not identical to cash USD.", fxUnavailableNote: "Prices remain in USD until a valid exchange quote is available.", inStock: "Sample catalog item", off: "OFF",
+    source: "Source", fxTitle: "Live Tether market quote", fxProvider: "Wallex · USDTTMN", fxFresh: "Fresh", fxAging: "Aging", fxStale: "Stale", fxUnavailable: "Rate unavailable", fxUnknown: "Timestamp unavailable", fxCaveat: "USDT is not cash USD; this uses the latest one-minute candle close.", fxUnavailableNote: "Prices remain in USD until a valid exchange quote is available.", inStock: "Sample catalog item", off: "OFF",
     searchResults: "Search results", loading: "Loading catalog...", sourceFallback: "Live source is unavailable; showing local demo fixtures.", snapshotFallback: "Live refresh is unavailable; showing the last generated catalog snapshot.",
     catalogLastChecked: "Last source check", snapshotGenerated: "Snapshot generated", freshnessFresh: "Fresh", freshnessAging: "Aging", freshnessStale: "Stale", freshnessUnknown: "Unknown",
     why: "Why GlobalCart?", whyText: "An independent portfolio project showcasing product engineering, frontend architecture, data integration and commerce experience design.",
@@ -206,8 +206,8 @@ export default function Home() {
   const commandInputId=useId();
   const t=copy[locale];
   const rtl=locale==="fa";
-  const fxTimestampLabel = fxSnapshot.marketUpdatedAt
-    ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.marketUpdatedAt))
+  const fxTimestampLabel = fxSnapshot.candleStartedAt
+    ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.candleStartedAt))
     : null;
   const fxStatusLabel = fxStatus==="fresh"?t.fxFresh:fxStatus==="aging"?t.fxAging:fxStatus==="stale"?t.fxStale:t.fxUnavailable;
 

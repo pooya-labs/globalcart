@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
 import { calculateDemoPrice } from "../../../lib/pricing";
 import fxSnapshot from "../../../data/fx-rate.json";
-import { getFxRateStatus, type FxRateStatus } from "../../../lib/fx/nobitex";
+import { getFxRateStatus, type FxRateStatus } from "../../../lib/fx/wallex";
 
 type ProductVariant = {
   sku:string; title:string; price:number; stock:number;
@@ -56,7 +56,7 @@ export default function ProductDetailClient({product,related}:Props) {
   const discounted=product.price*(1-product.discountPercentage/100);
   const priceBreakdown=rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
-  const fxTimestampLabel=fxSnapshot.marketUpdatedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.marketUpdatedAt)):null;
+  const fxTimestampLabel=fxSnapshot.candleStartedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.candleStartedAt)):null;
   useEffect(()=>{setFxStatus(getFxRateStatus(fxSnapshot));},[]);
   useEffect(()=>{
     try{
@@ -140,9 +140,9 @@ export default function ProductDetailClient({product,related}:Props) {
           <div><span>{rtl?"قیمت منبع (USD)":"Source catalog price (USD)"}</span><b>${product.price.toFixed(2)}</b></div>
           <div><span>{rtl?"تخفیف نمونه":"Catalog sample discount"}</span><b>{product.discountPercentage.toFixed(2)}%</b></div>
           {priceBreakdown?<>
-            <div><span>{rtl?"نرخ میانی نوبیتکس":"Nobitex bid-ask midpoint"}</span><b>{new Intl.NumberFormat(rtl?"fa-IR":"en-US",{maximumFractionDigits:0}).format(priceBreakdown.fxRate)} {rtl?"تومان / تتر":"Toman / USDT"}</b></div>
-            <div><span>{rtl?"آخرین به‌روزرسانی بازار":"Exchange order-book update"}</span><b>{fxTimestampLabel??fxStatusLabel}</b></div>
-            <small>{rtl?"مبنای تبدیل، میانه بهترین سفارش خرید و فروش بازار USDT/IRT نوبیتکس است. این نرخ، نرخ تتر است و ممکن است با دلار نقدی تفاوت داشته باشد.":"Conversion uses the midpoint of the best bid and ask in Nobitex USDT/IRT. This is a Tether market quote and can differ from cash USD."}</small>
+            <div><span>{rtl?"قیمت بسته‌شدن کندل یک‌دقیقه‌ای والکس":"Wallex one-minute candle close"}</span><b>{new Intl.NumberFormat(rtl?"fa-IR":"en-US",{maximumFractionDigits:0}).format(priceBreakdown.fxRate)} {rtl?"تومان / تتر":"Toman / USDT"}</b></div>
+            <div><span>{rtl?"زمان شروع آخرین کندل":"Latest candle start time"}</span><b>{fxTimestampLabel??fxStatusLabel}</b></div>
+            <small>{rtl?"مبنای تبدیل، قیمت بسته‌شدن آخرین کندل یک‌دقیقه‌ای بازار USDTTMN والکس است. قیمت برحسب تومان و مربوط به تتر است؛ با دلار نقدی تفاوت دارد و نرخ قابل اجرای خرید/فروش محسوب نمی‌شود.":"Conversion uses the latest one-minute candle close for Wallex USDTTMN. The quote is Toman-denominated and refers to Tether, which can differ from cash USD; it is not an executable buy/sell quote."}</small>
             {fxStatus!=="fresh"&&<small className="fx-warning">{rtl?"هشدار تازگی نرخ: "+fxStatusLabel:"FX freshness warning: "+fxStatusLabel}</small>}
           </>:<small>{rtl?"نرخ معتبر صرافی فعلاً در دسترس نیست؛ مبلغ اصلی به دلار نمایش داده می‌شود.":"A valid exchange quote is currently unavailable, so the source USD price is shown."}</small>}
           <small>{rtl?"قیمت‌ها نمایشی‌اند و شامل هزینه ارسال، مالیات، کارمزد پرداخت یا تعهد خرید نیستند.":"Demo prices only; no shipping, tax, payment fees or purchase commitment are included."}</small>
