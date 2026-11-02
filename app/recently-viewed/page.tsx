@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import catalogSnapshot from "../../data/catalog.json";
 import fxSnapshot from "../../data/fx-rate.json";
+import { calculateDemoPrice } from "../../lib/pricing";
 import { ArrowLeft, Clock3, Trash2 } from "lucide-react";
 
 type Product = {
@@ -36,7 +37,7 @@ export default function RecentlyViewedPage() {
 
   const products=useMemo(()=>ids.map(id=>catalog.find(p=>p.id===id)).filter((p):p is Product=>Boolean(p)),[ids]);
   const format=(p:Product)=>rtl&&rate!==null
-    ?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(p.price*(1-p.discountPercentage/100)*rate)+" تومان"
+    ?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:p.price,fxRate:rate,discountPercentage:p.discountPercentage}).toman)+" تومان"
     :"$"+(p.price*(1-p.discountPercentage/100)).toFixed(2);
 
   const clearHistory=()=>{

@@ -68,7 +68,7 @@ export default function ProductDetailClient({product,related}:Props) {
     }catch{/* Ignore invalid local demo state. */}
   },[product.id]);
   const format=(value:number)=>rtl&&rate!==null
-    ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(value*rate)+" تومان"
+    ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:value,fxRate:rate}).toman)+" تومان"
     : "$"+value.toFixed(2);
   const category=categoryNames[product.category]||{fa:product.category,en:product.category.replaceAll("-"," ")};
   const addToCart=()=>{
