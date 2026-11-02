@@ -14,7 +14,7 @@ const (
 	AuthorizationSellerReadVendor         AuthorizationAction = "seller.vendor.read"
 	AuthorizationSellerWriteVendor        AuthorizationAction = "seller.vendor.write"
 	AuthorizationAdminReadOverview        AuthorizationAction = "admin.overview.read"
-	AuthorizationAdminManageProducts       AuthorizationAction = "admin.products.manage"
+	AuthorizationAdminManageProducts      AuthorizationAction = "admin.products.manage"
 	AuthorizationAdminManageUsers         AuthorizationAction = "admin.users.manage"
 	AuthorizationAdminReviewMembership    AuthorizationAction = "admin.seller_membership.review"
 	AuthorizationAdminManageRoles         AuthorizationAction = "admin.roles.manage"

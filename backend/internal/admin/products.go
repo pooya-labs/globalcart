@@ -19,32 +19,32 @@ import (
 const productManagementQueryTimeout = 5 * time.Second
 
 var (
-	ErrManagedProductNotFound   = errors.New("managed product not found")
-	ErrInvalidProductInput      = errors.New("invalid product management input")
-	ErrNoProductChanges         = errors.New("product update contains no changes")
-	ErrProductAlreadyArchived   = errors.New("product is already archived")
-	ErrProductNotArchived       = errors.New("product is not archived")
+	ErrManagedProductNotFound = errors.New("managed product not found")
+	ErrInvalidProductInput    = errors.New("invalid product management input")
+	ErrNoProductChanges       = errors.New("product update contains no changes")
+	ErrProductAlreadyArchived = errors.New("product is already archived")
+	ErrProductNotArchived     = errors.New("product is not archived")
 )
 
 type ProductManagementRecord struct {
-	ID                 int64     `json:"id"`
-	Title              string    `json:"title"`
-	Description        string    `json:"description"`
-	Brand              string    `json:"brand"`
-	OriginalTitle      string    `json:"originalTitle"`
-	OriginalDescription string   `json:"originalDescription"`
-	OriginalBrand      string    `json:"originalBrand"`
-	Category           string    `json:"category"`
-	Price              float64   `json:"price"`
-	Rating             float64   `json:"rating"`
-	Stock              int32     `json:"stock"`
-	Source             string    `json:"source"`
-	SourceID           string    `json:"sourceId"`
-	ImportedAt         time.Time `json:"importedAt"`
-	VisibilityStatus   string    `json:"visibilityStatus"`
-	Revision           int64     `json:"revision"`
-	UpdatedAt          time.Time `json:"updatedAt"`
-	OverriddenFields   []string  `json:"overriddenFields"`
+	ID                  int64     `json:"id"`
+	Title               string    `json:"title"`
+	Description         string    `json:"description"`
+	Brand               string    `json:"brand"`
+	OriginalTitle       string    `json:"originalTitle"`
+	OriginalDescription string    `json:"originalDescription"`
+	OriginalBrand       string    `json:"originalBrand"`
+	Category            string    `json:"category"`
+	Price               float64   `json:"price"`
+	Rating              float64   `json:"rating"`
+	Stock               int32     `json:"stock"`
+	Source              string    `json:"source"`
+	SourceID            string    `json:"sourceId"`
+	ImportedAt          time.Time `json:"importedAt"`
+	VisibilityStatus    string    `json:"visibilityStatus"`
+	Revision            int64     `json:"revision"`
+	UpdatedAt           time.Time `json:"updatedAt"`
+	OverriddenFields    []string  `json:"overriddenFields"`
 }
 
 // ProductUpdateInput uses nil to leave a field unchanged. ClearFields explicitly
@@ -57,11 +57,11 @@ type ProductUpdateInput struct {
 }
 
 type productOverrideState struct {
-	Title             *string `json:"title"`
-	Description       *string `json:"description"`
-	Brand             *string `json:"brand"`
-	VisibilityStatus  string  `json:"visibilityStatus"`
-	Revision          int64   `json:"-"`
+	Title            *string `json:"title"`
+	Description      *string `json:"description"`
+	Brand            *string `json:"brand"`
+	VisibilityStatus string  `json:"visibilityStatus"`
+	Revision         int64   `json:"-"`
 }
 
 func (s productOverrideState) snapshot() ([]byte, error) {
