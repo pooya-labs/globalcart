@@ -166,6 +166,7 @@ test("recently viewed route inherits and persists the selected locale", async ({
 
   await page.getByRole("button", { name: "Switch language to Persian" }).click();
   await expect(history).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("button", { name: "تغییر زبان به انگلیسی" })).toBeVisible();
   await expect(history.getByRole("heading", { name: "محصولات بازدیدشده" })).toBeVisible();
 
   await page.reload();
