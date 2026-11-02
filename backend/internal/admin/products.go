@@ -18,6 +18,87 @@ import (
 
 const productManagementQueryTimeout = 5 * time.Second
 
+const productRevisionDefaultLimit = 20
+const productRevisionMaximumLimit = 100
+
+type ProductRevisionRecord struct {
+	ID        int64           `json:"id"`
+	ProductID int64           `json:"productId"`
+	Revision  int64           `json:"revision"`
+	Action    string          `json:"action"`
+	Before    json.RawMessage `json:"before"`
+	After     json.RawMessage `json:"after"`
+	ActorID   string          `json:"actorId"`
+	CreatedAt time.Time       `json:"createdAt"`
+}
+
+// ReadProductRevisionHistory exposes immutable product editorial revisions to
+// administrators only. The query is bounded and ordered newest-first.
+func ReadProductRevisionHistory(
+	ctx context.Context,
+	pool *pgxpool.Pool,
+	sessionToken string,
+	productID int64,
+	limit int,
+	offset int,
+) ([]ProductRevisionRecord, error) {
+	if productID <= 0 || limit < 0 || offset < 0 || offset > 10000 {
+		return nil, ErrInvalidProductInput
+	}
+	if limit == 0 {
+		limit = productRevisionDefaultLimit
+	}
+	if limit > productRevisionMaximumLimit {
+		return nil, ErrInvalidProductInput
+	}
+
+	queryCtx, cancel, tx, _, err := beginAdminProductTransaction(ctx, pool, sessionToken)
+	if err != nil {
+		return nil, err
+	}
+	defer cancel()
+	defer func() { _ = tx.Rollback(queryCtx) }()
+
+	if _, err := readManagedProductTx(queryCtx, tx, productID, false); err != nil {
+		return nil, err
+	}
+	rows, err := tx.Query(queryCtx, `
+		SELECT id, product_id, revision, action, before_state, after_state,
+		       actor_user_id::text, created_at
+		FROM admin_product_revisions
+		WHERE product_id = $1
+		ORDER BY revision DESC
+		LIMIT $2 OFFSET $3
+	`, productID, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("read admin product revision history: %w", err)
+	}
+	defer rows.Close()
+
+	history := make([]ProductRevisionRecord, 0, limit)
+	for rows.Next() {
+		var item ProductRevisionRecord
+		var before, after []byte
+		if err := rows.Scan(
+			&item.ID, &item.ProductID, &item.Revision, &item.Action,
+			&before, &after, &item.ActorID, &item.CreatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("scan admin product revision history: %w", err)
+		}
+		item.Before = append(json.RawMessage(nil), before...)
+		item.After = append(json.RawMessage(nil), after...)
+		history = append(history, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate admin product revision history: %w", err)
+	}
+	rows.Close()
+	if err := tx.Commit(queryCtx); err != nil {
+		return nil, fmt.Errorf("commit admin product revision history: %w", err)
+	}
+	return history, nil
+}
+
 var (
 	ErrManagedProductNotFound = errors.New("managed product not found")
 	ErrInvalidProductInput    = errors.New("invalid product management input")
