@@ -95,7 +95,6 @@ func (s *Service) GetOrder(ctx context.Context, ownerTokenHash []byte, orderID s
 	return detail, nil
 }
 
-
 func loadOrderRelations(ctx context.Context, tx pgx.Tx, orderID string, detail *OrderDetail) error {
 	rows, err := tx.Query(ctx, `SELECT oi.product_id,oi.variant_id,oi.quantity,oi.unit_price_snapshot::text,oi.currency,
 		oi.product_title_snapshot,oi.variant_title_snapshot,oi.vendor_product_id,oi.vendor_order_id,
@@ -183,7 +182,6 @@ func loadOrderRelations(ctx context.Context, tx pgx.Tx, orderID string, detail *
 	eventRows.Close()
 	return nil
 }
-
 
 // GetOrderForCustomer reads an order through account ownership attached to its
 // cart. The order/cart owner is resolved from PostgreSQL under a row lock;
