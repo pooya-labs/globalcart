@@ -182,6 +182,7 @@ func AuthorizeAdminTx(
 ) error {
 	switch action {
 	case AuthorizationAdminReadOverview,
+		AuthorizationAdminManageProducts,
 		AuthorizationAdminManageUsers,
 		AuthorizationAdminReviewMembership,
 		AuthorizationAdminManageRoles:
