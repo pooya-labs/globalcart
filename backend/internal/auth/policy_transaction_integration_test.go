@@ -142,7 +142,7 @@ func TestSellerAuthorizationSerializesWithMembershipRevocation(t *testing.T) {
 			resource_type, resource_id, metadata
 		)
 		VALUES (
-			'auth.seller_scope.test_operation', $1, $1, 'vendor', $2::text,
+			'auth.seller_scope.test_operation', $1, $1, 'vendor', $2::bigint::text,
 			'{"origin":"integration_test"}'::jsonb
 		)
 	`, sellerID, vendorID); err != nil {
