@@ -20,7 +20,8 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
-  await expect(page.locator("#quick-dialog-title")).toHaveText("Essence Mascara Lash Princess");
+  await expect(page).toHaveURL(/\/product\/1\/$/);
+  await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
 
@@ -40,7 +41,7 @@ test("search suggestions support keyboard navigation and selection", async ({ pa
   await expect(search).toHaveAttribute("aria-activedescendant", /option-/);
   await search.press("Enter");
   await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Essence Mascara Lash Princess" })).toBeVisible();
+  await expect(page.locator("#quick-dialog-title")).toHaveText("Essence Mascara Lash Princess");
 });
 
 test("Ctrl+K command palette opens the local shopping bag", async ({ page }) => {
@@ -89,13 +90,14 @@ test("saved searches persist locally and can be applied and deleted", async ({ p
 test("cart and checkout remain a clearly simulated local flow", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   const targetProduct = page.locator(".product-card").filter({ hasText: "Essence Mascara Lash Princess" });
-  await targetProduct.getByRole("button", { name: "Add to bag" }).click();
+  await targetProduct.scrollIntoViewIfNeeded();
+  await targetProduct.locator(".product-price button").click();
   await page.getByRole("button", { name: /Your bag/ }).click();
   await expect(page.getByRole("dialog").getByText("Essence Mascara Lash Princess", { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Continue to demo checkout" }).click();
   await expect(page.getByRole("heading", { name: "Demo checkout" })).toBeVisible();
-  await expect(page.getByText(/Real payments are disabled/)).toBeVisible();
+  await expect(page.locator(".checkout-warning")).toContainText("Real payments are disabled");
   await page.getByRole("button", { name: "Place demo order" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Demo order created" })).toBeVisible();
 });
