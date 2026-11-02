@@ -377,4 +377,16 @@
 ### M08.8.5 PostgreSQL rating domain constraint — CI verified (2026-11-02)
 - Added migration 007 enforcing the canonical maximum product rating of 5 at the database boundary.
 - Added a PostgreSQL batch-rollback regression for an out-of-range 5.01 rating.
-- Backend CI verification is pending.
+- Catalog CI PR run [41363342797](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342797), Backend CI PR run [41363342758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342758) and Backend CI push run [41363337241](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363337241) all passed on implementation commit `cc36339bcac77d08abc37af3f88f08607a090367`.
+
+
+## Unreleased — Catalog API and storefront facets (2026-11-02)
+
+### Added
+- Added normalized brand and inclusive source-price/rating facets to the read-only PostgreSQL product API. The paginated list and total count now share the same predicates.
+- Added strict decimal/range validation, stable API errors, OpenAPI documentation, PostgreSQL indexes and integration coverage.
+- Added bilingual storefront brand and minimum-rating filters, with a shared reset path for all active filters.
+- Extracted local catalog filtering into a pure helper and added regression tests for combined filters, normalized brand matching, inclusive rating bounds and non-mutation.
+
+### Verification
+- Implementation head `3372040d3cd71cd55d99724033065cf0dfa4537e` passed [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365136582), [Catalog CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141727) and [Backend CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141780).

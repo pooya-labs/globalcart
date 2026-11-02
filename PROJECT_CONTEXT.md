@@ -24,7 +24,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Never mark roadmap work complete before verification.
 
 ## Current implementation map
-- `app/page.tsx` — bilingual storefront, catalog search/filter/sort, category mega-menu, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
+- `app/page.tsx` — bilingual storefront, catalog search/filter/sort with dynamic brand and minimum-rating facets, category mega-menu, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
 - `app/product/[id]/page.tsx` — statically generated product routes from the current catalog snapshot.
 - `app/product/[id]/ProductDetailClient.tsx` — product gallery, illustrative price breakdown, product facts, browser-local visit tracking, local cart/favorite actions and related products.
 - `app/recently-viewed/page.tsx` — static-exportable history page reading and clearing browser-local recent product IDs.
@@ -32,10 +32,10 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `app/layout.tsx` — metadata and global styles.
 - `data/catalog.json` — generated 100-product sample catalog snapshot.
 - `scripts/sync-catalog.ts` — scheduled/manual DummyJSON import, retry, normalization and last-known-good protection.
-- `lib/catalog/*` — canonical catalog contracts, normalization and source adapter.
+- `lib/catalog/*` — canonical catalog contracts, normalization, source adapter and pure local facet filtering (`filtering.ts`).
 - `lib/pricing.ts` — integer-cent/fixed-point demo pricing with BigInt.
 - `lib/translation/*` and `google-apps-script/*` — parked legacy translation implementation; not used by storefront or CI.
-- `tests/*.test.ts` — catalog, pricing and legacy translation tests.
+- `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - `ROADMAP.md` — authoritative milestone checklist.
 - `backend/` — Go REST API, PostgreSQL migrations, local Docker Compose, catalog importer and OpenAPI contract.
@@ -454,3 +454,13 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added PostgreSQL integration coverage using rating 5.01 in a multi-product import batch; the test asserts the earlier valid product is rolled back too.
 - The migration is additive and forward-only; it does not rewrite existing ratings.
 - Catalog CI PR run [41363342797](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342797), Backend CI PR run [41363342758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342758), and Backend CI push run [41363337241](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363337241) all passed on implementation commit `cc36339bcac77d08abc37af3f88f08607a090367`. PostgreSQL migrations, integration tests (including the isolated 5.01 rating rollback case), Go builds and Docker image build succeeded.
+
+
+## M07.1 — Catalog facets verified (2026-11-02)
+- The PostgreSQL read-only product list supports category, full-text query, normalized exact brand and inclusive source-price/rating bounds; list and total-count queries share the same predicates.
+- Numeric filters reject malformed values, negatives, excess decimal precision, out-of-domain ratings and inverted min/max bounds before database access.
+- Migration 008 adds supporting brand, price and rating indexes. OpenAPI documents the complete query contract.
+- The Persian/English storefront derives its brand options from the loaded catalog and provides minimum-rating controls. Existing category, text and price filters continue to work; reset clears all filters.
+- Local filtering logic is isolated in `lib/catalog/filtering.ts` and covered by focused regression tests.
+- The latest implementation head `3372040d3cd71cd55d99724033065cf0dfa4537e` passed Catalog CI push run `41365136582`, Catalog CI PR run `41365141727` and Backend CI PR run `41365141780`.
+- The frontend still uses the generated static catalog. The Go API is not hosted and has not been connected to the public storefront.

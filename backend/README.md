@@ -49,12 +49,13 @@ Keep the database volume by default. To delete local development data permanentl
 - The catalog importer is a local/operator command, not an HTTP endpoint.
 - GitHub Pages remains a static frontend; it does not run this service.
 
-## Next M04 slices
-1. Add integration tests against a disposable PostgreSQL service in CI.
-2. Add sqlc generation and typed query layer after schema stabilizes.
-3. Add identity/session and role/permission model before any admin/seller write endpoints.
-4. Add deployment manifests and managed PostgreSQL only after the owner selects/approves a hosting provider, region, budget and secret-management approach.
-5. Connect the frontend to the API only after a hosted HTTPS endpoint and CORS origins are approved.
+## Remaining M04 gates
+1. Design and implement the identity/session/role boundary before exposing any cart, checkout, admin or seller write endpoint.
+2. Approve the hosting provider, region, budget and secret-management approach before provisioning a managed PostgreSQL instance or public API.
+3. Approve a custom frontend domain and same-site HTTPS API origin before connecting the static storefront to the backend.
+4. Add deployment manifests, production secret handling, backup/restore and smoke tests only after the hosting decisions are approved.
+
+The disposable-PostgreSQL CI suite, generated sqlc layer, read-only handlers and Docker image build are already implemented and verified; they are not pending M04 tasks.
 
 
 ## Typed SQL layer
@@ -65,10 +66,25 @@ The root `sqlc.yaml` defines generated pgx/v5 query code from `backend/queries` 
 go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0 generate
 ```
 
-CI regenerates and formats the typed package before tests/builds. The first pass defines product listing/detail and active variant reads; handlers will be switched to this layer in the next slice.
+CI regenerates and formats the typed package before tests/builds. The read-only API handlers already use generated typed queries for product listing/counting, product detail, categories and active product variants.
 
 
 The public product list and detail read handlers use the generated sqlc query package. The importer intentionally retains explicit transactional upsert statements because it performs a multi-step product/category transaction rather than a simple generated read query.
 
 
 The read-only catalog API also exposes `GET /api/v1/products/{id}/variants` for active product variants. It returns a 404 when the parent product does not exist.
+
+
+## Read-only catalog filters
+
+`GET /api/v1/products` accepts:
+- `q`: bounded full-text query.
+- `category`: case/whitespace-normalized category name.
+- `brand`: case/whitespace-normalized exact brand.
+- `minPrice` / `maxPrice`: inclusive source-price bounds, non-negative with at most two decimal places.
+- `minRating` / `maxRating`: inclusive rating bounds from 0 to 5, with at most two decimal places.
+- `limit` / `offset`: bounded pagination.
+
+The paginated rows and `total` count use the same predicates. Invalid numeric input, precision, range or inverted bounds returns HTTP 400 before the database is queried. Migration 008 adds supporting brand, price and rating indexes. PostgreSQL integration tests cover combined filters and count/page consistency.
+
+The storefront currently applies the corresponding brand and minimum-rating facets locally against the generated catalog snapshot. It is not wired to this local-only API; that integration remains gated on approved hosting and same-site HTTPS.

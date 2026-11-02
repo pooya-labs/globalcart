@@ -144,12 +144,27 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [ ] Seller profile, product management and demo analytics.
 
 ## M07 — Search and discovery
-- [ ] Faceted filters for brand, rating, price and category.
+- [x] Faceted filters for brand, rating, price and category across the storefront and read-only API.
 - [ ] Accessible suggestions and keyboard command palette.
-- [ ] PostgreSQL full-text/trigram baseline and relevance tests.
+- [x] PostgreSQL full-text search baseline and indexed query path.
+- [ ] Trigram typo tolerance and search relevance tests.
 - [ ] Explainable ranking and recommendations.
 - [ ] Saved searches and preferences.
 - [ ] Empty, loading, offline and error states.
+
+### M07.1 — Catalog facets: category, brand, price and rating — CI verified (2026-11-02)
+- [x] Add case/whitespace-normalized exact brand filtering and inclusive minimum/maximum source-price and rating filters to the PostgreSQL catalog API.
+- [x] Apply identical filtering predicates to the paginated product list and total-result count.
+- [x] Validate decimal syntax, non-negative values, two-decimal precision, database bounds and inverted ranges before database access.
+- [x] Add supporting brand, price and rating indexes, OpenAPI query documentation and PostgreSQL integration coverage.
+- [x] Add bilingual storefront controls for dynamic brand selection and minimum rating; preserve existing category/price/search filters.
+- [x] Make clear-filter and no-results recovery reset every active filter.
+- [x] Extract pure client-side filtering logic and add regression tests for combined filters, normalized brand matching and non-mutating behavior.
+- [x] Verify TypeScript, Catalog unit tests, production build, sqlc generation, Go vet, PostgreSQL integration/race tests, API/importer builds and Docker image.
+
+**Verification:** latest implementation head `3372040d3cd71cd55d99724033065cf0dfa4537e` passed [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365136582), [Catalog CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141727) and [Backend CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141780).
+
+**Boundary:** storefront facets currently run against the local generated catalog snapshot. The Go API and PostgreSQL remain local/unhosted; no public API connection or production deployment is implied.
 
 ## M08 — Quality and hardening
 - [ ] Playwright tests for critical shopping journeys.
