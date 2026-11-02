@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -94,6 +95,11 @@ func (h *Handler) listCategories(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) listProducts(w http.ResponseWriter, r *http.Request) {
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	category := strings.TrimSpace(r.URL.Query().Get("category"))
+	brand := strings.TrimSpace(r.URL.Query().Get("brand"))
+	minPrice, minPriceValue, validMinPrice := parseOptionalDecimal(r.URL.Query().Get("minPrice"), 9_999_999_999.99)
+	maxPrice, maxPriceValue, validMaxPrice := parseOptionalDecimal(r.URL.Query().Get("maxPrice"), 9_999_999_999.99)
+	minRating, minRatingValue, validMinRating := parseOptionalDecimal(r.URL.Query().Get("minRating"), 5)
+	maxRating, maxRatingValue, validMaxRating := parseOptionalDecimal(r.URL.Query().Get("maxRating"), 5)
 	limit, validLimit := parseBoundedInt(r.URL.Query().Get("limit"), 24, 1, 100)
 	if !validLimit {
 		writeError(w, http.StatusBadRequest, "invalid_limit")
@@ -112,13 +118,43 @@ func (h *Handler) listProducts(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "category_too_long")
 		return
 	}
+	if len(brand) > 120 {
+		writeError(w, http.StatusBadRequest, "brand_too_long")
+		return
+	}
+	if !validMinPrice {
+		writeError(w, http.StatusBadRequest, "invalid_min_price")
+		return
+	}
+	if !validMaxPrice {
+		writeError(w, http.StatusBadRequest, "invalid_max_price")
+		return
+	}
+	if minPrice != "" && maxPrice != "" && minPriceValue > maxPriceValue {
+		writeError(w, http.StatusBadRequest, "invalid_price_range")
+		return
+	}
+	if !validMinRating {
+		writeError(w, http.StatusBadRequest, "invalid_min_rating")
+		return
+	}
+	if !validMaxRating {
+		writeError(w, http.StatusBadRequest, "invalid_max_rating")
+		return
+	}
+	if minRating != "" && maxRating != "" && minRatingValue > maxRatingValue {
+		writeError(w, http.StatusBadRequest, "invalid_rating_range")
+		return
+	}
 	ctx, cancel := context.WithTimeout(r.Context(), 4*time.Second)
 	defer cancel()
 	params := dbgen.ListProductsParams{
-		Category: category, Query: q, PageLimit: int32(limit), PageOffset: int32(offset),
+		Category: category, Query: q, Brand: brand, MinPrice: minPrice, MaxPrice: maxPrice,
+		MinRating: minRating, MaxRating: maxRating, PageLimit: int32(limit), PageOffset: int32(offset),
 	}
 	total, err := h.queries.CountProducts(ctx, dbgen.CountProductsParams{
-		Category: category, Query: q,
+		Category: category, Query: q, Brand: brand, MinPrice: minPrice, MaxPrice: maxPrice,
+		MinRating: minRating, MaxRating: maxRating,
 	})
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "catalog_query_failed")
@@ -255,6 +291,38 @@ func parseBoundedInt(raw string, fallback, min, max int) (int, bool) {
 		return 0, false
 	}
 	return n, true
+}
+
+// parseOptionalDecimal accepts non-negative decimal values with at most two
+// fractional digits. It keeps the original decimal text for PostgreSQL NUMERIC
+// comparisons so filtering does not depend on binary floating-point rounding.
+func parseOptionalDecimal(raw string, maximum float64) (string, float64, bool) {
+	value := strings.TrimSpace(raw)
+	if value == "" {
+		return "", 0, true
+	}
+	parts := strings.Split(value, ".")
+	if len(parts) > 2 || len(parts[0]) == 0 || len(parts[0]) > 10 {
+		return "", 0, false
+	}
+	for _, part := range parts {
+		if part == "" {
+			return "", 0, false
+		}
+		for _, char := range part {
+			if char < '0' || char > '9' {
+				return "", 0, false
+			}
+		}
+	}
+	if len(parts) == 2 && len(parts[1]) > 2 {
+		return "", 0, false
+	}
+	parsed, err := strconv.ParseFloat(value, 64)
+	if err != nil || math.IsNaN(parsed) || math.IsInf(parsed, 0) || parsed < 0 || parsed > maximum {
+		return "", 0, false
+	}
+	return value, parsed, true
 }
 
 func writeJSON(w http.ResponseWriter, status int, value any) {

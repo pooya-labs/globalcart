@@ -39,6 +39,27 @@ paths:
         - in: query
           name: category
           schema: { type: string }
+          description: Case-insensitive normalized category name.
+        - in: query
+          name: brand
+          schema: { type: string, maxLength: 120 }
+          description: Case-insensitive exact brand match after trimming whitespace.
+        - in: query
+          name: minPrice
+          schema: { type: number, format: double, minimum: 0, maximum: 9999999999.99 }
+          description: Inclusive minimum source price in USD, up to two decimal places.
+        - in: query
+          name: maxPrice
+          schema: { type: number, format: double, minimum: 0, maximum: 9999999999.99 }
+          description: Inclusive maximum source price in USD, up to two decimal places.
+        - in: query
+          name: minRating
+          schema: { type: number, format: double, minimum: 0, maximum: 5 }
+          description: Inclusive minimum rating, up to two decimal places.
+        - in: query
+          name: maxRating
+          schema: { type: number, format: double, minimum: 0, maximum: 5 }
+          description: Inclusive maximum rating, up to two decimal places.
         - in: query
           name: limit
           schema: { type: integer, minimum: 1, maximum: 100, default: 24 }
@@ -49,7 +70,7 @@ paths:
         '200':
           description: Product page with page count and total matching result count
         '400':
-          description: Invalid limit, offset, query or category parameter
+          description: Invalid pagination, text, category, brand or numeric filter parameter/range
   /api/v1/products/{id}:
     get:
       summary: Get a catalog product

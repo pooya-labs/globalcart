@@ -42,6 +42,13 @@ func TestListProductsRejectsInvalidParametersBeforeDatabaseAccess(t *testing.T) 
 		"/api/v1/products?offset=100001",
 		"/api/v1/products?q=" + strings.Repeat("x", 201),
 		"/api/v1/products?category=" + strings.Repeat("x", 121),
+		"/api/v1/products?brand=" + strings.Repeat("x", 121),
+		"/api/v1/products?minPrice=-1",
+		"/api/v1/products?maxPrice=10000000000",
+		"/api/v1/products?minPrice=1.234",
+		"/api/v1/products?minPrice=20&maxPrice=10",
+		"/api/v1/products?minRating=5.01",
+		"/api/v1/products?minRating=4&maxRating=3",
 	} {
 		res := httptest.NewRecorder()
 		h.ServeHTTP(res, httptest.NewRequest(http.MethodGet, target, nil))
@@ -68,6 +75,36 @@ func TestParseBoundedInt(t *testing.T) {
 			got, valid := parseBoundedInt(tt.raw, tt.fallback, tt.min, tt.max)
 			if got != tt.want || valid != tt.valid {
 				t.Fatalf("parseBoundedInt() = (%d, %t), want (%d, %t)", got, valid, tt.want, tt.valid)
+			}
+		})
+	}
+}
+
+func TestParseOptionalDecimal(t *testing.T) {
+	tests := []struct {
+		name    string
+		raw     string
+		maximum float64
+		want    string
+		valid   bool
+	}{
+		{name: "omitted", maximum: 100, want: "", valid: true},
+		{name: "trimmed exact decimal", raw: " 49.90 ", maximum: 100, want: "49.90", valid: true},
+		{name: "integer", raw: "0", maximum: 100, want: "0", valid: true},
+		{name: "upper bound", raw: "5.00", maximum: 5, want: "5.00", valid: true},
+		{name: "negative", raw: "-1", maximum: 100},
+		{name: "too precise", raw: "1.001", maximum: 100},
+		{name: "scientific notation", raw: "1e2", maximum: 1000},
+		{name: "not a number", raw: "NaN", maximum: 100},
+		{name: "infinity", raw: "Inf", maximum: 100},
+		{name: "above maximum", raw: "5.01", maximum: 5},
+		{name: "empty fraction", raw: "10.", maximum: 100},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, _, valid := parseOptionalDecimal(tt.raw, tt.maximum)
+			if got != tt.want || valid != tt.valid {
+				t.Fatalf("parseOptionalDecimal(%q) = (%q, %t), want (%q, %t)", tt.raw, got, valid, tt.want, tt.valid)
 			}
 		})
 	}
