@@ -534,13 +534,14 @@
 - Baseline was 512,814 bytes of JS and 67,702 bytes of CSS on the initial route. External CDN image timing and Core Web Vitals were not measured because browser tests block external hosts.
 
 
-## Unreleased — transaction-bound bulk session revocation (implementation; CI pending, 2026-11-02)
+## Unreleased — transaction-bound bulk session revocation (CI verified, 2026-11-02)
 
 ### Added
 - Added an allow-listed `SessionRevocationReason` and `RevokeUserSessions` helper for password changes/resets, account disablement, privilege changes, administrative revocation and security rotation.
 - The helper accepts the caller's `pgx.Tx`, locks the account row to serialize against session creation, revokes all currently active sessions and appends one redacted audit event per session.
 - Added PostgreSQL integration coverage for caller rollback, invalid reasons, per-user isolation, audit attribution scoped specifically to revocation events, and idempotent repeated calls.
+- Added a fast unit test for the full allow-list, including explicit rejection of `logout` (handled by single-session revocation) and unknown reasons.
 - Kept the helper internal; no auth HTTP route, cookie or hosted infrastructure was enabled.
 
 ### Verification
-- Backend CI and security scans are pending on the implementation head.
+- Backend CI [run 41393919125](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919125) and Security scans [run 41393919064](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919064) passed on code head `6e044b63048b0911c5a7078279e38fe354898605`, including race-enabled PostgreSQL tests and Docker image build.

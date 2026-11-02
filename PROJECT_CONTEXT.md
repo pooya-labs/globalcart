@@ -69,10 +69,11 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Internal session creation, refresh/role resolution, session-bound CSRF verification and logout revocation are implemented in `backend/internal/auth/sessions.go`.
 - Backend CI [41387103123](https://github.com/pooya16pg-spec/globalcart/actions/runs/41387103123), Security scans [41387103141](https://github.com/pooya16pg-spec/globalcart/actions/runs/41387103141) and GitHub Pages deployment [41387103149](https://github.com/pooya16pg-spec/globalcart/actions/runs/41387103149) passed on the code/documentation head immediately before the catalog-only snapshot refresh.
 
-## M04.4 bulk session revocation checkpoint — implementation pushed; CI pending (2026-11-02)
+## M04.4 bulk session revocation checkpoint — CI verified (2026-11-02)
 - Added `RevokeUserSessions`, which requires the caller's open `pgx.Tx`, locks the target user row, and serializes against `CreateSession`.
 - Reasons are a typed allow-list matching migration 011; every revoked session receives one append-only, redacted audit event. The optional actor ID supports self-service, administrator and system-initiated mutations.
 - Integration coverage verifies caller rollback, rejected reasons, per-user isolation, audit attribution and idempotent repeated calls.
+- Backend CI [run 41393919125](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919125) passed the PostgreSQL-backed race-enabled Go suite, `go vet`, dependency vulnerability scan, API/importer builds and Docker image build. Security scans [run 41393919064](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919064) also passed on code head `6e044b63048b0911c5a7078279e38fe354898605`.
 - The helper is intentionally not wired to HTTP. Password, role and account-status mutation services must invoke it in the same transaction as their own database changes.
 
 ## Deployment

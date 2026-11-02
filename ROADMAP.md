@@ -164,14 +164,14 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** internal store/service only. No browser cookie, route, middleware, public authentication flow or hosted database has been enabled.
 
-### M04.4 — Transaction-bound bulk session revocation (implementation; CI pending, 2026-11-02)
+### M04.4 — Transaction-bound bulk session revocation (CI verified, 2026-11-02)
 - [x] Add an allow-listed revocation-reason type matching migration 011 constraints.
 - [x] Lock the account row and serialize bulk revocation with session creation.
 - [x] Accept the caller's PostgreSQL transaction so account/password/privilege mutation and session revocation can commit or roll back together.
 - [x] Revoke every active session for one user and append one redacted audit event per session, with an optional actor identity.
 - [x] Return the affected count; repeated revocation is a no-op and does not create duplicate audit events.
 - [x] Add integration coverage for rollback, invalid reasons, user isolation, audit actor/reason and idempotency.
-- [ ] Verify the complete race-enabled PostgreSQL Backend CI suite and security scans on the implementation head.
+- [x] Verify the complete race-enabled PostgreSQL Backend CI suite and security scans: Backend CI [run 41393919125](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919125) and Security scans [run 41393919064](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919064) both passed on code head `6e044b63048b0911c5a7078279e38fe354898605`.
 
 **Boundary:** this is an internal transaction helper, not a password-change endpoint or authorization middleware. Callers must include the relevant credential/role/account update in the same transaction. No HTTP route, browser cookie, email flow or hosted database is enabled.
 
