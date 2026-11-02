@@ -136,3 +136,11 @@ These methods are not registered with the HTTP router. The review operation has 
 The migration ledger stores the applied filename, timestamp and SHA-256 checksum of the exact SQL file bytes. Startup fails closed if an applied migration is modified or its source file disappears. Existing pre-checksum ledger rows are backfilled once; new rows require a checksum. Each file and ledger insert commit atomically, and the runner serializes concurrent startup attempts with a PostgreSQL advisory lock.
 
 Applied migrations are immutable. Use a new numbered forward-fix migration; do not delete ledger entries or assume schema rollback is safe. The current runner executes each migration in a transaction, so non-transactional statements such as CREATE INDEX CONCURRENTLY require a separately designed operational procedure. See docs/DATABASE_MIGRATION_POLICY.md for expand-and-contract, backup/restore, rollback decisions and the incident runbook.
+
+## Internal admin overview foundation (M06.1; not an HTTP endpoint)
+
+`backend/internal/admin.ReadOverview(ctx, pool, sessionToken)` returns bounded aggregate diagnostics for the local PostgreSQL platform only after resolving the opaque server-side session token and requiring an active administrator role. It reports catalog counts/quality/source breakdown, variant and vendor-offer states, seller-membership/account status totals, price-history coverage and recency, audit event volume/recency, and the intentionally paused translation state.
+
+The service revalidates the account, session and active admin-role rows under locks in the same transaction as the overview query. A stale in-memory role/session principal is not sufficient. The response intentionally excludes emails, password hashes, raw or hashed session/CSRF tokens, and audit-event metadata/payloads.
+
+The service is internal-only and is not registered on `backend/internal/httpapi`. No dashboard, public admin route, role switcher, user bootstrap, account mutation or seller write operation is enabled. Do not expose it until the approved same-site HTTPS identity middleware and hosting/email/secret prerequisites are complete. The test suite exercises PostgreSQL-backed customer/seller denial, administrator access, account/session/role revocation and aggregate data boundaries.
