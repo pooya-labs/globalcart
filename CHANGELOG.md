@@ -447,3 +447,15 @@
 ### Verification
 - Commit `e515d696873aa2811c3edb35fc89ace74ae874df` passed Browser E2E push `41370817992`, Browser E2E PR `41370823048`, Catalog CI PR `41370822987` and Backend CI PR `41370823026`.
 - The automated scan covers selected states and is not a replacement for manual assistive-technology review.
+
+
+## Unreleased — Keyboard focus restoration (2026-11-02)
+
+### Fixed
+- The Command Palette explicitly restores focus to the invoking control after dismissal, including when opened by Ctrl/⌘+K from the search field.
+
+### Added
+- Added Playwright keyboard-only checks for Tab/Shift+Tab focus containment and Escape focus restoration on desktop Chromium and Pixel 7 mobile.
+
+### Verification
+- Commit `8937b54f0f631695ee02e51a128cc42815988f43` passed Browser E2E push `41375898314` and PR `41375903109` (18 passed), Catalog CI PR `41375903056`, and Backend CI PR `41375903095`.

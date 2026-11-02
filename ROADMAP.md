@@ -683,3 +683,15 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on implementation head e515d696873aa2811c3edb35fc89ace74ae874df:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370817992), [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370823048), [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370822987) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370823026) all succeeded.
 
 **Coverage boundary:** this is an automated axe scan of the three listed states at two viewport profiles. It is not a legal accessibility certification and does not replace manual screen-reader, keyboard-only usability and human contrast review.
+
+
+## M08.3 — Keyboard-only modal focus verification — CI verified (2026-11-02)
+- [x] Add Playwright keyboard-only coverage for the command palette's Tab and Shift+Tab focus trap in desktop Chromium and Pixel 7 mobile.
+- [x] Verify Escape closes the command palette and restores focus to the exact invoking search field.
+- [x] Capture the invoking element before opening through Ctrl/⌘+K or the command button; restore focus after the modal has been removed from the DOM.
+- [x] Run all 18 browser tests on desktop/mobile with zero failures after the focus restoration fix.
+- [x] Verify Browser E2E Push and PR, Catalog CI PR and Backend CI PR on the same final implementation head.
+
+**Verification on implementation head 8937b54f0f631695ee02e51a128cc42815988f43:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375898314), [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903109), [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903056), and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903095) all succeeded. Browser E2E reports 18 passed across desktop and mobile.
+
+**Coverage boundary:** this automated keyboard test covers the Command Palette, not every dialog or every screen-reader combination. Manual keyboard walkthrough and assistive-technology review remain open.

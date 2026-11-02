@@ -520,3 +520,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The cart's text label remains in the accessibility tree when visually hidden on mobile, allowing the native button name to include both cart label and count without an aria-label mismatch.
 - Implementation head `e515d696873aa2811c3edb35fc89ace74ae874df` passed Browser E2E push `41370817992`, Browser E2E PR `41370823048`, Catalog CI PR `41370822987` and Backend CI PR `41370823026`.
 - Automated checks are limited to the tested routes/states. Manual screen-reader and keyboard-only review remain open quality work.
+
+
+## M08.3 — Keyboard-only modal focus verification (CI verified, 2026-11-02)
+- `e2e/accessibility.spec.ts` verifies focus remains inside the Command Palette when Tab/Shift+Tab crosses its edges and returns to the invoking search control after Escape.
+- `app/page.tsx` stores the active element when the palette opens via Ctrl/⌘+K or the command button, then restores focus after the dialog closes and is removed from the DOM.
+- Browser E2E on final implementation head `8937b54f0f631695ee02e51a128cc42815988f43` passed Push `41375898314` and PR `41375903109` (18 tests passed). Catalog CI PR `41375903056` and Backend CI PR `41375903095` also passed.
+- This is automated coverage for the Command Palette only. Other dialogs and manual screen-reader/browser review remain future QA.
