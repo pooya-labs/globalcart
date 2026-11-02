@@ -25,21 +25,42 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Refresh static catalog snapshot
         run: npm run catalog:sync
-      - name: Persist refreshed catalog snapshot
+      - name: Persist refreshed catalog snapshot safely
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Rebase the catalog-only change on the latest main before pushing.
-          # This prevents scheduled catalog commits from racing with UI commits.
-          git fetch origin main
-          git reset --soft origin/main
-          git add data/catalog.json
-          if git diff --cached --quiet; then
-            echo "Catalog snapshot is unchanged."
-          else
+
+          # Preserve the newly generated file outside the worktree. A soft reset
+          # leaves the old index intact and can therefore delete concurrent main
+          # changes when the bot creates its commit.
+          snapshot="$RUNNER_TEMP/catalog.json"
+          cp data/catalog.json "$snapshot"
+
+          # Rebuild a catalog-only commit from the latest main on every attempt.
+          # A non-fast-forward push is retried; force-push is never used.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            cp "$snapshot" data/catalog.json
+            git add -- data/catalog.json
+
+            if git diff --cached --quiet; then
+              echo "Catalog snapshot is unchanged."
+              exit 0
+            fi
+
             git commit -m "chore(catalog): refresh snapshot [skip ci]"
-            git push origin HEAD:main
-          fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+
+            echo "main moved during catalog persistence (attempt $attempt); retrying against latest main."
+          done
+
+          echo "::error::Could not persist catalog snapshot without a concurrent main update."
+          exit 1
       - name: TypeScript validation
         run: npm run typecheck
       - name: Unit tests
