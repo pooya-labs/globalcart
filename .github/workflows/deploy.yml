@@ -24,11 +24,13 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies from the committed lockfile
+        id: dependencies
         run: |
           if [ -f package-lock.json ]; then
             npm ci --no-audit
           else
             npm install --no-audit --no-fund
+            echo "bootstrapped=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Refresh static catalog snapshot
         run: npm run catalog:sync
@@ -60,7 +62,7 @@ jobs:
           test -f package-lock.json
           cp package-lock.json "$package_lock"
 
-          # Rebuild a catalog-only commit from the latest main on every attempt.
+          # Rebuild the snapshot/lockfile commit from the latest main on every attempt.
           # A non-fast-forward push is retried; force-push is never used.
           for attempt in 1 2 3 4 5; do
             git fetch origin main
@@ -82,8 +84,13 @@ jobs:
             echo "main moved during catalog persistence (attempt $attempt); retrying against latest main."
           done
 
-          echo "::error::Could not persist catalog snapshot without a concurrent main update."
+          echo "::error::Could not persist snapshot and lockfile without a concurrent main update."
           exit 1
+
+      - name: Validate generated lockfile with a clean npm ci
+        if: steps.dependencies.outputs.bootstrapped == 'true'
+        run: npm ci --no-audit
+
       - name: TypeScript validation
         run: npm run typecheck
       - name: Unit tests
