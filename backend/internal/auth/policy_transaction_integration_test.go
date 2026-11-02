@@ -209,3 +209,60 @@ func authorizeSellerVendorWithPool(
 	}
 	return tx.Commit(ctx)
 }
+
+func TestAuthorizeAdminTxRevalidatesRoleAndSessionRevocation(t *testing.T) {
+	pool, ctx := openAuthIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	adminID := createActiveAuthUser(t, ctx, pool, suffix+"-overview-admin")
+	grantAdminRoleFixture(t, ctx, pool, adminID)
+
+	issued, err := CreateSession(ctx, pool, adminID, integrationPasswordHash)
+	if err != nil {
+		t.Fatalf("create admin overview session: %v", err)
+	}
+	principal, err := ResolveSession(ctx, pool, issued.SessionToken)
+	if err != nil {
+		t.Fatalf("resolve admin overview session: %v", err)
+	}
+
+	// Keep the session active but revoke the role after principal resolution.
+	if _, err := pool.Exec(ctx, `
+		UPDATE user_roles
+		SET revoked_at = now()
+		WHERE user_id = $1 AND role_key = 'admin' AND revoked_at IS NULL
+	`, adminID); err != nil {
+		t.Fatalf("revoke admin role fixture: %v", err)
+	}
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("begin stale admin-role authorization: %v", err)
+	}
+	err = AuthorizeAdminTx(ctx, tx, principal, AuthorizationAdminReadOverview)
+	_ = tx.Rollback(ctx)
+	if !errors.Is(err, ErrForbidden) {
+		t.Fatalf("stale admin-role authorization error = %v, want ErrForbidden", err)
+	}
+
+	// Regrant the role, resolve a fresh principal, then revoke only its session.
+	if _, err := pool.Exec(ctx, `
+		INSERT INTO user_roles(user_id, role_key) VALUES($1, 'admin')
+	`, adminID); err != nil {
+		t.Fatalf("regrant admin fixture role: %v", err)
+	}
+	principal, err = ResolveSession(ctx, pool, issued.SessionToken)
+	if err != nil {
+		t.Fatalf("resolve admin overview session after regrant: %v", err)
+	}
+	if err := RevokeSession(ctx, pool, issued.SessionToken); err != nil {
+		t.Fatalf("revoke admin overview session: %v", err)
+	}
+	tx, err = pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("begin stale admin-session authorization: %v", err)
+	}
+	err = AuthorizeAdminTx(ctx, tx, principal, AuthorizationAdminReadOverview)
+	_ = tx.Rollback(ctx)
+	if !errors.Is(err, ErrInvalidSession) {
+		t.Fatalf("stale admin-session authorization error = %v, want ErrInvalidSession", err)
+	}
+}
