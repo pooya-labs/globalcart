@@ -37,6 +37,7 @@ async function expectDialogFocusLoop(page: Page, dialog: ReturnType<Page["locato
   const first = buttons.first();
   const last = buttons.last();
 
+  await expect(first).toBeFocused();
   await last.focus();
   await page.keyboard.press("Tab");
   await expect(first).toBeFocused();
@@ -111,14 +112,25 @@ test("shopping drawers and modals trap focus and restore their opener", async ({
   await expect(cartTrigger).toBeFocused();
 
   const favoritesTrigger = page.locator(".favorite-trigger");
-  await favoritesTrigger.focus();
-  await favoritesTrigger.click();
+  let favoritesReturnTarget = cartTrigger;
+  if (await favoritesTrigger.isVisible()) {
+    favoritesReturnTarget = favoritesTrigger;
+    await favoritesTrigger.focus();
+    await favoritesTrigger.click();
+  } else {
+    // The mobile header hides the dedicated icon; use the visible command-palette action.
+    await cartTrigger.focus();
+    await page.keyboard.press("Control+k");
+    const palette = page.getByRole("dialog", { name: "Quick commands" });
+    await expect(palette).toBeVisible();
+    await page.getByRole("option", { name: /Open saved items/ }).click();
+  }
   dialog = page.locator(".side-drawer[role='dialog']");
   await expect(dialog).toBeVisible();
   await expectDialogFocusLoop(page, dialog);
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
-  await expect(favoritesTrigger).toBeFocused();
+  await expect(favoritesReturnTarget).toBeFocused();
 
   const firstProduct = page.locator(".product-card").first();
   const quickViewTrigger = firstProduct.locator(".quick-view");
