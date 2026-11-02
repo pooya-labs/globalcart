@@ -55,7 +55,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Static export and Pages deployment workflow.
 - [x] Responsive editorial marketplace storefront.
 - [x] Persian-first RTL and English LTR.
-- [x] Persist the selected locale across storefront/product routes and full reloads, with safe fallback when browser storage is unavailable; Browser E2E [41414269385](https://github.com/pooya16pg-spec/globalcart/actions/runs/41414269385) passed desktop and mobile journeys.
+- [x] Persist the selected Persian/English locale across homepage, product-detail and recently-viewed routes and full reloads, with guarded browser storage and a safe Persian fallback; Browser E2E [41462200408](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200408) passed all 34 desktop/mobile tests, and Pages deployment [41462200496](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200496) passed published-site smoke checks.
 - [x] Search, categories, filters and sorting.
 - [x] Quick view, favorites and recently viewed.
 - [x] Local cart and simulated checkout.
