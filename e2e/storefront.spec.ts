@@ -109,7 +109,7 @@ test("saved searches persist locally and can be applied and deleted", async ({ p
 
   await page.reload();
   await expect(page.locator(".product-card").first()).toBeVisible();
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
   await page.getByRole("button", { name: /Saved searches/ }).click();
   await expect(page.getByText("Essence picks")).toBeVisible();
 
