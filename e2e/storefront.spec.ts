@@ -148,6 +148,14 @@ test("recently viewed route inherits and persists the selected locale", async ({
     .click();
   await expect(page).toHaveURL(/\\/product\\/1\\/?$/);
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
+  await expect.poll(() => page.evaluate(() => {
+    try {
+      const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
+      return Array.isArray(state.recent) && state.recent.includes(1);
+    } catch {
+      return false;
+    }
+  })).toBe(true);
 
   const historyUrl = new URL("../recently-viewed", page.url()).toString();
   await page.goto(historyUrl);
