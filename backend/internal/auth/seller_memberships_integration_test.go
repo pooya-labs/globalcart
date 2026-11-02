@@ -1,17 +1,17 @@
 package auth
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"slices"
 	"testing"
 	"time"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func createActiveSellerVendorFixture(t *testing.T, pool *pgxpool.Pool, ctx interface{ Done() <-chan struct{} }, suffix string) int64 {
+func createActiveSellerVendorFixture(t *testing.T, pool *pgxpool.Pool, ctx context.Context, suffix string) int64 {
 	t.Helper()
 	var vendorID int64
 	err := pool.QueryRow(ctx, "INSERT INTO vendors(slug, display_name, status) VALUES ($1, 'Seller Membership Fixture', 'active') RETURNING id", "seller-membership-"+suffix).Scan(&vendorID)
