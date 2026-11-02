@@ -86,8 +86,16 @@ func TestAuthorizeSellerVendorTxRevalidatesMembershipAndSession(t *testing.T) {
 	`, sellerID, vendorID); err != nil {
 		t.Fatalf("restore seller membership fixture: %v", err)
 	}
-	if _, err := RevokeUserSessions(ctx, pool, sellerID, &adminID, SessionRevocationPrivilegeChanged); err != nil {
+	revokeTx, err := pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
+	if err != nil {
+		t.Fatalf("begin seller fixture session revocation: %v", err)
+	}
+	if _, err := RevokeUserSessions(ctx, revokeTx, sellerID, &adminID, SessionRevocationPrivilegeChanged); err != nil {
+		_ = revokeTx.Rollback(ctx)
 		t.Fatalf("revoke seller fixture session: %v", err)
+	}
+	if err := revokeTx.Commit(ctx); err != nil {
+		t.Fatalf("commit seller fixture session revocation: %v", err)
 	}
 	tx, err = pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
