@@ -138,3 +138,30 @@ test("cart and checkout remain a clearly simulated local flow", async ({ page })
   await page.getByRole("button", { name: "Place demo order" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Demo order created" })).toBeVisible();
 });
+
+test("recently viewed route inherits and persists the selected locale", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
+
+  await page.locator(".product-card h3 a")
+    .filter({ hasText: "Essence Mascara Lash Princess" })
+    .click();
+  await expect(page).toHaveURL(/\\/product\\/1\\/?$/);
+  await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
+
+  const historyUrl = new URL("../recently-viewed", page.url()).toString();
+  await page.goto(historyUrl);
+  const history = page.locator("main.history-page");
+  await expect(history).toHaveAttribute("dir", "ltr");
+  await expect(history.getByRole("heading", { name: "Recently viewed products" })).toBeVisible();
+  await expect(history.getByRole("link", { name: /Essence Mascara Lash Princess/ })).toBeVisible();
+
+  await page.getByRole("button", { name: "Switch language to Persian" }).click();
+  await expect(history).toHaveAttribute("dir", "rtl");
+  await expect(history.getByRole("heading", { name: "محصولات بازدیدشده" })).toBeVisible();
+
+  await page.reload();
+  await expect(history).toHaveAttribute("dir", "rtl");
+  await page.getByRole("link", { name: /بازگشت به فروشگاه/ }).click();
+  await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
+});
