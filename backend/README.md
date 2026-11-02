@@ -45,15 +45,15 @@ Keep the database volume by default. To delete local development data permanentl
 
 The local PostgreSQL schema now contains normalized users, migration-controlled customer/seller/admin roles, vendor-scoped seller memberships, server-side session digest records, single-use email-verification/password-reset token digests and append-only audit events. New accounts receive only the default customer role. The database rejects weak hash formats, malformed digest lengths, invalid expiry lifecycles, duplicate active grants/tokens and audit mutation.
 
-The internal `backend/internal/auth` package now provides Argon2id password hashing and verification with bounded PHC parsing, a rehash decision helper, cryptographically random 256-bit opaque-token generation, SHA-256 digesting and constant-time digest comparison. The default Argon2id cost is 19 MiB, 2 iterations and 1 lane; benchmark this on the selected runtime and put rate limiting in front of expensive verification before enabling login.
+The internal `backend/internal/auth` package provides Argon2id password hashing/verification with bounded PHC parsing, a rehash decision helper, 256-bit opaque-token generation/digesting, and a PostgreSQL-backed session lifecycle. Sessions are created only for active verified accounts, store only token digests, use a 15-minute idle timeout capped by a 24-hour absolute lifetime, resolve effective roles and active seller vendor scopes from PostgreSQL, validate session-bound CSRF tokens in constant time, and revoke/audit logout atomically.
 
-These are isolated cryptographic primitives, not a complete authentication service. They are not wired to any handler. No login/register/session HTTP endpoint, cookie, email provider, live user collection or seller/admin route is enabled. ADR-010 remains proposed until the owner approves same-site HTTPS hosting, email delivery and secret management.
+The default Argon2id cost is 19 MiB, 2 iterations and 1 lane; benchmark this on the selected runtime and put rate limiting in front of expensive verification before enabling login. These internal functions are not wired to any handler. No login/register/session HTTP endpoint, browser cookie, email provider, live user collection or seller/admin route is enabled. Bulk session revocation for password/privilege changes remains pending. ADR-010 remains proposed until the owner approves same-site HTTPS hosting, email delivery and secret management.
 
 ## Local security boundary
 - Compose publishes PostgreSQL and API only on loopback (127.0.0.1).
 - The fallback password is for disposable local development only. Set `POSTGRES_PASSWORD` before using Compose and never reuse it in hosted environments.
 - Do not expose this API to the public internet as-is.
-- There is no authentication, user management, write API, payment, fulfillment, seller payout or production secret management yet.
+- There is no public authentication/session HTTP flow, user-management UI, write API, payment, fulfillment, seller payout or production secret management yet.
 - The catalog importer is a local/operator command, not an HTTP endpoint.
 - GitHub Pages remains a static frontend; it does not run this service.
 

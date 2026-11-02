@@ -38,7 +38,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering, search-suggestion, recommendation, saved-search and source-status tests, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - `ROADMAP.md` — authoritative milestone checklist.
-- `backend/` — Go REST API, PostgreSQL migrations 001–011, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract and `backend/internal/auth` cryptographic primitives. Identity helpers provide Argon2id password hash/verify and opaque-token digest operations; they are not connected to public authentication routes.
+- `backend/` — Go REST API, PostgreSQL migrations 001–011, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract and `backend/internal/auth`. The auth package provides Argon2id primitives, digest-only opaque tokens, and an internal PostgreSQL session lifecycle; none is wired to public authentication routes.
 - `go.mod` — Go module at repository root.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
@@ -61,6 +61,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - PostgreSQL enforces Argon2id PHC hash shape, verified-email activation, account-disable lifecycle, 32-byte token digests, idle/absolute session expiry, one active action token per user/purpose and append-only audit rows (UPDATE/DELETE/TRUNCATE rejected).
 - Migration execution now recognizes SQL quoted strings, identifiers, comments and dollar-quoted function bodies; unit tests cover splitting and PostgreSQL integration tests cover the schema invariants.
 - `backend/internal/auth` provides Argon2id PHC hash/verify and rehash helpers plus 256-bit opaque token generation, SHA-256 digesting and constant-time digest comparison. Verification rejects malformed and over-budget PHC parameters; bounded legacy hashes can be marked for rehash.
+- Internal sessions are created only for active verified accounts, store only session/CSRF digests, use a 15-minute idle timeout capped by a 24-hour absolute lifetime, resolve effective roles and active seller vendor scopes from PostgreSQL, and revoke/audit logout atomically.
 - No login/register/session HTTP endpoints, email delivery, cookie handling, live user data or hosted infrastructure was enabled. ADR-010 remains proposed; approval for same-site HTTPS frontend/API hosting, email delivery and secret management remains a prerequisite.
 
 ## Deployment
