@@ -583,3 +583,17 @@
 
 ### Verification
 - Backend CI [run 41396081833](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081833) and Security scans [run 41396081844](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081844) passed on code head `d720ffdebd77c6b28c82ce55567ea3bba90d95c8`.
+
+
+## Unreleased — audited administrator-role operations (CI verified, 2026-11-02)
+
+### Added
+- Added internal `GrantAdminRole` and `RevokeAdminRole` using the existing migration 011 role tables.
+- Require a different active, verified administrator actor; reject self-change, duplicate grant and missing revoke.
+- Serialize role changes using an advisory transaction lock and stable user-row locking.
+- Atomically revoke the target's sessions and append actor-attributed audit events for every role change.
+- Added PostgreSQL coverage for unauthorized/disabled actors, pending targets, session invalidation, audit attribution and concurrent grants.
+- No public role-management endpoint or self-bootstrap mechanism was added.
+
+### Verification
+- Backend CI [run 41396823353](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823353), Security scans [run 41396823371](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823371) and Pages deployment [run 41396823403](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823403) passed on code head `aef92e7526cfbc9c51f0d803bcba8493e131d8d2`.

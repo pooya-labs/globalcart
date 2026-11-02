@@ -209,6 +209,27 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** pending-account activation only; this does not grant seller/admin roles or enable a public registration endpoint.
 
+### M04.8 — Audited internal administrator-role grant/revocation (CI verified, 2026-11-02)
+- [x] Reuse migration 011 `user_roles`; no new role table or migration was added.
+- [x] Add `GrantAdminRole`: require a different active, email-verified administrator actor and an active, verified target; reject self-grants and duplicate grants.
+- [x] Add `RevokeAdminRole`: require a different active, email-verified administrator actor; reject self-revocation and missing grants.
+- [x] Serialize privileged role mutations with a transaction-scoped advisory lock and lock actor/target rows in stable order.
+- [x] Revoke every target session in the same transaction as the role mutation; append actor-attributed, redacted audit events.
+- [x] Add PostgreSQL tests for authorization, disabled actors, pending targets, self-change rejection, duplicate operations, session invalidation and concurrent admin grants.
+- [x] Verify Backend CI [run 41396823353](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823353), Security scans [run 41396823371](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823371) and GitHub Pages deployment [run 41396823403](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823403) on code head `aef92e7526cfbc9c51f0d803bcba8493e131d8d2`; all passed.
+- [x] Keep public/admin HTTP routes disabled. The first administrator must be provisioned through a reviewed operator-controlled database procedure; no self-bootstrap API exists.
+
+**Boundary:** internal privileged-role operations only. The trusted caller must derive `actorUserID` from a verified server-side session, never from request JSON or a browser-supplied role claim. Seller membership lifecycle and public authorization middleware are not included.
+
+### M04.9 — Seller-membership administration and scoped authorization (next; implementation not started)
+- [ ] Add internal request/review/activate/suspend/revoke operations for `seller_memberships`, with an active administrator actor and explicit vendor ownership checks.
+- [ ] Require the target account to be active and email-verified before activation; never grant the seller role or vendor scope from client-supplied IDs.
+- [ ] Serialize membership mutations, revoke affected sessions on suspension/revocation, and append actor-attributed audit events in the same transaction.
+- [ ] Test cross-vendor isolation, inactive vendors, inactive users, duplicate requests, unauthorized actors and concurrent review/revocation with PostgreSQL.
+- [ ] Keep seller routes and dashboards disabled until the approved same-site HTTPS identity boundary exists.
+
+**Boundary:** internal membership administration only; no seller self-approval, payouts, seller dashboard or public seller endpoint.
+
 ## M05 — Commerce simulation
 - [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
 - [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).

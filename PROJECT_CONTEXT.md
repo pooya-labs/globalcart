@@ -102,6 +102,16 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Tests cover digest-only storage, rotation, expiry, disabled accounts, replay, customer-only roles and concurrent double consumption.
 - Backend CI [run 41396081833](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081833) and Security scans [run 41396081844](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081844) passed on implementation head `d720ffdebd77c6b28c82ce55567ea3bba90d95c8`.
 
+
+## M04.8 administrator-role grant/revocation checkpoint — CI verified (2026-11-02)
+- `backend/internal/auth/admin_roles.go` provides internal `GrantAdminRole` and `RevokeAdminRole`; no role schema/migration changes were needed.
+- The actor must be a different active, email-verified administrator. Targets for grants must be active and verified. Self-change, duplicate grant and missing revoke are rejected.
+- A transaction-scoped advisory lock serializes privileged role changes; actor/target user rows are locked in stable order.
+- Every role mutation revokes the target's current sessions and records an actor-attributed redacted audit event in the same transaction.
+- PostgreSQL tests cover authorization failures, disabled actors, pending targets, self-change, session invalidation, audit attribution and concurrent grants.
+- Backend CI [run 41396823353](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823353), Security scans [run 41396823371](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823371) and Pages deployment [run 41396823403](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823403) passed on code head `aef92e7526cfbc9c51f0d803bcba8493e131d8d2`.
+- No HTTP endpoint or self-bootstrap flow exists. First-admin provisioning remains an operator-controlled database operation.
+
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
@@ -125,11 +135,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Manual screen-reader, real-device and full-site/deep-link QA remain open.
 
 ## Immediate next actions
-1. Keep auth HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Password, reset and email-verification helpers remain internal-only.
-2. Build and test a deny-by-default internal role-grant/revocation service with explicit admin authorization, active seller-membership scope and immutable audit events; do not expose it over HTTP before deployment approval.
-3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
-4. Obtain owner approval and documented rights for a named supplier API/feed before live catalog onboarding; do not scrape or fabricate inventory.
-5. Select an authorized FX provider and define source timestamp/stale-rate policy before enabling FX conversion; keep the current rate illustrative.
+1. Keep authentication, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Identity and role helpers remain internal-only; callers must derive actor IDs from verified server-side sessions.
+2. Implement M04.9 internal seller-membership request/review/activation/suspension/revocation with vendor ownership checks, session invalidation and audit in one transaction.
+3. After membership authorization is complete, implement deny-by-default route policies and cross-vendor IDOR tests before considering any protected HTTP route.
+4. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
+5. Obtain owner approval and documented rights for a named supplier API/feed and an authorized FX provider/rate-staleness policy before enabling either integration.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.
