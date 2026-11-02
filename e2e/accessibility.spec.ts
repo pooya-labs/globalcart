@@ -31,6 +31,20 @@ async function expectNoWcagViolations(page: Page) {
   expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);
 }
 
+async function expectDialogFocusLoop(page: Page, dialog: ReturnType<Page["locator"]>) {
+  const buttons = dialog.locator("button:visible:not([disabled])");
+  await expect(buttons.first()).toBeVisible();
+  const first = buttons.first();
+  const last = buttons.last();
+
+  await last.focus();
+  await page.keyboard.press("Tab");
+  await expect(first).toBeFocused();
+
+  await page.keyboard.press("Shift+Tab");
+  await expect(last).toBeFocused();
+}
+
 test("storefront homepage meets WCAG 2.1 AA automated checks", async ({ page }) => {
   await expectNoWcagViolations(page);
 });
@@ -80,4 +94,74 @@ test("command palette traps keyboard focus and restores the invoking search fiel
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect(search).toBeFocused();
+});
+
+
+test("shopping drawers and modals trap focus and restore their opener", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+
+  const cartTrigger = page.locator(".bag-button");
+  await cartTrigger.focus();
+  await cartTrigger.click();
+  let dialog = page.locator(".side-drawer[role='dialog']");
+  await expect(dialog).toBeVisible();
+  await expectDialogFocusLoop(page, dialog);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(cartTrigger).toBeFocused();
+
+  const favoritesTrigger = page.locator(".favorite-trigger");
+  await favoritesTrigger.focus();
+  await favoritesTrigger.click();
+  dialog = page.locator(".side-drawer[role='dialog']");
+  await expect(dialog).toBeVisible();
+  await expectDialogFocusLoop(page, dialog);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(favoritesTrigger).toBeFocused();
+
+  const firstProduct = page.locator(".product-card").first();
+  const quickViewTrigger = firstProduct.locator(".quick-view");
+  await quickViewTrigger.hover();
+  await quickViewTrigger.click();
+  dialog = page.locator(".quick-modal[role='dialog']");
+  await expect(dialog).toBeVisible();
+  await expectDialogFocusLoop(page, dialog);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(quickViewTrigger).toBeFocused();
+
+  const productCards = page.locator(".product-card");
+  await productCards.nth(0).locator(".compare-card-button").click();
+  await productCards.nth(1).locator(".compare-card-button").click();
+  const compareTrigger = page.locator(".compare-tray-open");
+  await expect(compareTrigger).toBeEnabled();
+  await compareTrigger.focus();
+  await compareTrigger.click();
+  dialog = page.locator(".compare-modal[role='dialog']");
+  await expect(dialog).toBeVisible();
+  await expectDialogFocusLoop(page, dialog);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(compareTrigger).toBeFocused();
+});
+
+test("checkout dialog keeps focus contained and returns focus to the cart trigger", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+
+  await page.locator(".product-card").first().locator(".product-price button").click();
+  const cartTrigger = page.locator(".bag-button");
+  await cartTrigger.focus();
+  await cartTrigger.click();
+
+  const checkoutTrigger = page.locator(".drawer-bottom .full-button");
+  await expect(checkoutTrigger).toBeVisible();
+  await checkoutTrigger.click();
+
+  const dialog = page.locator(".checkout-modal[role='dialog']");
+  await expect(dialog).toBeVisible();
+  await expectDialogFocusLoop(page, dialog);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(cartTrigger).toBeFocused();
 });
