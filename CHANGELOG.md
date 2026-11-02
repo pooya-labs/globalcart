@@ -611,4 +611,4 @@
 
 ### Verification
 - Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226) and Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) passed on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`.
-- GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) was still running when this entry was prepared.
+- GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) also passed.

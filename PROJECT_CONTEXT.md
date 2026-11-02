@@ -119,7 +119,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Each membership mutation is serialized with admin role operations. The user keeps seller role while at least one active membership on an active vendor remains; the role is revoked after the final active scope is removed.
 - Affected sessions are invalidated in the same transaction; membership and automatic role changes append actor-attributed audit events.
 - PostgreSQL tests verify two-vendor scope preservation, remaining-scope behavior after suspension, final seller-role removal, disabled-target cleanup, inactive vendor/requester rejection and concurrent activation.
-- Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226) and Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) passed on implementation head `f0756e0a3360b949b384aef1ff8e3a646192257b`. Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) was still completing at checkpoint time.
+- Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226) and Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) passed on implementation head `f0756e0a3360b949b384aef1ff8e3a646192257b`. Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) also passed.
 - No seller HTTP endpoint, dashboard, self-approval path or seller payout feature exists.
 
 ## Deployment

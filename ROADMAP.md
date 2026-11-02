@@ -227,10 +227,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Serialize admin review with the existing privileged-mutation lock, preserve other vendor scopes, revoke the seller role only after the last active vendor scope is removed, and invalidate target sessions transactionally.
 - [x] Append actor-attributed audit events for membership requests, activation, suspension/revocation and automatic seller-role grant/revoke.
 - [x] Add PostgreSQL tests for multi-vendor scope retention, no-scope role removal, disabled target cleanup, inactive vendors, unauthorized actors and concurrent activation.
+- [x] Verify Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226), Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) and GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`; all three passed.
 
-- [x] Verify Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226), Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) and GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`; Backend CI and Security passed; Pages deployment is completing.
 
-- [x] Verify Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226), Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) and GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`; Backend CI and Security passed; Pages deployment is completing.
 
 **Boundary:** internal membership administration only; no seller self-approval, payouts, seller dashboard or public seller endpoint.
 
