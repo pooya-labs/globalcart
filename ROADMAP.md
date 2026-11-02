@@ -321,7 +321,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Automated RTL/LTR axe checks, dialog keyboard/focus regression tests and reduced-motion behavior verified in desktop Chromium and Pixel 7 mobile; manual screen-reader, physical-device and broader keyboard review remains open.
 - [ ] Performance and image-loading audit (image policy and first-party JS/CSS budgets are automated; live CDN image timing and Core Web Vitals review remains open).
 - [x] Automated repository secret scan (Gitleaks), Go dependency vulnerability scan and `go vet` in CI; hosted API penetration/security review remains gated.
-- [ ] Database backup/restore and migration verification.
+- [x] PostgreSQL 17 logical backup/restore and migration-ledger verification in disposable CI; hosted backup policy and operational recovery drills remain gated on provider approval.
 - [ ] Reproducible build and deployment smoke test.
 
 ### M08.10 — Shopping-dialog focus regression coverage (CI verified, 2026-11-02)
@@ -343,6 +343,15 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Security scans [41383420409](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420409) and GitHub Pages deployment [41383420345](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420345) passed on the same head.
 
 **Boundary:** automated scans cover the tested storefront states and desktop/mobile emulation. Manual screen-reader, real-device, full-site RTL/LTR and published URL/deep-link QA remain open.
+
+### M08.12 — PostgreSQL logical backup/restore CI regression (CI verified, 2026-11-02)
+- [x] Create a PostgreSQL 17 custom-format `pg_dump` of the disposable integration database after the race-enabled suite completes.
+- [x] Restore into a fresh `globalcart_restore` database with `pg_restore --exit-on-error`, excluding runner-specific owner and ACL metadata.
+- [x] Compare the ordered `schema_migrations` ledger, product/user/cart/vendor-offer row counts, validated constraint count and `pg_trgm` extension version between source and restored databases.
+- [x] Clean up the temporary dump and restore database on both success and failure.
+- [x] Verify Backend CI [run 41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) and Security scans [run 41404293071](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404293071) on implementation commit `0e8c8556fa04fa43d735b46820685632eef2df0a`; both passed.
+
+**Boundary:** this proves logical backup and restore on disposable CI PostgreSQL only. It does not create retained/off-site backups, test encryption or point-in-time recovery, define production RPO/RTO, or replace a provider-backed restore drill after hosted PostgreSQL is approved.
 
 ## M09 — Portfolio release
 - [ ] Persian and English case study.

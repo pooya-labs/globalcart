@@ -158,12 +158,15 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The backend remains local-development scaffolding. No hosted database/API, real payment/refund provider, production secrets or paid service was provisioned.
 - PR #1 is closed and merged: https://github.com/pooya16pg-spec/globalcart/pull/1
 
-## Latest quality checkpoint — M08.11 (CI verified, 2026-11-02)
-- Implementation head: `9653fc7d2d03e45f726b7e6a0e47fd7cbd1295dc` on `main`.
+## Latest quality checkpoint — M08.12 (CI verified, 2026-11-02)
+- Latest hardening implementation commit: `0e8c8556fa04fa43d735b46820685632eef2df0a`; current `main` head at this handoff is `3695a41a3aa81721da3259dc488fc195feae85bc` (catalog snapshot refresh only).
+- Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed sqlc generation, Go formatting, dependency vulnerability scan, vet, PostgreSQL race-enabled tests, logical backup/restore, API/importer builds and Docker image build.
+- Security scans [41404293071](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404293071) passed on the same implementation commit.
+- The backup/restore regression restores a custom-format dump into a fresh PostgreSQL 17 database and compares migration ledger, key table counts, constraints and `pg_trgm`; it is CI-only, not a hosted backup/DR setup.
 - Playwright Browser E2E [41383420470](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420470) passed all 30 tests across desktop Chromium and Pixel 7 mobile.
 - axe audits passed in both Persian RTL and English LTR. Reduced-motion behavior passed on both viewports, including scroll, transition and dialog-animation checks.
 - Fixed the stale-catalog status contrast to exceed 5:1.
-- Security scans [41383420409](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420409) and GitHub Pages deployment [41383420345](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420345) passed on the same implementation head.
+- GitHub Pages deployment for the backend implementation commit was still in progress when this checkpoint was recorded; no storefront source files changed in this slice.
 - Manual screen-reader, real-device and full-site/deep-link QA remain open.
 
 ## Immediate next actions

@@ -3,6 +3,7 @@
 ## Unreleased — 2026-11-02
 
 ### Added
+- Added a PostgreSQL 17 custom-format logical backup/restore regression to Backend CI. It restores into a fresh database and compares the migration ledger, key table counts, validated constraints and `pg_trgm` version.
 - Added M04.12 customer-account ownership operations for cart binding, cart read/add/set/remove, parent and vendor-child order reads, and unpaid simulated-order cancellation. Every account path revalidates the active customer session and canonical PostgreSQL owner inside the protected transaction.
 - Added PostgreSQL integration regression coverage for foreign and guest-only cart/order IDOR, customer cart mutations, vendor child-order reads, first-writer-wins binding races, expired carts, revoked sessions and idempotent cancellation.
 - Preserved the independent guest-cart capability path; cart capability possession does not create account identity or grant customer/seller/admin roles.
@@ -20,6 +21,7 @@
 
 ### Verification
 - M04.12 implementation head `928c3867e2d8e109e4e6595f9ac0898cf51b25b9` passed [Backend CI 41403135351](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135351), [Security scans 41403135364](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135364) and [Pages deployment 41403135344](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135344). CI completed sqlc generation, gofmt, dependency vulnerability scan, vet, race-enabled tests, API/importer builds and Docker image build. Formatting-only generated commit: `5a5659d9b35789cf12072141152b0ab4be217c33`.
+- M08.12 Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed on `0e8c8556fa04fa43d735b46820685632eef2df0a`, including the PostgreSQL 17 logical backup/restore comparison; Security scans [41404293071](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404293071) also passed.
 
 ### Fixed
 - Increased the stale-catalog status foreground contrast from 4.32:1 to above 5:1 against its light background.
