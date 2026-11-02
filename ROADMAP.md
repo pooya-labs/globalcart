@@ -149,8 +149,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] PostgreSQL full-text search baseline and indexed query path.
 - [x] PostgreSQL trigram typo tolerance for product titles and brands, with exact full-text matches ranked first and integration coverage.
 - [x] Explainable catalog ranking and recommendation reasons based on documented sample rating/discount signals.
-- [ ] Saved searches and preferences.
-- [ ] Empty, loading, offline and error states.
+- [x] Browser-local saved searches and search preferences (query, category, brand, price/rating facets and sort), with validation, duplicate detection and bounded storage.
+- [x] Explicit empty, initial-loading, live-source, stale-snapshot and local-fixture fallback states with status announcements.
 
 ### M07.1 — Catalog facets: category, brand, price and rating — CI verified (2026-11-02)
 - [x] Add case/whitespace-normalized exact brand filtering and inclusive minimum/maximum source-price and rating filters to the PostgreSQL catalog API.
@@ -629,3 +629,29 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Verification on implementation head 09fd73ea1f1dcb1f01e5022c3f4380ec2832855a:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366975455) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366979976) passed. [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366979999) also passed, including PostgreSQL 17 tests and Docker image build.
 
 **Boundary:** ranking uses only the sample rating and discount fields already in the loaded catalog. It does not use personal data, purchase history, real popularity or live behavioral analytics.
+
+
+### M07.5 — Browser-local saved searches and preferences — CI verified (2026-11-02)
+- [x] Save the current query, category, brand, price range, minimum rating and sort order under a user-defined name.
+- [x] Persist up to twelve saved searches in browser localStorage only; provide apply and delete actions.
+- [x] Prevent duplicate filter/sort combinations and validate browser-stored data before using it.
+- [x] Ignore malformed entries safely and keep saved-search state independent from cart/favorites data.
+- [x] Add unit coverage for storage normalization, invalid records, collection bounds and duplicate detection.
+- [x] Verify TypeScript, catalog/domain tests and production build.
+
+**Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539848) also passed.
+
+**Privacy boundary:** saved searches live in this browser only. No account, server sync, analytics profile or backend endpoint is involved.
+
+### M07.6 — Explicit catalog empty/loading/offline states — CI verified (2026-11-02)
+- [x] Keep the generated last-known-good catalog visible immediately while a background source refresh is pending.
+- [x] Show a loading state only when no generated snapshot is available yet.
+- [x] Surface a clear stale-snapshot status when the online source fails or returns an empty collection; never replace a valid snapshot with empty data.
+- [x] Distinguish the last-known-good snapshot from the local fixture fallback used only when no snapshot exists.
+- [x] Retain the existing explicit no-results state for empty filtered results and announce source states through a status region.
+- [x] Add pure state-resolution tests for pending, live, empty and error outcomes with and without a snapshot.
+- [x] Verify TypeScript, catalog/domain tests and production build.
+
+**Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539848) passed.
+
+**Safety:** a failed or empty refresh does not clear or overwrite the last-known-good generated snapshot.

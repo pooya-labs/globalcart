@@ -414,3 +414,14 @@
 
 ### Verification
 - Implementation head `09fd73ea1f1dcb1f01e5022c3f4380ec2832855a` passed Catalog CI push `41366975455`, Catalog CI PR `41366979976` and Backend CI PR `41366979999`.
+
+
+## Unreleased — Saved searches and resilient catalog states (2026-11-02)
+
+### Added
+- Added browser-local saved searches for query, category, brand, price/rating facets and sort order, with naming, apply/delete, duplicate prevention, validation and a twelve-entry cap.
+- Added explicit loading, live, stale-snapshot and fixture-fallback status handling. Empty online responses no longer silently preserve a seemingly fresh state or overwrite the last-known-good snapshot.
+- Added pure helpers and tests for saved-search normalization and source-state transitions.
+
+### Verification
+- Implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be passed Catalog CI push 41367502278, Catalog CI PR 41367539860 and Backend CI PR 41367539848.
