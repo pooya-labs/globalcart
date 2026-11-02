@@ -9,7 +9,9 @@
 For every release update package.json, CHANGELOG.md, ROADMAP.md, and PROJECT_CONTEXT.md together.
 
 ## Verification
-Run npm ci, npm run typecheck, npm run build, and relevant tests. Verify the GitHub Pages base path. Do not claim deployment success until Actions passes and the published URL is checked.
+Use Node 22 and the committed `package-lock.json`: run `npm ci`, `npm run typecheck`, `npm test`, and `npm run build`. Do not use a floating `npm install` in routine CI. Verify the GitHub Pages base path. The Pages workflow runs an HTTP smoke test after deployment against the published homepage, a generated Next.js JavaScript asset and one catalog-backed product deep link. Do not claim deployment success unless the deploy action and this smoke step both pass.
+
+The Pages workflow has a one-time bootstrap path for a branch without a lockfile: it creates the lockfile, persists it with the generated catalog snapshot, then validates it using a clean `npm ci` before continuing. Lockfile-based dependency resolution is reproducible for a fixed manifest/runtime; the static export is not byte-for-byte reproducible while its public demo catalog snapshot and generation timestamp are refreshed from an external source.
 
 ## Database recovery and migration release gate
 

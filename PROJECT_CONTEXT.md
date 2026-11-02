@@ -158,16 +158,15 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The backend remains local-development scaffolding. No hosted database/API, real payment/refund provider, production secrets or paid service was provisioned.
 - PR #1 is closed and merged: https://github.com/pooya16pg-spec/globalcart/pull/1
 
-## Latest quality checkpoint — M08.12 (CI verified, 2026-11-02)
-- Latest hardening implementation commit: `0e8c8556fa04fa43d735b46820685632eef2df0a`; current `main` head at this handoff is `3695a41a3aa81721da3259dc488fc195feae85bc` (catalog snapshot refresh only).
-- Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed sqlc generation, Go formatting, dependency vulnerability scan, vet, PostgreSQL race-enabled tests, logical backup/restore, API/importer builds and Docker image build.
-- Security scans [41404293071](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404293071) passed on the same implementation commit.
-- The backup/restore regression restores a custom-format dump into a fresh PostgreSQL 17 database and compares migration ledger, key table counts, constraints and `pg_trgm`; it is CI-only, not a hosted backup/DR setup.
-- Playwright Browser E2E [41383420470](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420470) passed all 30 tests across desktop Chromium and Pixel 7 mobile.
-- axe audits passed in both Persian RTL and English LTR. Reduced-motion behavior passed on both viewports, including scroll, transition and dialog-animation checks.
-- Fixed the stale-catalog status contrast to exceed 5:1.
-- GitHub Pages deployment for the backend implementation commit was still in progress when this checkpoint was recorded; no storefront source files changed in this slice.
-- Manual screen-reader, real-device and full-site/deep-link QA remain open.
+## Latest quality checkpoint — M08.13 (CI verified, 2026-11-02)
+- Frontend deployment workflow implementation commit: `8fec0d0c9bbb845fb7b1dc0788970929828e0a2a`; lockfile plus refreshed catalog snapshot were persisted to `main` in `a9aa72606839d04329837c570fd2cbf492499299`, the current handoff head.
+- GitHub Pages run [41405289322](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289322) passed dependency bootstrap, clean `npm ci`, TypeScript validation, unit tests, production static export, artifact upload, deployment and the published-site smoke test.
+- The post-deployment smoke test fetched the HTTPS homepage, verified and fetched a Next.js JavaScript asset under `/globalcart/_next/static/`, then fetched the generated product detail route for the selected catalog product.
+- Security scans [41405289317](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289317) passed on the same workflow implementation commit.
+- Browser E2E [41405169987](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405169987) passed on the adjacent workflow update; Catalog CI [41405165393](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405165393) also passed.
+- The committed npm lockfile is consumed with `npm ci` by Pages, Catalog CI and Browser E2E workflows. The bootstrap run created it, persisted it with the catalog snapshot and then successfully reinstalled from it using a clean `npm ci`.
+- This stabilizes dependency resolution, not byte-for-byte export output: the scheduled public demo catalog and its generated timestamp may change between builds.
+- M08.12 PostgreSQL backup/restore coverage remains CI-only; it is not hosted backup/DR. Manual screen-reader, real-device, full-site RTL/LTR and broader deep-link QA remain open.
 
 ## Immediate next actions
 1. Keep authentication, customer commerce, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.

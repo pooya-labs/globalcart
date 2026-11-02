@@ -322,7 +322,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [ ] Performance and image-loading audit (image policy and first-party JS/CSS budgets are automated; live CDN image timing and Core Web Vitals review remains open).
 - [x] Automated repository secret scan (Gitleaks), Go dependency vulnerability scan and `go vet` in CI; hosted API penetration/security review remains gated.
 - [x] PostgreSQL 17 logical backup/restore and migration-ledger verification in disposable CI; hosted backup policy and operational recovery drills remain gated on provider approval.
-- [ ] Reproducible build and deployment smoke test.
+- [x] Lockfile-based frontend dependency install (`npm ci`) and post-deploy GitHub Pages smoke test; byte-for-byte export reproducibility is not claimed while the scheduled external catalog snapshot changes.
 
 ### M08.10 — Shopping-dialog focus regression coverage (CI verified, 2026-11-02)
 - [x] Keep Tab and Shift+Tab navigation inside cart, favorites, quick-view, comparison and checkout dialogs.
@@ -352,6 +352,15 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Backend CI [run 41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) and Security scans [run 41404293071](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404293071) on implementation commit `0e8c8556fa04fa43d735b46820685632eef2df0a`; both passed.
 
 **Boundary:** this proves logical backup and restore on disposable CI PostgreSQL only. It does not create retained/off-site backups, test encryption or point-in-time recovery, define production RPO/RTO, or replace a provider-backed restore drill after hosted PostgreSQL is approved.
+
+### M08.13 — Locked frontend dependencies and published Pages smoke test (CI verified, 2026-11-02)
+- [x] Add and commit the npm lockfile generated from the existing package manifest; keep Node 22 as the CI runtime.
+- [x] Make Pages, Catalog CI and Browser E2E use `npm ci` whenever the lockfile exists; retain a one-time bootstrap path for branches without it.
+- [x] Persist `package-lock.json` alongside the refreshed catalog snapshot, then validate it with a clean `npm ci` before typecheck, tests and build.
+- [x] After Pages deployment, request the published homepage, resolve and request a Next.js JavaScript asset beneath the `/globalcart/` base path, and request one statically generated product deep link selected from the built catalog.
+- [x] Verify Pages deployment [run 41405289322](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289322) and Security scans [run 41405289317](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289317) on workflow implementation commit `8fec0d0c9bbb845fb7b1dc0788970929828e0a2a`; both passed. The lockfile and generated catalog snapshot were persisted on `main` by `a9aa72606839d04329837c570fd2cbf492499299`.
+
+**Boundary:** the lockfile makes dependency resolution reproducible for the committed manifest and Node/npm environment; it does not promise byte-identical exports because the scheduled public demo catalog can change content and generation time. The smoke test covers the published homepage, one JS asset and one product route, not every route, browser/assistive-technology behavior or live CDN performance.
 
 ## M09 — Portfolio release
 - [ ] Persian and English case study.
