@@ -162,7 +162,7 @@ func revokeSellerRoleIfUnscoped(ctx context.Context, tx pgx.Tx, actorID, targetI
 }
 
 func auditSellerMembershipChange(ctx context.Context, tx pgx.Tx, eventType, actorID string, m SellerMembership) error {
-	_, err := tx.Exec(ctx, "INSERT INTO audit_events(event_type, actor_user_id, subject_user_id, resource_type, resource_id, metadata) VALUES ($1, $2, $3, 'seller_membership', $4, jsonb_build_object('vendor_id', $5::bigint, 'status', $6, 'origin', 'internal'))", eventType, actorID, m.UserID, m.ID, m.VendorID, m.Status)
+	_, err := tx.Exec(ctx, "INSERT INTO audit_events(event_type, actor_user_id, subject_user_id, resource_type, resource_id, metadata) VALUES ($1, $2, $3, 'seller_membership', $4, jsonb_build_object('vendor_id', $5::bigint, 'status', $6::text, 'origin', 'internal'))", eventType, actorID, m.UserID, m.ID, m.VendorID, m.Status)
 	if err != nil {
 		return fmt.Errorf("audit seller membership change: %w", err)
 	}
