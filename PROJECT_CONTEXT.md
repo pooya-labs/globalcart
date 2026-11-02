@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M04 identity/session/RBAC internal boundary; M04.12 customer resource ownership is CI-verified; public HTTP auth/write routes remain gated  
+**Active stage:** M06 admin/seller internal foundations; M06.1 read-only admin overview service is CI-verified; dashboards, seller UI and public routes remain gated by M04 deployment/identity prerequisites  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -38,7 +38,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering, search-suggestion, recommendation, saved-search and source-status tests, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - `ROADMAP.md` — authoritative milestone checklist.
-- `backend/` — Go REST API, PostgreSQL migrations 001–011, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract and `backend/internal/auth`. The auth package provides Argon2id primitives, digest-only opaque tokens, and an internal PostgreSQL session lifecycle; none is wired to public authentication routes.
+- `backend/` — Go REST API, PostgreSQL migrations 001–012, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract, `backend/internal/auth` and the new `backend/internal/admin`. M06.1 provides a session-gated, aggregate-only admin overview service; it is not registered on the HTTP router. The auth package provides Argon2id primitives, digest-only opaque tokens, session lifecycle and transaction-time admin/seller/customer authorization guards; public auth and commerce routes remain disabled.
 - `go.mod` — Go module at repository root.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
@@ -684,3 +684,10 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added unit tests for default mode, missing/malformed database URLs, unsupported SSL modes, invalid listener ports, origin normalization, unsafe CORS entries, and production TLS/HTTPS requirements.
 - Backend CI [41458549348](https://github.com/pooya16pg-spec/globalcart/actions/runs/41458549348) passed Go formatting, dependency vulnerability scanning, vet, race-enabled tests, PostgreSQL integration tests, logical backup/restore, API/importer builds and Docker image build. Security scans [41458549236](https://github.com/pooya16pg-spec/globalcart/actions/runs/41458549236) also passed.
 - This is configuration validation, not deployment: no hosted PostgreSQL, production secrets, HTTPS termination, email service, authentication HTTP routes or commerce write routes were provisioned.
+
+## Latest M06.1 checkpoint — internal administrator overview (CI verified, 2026-11-02)
+- Added explicit `admin.overview.read` deny-by-default authorization and `auth.AuthorizeAdminTx`, which locks/revalidates the active verified account, exact session and active admin grant in the same transaction as the protected read.
+- Added `backend/internal/admin.ReadOverview`, accepting only an opaque session token and returning aggregate-only product/category/variant quality, top catalog sources, vendor/offer and seller-membership states, user status totals, price-history coverage/recency, audit volume/recency and an explicit paused-translation status.
+- No emails, password hashes, token material/digests or audit payloads are returned. Customer and seller sessions are denied; tests verify stale role and session revocation is rejected even after an earlier principal resolution.
+- Backend CI [41465375163](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375163) passed Go formatting, govulncheck, go vet, all race-enabled tests, PostgreSQL integration tests, logical backup/restore, API/importer builds and Docker image build. Security scans [41465375326](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375326) passed.
+- Implementation head: `7ca99c04a348256aa0a6051241864213968f7f84`. The Pages deployment contains no frontend change; no HTTP handler, dashboard, public role switcher, account bootstrap, hosted database or production API was enabled.
