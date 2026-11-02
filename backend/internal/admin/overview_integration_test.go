@@ -121,15 +121,15 @@ func TestReadOverviewRequiresLiveAdminSessionAndReturnsAggregates(t *testing.T) 
 	sourceID := suffix
 	fixture := catalog.Product{
 		ID: productID, Title: "Admin overview diagnostic fixture",
-		Description: "", Category: "admin-overview-"+suffix,
+		Description: "", Category: "admin-overview-" + suffix,
 		Price: 0, DiscountPercentage: 0, Rating: 0, Stock: 0,
 		Brand: "GlobalCart Test", Thumbnail: "https://example.invalid/admin-overview.webp",
 		Images: []string{}, Source: source, SourceID: sourceID,
 		ImportedAt: time.Now().UTC(),
 		Variants: []catalog.Variant{{
-			SKU: "ADM-"+suffix, Title: "Diagnostic variant",
+			SKU: "ADM-" + suffix, Title: "Diagnostic variant",
 			Price: 1.25, Stock: 1, Attributes: map[string]any{"fixture": true},
-			Source: source, SourceID: "variant-"+sourceID, IsActive: true,
+			Source: source, SourceID: "variant-" + sourceID, IsActive: true,
 		}},
 	}
 	if err := database.UpsertProducts(ctx, pool, []catalog.Product{fixture}); err != nil {
