@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M06 — Identity/session/RBAC foundations before seller/admin workspaces  
+**Active stage:** M04 — Identity/session/RBAC design before commerce write APIs or seller/admin workspaces  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -190,7 +190,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Dismiss dialogs with Escape and restore focus to the invoking control.
 - [x] Preserve the original opener when a Command Palette action opens a replacement dialog, including the mobile saved-items route.
 - [x] Use touch-appropriate Quick View interaction in mobile browser tests instead of assuming pointer hover.
-- [x] Verify implementation head `2182bbb1c55ad265e4264c1a0389bf0353f0010a` before merge: Browser E2E push [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed (28 Playwright tests).
+- [x] Verify implementation head `2182bbb1c55ad265e4264c1a0389fb0353f0010a` before merge: Browser E2E push [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed (28 Playwright tests).
 - [x] On the same pre-merge PR head, Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) passed.
 
 **Boundary:** this is automated keyboard/focus coverage for the tested dialogs and desktop/mobile viewports. Manual screen-reader, physical-device, broader RTL/LTR and reduced-motion review remains open.

@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M06 identity/session/RBAC foundations before seller/admin workspaces  
+**Active stage:** M04 identity/session/RBAC design before commerce write APIs or seller/admin workspaces  
 **Last updated:** 2026-11-02
 
 ## Product definition
@@ -110,7 +110,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added `002_catalog_taxonomy_variants.sql`: normalized category table with parent relationship, product category foreign key/backfill, and product_variants with SKU/source identity, price/stock checks and JSONB attributes.
 - Existing `products.category` remains intact so current read endpoints and imported catalog contract stay backward-compatible.
 - PostgreSQL integration test now checks category backfill and variant attribute round-trip.
-- This change is on `feat/m04-go-postgres-foundation`; CI verification is pending.
+- This change was developed on `feat/m04-go-postgres-foundation` and later merged into `main`; final verification is recorded in the M05.1 checkpoint.
 
 
 ### M04 API validation pass — implementation in progress
@@ -217,7 +217,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 
 ## M08 vendor foundation — migration 005
-- Branch remains `feat/m04-go-postgres-foundation`; PR #1 remains Draft/open/unmerged.
+- Historical implementation branch: `feat/m04-go-postgres-foundation`; PR #1 was subsequently squash-merged into `main` on 2026-11-02.
 - `005_vendor_foundation.sql` adds vendors, vendor_products, vendor_price_history and vendor_inventory_events.
 - Current products and variants are backfilled as offers under the active GlobalCart Direct platform vendor, including initial price and opening-stock audit records.
 - Offers support independent vendor-specific price, USD currency, stock, SKU and status; partial unique indexes enforce one base/variant offer per vendor.
@@ -245,7 +245,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 
 ## Latest continuation checkpoint — 2026-11-02
-- Active branch: `feat/m04-go-postgres-foundation` (PR #1 remains draft; do not merge until review and CI verification).
+- Historical implementation branch: `feat/m04-go-postgres-foundation`; PR #1 was subsequently squash-merged into `main` on 2026-11-02.
 - M09.2 vendor split checkout is implemented: one parent order, one child per vendor, per-offer reservations, parent coupon redemption with exact child allocation, and lifecycle propagation for simulated payment/cancellation/expiry.
 - Latest implementation adds `GetVendorOrder`, an owner-capability-scoped read for a single vendor child order with immutable item snapshots. Unknown IDs and wrong-owner IDs return the same not-found error.
 - Added `vendor_orders_integration_test.go` for PostgreSQL-backed ownership and snapshot assertions.
@@ -256,7 +256,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 
 
 ## Latest continuation checkpoint — 2026-11-02 (CI verified)
-- Branch: `feat/m04-go-postgres-foundation`; PR #1 remains Draft/open/unmerged.
+- Historical implementation branch: `feat/m04-go-postgres-foundation`; PR #1 was subsequently squash-merged into `main` on 2026-11-02.
 - M09.3 `GetVendorOrder` and its PostgreSQL integration tests are verified by fresh Backend CI run `41352898725` on head `1234d02b51c7c411816ff9a7ab1b64a84aec5bb9`; conclusion: `success`.
 - The earlier run `41352848269` was cancelled after a newer PR run superseded it; it is not the verification record.
 - Authentication/session/RBAC remains design-only. `docs/SECURITY_AUTH_DESIGN.md` requires a custom same-site HTTPS frontend/API origin, approved email delivery and secret management before identity endpoints or browser cookie flows are implemented.
@@ -276,7 +276,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Cross-vendor isolation assertions in `backend/internal/commerce/vendors_integration_test.go` passed Backend CI run `41353137589` on code commit `e18a01d1a9414520334ceb312c2207990ccc71d5`.
 - All CI steps passed, including vet, race-enabled tests, API/importer builds and Docker image build.
 - Security design prohibits public seller routes until the handler resolves a verified session and active seller membership.
-- PR #1 remains Draft, open and unmerged. See `ROADMAP.md` for the next checkpoint.
+- PR #1 was subsequently squash-merged into `main` on 2026-11-02. See `ROADMAP.md` for the current checkpoint.
 - M09.5 is blocked pending approval of same-site HTTPS hosting, runtime, secret management and email provider. No deployment or paid service was enabled.
 
 
@@ -286,7 +286,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Seller/auth implementation remains gated by same-site HTTPS hosting, runtime approval, secret management and an approved email provider. `vendorID` is never proof of caller identity.
 - New in-progress regression tests in `backend/internal/httpapi/handler_test.go` assert that seller/order/cart/checkout write routes are not exposed and catalog routes reject mutation methods. Commit: `e91132997a9053943bc2e6c3f8dbe82d59f7d9b5`. CI pending.
 - Latest roadmap checkpoint: `ROADMAP.md`, stage M09.4.1. Do not treat the new HTTP guard tests as verified until their CI run completes.
-- PR #1 remains Draft/open/unmerged. No production hosting, payment provider or paid infrastructure enabled.
+- PR #1 was subsequently squash-merged into `main` on 2026-11-02. No production hosting, payment provider or paid infrastructure was enabled.
 
 - Follow-up hardening: CORS no longer advertises the `Authorization` request header before an authenticated API exists; regression test asserts the restricted header policy. Code commits: `6d3f1f2` and `05e1442`. CI verification pending for the latest code head.
 
@@ -309,7 +309,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - PostgreSQL integration fixture now supplies the variant through the imported product payload rather than manually inserting it. Catalog unit tests cover variant normalization and safe defaults.
 - Current DummyJSON sample feed does not provide variants; this is backward-compatible optional ingestion support, not a claim that live variant records are arriving. An authorized supplier feed/adapter is still needed to exercise real source variants.
 - New code commits: `34e0883`, `a9eeef5`, `e925313`, `26d6e1f`, `26c8a1f`, `ee46960`. CI for this new end-to-end ingestion slice is pending.
-- Active branch remains `feat/m04-go-postgres-foundation`; PR #1 remains Draft/open/unmerged. Do not merge or deploy.
+- Historical implementation branch: `feat/m04-go-postgres-foundation`; PR #1 was subsequently squash-merged into `main` on 2026-11-02.
 
 
 ## Latest continuation checkpoint — 2026-11-02: M08.2 verified; M08.3 in progress
@@ -320,7 +320,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Variant deduplication now keys by both source and source ID, matching the database unique identity pair. Equal source IDs from different suppliers are not incorrectly collapsed.
 - Added a synthetic-only supplier fixture and tests for mapping two variants, source provenance, SKU, attributes, inactive status, source-scoped identity and empty/unmappable feed rejection.
 - Added `.github/workflows/catalog-ci.yml` to run npm install, TypeScript validation, unit tests and a production build for relevant pushes and pull requests. Its result is the remaining M08.3 verification gate.
-- No real supplier API/feed, credentials, live supplier inventory, hosting, secrets, merge or deployment were added. PR #1 remains Draft/open/unmerged.
+- No real supplier API/feed, credentials, live supplier inventory, hosting or secrets were added in this checkpoint. PR #1 was subsequently merged into `main` on 2026-11-02.
 
 
 ## Latest continuation checkpoint — 2026-11-02: M08.3 CI verified
@@ -331,7 +331,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Variant de-duplication follows the database identity pair `(source, source_id)`. A synthetic-only supplier fixture validates mapping of two variants, provenance, SKU, attributes and inactive state. Empty and unmappable feeds are rejected.
 - The snapshot sync continues to preserve its last-known-good snapshot on failed ingestion. Product-only sources remain valid; absence of variants in a feed is not a command to delete existing database variants or offers.
 - M08.4 is blocked on the owner selecting and approving a named supplier/feed and its rights. No real supplier connection, API key, live inventory, hosting, secrets or deployment was introduced.
-- Branch head at this checkpoint: `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. PR #1 remains Draft/open/unmerged.
+- Branch head at this historical checkpoint: `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. PR #1 was subsequently merged into `main` on 2026-11-02.
 
 
 ## Follow-up hardening — 2026-11-02
