@@ -115,11 +115,14 @@ func (s *Service) GetCartForCustomer(
 		&cart.ID, &cart.Status, &cart.Currency, &cart.ExpiresAt,
 		&cart.CouponApplied, &ownerUserID, &expired,
 	)
-	if errors.Is(err, pgx.ErrNoRows) || !ownerUserID.Valid {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return Cart{}, ErrCartNotFound
 	}
 	if err != nil {
 		return Cart{}, fmt.Errorf("read customer cart owner: %w", err)
+	}
+	if !ownerUserID.Valid {
+		return Cart{}, ErrCartNotFound
 	}
 	if err := auth.Authorize(
 		principal,
