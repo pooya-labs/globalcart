@@ -7,6 +7,6 @@
   "rawQuoteUnit": "TMN",
   "priceSource": "ONE_MINUTE_CANDLE_CLOSE",
   "candleResolutionMinutes": 1,
-  "tomanPerUsdt": null,
-  "candleStartedAt": null
+  "tomanPerUsdt": 271995,
+  "candleStartedAt": "2026-11-02T07:59:00.000Z"
 }
