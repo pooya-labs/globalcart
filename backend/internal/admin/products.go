@@ -605,6 +605,8 @@ func appendProductRevision(
 	eventType := "admin.product.updated"
 	switch action {
 	case "updated":
+	case "created":
+		eventType = "admin.product.created"
 	case "archived":
 		eventType = "admin.product.archived"
 	case "restored":
