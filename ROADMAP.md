@@ -198,13 +198,14 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** no email is sent and no public password-reset endpoint is enabled. The raw token is returned once to an internal caller for delivery by a future approved email worker; HTTP responses must not expose account existence.
 
-### M04.7 — Email-verification token lifecycle and pending-account activation (next; implementation not started)
-- [ ] Reuse migration 011 `auth_action_tokens` with purpose `email_verification`; do not add a duplicate token table.
-- [ ] Add internal issuance with digest-only token storage, bounded expiry, token rotation and non-enumerating registration behavior at any future HTTP boundary.
-- [ ] Consume a verification token once, activate only the matching pending account, and revoke stale verification tokens transactionally.
-- [ ] Audit issuance and successful verification without storing raw token/email secrets.
-- [ ] Test expiry, duplicate/replayed token, token rotation, disabled account behavior, and concurrent verification attempts in PostgreSQL.
-- [ ] Keep email delivery and public registration/verification routes disabled until hosting, email provider and secret management are approved.
+### M04.7 — Email-verification token lifecycle and pending-account activation (CI verified, 2026-11-02)
+- [x] Reuse migration 011 `auth_action_tokens` with purpose `email_verification`; no duplicate token table or migration was added.
+- [x] Add internal issuance with digest-only token storage, bounded expiry, token rotation and an explicit no-public-endpoint boundary.
+- [x] Consume a verification token once, activate only the matching pending account, and revoke stale verification tokens transactionally.
+- [x] Audit issuance and successful verification without storing raw token/email secrets.
+- [x] Test expiry, duplicate/replayed tokens, token rotation, disabled-account behavior, customer-only roles and concurrent verification attempts in PostgreSQL.
+- [x] Verify Backend CI [run 41396081833](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081833) and Security scans [run 41396081844](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081844) on code head `d720ffdebd77c6b28c82ce55567ea3bba90d95c8`; both passed, including PostgreSQL race-enabled tests.
+- [x] Keep email delivery and public registration/verification routes disabled pending approved hosting, email provider and secret management.
 
 **Boundary:** pending-account activation only; this does not grant seller/admin roles or enable a public registration endpoint.
 

@@ -570,3 +570,16 @@
 
 ### Verification
 - Backend CI [run 41395571464](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571464), Security scans [run 41395571531](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571531) and Pages deployment [run 41395571666](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571666) passed on code head `8a504dca8ae23ca2c06143808452898281216abe`.
+
+
+## Unreleased — one-time email-verification token lifecycle (CI verified, 2026-11-02)
+
+### Added
+- Reused migration 011 `auth_action_tokens` for digest-only email-verification tokens; no new table or migration was added.
+- Added bounded issuance/rotation for pending accounts and one-time transactional activation with sibling-token revocation.
+- Verification preserves the database-assigned customer role and cannot grant seller/admin permissions.
+- Added PostgreSQL tests for digest-only storage, expiry, rotation, disabled accounts, replay and concurrent consumption.
+- No email provider or public registration/verification route was enabled.
+
+### Verification
+- Backend CI [run 41396081833](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081833) and Security scans [run 41396081844](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081844) passed on code head `d720ffdebd77c6b28c82ce55567ea3bba90d95c8`.

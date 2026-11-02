@@ -93,6 +93,15 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - PostgreSQL coverage includes digest-only storage, rotation, expiry, repeated/concurrent consumption and session invalidation.
 - Backend CI [run 41395571464](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571464), Security scans [run 41395571531](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571531) and Pages deployment [run 41395571666](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571666) passed on implementation head `8a504dca8ae23ca2c06143808452898281216abe`.
 
+
+## M04.7 email-verification token lifecycle checkpoint — CI verified (2026-11-02)
+- Reuses migration 011 `auth_action_tokens`; no schema migration or duplicate table was added.
+- Internal issuance is pending-account-only, stores SHA-256 digests, bounds TTL to 5 minutes–72 hours (24-hour default), rotates previous tokens and appends redacted audit events.
+- Consumption locks the user first, revalidates and consumes once, activates only the matching pending account, revokes sibling verification tokens and records completion atomically.
+- The database-assigned customer role is preserved; verification cannot grant seller/admin permissions. No email delivery or public registration/verification route is enabled.
+- Tests cover digest-only storage, rotation, expiry, disabled accounts, replay, customer-only roles and concurrent double consumption.
+- Backend CI [run 41396081833](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081833) and Security scans [run 41396081844](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081844) passed on implementation head `d720ffdebd77c6b28c82ce55567ea3bba90d95c8`.
+
 ## Deployment
 Public preview: https://pooya16pg-spec.github.io/globalcart/  
 Repository Actions: https://github.com/pooya16pg-spec/globalcart/actions
@@ -116,11 +125,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Manual screen-reader, real-device and full-site/deep-link QA remain open.
 
 ## Immediate next actions
-1. Keep auth HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. The internal password-change, password-reset and session helpers remain non-HTTP primitives.
-2. Implement M04.7 email-verification token consumption and pending-account activation using the existing `auth_action_tokens` table; do not add another token table.
-3. After identity primitives are complete, build and test deny-by-default internal authorization policies and seller-membership scope checks before any public protected route is considered.
-4. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
-5. Obtain owner approval and documented rights for a named supplier API/feed, and an authorized FX provider/rate-staleness policy, before enabling either integration.
+1. Keep auth HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Password, reset and email-verification helpers remain internal-only.
+2. Build and test a deny-by-default internal role-grant/revocation service with explicit admin authorization, active seller-membership scope and immutable audit events; do not expose it over HTTP before deployment approval.
+3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are already CI-verified.
+4. Obtain owner approval and documented rights for a named supplier API/feed before live catalog onboarding; do not scrape or fabricate inventory.
+5. Select an authorized FX provider and define source timestamp/stale-rate policy before enabling FX conversion; keep the current rate illustrative.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.
