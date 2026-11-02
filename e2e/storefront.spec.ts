@@ -42,6 +42,9 @@ test("shows the Wallex exchange candle and product provenance without a hard-cod
 
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
   await expect(page).toHaveURL(/\/product\/1\/?$/);
+  // Product detail is an independent client surface and starts in Persian.
+  // Switch it explicitly so the English provenance assertions test the intended locale.
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator(".detail-provenance")).toContainText("DummyJSON public demo API");
   await expect(page.locator(".detail-provenance")).toContainText("Source record ID");
   await expect(page.locator(".detail-provenance")).toContainText("Source sample rating; review count not supplied");
