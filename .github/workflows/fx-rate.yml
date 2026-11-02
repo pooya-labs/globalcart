@@ -1,23 +1,19 @@
-name: Sync Nobitex FX snapshot
-
+name: Sync Wallex FX snapshot
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/5 * * * *"
   push:
     branches: [main]
     paths:
       - ".github/workflows/fx-rate.yml"
       - "lib/fx/**"
-      - "scripts/sync-nobitex-fx.ts"
+      - "scripts/sync-wallex-fx.ts"
   workflow_dispatch:
-
 permissions:
   contents: write
-
 concurrency:
-  group: nobitex-fx-snapshot
+  group: wallex-fx-snapshot
   cancel-in-progress: false
-
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -29,36 +25,28 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit
-      - name: Fetch and validate the public Nobitex order book
-        run: npx tsx scripts/sync-nobitex-fx.ts
+      - name: Fetch and validate the public Wallex one-minute candle
+        run: npx tsx scripts/sync-wallex-fx.ts
       - name: Persist the validated quote without overwriting concurrent main updates
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           quote="$RUNNER_TEMP/fx-rate.json"
           cp data/fx-rate.json "$quote"
-
           for attempt in 1 2 3 4 5; do
             git fetch origin main
             git reset --hard origin/main
             cp "$quote" data/fx-rate.json
             git add -- data/fx-rate.json
-
             if git diff --cached --quiet; then
-              echo "Exchange quote is unchanged; no snapshot commit is needed."
+              echo "Exchange candle is unchanged; no snapshot commit is needed."
               exit 0
             fi
-
-            git commit -m "chore(fx): refresh Nobitex USDT/IRT quote [skip ci]"
-            if git push origin HEAD:main; then
-              exit 0
-            fi
-
+            git commit -m "chore(fx): refresh Wallex USDTTMN candle [skip ci]"
+            if git push origin HEAD:main; then exit 0; fi
             echo "main moved during FX snapshot persistence (attempt $attempt); retrying."
           done
-
           echo "::error::Could not persist the FX snapshot without a concurrent main update."
           exit 1

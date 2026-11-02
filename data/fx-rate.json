@@ -1,13 +1,12 @@
 {
-  "schemaVersion": 1,
-  "provider": "Nobitex",
-  "market": "USDTIRT",
+  "schemaVersion": 2,
+  "provider": "Wallex",
+  "market": "USDTTMN",
   "baseCurrency": "USDT",
-  "quoteCurrency": "IRT",
-  "rawQuoteUnit": "IRR",
+  "quoteCurrency": "TMN",
+  "rawQuoteUnit": "TMN",
+  "priceSource": "ONE_MINUTE_CANDLE_CLOSE",
+  "candleResolutionMinutes": 1,
   "tomanPerUsdt": null,
-  "bestBidToman": null,
-  "bestAskToman": null,
-  "lastTradeToman": null,
-  "marketUpdatedAt": null
+  "candleStartedAt": null
 }
