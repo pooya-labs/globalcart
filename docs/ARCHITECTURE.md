@@ -6,16 +6,18 @@ GlobalCart is an independent portfolio marketplace simulation. The current publi
 ## Current catalog data flow
 
 ```text
-DummyJSON public demo API
+Supplier-specific source adapter (DummyJSON today)
         |
         v
 scripts/sync-catalog.ts (scheduled/manual GitHub Actions)
         |
         v
-Typed normalization + validation + deduplication
+Shared adapter mapping + typed normalization + validation + deduplication
         |
         +----> source identity / URL / import timestamp
         |
+        v
+unique same-directory temp file + atomic rename
         v
 data/catalog.json (static snapshot)
         |
@@ -27,6 +29,10 @@ Browser-local cart / favorites / simulated checkout
 ```
 
 The browser may attempt a live catalog refresh. If it fails, the storefront keeps the generated snapshot; local fixtures are used only if no snapshot exists.
+
+## Backend foundation (M04 branch; local development only)
+
+The branch `feat/m04-go-postgres-foundation` adds a runnable Go API and PostgreSQL 17 Compose environment. The API applies embedded versioned migrations on startup, exposes liveness/readiness probes and read-only catalog list/detail endpoints, and uses a local CLI to import the normalized static catalog snapshot. OpenAPI is maintained in `backend/openapi.yaml`. The Compose ports bind to loopback; this is not a public or production deployment. The branch now also includes normalized catalog categories and product variants while preserving the current product API shape. The repository now defines a sqlc-generated pgx/v5 typed catalog query layer; API wiring is the next step. Authentication, write endpoints and hosted infrastructure remain future work. PostgreSQL integration tests currently cover concurrent/idempotent migrations, catalog upserts and transactional rollback.
 
 ## Target platform architecture (M04+)
 
@@ -87,3 +93,30 @@ GitHub Pages serves the Next.js export under /globalcart. No secrets or server-o
 
 ## Commerce simulation
 Until M04/M05, cart, favorites and checkout are browser-local. Future persisted payment/order records remain simulated and never trigger real payment or fulfillment.
+
+
+## Current backend read API
+- `GET /healthz` — process liveness.
+- `GET /readyz` — PostgreSQL readiness.
+- `GET /api/v1/products` — bounded, searchable and category-filtered product list.
+- `GET /api/v1/products/{id}` — product detail.
+- `GET /api/v1/products/{id}/variants` — active variants with stock and JSON attributes.
+- `GET /api/v1/categories` — normalized categories with parent IDs and product counts.
+
+All endpoints are read-only. Authentication, user data and write operations are not yet implemented.
+
+
+Product list pagination returns both `count` (items in the current page) and `total` (all matching products before limit/offset). Category filters match normalized category names case-insensitively and trim surrounding whitespace. Both list and count use the same search/category predicates.
+
+
+## Demo commerce schema (local-only, not exposed)
+Migration 003 introduces carts, cart items, demo orders, immutable order-line snapshots, expiring inventory reservations and order events. Guest ownership and checkout idempotency persist only SHA-256 digests of high-entropy capabilities/keys. The intended checkout is a single PostgreSQL transaction that locks the cart and relevant stock row, revalidates prices from canonical catalog data, writes immutable snapshots and creates an expiring reservation. Payment is simulated and reservation release never mutates imported stock. See `docs/COMMERCE_DESIGN.md`. No write endpoints or browser cookie flow are enabled until the same-site HTTPS, identity, authorization and CSRF gates are approved.
+
+
+The internal commerce service now implements demo checkout transactionally in Go. It is not exposed by HTTP. Checkout locks the cart and canonical stock row, revalidates price/title, accounts for active unexpired reservations, and atomically creates order snapshots, reservations and an event. Same-cart idempotent retries return the existing order. PostgreSQL integration tests cover concurrent stock contention and replay (CI run 41345901209).
+
+
+## Supplier ingestion boundary (M08.3)
+A `CatalogSourceAdapter` owns supplier-specific fetching and mapping. It emits raw records in the canonical catalog input shape; `loadCatalogFromSource` applies shared normalization, provenance and identity de-duplication before data can become a snapshot. Empty, malformed and wholly unmappable feeds fail closed, allowing the snapshot job to preserve its last-known-good file. Variant identity is source-scoped as `(source, sourceId)`, consistent with the PostgreSQL unique key.
+
+DummyJSON is the current product-only sample adapter and does not provide variants. A synthetic supplier fixture tests the shape of a future authorized feed, but is never used as storefront inventory. Real supplier connectors remain gated by explicit authorization and terms review.

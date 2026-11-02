@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: globalcart
+      POSTGRES_USER: globalcart
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local-only}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - globalcart-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U globalcart -d globalcart"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    environment:
+      APP_ENV: development
+      HTTP_ADDR: :8080
+      DATABASE_URL: postgres://globalcart:${POSTGRES_PASSWORD:-change-me-local-only}@postgres:5432/globalcart?sslmode=disable
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  catalog-import:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    entrypoint: ["/catalog-import"]
+    command: ["-file", "/data/catalog.json"]
+    volumes:
+      - ../data/catalog.json:/data/catalog.json:ro
+    environment:
+      DATABASE_URL: postgres://globalcart:${POSTGRES_PASSWORD:-change-me-local-only}@postgres:5432/globalcart?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: ["tools"]
+
+volumes:
+  globalcart-postgres:

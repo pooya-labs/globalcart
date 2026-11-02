@@ -1,0 +1,67 @@
+name: Browser E2E
+on:
+  push:
+    branches: [main, feat/m04-go-postgres-foundation]
+    paths:
+      - "app/**"
+      - "data/catalog.json"
+      - "lib/catalog/**"
+      - "e2e/**"
+      - "scripts/serve-static.mjs"
+      - "next.config.ts"
+      - "package.json"
+      - "playwright.config.ts"
+      - ".github/workflows/e2e.yml"
+  pull_request:
+    paths:
+      - "app/**"
+      - "data/catalog.json"
+      - "lib/catalog/**"
+      - "e2e/**"
+      - "scripts/serve-static.mjs"
+      - "next.config.ts"
+      - "package.json"
+      - "playwright.config.ts"
+      - ".github/workflows/e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-e2e-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: TypeScript validation
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Build static GitHub Pages site
+        run: npm run build
+        env:
+          GITHUB_ACTIONS: "true"
+      - name: Run desktop and mobile browser journeys
+        run: npm run test:e2e
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: globalcart-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

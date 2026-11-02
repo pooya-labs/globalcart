@@ -7,7 +7,7 @@
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no payment, inventory reservation, shipment, seller payout or refund is processed.
 
-## Current status — v0.2.2-dev · marketplace redesign
+## Current status — v0.2.3-dev · marketplace redesign
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -30,9 +30,9 @@ Implemented:
 In progress / not yet claimed as complete:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval, price/stock synchronization and a production FX feed require authorized provider access.
-- Seller/admin workspaces, persistent order history and advanced search remain planned.
-- Expanded domain unit tests; accessibility and browser tests remain pending.
-- Visual/accessibility QA and browser tests; deployment is now successful.
+- Seller/admin workspaces and account-backed order history remain planned; current cart and checkout behavior is a browser-local simulation.
+- Search suggestions, the keyboard command palette, explainable sample recommendations and saved-search flows are implemented.
+- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI; manual assistive-technology/RTL/LTR QA and live CDN/Core Web Vitals review remain open.
 
 
 ## Demo boundaries
@@ -53,7 +53,7 @@ Amazon's public storefront must not be scraped or bulk-copied. Any future adapte
 
 ## Technology
 
-- **Languages:** TypeScript and CSS (plus HTML through React).
+- **Languages:** TypeScript, CSS, Go and SQL (with HTML rendered through React).
 - **Framework:** Next.js 15 / React 19.
 - **UI:** custom responsive design system, Lucide icons.
 - **Hosting:** GitHub Actions + Next.js static export on GitHub Pages.
@@ -96,3 +96,9 @@ npm run build
 GlobalCart follows semantic versioning. Every release must update package.json, CHANGELOG.md, ROADMAP.md and PROJECT_CONTEXT.md in the same release commit. A roadmap checkbox is only marked complete after implementation and verification. The repository is the source of truth; chat history is not.
 
 **Built and maintained independently by Pooya Goodarzi.**
+
+
+## Backend foundation (local development)
+The M04 backend starter is available on the `feat/m04-go-postgres-foundation` branch. It includes a Go REST API, PostgreSQL 17 Docker Compose setup, versioned SQL migrations, catalog snapshot importer and OpenAPI 3.1 contract. It is a local development environment only; the public GitHub Pages demo remains static and no cloud database or API has been provisioned.
+
+Latest backend PR verification passed in [run 41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722), including PostgreSQL integration tests and Docker image build. The latest feature-branch verification also passed Browser E2E, Catalog CI and Security scans. See [backend/README.md](backend/README.md) for local setup and [backend/openapi.yaml](backend/openapi.yaml) for the read-only API contract.

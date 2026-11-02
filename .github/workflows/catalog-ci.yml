@@ -1,0 +1,45 @@
+name: Catalog CI
+on:
+  push:
+    branches: [main, feat/m04-go-postgres-foundation]
+    paths:
+      - "lib/catalog/**"
+      - "scripts/sync-catalog.ts"
+      - "tests/**"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/catalog-ci.yml"
+  pull_request:
+    paths:
+      - "lib/catalog/**"
+      - "scripts/sync-catalog.ts"
+      - "tests/**"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/catalog-ci.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: catalog-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Audit JavaScript dependencies
+        run: npm audit --audit-level=high
+      - name: TypeScript validation
+        run: npm run typecheck
+      - name: Catalog and domain unit tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+        env:
+          GITHUB_ACTIONS: "true"

@@ -1,63 +1,26 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { normalizeCatalog } from "../lib/catalog/normalize";
-import type { CatalogProduct } from "../lib/catalog/types";
+import { dummyJsonCatalogAdapter } from "../lib/catalog/dummyjson";
+import { loadCatalogFromSourceWithReport } from "../lib/catalog/source-adapter";
+import { assertCatalogSnapshot, readCatalogSnapshot, writeCatalogSnapshotAtomically, type CatalogSnapshot } from "../lib/catalog/snapshot";
+import { assertCatalogSnapshotContinuity, summarizeCatalogQuality } from "../lib/catalog/quality";
 
-type DummyJsonPayload = { products?: unknown[] };
-type CatalogSnapshot = {
-  schemaVersion: 1;
-  source: string;
-  generatedAt: string;
-  productCount: number;
-  products: CatalogProduct[];
-};
-
-const endpoint = "https://dummyjson.com/products?limit=100";
 const outputDirectory = join(process.cwd(), "data");
 const outputFile = join(outputDirectory, "catalog.json");
-const temporaryFile = join(outputDirectory, "catalog.json.tmp");
-
-async function readLastKnownGood(): Promise<CatalogSnapshot | null> {
-  try {
-    return JSON.parse(await readFile(outputFile, "utf8")) as CatalogSnapshot;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchCatalog(): Promise<unknown[]> {
-  let lastError: unknown;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
-    try {
-      const response = await fetch(endpoint, {
-        headers: { accept: "application/json" },
-        signal: AbortSignal.timeout(20_000)
-      });
-      if (!response.ok) throw new Error("Catalog source returned HTTP " + response.status);
-      const payload = (await response.json()) as DummyJsonPayload;
-      if (!payload || !Array.isArray(payload.products)) {
-        throw new Error("Catalog source returned an invalid products collection");
-      }
-      if (payload.products.length === 0) throw new Error("Catalog source returned an empty collection");
-      return payload.products;
-    } catch (error) {
-      lastError = error;
-      if (attempt < 3) await new Promise(resolve => setTimeout(resolve, attempt * 1_000));
-    }
-  }
-  throw lastError instanceof Error ? lastError : new Error("Catalog import failed");
-}
 
 async function main(): Promise<void> {
-  await mkdir(outputDirectory, { recursive: true });
-  const previous = await readLastKnownGood();
+  const previous = await readCatalogSnapshot(outputFile);
 
   try {
     const importedAt = new Date().toISOString();
-    const rawProducts = await fetchCatalog();
-    const importedProducts = normalizeCatalog(rawProducts, "DummyJSON public demo API", importedAt);
+    const importResult = await loadCatalogFromSourceWithReport(dummyJsonCatalogAdapter, {
+      importedAt,
+      requiredSnapshotMode: "full"
+    });
+    const importedProducts = importResult.products;
     const previousById = new Map((previous?.products ?? []).map(product => [product.id, product]));
+    assertCatalogSnapshotContinuity(importedProducts.length, previous?.products?.length ?? 0);
+
     const products = importedProducts.map(product => {
       const prior = previousById.get(product.id);
       if (!prior?.localization) return product;
@@ -67,19 +30,21 @@ async function main(): Promise<void> {
         ? { ...product, localization: prior.localization }
         : product;
     });
-    if (products.length === 0) throw new Error("All source products were rejected during normalization");
 
+    const quality = summarizeCatalogQuality(products);
     const snapshot: CatalogSnapshot = {
       schemaVersion: 1,
-      source: "DummyJSON public demo API",
+      source: dummyJsonCatalogAdapter.source,
       generatedAt: importedAt,
       productCount: products.length,
       products
     };
 
-    await writeFile(temporaryFile, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
-    await rename(temporaryFile, outputFile);
+    assertCatalogSnapshot(snapshot, outputFile);
+    await writeCatalogSnapshotAtomically(snapshot, outputFile);
     console.log("Catalog snapshot generated:", products.length, "products at", importedAt);
+    console.log("Catalog feed import report:", JSON.stringify(importResult.report));
+    console.log("Catalog quality report:", JSON.stringify(quality));
   } catch (error) {
     if (previous?.products?.length) {
       console.warn("Catalog refresh failed; preserving last known-good snapshot:", error);

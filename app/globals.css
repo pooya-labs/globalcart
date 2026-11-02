@@ -316,3 +316,149 @@ button:disabled{cursor:not-allowed;opacity:.55}
   .search-box.search-open input{display:block;flex:1;width:100%;min-width:0}
   .search-box.search-open .search-close{display:grid;place-items:center}
 }
+
+/* Accessible catalog facet controls */
+.facet-select-group select{
+  width:100%;height:34px;border:1px solid #e4e9ef;border-radius:8px;
+  background:#fafbfd;color:#26344a;padding:0 9px;font-size:10px;
+}
+.facet-select-group select:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+
+/* M07 — accessible catalog suggestions and keyboard command palette */
+.search-area{position:relative;width:min(380px,28vw);flex-shrink:0}
+.search-area .search-box{width:100%}
+.search-box kbd{font-size:9px;white-space:nowrap;padding:3px 6px;border:1px solid #dce4eb;border-radius:6px;background:#fff;color:#6d7b8e}
+.search-suggestions{position:absolute;z-index:55;top:calc(100% + 8px);inset-inline:0;max-height:min(420px,65vh);overflow:auto;background:#fff;border:1px solid #e4eaf0;border-radius:13px;box-shadow:0 18px 45px rgba(16,31,50,.16);padding:6px}
+.search-suggestion{width:100%;display:flex;align-items:center;gap:10px;text-align:start;border:0;border-radius:9px;background:transparent;padding:10px;color:#24344a}
+.search-suggestion:hover,.search-suggestion.active{background:#f0f6f3}
+.search-suggestion-kind{flex:0 0 72px;font-size:9px;font-weight:700;color:#176b55;background:#edf5f1;border-radius:6px;padding:5px 6px;text-align:center}
+.search-suggestion-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.search-suggestion-copy b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.search-suggestion-copy small{font-size:9px;color:#8290a1}
+.search-suggestion>svg{color:#8290a1;flex-shrink:0}
+.command-shortcut{height:34px;border:1px solid #e1e7ef;border-radius:9px;background:#fff;padding:0 9px;color:#6d7b8e;font-size:9px;font-weight:700;white-space:nowrap}
+.command-shortcut:hover{color:#176b55;border-color:#b9d3c7}
+.command-palette-overlay{align-items:flex-start;justify-content:center;overflow-y:auto;padding:clamp(55px,12vh,120px) 18px 24px}
+.command-palette{width:min(620px,100%);max-height:min(70vh,680px);display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid #e3e9ef;border-radius:19px;box-shadow:0 28px 90px rgba(8,20,36,.3)}
+.command-palette-heading{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 13px}
+.command-palette-heading h2{font-size:20px;margin:7px 0 0;color:#172238}
+.command-palette-search{margin:0 20px 12px;padding:0 13px;height:48px;display:flex;align-items:center;gap:10px;border:1px solid #dfe7ed;border-radius:11px;background:#f7f9fb;color:#718095}
+.command-palette-search:focus-within{border-color:#176b55;box-shadow:0 0 0 3px #176b5514;background:#fff}
+.command-palette-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#1c2b40;font-size:12px}
+.command-palette-list{overflow:auto;padding:4px 10px 12px}
+.command-option{width:100%;min-height:48px;display:flex;align-items:center;gap:12px;text-align:start;padding:8px 11px;border:0;border-radius:10px;background:transparent;color:#28384e}
+.command-option:hover,.command-option.active{background:#f0f6f3;color:#176b55}
+.command-option-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#eff5f2;color:#176b55}
+.command-option b{flex:1;font-size:11px}
+.command-option-key{font-size:10px;color:#8996a5}
+.command-palette-empty{margin:12px;padding:12px;color:#7d8998;font-size:11px;text-align:center}
+.command-palette-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-top:1px solid #edf0f3;color:#7c899a;font-size:9px}
+.command-palette-footer>span:last-child{display:flex;gap:4px}
+.command-palette-footer kbd{min-width:22px;padding:4px 5px;border:1px solid #dfe5eb;border-radius:5px;background:#f8fafc;text-align:center;font-size:9px}
+.search-box input:focus-visible,.command-palette-search input:focus-visible{outline:0}
+.search-suggestion:focus-visible,.command-option:focus-visible,.command-shortcut:focus-visible{outline:2px solid #176b55;outline-offset:2px}
+@media(max-width:760px){
+  .search-area{width:38px;position:static}
+  .search-area.search-area-open{position:absolute;top:66px;inset-inline:4%;width:auto;z-index:36}
+  .search-area.search-area-open .search-box{position:relative;top:auto;inset-inline:auto;width:100%;height:48px;background:#fff;padding:0 13px;border:1px solid #e1e7ef;box-shadow:0 8px 24px rgba(16,31,50,.12)}
+  .search-area.search-area-open .search-box input{display:block}
+  .search-area.search-area-open .search-suggestions{top:calc(100% + 6px)}
+  .search-area .search-box kbd,.command-shortcut{display:none}
+  .command-palette-overlay{padding:12vh 12px 16px}
+  .command-palette{max-height:76vh;border-radius:15px}
+  .command-palette-heading{padding:16px 16px 12px}
+  .command-palette-search{margin-inline:14px}
+  .command-palette-footer{padding-inline:14px;align-items:flex-start;flex-direction:column}
+}
+
+/* M07.4 — explainable catalog recommendation ranking */
+.recommendation-basis{display:block;margin-top:7px;color:#8a95a3;font-size:9px;line-height:1.7}
+.recommendation-reason{margin:7px 0 0;display:inline-flex;align-items:center;max-width:100%;width:max-content;padding:4px 7px;border:1px solid #e5eee9;border-radius:6px;background:#f4f8f5;color:#39745e;font-size:8px;font-weight:750;line-height:1.5}
+.rtl .recommendation-reason{font-size:9px}
+@media(max-width:760px){.recommendation-basis{font-size:8px}.recommendation-reason{font-size:7px;padding:3px 6px}}
+
+/* M07 — browser-local saved searches */
+.saved-search-trigger{height:38px;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 10px;border:1px solid #e1e7ef;border-radius:9px;background:#fff;color:#536278;font-size:9px;font-weight:750;white-space:nowrap}
+.saved-search-trigger:hover,.saved-search-trigger[aria-expanded="true"]{border-color:#b9d3c7;color:#176b55;background:#f7faf8}
+.saved-search-trigger span{min-width:17px;padding:2px 5px;border-radius:6px;background:#eef3f1;color:#176b55;font-size:9px;text-align:center}
+.saved-search-panel{margin:-17px 0 24px;padding:14px;border:1px solid #e3eaf0;border-radius:12px;background:#f9fbfc}
+.saved-search-form{display:flex;align-items:center;gap:9px}
+.saved-search-form label{font-size:10px;font-weight:750;color:#405169;white-space:nowrap}
+.saved-search-form input{flex:1;min-width:0;height:36px;padding:0 10px;border:1px solid #dfe7ed;border-radius:8px;background:#fff;color:#24344a;font-size:10px}
+.saved-search-form button,.saved-search-apply{height:34px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 11px;border:1px solid #176b55;border-radius:8px;background:#176b55;color:#fff;font-size:9px;font-weight:750}
+.saved-search-list{display:flex;flex-direction:column;gap:7px}
+.saved-search-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid #e7edf1;border-radius:9px;background:#fff}
+.saved-search-item>div{display:flex;min-width:0;flex:1;flex-direction:column;gap:3px}
+.saved-search-item b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#28384d;font-size:10px}
+.saved-search-item small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8793a2;font-size:8px}
+.saved-search-apply{height:29px;padding:0 9px}
+.saved-search-delete{width:30px;height:30px;display:grid;place-items:center;border:1px solid #e7e9ed;border-radius:7px;background:#fff;color:#9b6870}
+.saved-search-empty,.saved-search-notice{margin:3px 0;color:#778598;font-size:10px;line-height:1.7}
+.saved-search-notice{margin-top:9px;color:#39745e}
+@media(max-width:760px){
+  .catalog-tools{flex-wrap:wrap}
+  .saved-search-trigger{flex:1;min-width:0;height:36px;font-size:8px;padding-inline:7px}
+  .saved-search-panel{margin:-12px 0 17px;padding:10px}
+  .saved-search-form{flex-wrap:wrap}
+  .saved-search-form label{width:100%}
+  .saved-search-form input{flex:1 1 60%}
+  .saved-search-item{gap:6px;padding:8px}
+  .saved-search-apply{padding:0 7px;font-size:8px}
+}
+
+/* M07.6 — explicit catalog freshness and offline states */
+.catalog-status.snapshot-fallback{background:#f5f7f2;border:1px solid #e4eadc;border-radius:10px;color:#637a67}
+.catalog-status.fixture-fallback{background:#fff8ef;border:1px solid #f2e5d6;border-radius:10px;color:#967348}
+.catalog-status[role="status"]{line-height:1.8}
+
+
+/* M08.2 — WCAG contrast and target-size remediation */
+.brand-name small{color:#586476}
+.hero-copy>p,.section-heading p,.hero-meta,.merchandising-intro>div>p,
+.marketplace-services>.section-heading>div>p,.catalog-heading>div>p,
+.editorial-copy>p,#about>div:first-child>p{color:#586476}
+.hero-meta span:first-child{color:#87510b}
+.hero-meta span:nth-child(3),.about-stats>div>span{color:#58615a}
+.benefits small,.detail-highlights small{color:#536174}
+.merchandising-panel-head>span{color:#657386}
+.recommendation-basis,.catalog-foot,.catalog-foot>span{color:#536174}
+.filter-option span{color:#5b685c}
+.product-rating>span,.quick-rating,.detail-rating>span:first-child{color:#77520c}
+.product-rating small,.product-price small,.product-brand{color:#536174}
+.discount-tag,.detail-discount{color:#83380e}
+.editorial-index{color:#58615a}
+.product-breadcrumb>span,.detail-rating>span:nth-child(3),.detail-rating>span:nth-child(5),
+.detail-specs>div>span,.buybox-kicker,.detail-old-price>span,
+.buybox-disclaimer>span,.buybox-source,.detail-description-panel>div>span,
+.product-page-footer>span{color:#536174}
+.buybox-disclaimer>span,.detail-description-panel>div>span{color:#536174}
+.search-box kbd,.command-shortcut,.command-palette-footer kbd{color:#536174}
+.command-shortcut[aria-label]{color:#536174}
+.details summary{min-height:28px;padding-block:5px;line-height:1.5}
+details>summary{min-height:28px;padding-block:5px;line-height:1.5}
+.footer-links>a{min-height:28px;padding-block:6px;line-height:1.5}
+@media(max-width:760px){
+  .footer-links>a{min-height:30px;padding-block:7px}
+  details>summary{min-height:30px;padding-block:6px}
+}
+
+/* Final axe findings: visible text naming and secondary text contrast */
+.command-palette-footer{color:#536174}
+.detail-old-price s{color:#536174}
+
+/* Keep the cart's accessible text in the accessibility tree on small screens. */
+@media(max-width:760px){
+  .bag-button span{
+    display:block;
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
+}

@@ -1,0 +1,78 @@
+name: Backend CI
+on:
+  push:
+    branches: [main, feat/m04-go-postgres-foundation]
+    paths: ["backend/**", "go.mod", "go.sum", "sqlc.yaml", ".github/workflows/backend-ci.yml"]
+  pull_request:
+    paths: ["backend/**", "go.mod", "go.sum", "sqlc.yaml", ".github/workflows/backend-ci.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: backend-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: globalcart_test
+          POSTGRES_USER: globalcart
+          POSTGRES_PASSWORD: test-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U globalcart -d globalcart_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://globalcart:test-only-password@localhost:5432/globalcart_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.3"
+          cache: true
+      - name: Generate typed SQL access layer
+        run: docker run --rm -v "$PWD:/src" -w /src sqlc/sqlc:1.29.0 generate
+      - name: Resolve modules and format Go sources
+        run: |
+          go mod tidy
+          gofmt -w backend
+      - name: Persist Go module checksums and formatting
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add go.mod go.sum backend
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(backend): persist module checksums and Go formatting [skip ci]"
+            # Another push workflow may update the branch while this job runs.
+            # Rebase generated/formatting changes onto the latest branch and retry
+            # the push instead of failing on a harmless non-fast-forward race.
+            for attempt in 1 2 3; do
+              git fetch origin "${GITHUB_REF_NAME}"
+              git rebase "origin/${GITHUB_REF_NAME}"
+              if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+                exit 0
+              fi
+              sleep "$((attempt * 2))"
+            done
+            echo "Unable to persist generated Go files after three push attempts" >&2
+            exit 1
+          fi
+      - name: Scan Go dependencies for known vulnerabilities
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
+      - name: Vet
+        run: go vet ./...
+      - name: Unit tests
+        run: go test -race ./...
+      - name: Build API and importer
+        run: |
+          go build -o /tmp/globalcart-api ./backend/cmd/api
+          go build -o /tmp/globalcart-catalog-import ./backend/cmd/catalog-import
+      - name: Build container image
+        run: docker build -f backend/Dockerfile -t globalcart-api:ci .

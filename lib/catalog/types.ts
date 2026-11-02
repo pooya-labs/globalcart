@@ -7,6 +7,17 @@ export type CatalogLocalization = {
   fields: { title: string; description: string; category: string; brand: string } | null;
 };
 
+export type CatalogVariant = {
+  sku: string;
+  title: string;
+  price: number;
+  stock: number;
+  attributes: Record<string, unknown>;
+  source: string;
+  sourceId: string;
+  isActive: boolean;
+};
+
 export type CatalogProduct = {
   id: number;
   title: string;
@@ -24,6 +35,7 @@ export type CatalogProduct = {
   sourceUrl: string;
   importedAt: string;
   localization?: CatalogLocalization;
+  variants?: CatalogVariant[];
 };
 
 export type CatalogResult = {
@@ -31,4 +43,42 @@ export type CatalogResult = {
   source: string;
   importedAt: string;
   fallback: boolean;
+};
+
+/** Canonical-but-untrusted product-shaped record emitted by a source mapper. */
+export type CatalogSourceRecord = Record<string, unknown>;
+
+/** Describes whether a feed is complete or contains only incremental changes. */
+export type CatalogSnapshotMode = "full" | "incremental";
+
+/**
+ * Supplier-specific adapters fetch their own payload shape and map each
+ * record into the shared catalog input contract before normalization.
+ */
+export type CatalogSourceAdapter = {
+  readonly source: string;
+  readonly snapshotMode: CatalogSnapshotMode;
+  fetchRecords(signal?: AbortSignal): Promise<unknown[]>;
+  mapProduct(record: unknown): CatalogSourceRecord | null;
+};
+
+
+/** Aggregate counters for one ingestion attempt; contains no raw supplier payload. */
+export type CatalogFeedImportReport = {
+  source: string;
+  snapshotMode: CatalogSnapshotMode;
+  importedAt: string;
+  fetchedRecordCount: number;
+  mappedRecordCount: number;
+  unmappedRecordCount: number;
+  unmappedFraction: number;
+  maxUnmappedFraction: number;
+  normalizedProductCount: number;
+  discardedAfterNormalizationCount: number;
+};
+
+/** Normalized products plus a safe, source-agnostic import diagnostics summary. */
+export type CatalogFeedImportResult = {
+  products: CatalogProduct[];
+  report: CatalogFeedImportReport;
 };

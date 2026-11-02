@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M01.5 — Marketplace redesign and UX foundation  
+**Active stage:** M08.9 — Authorized supplier onboarding (blocked pending owner-approved source/feed)  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -26,7 +26,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **API decision:** REST + OpenAPI first. GraphQL only if real client query patterns justify it. Use versioned migrations and parameterized SQL.
 
-**Runtime gate:** GitHub Pages is static. M04 cannot begin until the owner enables Go/Python runtimes and approves separate API/database hosting.
+**Runtime gate:** Local Go/PostgreSQL development and CI are permitted on the isolated backend branch. Public API/database hosting, Python worker deployment, production secrets and paid services remain gated on explicit owner approval.
 
 ## Release and stage map
 
@@ -34,13 +34,13 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 |---|---:|---|---|
 | M00 | 0.1.0 | Product definition, independence, governance and handoff | Complete |
 | M01 | 0.1.x | Storefront foundation, bilingual shell and deployment | Implemented; redesign supersedes original visual direction |
-| M02 | 0.2.x | Automated catalog import, normalization and snapshots | Catalog sync active; translation paused |
+| M02 | 0.2.x | Automated catalog import, normalization and snapshots | Snapshot pipeline implemented; authorized supplier feeds remain gated; translation paused |
 | M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Product detail, gallery, comparison and illustrative price breakdown implemented; live FX provenance remains |
-| M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Planned; owner runtime/hosting gate |
-| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Planned |
+| M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Read-only local Go/PostgreSQL foundation implemented; authentication, workers and hosting gates remain |
+| M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo cart, checkout, order, coupon and vendor-split foundations implemented; returns and API exposure gated |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Planned |
-| M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Planned |
-| M08 | 0.8.0 | Browser tests, accessibility, security and performance | Planned |
+| M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
+| M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget and CI security checks implemented; manual QA and operational recovery remain |
 | M09 | 1.0.0 | Portfolio case study, release and public demo QA | Planned |
 
 ## M00 — Product and governance
@@ -110,22 +110,30 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M04 — Backend and database platform
 - [ ] Owner enables Go runtime and approves separate API hosting.
 - [ ] Owner enables Python runtime or an approved worker runner.
-- [ ] Provision PostgreSQL and secure connection management.
-- [ ] Define ERD/schema for catalog, variants, users, roles, carts, orders and audit events.
-- [ ] Add versioned migrations and rollback strategy.
-- [ ] Build Go REST API with OpenAPI and request validation.
-- [ ] Add sqlc typed query layer and parameterized SQL.
+- [x] Add local-only PostgreSQL 17 Docker Compose service with loopback-only port binding and persistent development volume.
+- [ ] Provision hosted PostgreSQL and production secret management after owner selects provider, region and budget.
+- [x] Define initial catalog schema with provenance, numeric constraints, JSONB images and category/search indexes.
+- [x] Extend catalog schema with normalized categories, product-to-category relationships and constrained product variants; users, roles, carts, orders and audit events remain pending.
+- [x] Add embedded, versioned SQL migrations and transactional migration ledger for the initial catalog schema.
+- [ ] Define reviewed rollback/forward-fix policy for shared environments.
+- [x] Add Go REST API foundation, OpenAPI 3.1 contract, health/readiness probes, CORS allow-list and read-only catalog list/detail endpoints.
+- [x] Validate catalog pagination bounds and query/category lengths with stable 400 error codes.
+- [x] Document the API error response shape and list endpoint validation in OpenAPI.
+- [x] Add PostgreSQL integration coverage for category backfill and product variant JSONB persistence.
+- [x] Add sqlc configuration, parameterized catalog/variant query definitions and CI code generation for pgx/v5.\n- [x] Wire generated sqlc queries into product list/detail API handlers; importer remains transaction-oriented and uses explicit upsert SQL.
 - [ ] Design authentication/session and role-based authorization.
 - [ ] Add idempotent Python ingestion/translation workers.
 - [ ] Add Redis only for measured cache/queue requirements.
-- [ ] Integration tests for transactions, constraints and authorization.
+- [x] Add Go unit tests and backend CI for formatting, vet, race tests, builds and Docker image build.
+- [x] Add PostgreSQL integration tests for concurrent/idempotent migrations, catalog upserts and transaction rollback.
+- [ ] Add authorization integration tests after the authentication boundary exists.
 
 ## M05 — Commerce simulation
-- [ ] Persistent demo cart and checkout draft.
-- [ ] Multi-step checkout with validation and demo address book.
-- [ ] Simulated payment outcomes; never contact a real payment provider.
-- [ ] Persistent demo order history and printable receipt.
-- [ ] Coupons and promotions.
+- [x] Add local schema foundation for guest carts, bounded cart items and expiring capability digests (migration 003; API not exposed).
+- [x] Internal multi-step checkout foundation: cart validation, stock reservations, immutable order snapshots and idempotent checkout (demo address book remains pending).
+- [x] Define demo-only order states and reservation release semantics; no payment provider is contacted.
+- [x] Add demo order ledger, immutable line snapshots, per-cart idempotency and append-oriented events (schema only; API not exposed).
+- [x] Internal demo coupon validation/application, hashed coupon codes, usage limits and discount allocation during vendor split-checkout (CI-verified; public administration remains unavailable).
 - [ ] Returns/refund simulation.
 
 ## M06 — Admin and seller workspaces
@@ -136,20 +144,45 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [ ] Seller profile, product management and demo analytics.
 
 ## M07 — Search and discovery
-- [ ] Faceted filters for brand, rating, price and category.
-- [ ] Accessible suggestions and keyboard command palette.
-- [ ] PostgreSQL full-text/trigram baseline and relevance tests.
-- [ ] Explainable ranking and recommendations.
-- [ ] Saved searches and preferences.
-- [ ] Empty, loading, offline and error states.
+- [x] Faceted filters for brand, rating, price and category across the storefront and read-only API.
+- [x] Accessible product/brand/category suggestions and keyboard command palette (Ctrl/⌘+K), with Arrow/Enter/Escape controls.
+- [x] PostgreSQL full-text search baseline and indexed query path.
+- [x] PostgreSQL trigram typo tolerance for product titles and brands, with exact full-text matches ranked first and integration coverage.
+- [x] Explainable catalog ranking and recommendation reasons based on documented sample rating/discount signals.
+- [x] Browser-local saved searches and search preferences (query, category, brand, price/rating facets and sort), with validation, duplicate detection and bounded storage.
+- [x] Explicit empty, initial-loading, live-source, stale-snapshot and local-fixture fallback states with status announcements.
+
+### M07.1 — Catalog facets: category, brand, price and rating — CI verified (2026-11-02)
+- [x] Add case/whitespace-normalized exact brand filtering and inclusive minimum/maximum source-price and rating filters to the PostgreSQL catalog API.
+- [x] Apply identical filtering predicates to the paginated product list and total-result count.
+- [x] Validate decimal syntax, non-negative values, two-decimal precision, database bounds and inverted ranges before database access.
+- [x] Add supporting brand, price and rating indexes, OpenAPI query documentation and PostgreSQL integration coverage.
+- [x] Add bilingual storefront controls for dynamic brand selection and minimum rating; preserve existing category/price/search filters.
+- [x] Make clear-filter and no-results recovery reset every active filter.
+- [x] Extract pure client-side filtering logic and add regression tests for combined filters, normalized brand matching and non-mutating behavior.
+- [x] Verify TypeScript, Catalog unit tests, production build, sqlc generation, Go vet, PostgreSQL integration/race tests, API/importer builds and Docker image.
+
+**Verification:** latest implementation head `3372040d3cd71cd55d99724033065cf0dfa4537e` passed [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365136582), [Catalog CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141727) and [Backend CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141780).
+
+**Boundary:** storefront facets currently run against the local generated catalog snapshot. The Go API and PostgreSQL remain local/unhosted; no public API connection or production deployment is implied.
 
 ## M08 — Quality and hardening
-- [ ] Playwright tests for critical shopping journeys.
-- [ ] RTL/LTR accessibility, keyboard, labels and contrast audit.
-- [ ] Performance and image-loading audit.
-- [ ] Dependency, secret, static-analysis and API security checks.
+- [x] Playwright tests for critical shopping journeys.
+- [ ] RTL/LTR accessibility, keyboard, labels and contrast audit (automated axe and Command Palette keyboard checks are verified; manual screen-reader and broader keyboard review remains open).
+- [ ] Performance and image-loading audit (image policy and first-party JS/CSS budgets are automated; live CDN image timing and Core Web Vitals review remains open).
+- [x] Automated repository secret scan (Gitleaks), Go dependency vulnerability scan and `go vet` in CI; hosted API penetration/security review remains gated.
 - [ ] Database backup/restore and migration verification.
 - [ ] Reproducible build and deployment smoke test.
+
+### M08.10 — Shopping-dialog focus regression coverage (CI verified, 2026-11-02)
+- [x] Keep Tab and Shift+Tab navigation inside cart, favorites, quick-view, comparison and checkout dialogs.
+- [x] Dismiss dialogs with Escape and restore focus to the invoking control.
+- [x] Preserve the original opener when a Command Palette action opens a replacement dialog, including the mobile saved-items route.
+- [x] Use touch-appropriate Quick View interaction in mobile browser tests instead of assuming pointer hover.
+- [x] Verify the final feature-branch head `2182bbb1c55ad265e4264c1a0389fb0353f0010a`: Browser E2E push run [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR run [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed (28 Playwright tests).
+- [x] On the same PR head, Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) passed.
+
+**Boundary:** this is automated keyboard/focus coverage for the tested dialogs and desktop/mobile viewports. Manual screen-reader, physical-device, broader RTL/LTR and reduced-motion review remains open.
 
 ## M09 — Portfolio release
 - [ ] Persian and English case study.
@@ -188,3 +221,500 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 - [ ] Manual keyboard, screen-reader and browser QA remains open.
 
 - [x] Focus is moved into each modal on open, trapped while active and returned to the invoking control on close.
+
+
+### M04 catalog schema extension — 2026-11-01
+- [x] Add migration 002 for normalized category records, product category foreign keys and product variants.
+- [x] Backfill categories from existing product rows without changing the existing catalog API response shape.
+- [x] Enforce non-negative variant price/stock, object-shaped JSONB attributes, product ownership, optional unique SKU and source identity.
+- [x] Extend PostgreSQL integration tests to verify category backfill and variant attribute persistence.
+- [ ] Run the backend CI for this migration before marking the slice verified.
+
+
+### M04 API validation pass — 2026-11-01
+- [x] Reject malformed/out-of-range limit and offset values instead of silently replacing them.
+- [x] Bound free-text query and category filter lengths.
+- [x] Add HTTP tests proving invalid requests return 400 before database access.
+- [x] Run backend CI for the validation changes before marking verified.
+
+
+### M04 typed SQL generation — 2026-11-01
+- [x] Add root sqlc v2 configuration targeting PostgreSQL and pgx/v5.
+- [x] Define typed list/detail product queries and active product-variant query with parameterized inputs.
+- [x] Add deterministic sqlc generation to backend CI.
+- [x] Verify generated package compiles in CI and wire it into API/database code.
+
+
+### M04 sqlc API integration — 2026-11-01
+- [x] Replace handwritten product list/detail read queries in HTTP handlers with generated pgx/v5 sqlc methods.
+- [x] Keep the external catalog JSON response shape stable through an explicit database-row mapper.
+- [x] Add mapper tests for JSON images and catalog field mapping.
+- [x] Verify sqlc generation, go vet, race-enabled unit/integration tests and Go builds in CI.
+- [x] Complete read API for active product variants and category listing.
+
+
+### M04 product variants read API — 2026-11-01
+- [x] Add `GET /api/v1/products/{id}/variants` using generated sqlc product existence and active-variant queries.
+- [x] Return a stable variant response with SKU, price, stock and decoded JSON attributes.
+- [x] Distinguish invalid product IDs and missing parent products.
+- [x] Add mapper tests and OpenAPI endpoint documentation.
+- [x] Verify this endpoint and generated variant query in CI.
+
+
+- CI verification for the product variants read endpoint completed successfully (run 41302565323): sqlc generation, go vet, race-enabled tests, API/importer builds and Docker image build all passed.
+
+
+### M04 normalized category API — 2026-11-01
+- [x] Add generated sqlc category listing query with parent relationship and product counts.
+- [x] Expose `GET /api/v1/categories` as a read-only endpoint.
+- [x] Add OpenAPI documentation and response serialization coverage.
+- [x] Extend PostgreSQL integration tests to exercise the generated category query against migrated schema.
+- [x] Verify category query and PostgreSQL integration test in CI.
+
+
+Category API CI verification: run 41302783939 passed sqlc generation, formatting, vet, unit and PostgreSQL integration tests, API/importer builds, and Docker image build.
+
+
+### M04 catalog pagination and normalized filtering — 2026-11-01
+- [x] Normalize category filters against the category table using case-insensitive, whitespace-trimmed matching.
+- [x] Add generated `CountProducts` query using the same category and full-text predicates as the product list.
+- [x] Return `total` independently from the current page's `count`.
+- [x] Add PostgreSQL integration coverage for normalized category matching and total count.
+- [x] Verify generated count query and API pagination changes in CI.
+
+
+Catalog pagination CI verification: pull-request run 41303108214 passed sqlc generation, formatting, vet, PostgreSQL-backed race tests, API/importer builds and Docker image build. Push run 41303144768 also successfully generated and persisted the updated typed query files; final image build is completing.
+
+
+### M05 commerce schema foundation — 2026-11-01
+- [x] Add migration 003 for guest carts, cart items, demo orders, immutable order lines, inventory reservations and order events.
+- [x] Enforce digest lengths, bounded quantities, nonnegative price snapshots, valid statuses, variant/product ownership and cart-scoped idempotency.
+- [x] Specify transactional checkout locking, server-side price revalidation, reservation expiry and replay semantics in `docs/COMMERCE_DESIGN.md`.
+- [x] Verify migration 003 and PostgreSQL integration tests in CI (run 41345512979).
+- [x] Implement domain transaction service for demo checkout, canonical price snapshots, row-locked stock reservations and idempotent replay.
+- [ ] Expose persistent cart/order endpoints only after same-site HTTPS, identity/authorization and CSRF prerequisites are approved.
+
+
+### M05 transactional checkout service — 2026-11-01
+- [x] Implement internal Go checkout service; deliberately not exposed as an HTTP write route.
+- [x] Lock guest cart and catalog stock rows, revalidate canonical price/title/stock, and write order snapshots/reservations/events in one transaction.
+- [x] Use database time for cart expiry and expiring reservations; store only caller-provided SHA-256 digests.
+- [x] Add PostgreSQL concurrency test: two carts competing for limited product stock yield one success and one insufficient-stock result.
+- [x] Add idempotent replay test: repeated checkout returns the original order without duplicate reservations.
+- [x] Implement and integration-test idempotent expiry cleanup for pending demo orders and their active reservations.
+- [x] CI run 41346127244 passed sqlc generation, formatting, vet, PostgreSQL-backed tests (including reservation-expiry cleanup), API/importer builds and Docker image build.
+- [x] Implement internal guest cart lifecycle operations (create, add/increment, set quantity, remove, read) with catalog price revalidation.
+- [ ] Implement safe demo order read APIs after authorization boundary is ready.
+
+
+### M05 guest cart lifecycle service — 2026-11-01
+- [x] Implement internal cart creation using 32-byte SHA-256 capability digests; never persist raw bearer tokens.
+- [x] Implement add/increment, set quantity, remove line and retrieve cart operations.
+- [x] Serialize mutations per cart using row locks; validate lifecycle state and expiry.
+- [x] Read canonical product/variant title, price and stock from PostgreSQL; never trust client-supplied prices.
+- [x] Explicitly constrain carts to USD until catalog currency/FX support is designed.
+- [x] Add PostgreSQL integration tests for cart creation, add/increment, quantity updates, stock bounds, removal, variants and expired-cart rejection.
+- [x] CI push run 41346723656 passed sqlc generation, formatting, vet, PostgreSQL-backed tests, API/importer builds and Docker image build.
+- [ ] Keep all cart operations internal until same-site HTTPS, CSRF and identity/authorization prerequisites are approved.
+
+
+### M06 order read and cancellation services — 2026-11-01
+- [x] Implement capability-scoped order detail reads, returning immutable item snapshots and ordered event history.
+- [x] Hide order existence behind the same not-found error for unknown IDs and wrong cart capability digests.
+- [x] Implement owner-scoped cancellation for unpaid demo orders; atomically release active reservations and append a cancellation event.
+- [x] Make repeated cancellation idempotent; reject cancellation of paid or expired orders.
+- [x] Add PostgreSQL integration coverage for order ownership, snapshots, event history, cancellation, reservation release and replay.
+- [x] CI push run 41347325289 passed sqlc generation, formatting, vet, PostgreSQL-backed tests, API/importer builds and Docker image build.
+- [ ] Keep order read/cancel methods internal until same-site HTTPS, CSRF and identity/authorization prerequisites are approved.
+
+
+### M05 simulated payment lifecycle — 2026-11-02
+- [x] Add internal `CompleteDemoPayment` transition from `awaiting_demo_payment` to `paid_simulated`.
+- [x] Require the owning cart capability; unknown and wrong-owner order IDs share the same not-found response.
+- [x] Require a live reservation before simulated completion; expired or non-pending orders cannot be completed.
+- [x] Atomically release demo reservations, update order state and append one simulation event.
+- [x] Make repeat completion idempotent; no payment provider, credentials, webhook or real-money flow exists.
+- [x] Add PostgreSQL integration coverage for ownership, payment replay, reservation release and expired-reservation rejection.
+- [x] Verify sqlc generation, formatting, vet, race-enabled PostgreSQL tests, API/importer builds and Docker image build in CI run 41348079983.
+- [x] Keep all payment/order operations internal until the deployment, identity and CSRF gates are approved.
+
+
+### M07 internal coupon and discount foundation — 2026-11-02
+- [x] Add hashed coupon-code storage and percentage/fixed discount rules.
+- [x] Support start/end dates, minimum subtotal, maximum discount, global usage limit and guest-capability usage limit.
+- [x] Attach/remove coupons on open carts and expose only a boolean applied-state in cart reads.
+- [x] Revalidate coupon eligibility and limits under a row lock during checkout; calculate money using PostgreSQL NUMERIC.
+- [x] Snapshot subtotal, discount and final total on orders and expose those totals in owner-scoped order reads.
+- [x] Add PostgreSQL integration coverage for normalized codes, percentage calculation, usage exhaustion, minimum subtotal rollback, cart attachment state and order detail totals.
+- [ ] Add verified customer identity before treating guest-capability limits as true per-customer limits.
+- [ ] Keep coupon administration and cart/checkout operations internal until auth, same-site deployment and CSRF prerequisites are approved.
+
+
+### M08 — Multi-vendor foundation (backend-only; migration 005)
+- [x] Add vendor records with platform/merchant type and constrained lifecycle states.
+- [x] Add vendor-specific base-product and variant offers with independent price, USD currency, stock, SKU and status.
+- [x] Enforce one offer per vendor/product-or-variant and vendor-scoped SKU uniqueness.
+- [x] Backfill current products and variants into the explicit GlobalCart Direct platform vendor.
+- [x] Add append-only price history and inventory event tables with initial import/opening balance records.
+- [x] Add PostgreSQL integration assertions for vendor backfill, independent stock across vendors, audit records and duplicate-offer rejection.
+- [ ] Integrate catalog importer so newly imported products create/update platform offers transactionally (implementation committed; CI verification pending).
+- [ ] Implement internal vendor and offer services with transactional price/inventory audit writes.
+- [ ] Migrate cart lines, reservations and checkout to vendor-offer identity; split each checkout into vendor order groups.
+- [ ] Add verified seller membership and tenant-scoped authorization only after the approved identity/authentication boundary.
+- [ ] Keep seller APIs, seller UI, commission, payouts and fulfillment disabled until their separate security and product requirements are approved.
+
+**Compatibility note:** existing cart/checkout still use legacy product/variant stock. Migration 005 is additive and intentionally does not claim multi-vendor checkout is complete.
+
+
+### M09 — Vendor-aware cart foundation
+- [x] Add vendor offer identity to cart lines without changing legacy line ownership.
+- [x] Support internal add, quantity update and removal of vendor-specific offers.
+- [x] Snapshot canonical offer price and vendor identity; serialize cart/offer mutations with row locks.
+- [x] Add parent/child vendor order schema and vendor-aware order-item/reservation references.
+- [x] Prevent legacy checkout from mispricing or reserving vendor cart lines.
+- [ ] Implement atomic split checkout, per-vendor reservations and coupon allocation.
+- [ ] Propagate cancellation, expiry and simulated payment state to vendor child orders.
+
+
+### M09.2 — Vendor split checkout
+- [x] Add internal atomic vendor checkout with one parent order and one child order per vendor.
+- [x] Reserve inventory against vendor offers, without mutating legacy catalog stock.
+- [x] Revalidate vendor, offer, variant, currency and available stock under deterministic row locks.
+- [x] Apply coupon redemption once at parent level and allocate discounts across child orders with cent-exact reconciliation.
+- [x] Propagate simulated payment, cancellation and reservation expiry to child order states.
+- [x] Add PostgreSQL integration coverage for split totals, idempotency, coupon allocation, simulated payment and competing checkouts.
+- [x] Add owner-scoped split-order detail reads and vendor-specific internal query methods (verified in M09.3).
+- [ ] Add seller authorization/membership model before any seller-facing APIs.
+
+
+### M09.3 — Owner-scoped vendor child-order reads
+- [x] Add `GetVendorOrder` to retrieve one vendor child order and its immutable item snapshots using the owning cart capability digest.
+- [x] Conceal cross-owner child-order existence behind the same `ErrOrderNotFound` result used for unknown IDs.
+- [x] Add PostgreSQL integration coverage for child/parent identity, vendor metadata, exact totals, item ownership, invalid capabilities and cross-owner isolation.
+- [x] Backend CI run `41352898725` passed the vendor child-order integration tests and Docker image build.
+
+
+### M09.3 CI correction checkpoint — 2026-11-02
+- [x] Inspect failed Backend CI run 41352752412 and retrieve the exact job log.
+- [x] Identify the blocking `go vet` error: unused `time` import in `backend/internal/commerce/vendor_orders.go`.
+- [x] Remove the unused import in commit `cb0f20816afdbf3f2dc23628e8a5bd4b7d1bce46`.
+- [x] Fresh Backend CI run `41352898725` on corrected code passed; the earlier failed run tested the previous commit only.
+- [x] M09.3 marked complete after fresh CI verification; seller membership implementation remains gated by deployment prerequisites.
+
+
+## M09.4 — Seller authorization boundary and vendor ownership hardening — CI verified
+- [x] Add wrong-vendor negative integration checks for offer read, price update and inventory adjustment.
+- [x] Verify a foreign vendor scope cannot mutate the actual owner's stock.
+- [x] Document that `vendorID` is an internal selector, not caller authorization; seller operations must not be exposed over HTTP until verified session + active membership resolution exists.
+- [x] Backend CI run `41353137589` on code commit `e18a01d` passed: SQL generation, formatting, `go vet`, race-enabled tests, API/importer builds and Docker image build.
+
+## M09.5 — Seller membership implementation readiness (blocked)
+- [ ] Select and approve custom frontend domain + same-site HTTPS API origin.
+- [ ] Approve runtime/hosting, region, budget and secret-management approach.
+- [ ] Select and approve email delivery provider before verification/reset flows.
+- [ ] Then implement users, seller memberships, role grants, sessions, CSRF and audit events according to `docs/SECURITY_AUTH_DESIGN.md`.
+
+
+## M09.4.1 — Public API surface regression guards (in progress)
+- [x] Add handler tests proving seller order/product routes, cart writes and checkout writes remain unavailable over HTTP.
+- [x] Add tests proving catalog routes reject mutation methods and allowed CORS origins receive only GET/OPTIONS.
+- [x] Verify these handler tests and pre-auth CORS restrictions in Backend CI run `41353463006` (success).
+
+
+## M08.1 — Platform catalog importer synchronization (CI verified)
+- [x] Extend the existing catalog upsert transaction to create/update the `GlobalCart Direct` base-product offer.
+- [x] Synchronize every imported product variant into a matching platform vendor offer, including SKU, price, stock and active/paused state.
+- [x] Record initial price and opening inventory audit events; record subsequent price/stock changes with `system_sync` / `correction` audit reasons.
+- [x] Keep product/category writes and platform-offer synchronization in one database transaction.
+- [x] Make repeated imports idempotent without duplicate offer or audit rows.
+- [x] Add PostgreSQL integration coverage for base-product initial import, unchanged re-import and changed price/stock synchronization.
+- [x] Add PostgreSQL integration coverage for variant offer creation, idempotent re-import, price/stock changes and inactive-variant pausing.
+- [x] Verify the importer integration slice in Backend CI, including Docker image build.
+
+- [x] Verify base-product and existing-variant offer synchronization in Backend CI run `41354208659` (all steps passed, including PostgreSQL tests and Docker image build).
+
+
+## M08.2 — End-to-end source variant ingestion (CI verified)
+- [x] Extend the TypeScript catalog contract and normalization layer to retain optional source variants, stable source identity, SKU, attributes, price, stock and active state.
+- [x] Extend the Go catalog model and PostgreSQL importer to upsert supplied variants transactionally before synchronizing platform offers.
+- [x] Enforce source identity ownership so an existing variant identity cannot silently move to another product; reject invalid prices, negative stock and missing identity.
+- [x] Add catalog normalization and PostgreSQL integration coverage using variants supplied in the imported product snapshot.
+- [x] Verify the complete Go workflow, PostgreSQL integration tests and Docker image build in Backend CI run `41354535515`.
+- [x] Keep variant ingestion optional for product-only sources; DummyJSON remains a sample feed without variants, and no live supplier inventory is claimed.
+
+
+## M08.3 — Supplier adapter contract and fixture-backed variant ingestion (CI verified)
+- [x] Define a shared source adapter contract: each adapter fetches its own raw records and maps each record into the canonical catalog input shape.
+- [x] Add a reusable ingestion boundary that rejects empty, invalid and wholly unmappable feeds before snapshot replacement.
+- [x] Route the existing DummyJSON adapter and scheduled snapshot sync through the shared ingestion boundary while preserving retries and last-known-good behavior.
+- [x] Scope variant deduplication to the database identity pair `(source, source_id)`, allowing equal IDs from different suppliers without dropping valid rows.
+- [x] Encode the source/ID tuple unambiguously and add a regression test for delimiter-containing values; verified by Catalog CI run `41355272122`.
+- [x] Add a clearly synthetic supplier fixture with base product and variant mapping, including attributes, SKU, stock and inactive state.
+- [x] Add tests for adapter mapping, provenance, source-scoped identity and empty/unmappable feeds.
+- [x] Add a dedicated Catalog CI workflow for TypeScript validation, unit tests and production build on pushes and pull requests.
+- [x] Verify the complete Catalog CI workflow on the feature branch and pull-request head.
+- [x] Keep live supplier onboarding gated; do not manufacture data or add credentials without owner-approved API/feed access.
+
+**M08.3 verification:** Catalog CI push run `41355090849` and PR run `41355095558` passed on head `9bfab0c80dec906f52fb56a22b85d36b7eec99f9`. Follow-up collision-hardening run `41355272122` also passed on latest code head `eaebbc0a7b8d1c823c3dcad4a7fed0d10a99edc9`, including TypeScript validation, all unit tests and production build.\n\n**M08.3 safety boundary:** the fixture is synthetic test data only. No supplier endpoint, API key, live offer or commercial inventory feed has been connected.
+
+
+## M08.8 — Authorized supplier onboarding (blocked pending owner decision)
+- [ ] Select a supplier and confirm the account has documented API/feed access rights and permitted catalog/image/price reuse.
+- [ ] Review supplier API documentation, rate limits, pagination, delta/full-snapshot semantics and variant identity guarantees.
+- [ ] Implement the supplier-specific fetch and mapping adapter using the M08.3 shared contract.
+- [ ] Add source-specific fixture and contract tests for pagination, partial failures, duplicate IDs, SKU changes, inactive variants and omitted variants.
+- [ ] Verify end-to-end ingestion through snapshot generation, Go importer, PostgreSQL variant persistence and platform offer audit events.
+- [ ] Store credentials only in an approved server-side secret store; never commit credentials or expose them to the browser.
+
+**Gate:** do not connect a real supplier, scrape retail pages, generate placeholder inventory or treat the synthetic M08.3 fixture as live data until the owner approves a named supplier and its authorized feed/API.
+
+
+## M08.4 — Catalog snapshot continuity and quality diagnostics (CI verified)
+- [x] Add a full-snapshot continuity guard: reject a refresh that loses more than 50% of the previous known-good product count.
+- [x] Run the guard before writing the new snapshot so the existing last-known-good file is retained on suspicious drops.
+- [x] Add a compact quality report for product/variant counts, products without variants, zero price/stock, missing descriptions and uncategorized items.
+- [x] Add unit tests for exact threshold behavior, invalid thresholds and quality report counts.
+- [x] Verify TypeScript validation, all unit tests and production build in Catalog CI PR run `41355595494` on head `0df4c5485e4a2eb391b61e13c52047ed4631942a`.
+- [ ] Revisit source-specific continuity policy when a real supplier is approved; incremental/delta feeds must declare their semantics and must not use the full-snapshot drop guard blindly.
+
+**M08.4 verification:** Catalog CI PR run `41355595494` and push run `41355552153` passed TypeScript validation, all unit tests and production build. Backend CI PR run `41355595650` also passed SQL generation, formatting, vet, tests, API/importer build, Docker image build and cleanup on the documented branch head.\n\n**M08.4 safety boundary:** this guard applies to the current full-snapshot catalog sync. Product-only feeds remain valid; absence of variants is not treated as a catalog failure and does not delete previously imported variants/offers.
+
+
+## M08.5 — Variant omission and inventory retention semantics (in progress)
+- [x] Audit importer behavior when a later product snapshot contains no variants: absent rows are not deleted from `product_variants`; platform offer sync reads the retained database rows.
+- [x] Add PostgreSQL integration coverage importing a product-only snapshot after a prior variant snapshot.
+- [x] Assert the source variant remains stored and platform offer price/stock/status remain unchanged.
+- [x] Assert an independent merchant offer remains active and unchanged when the platform catalog importer receives a product-only snapshot.
+- [x] Assert no duplicate price-history or inventory events are created by the omission-only import.
+- [x] Verify the PostgreSQL omission regression, race-enabled Go suite and Docker build in Backend CI PR run `41356201201` on head `eca6f936d99582a83930f2040a46b912bba57225`.
+
+**M08.5 safety rule:** absence is not deletion. A source must explicitly communicate a complete variant set and an authorized retirement signal before any future variant/offer retirement workflow is introduced. This stage does not add deletion or stock-zero behavior.
+
+
+**M08.6 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
+
+
+## M08.6 — Variant source identity ownership and batch rollback (in progress)
+- [x] Add a PostgreSQL integration test proving an existing `(source, source_id)` cannot be reassigned to a different product.
+- [x] Include a valid earlier product in the same import batch and assert the identity conflict rolls back that earlier write too.
+- [x] Assert the original variant owner, SKU, price and stock remain unchanged and only one row exists for the source identity.
+- [ ] Verify the new identity-ownership test, complete race-enabled Go integration suite and Docker image build in Backend CI on the final head.
+
+**M08.6 safety boundary:** source identity is immutable ownership, not merely a deduplication key. Conflicts fail the transaction; they never silently move a variant between products.
+
+
+**M08.7 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
+
+
+## M08.7 — Explicit feed completeness semantics (CI verified)
+- [ ] Require every source adapter to declare whether it provides a complete snapshot or incremental/delta records.
+- [x] Keep the static catalog snapshot writer restricted to complete snapshots; reject incremental feeds before fetching or replacing the last-known-good file.
+- [x] Add contract tests proving incremental records can be normalized for a merger but cannot be written as a full snapshot.
+- [x] Verify Catalog CI PR run `41356770768` and Backend CI PR run `41356770801` on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`; both passed all jobs.
+
+**M08.7 safety boundary:** no automatic merging or deletion is implied by an incremental feed declaration. A source-specific delta merger must be designed and tested before incremental records can change the canonical snapshot.
+
+
+**M08.8 gate:** real supplier integration requires an owner-approved supplier name, authorized API/feed access, documented terms, and source-specific pagination/snapshot semantics. Do not scrape retail pages or invent live inventory.
+
+
+**M08.7 verification:** Catalog CI PR run `41356770768` and Backend CI PR run `41356770801` both passed on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`. TypeScript validation, unit tests, production build, sqlc generation, Go vet, PostgreSQL race tests, API/importer builds and Docker image build all succeeded.
+
+
+## M08.8 — Feed mapping quality and request safety — CI verified
+- [x] Reject a feed when more than 20% of raw records fail source-specific mapping by default.
+- [x] Allow a source-specific threshold override; validate finite values in [0, 1).
+- [x] Preserve the distinct error for empty feeds and feeds with no mappable records.
+- [x] Enforce a 20-second timeout for each DummyJSON request, including when a caller supplies its own AbortSignal.
+- [x] Propagate caller cancellation immediately and do not retry explicitly cancelled requests.
+- [x] Retry network/time-out failures and HTTP 408, 429 and 5xx responses with a bounded three-attempt policy.
+- [x] Fail fast on permanent HTTP errors, invalid JSON/schema and empty source collections.
+- [x] Verify Catalog CI and Backend CI on the same PR head.
+- [x] Keep supplier onboarding separate and gated by owner approval.
+
+**Verification:** Catalog CI [41358956297](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358956297) and Backend CI [41358956380](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358956380) succeeded on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`.
+
+## M08.9 — Authorized supplier onboarding (blocked)
+- Select a named supplier and confirm API/feed access rights and catalog/image/price reuse terms.
+- Review authentication, rate limits, pagination, full-vs-delta semantics, stable product/variant identity and retirement signals.
+- Implement only the approved adapter and source-specific failure/identity tests.
+- Keep credentials server-side; do not scrape or invent live inventory.
+
+
+## M08.8.1 — Source-agnostic feed import diagnostics — CI verified
+- [x] Expose aggregate fetched, mapped, rejected, normalized and post-normalization-discard counts without retaining raw supplier payloads.
+- [x] Include source name, snapshot mode, import timestamp and the configured mapping rejection threshold.
+- [x] Preserve the existing products-only loader API for backward compatibility.
+- [x] Emit the aggregate report during scheduled catalog snapshot generation.
+- [x] Add regression coverage for mapper rejection, malformed normalized rows and duplicate product IDs.
+- [x] Verify Catalog CI and Backend CI on the same code head.
+
+**Verification:** Catalog CI [41359432556](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432659) succeeded on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.
+
+
+## M08.8.2 — Collision-safe atomic snapshot publication — CI verified
+- [x] Extract snapshot persistence into a shared helper that serializes before writing and renames only after the complete file has been written.
+- [x] Give every writer a unique, exclusively-created temporary file in the destination directory.
+- [x] Clean up temporary files after write/rename failures without changing the last-known-good destination.
+- [x] Add concurrent-writer, failed-rename cleanup and serialization-failure regression tests.
+- [x] Verify Catalog CI, production build and Backend CI on the same code commit.
+
+**Verification:** Catalog CI [41360183218](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183218) and Backend CI [41360183283](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183283) succeeded on code head `062aabdf563626116a50ecba0d7f534e6af3f260`.
+
+**Safety note:** atomic rename protects readers from partial JSON, but it does not impose freshness ordering between independent writers; the last successful rename wins. The scheduled Pages workflow remains serialized.
+
+
+## M08.8.3 — Last-known-good snapshot validation — CI verified
+- [x] Treat only ENOENT as a missing first-run snapshot; propagate filesystem permission and I/O failures.
+- [x] Validate snapshot metadata, product count and normalized product structure before using a file as last-known-good data.
+- [x] Reject malformed JSON and structurally invalid snapshots instead of silently treating them as absent and switching to fixtures.
+- [x] Add regression tests for missing files, malformed JSON, count mismatch and malformed product rows.
+- [x] Verify Catalog CI, production build and Backend CI on the same code head.
+
+**Verification on implementation commit `ff5cf42cc094bc4e35d317ad52f970762280ba2f`:** Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) all succeeded.
+
+**Safety note:** a missing snapshot may use the documented first-import behavior; an existing but invalid snapshot now fails closed and requires repair rather than being silently discarded.
+
+
+## M08.8.4 — Snapshot identity and database-bound validation — CI verified
+- [x] Validate product IDs and source identities are unique across the complete snapshot.
+- [x] Require all product records to match the snapshot's declared source.
+- [x] Reject duplicate variant `(source, source_id)` identities across products before the PostgreSQL importer can encounter a batch conflict.
+- [x] Reject duplicate non-empty variant SKUs across the snapshot, matching PostgreSQL's partial unique SKU index.
+- [x] Enforce database-compatible product/variant price precision and bounds, percentage/rating ranges, safe product IDs and PostgreSQL integer stock bounds.
+- [x] Assert the complete contract before publishing a new snapshot and when reading the previous snapshot.
+- [x] Add regression tests for cross-product identity collisions, SKU conflicts, source mismatch and invalid numeric values.
+- [x] Verify Catalog CI and Backend CI on the same code head.
+
+**Verification on implementation commit `e9d864f6bdbf0013137929e02b6258007200db29`:** Catalog CI PR run [41362606331](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606331), Catalog CI push run [41362602994](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362602994), and Backend CI PR run [41362606267](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606267) all succeeded.
+
+**Safety note:** validation mirrors the PostgreSQL identity and numeric constraints plus the catalog's 0–5 rating domain; it rejects a snapshot rather than mutating, deduplicating or fabricating supplier data.
+
+
+## M08.8.5 — PostgreSQL rating domain constraint — CI verified
+- [x] Add a forward-only migration enforcing `products.rating <= 5` in PostgreSQL, preserving the existing non-negative constraint.
+- [x] Add a PostgreSQL integration regression proving an out-of-range 5.01 rating aborts the entire import batch, including earlier valid rows.
+- [x] Ensure the regression isolates the rating constraint from variant/SKU constraints.
+- [x] Verify Catalog CI, Backend CI, PostgreSQL migration/integration tests and Docker build on the same implementation head.
+
+**Verification on implementation commit `cc36339bcac77d08abc37af3f88f08607a090367`:** Catalog CI PR run [41363342797](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342797), Backend CI PR run [41363342758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342758), and Backend CI push run [41363337241](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363337241) all succeeded.
+
+**Safety note:** this tightens the existing canonical rating domain; it does not rewrite existing rows or fabricate rating values.
+
+
+### M07.2 — Accessible suggestions and keyboard command palette — CI verified (2026-11-02)
+- [x] Build deterministic, bounded product, brand and category suggestions from the catalog already loaded by the storefront.
+- [x] Add accessible combobox/listbox semantics, active-option tracking and Arrow Up/Down, Enter and Escape behavior.
+- [x] Add a Ctrl/⌘+K command palette for catalog, category, cart, favorites, comparison, reset-filters and language actions.
+- [x] Reuse the modal focus trap and restore focus when the command dialog closes; explicitly focus mobile search when expanded.
+- [x] Add unit tests for prefix ranking, normalization, de-duplication, bounded results and source-array non-mutation.
+- [x] Verify TypeScript, Catalog unit tests and production build.
+
+**Verification:** the feature was implemented in 3d6b840f769a4c23de134800877de9c9b47e8298; Catalog CI push run [41366011979](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366011979) and PR run [41366016027](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366016027) passed. The combined current PR head 87bc930da16367bd725b68fec460bae2fda6f26e also passed [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366593947).
+
+**Scope:** suggestions and commands run against the browser-loaded sample catalog and local demo state; they do not call the unhosted API or create real orders/payments.
+
+### M07.3 — PostgreSQL trigram typo tolerance — CI verified (2026-11-02)
+- [x] Enable the trusted pg_trgm extension in a forward-only migration and add GIN indexes for normalized product titles and brands.
+- [x] Keep full-text search as the primary path; use trigram/word-similarity matching as a fallback only for queries of at least three characters.
+- [x] Rank exact full-text matches ahead of fuzzy title/brand matches.
+- [x] Keep list and count search predicates aligned, including fuzzy matches.
+- [x] Document the 200-character query limit and fuzzy-search behavior in OpenAPI.
+- [x] Add PostgreSQL integration tests for exact-match precedence, typo-tolerant title/phrase and brand search, and count/list consistency.
+- [x] Verify sqlc generation, Go vet, PostgreSQL 17 integration/race tests, API/importer builds and Docker image build.
+
+**Verification on final implementation head 87bc930da16367bd725b68fec460bae2fda6f26e:** [Backend CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366589804), [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366594050) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366593947) all succeeded.
+
+**Scope:** this changes only the local PostgreSQL search path. The public GitHub Pages storefront continues to search its generated static catalog; no hosted API connection is implied.
+
+
+### M07.4 — Explainable catalog recommendation ranking — CI verified (2026-11-02)
+- [x] Replace the opaque rating-times-discount order with a documented weighted score: 70% normalized rating and 30% normalized discount (discount contribution capped at 50%).
+- [x] Round scores to a stable six-decimal precision and use deterministic rating/price/ID tie-breakers without mutating the catalog.
+- [x] Show a short per-product reason (top rating, strong discount, both signals or balanced signals) in every product card.
+- [x] Explain that the recommendation order is a demo heuristic and is not personalized from browsing or purchase history.
+- [x] Add unit tests for score weights, discount cap, reason labels, deterministic ranking, invalid-signal bounds and non-mutation.
+- [x] Verify TypeScript, catalog/domain unit tests and production build in Catalog CI.
+
+**Verification on implementation head 09fd73ea1f1dcb1f01e5022c3f4380ec2832855a:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366975455) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366979976) passed. [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366979999) also passed, including PostgreSQL 17 tests and Docker image build.
+
+**Boundary:** ranking uses only the sample rating and discount fields already in the loaded catalog. It does not use personal data, purchase history, real popularity or live behavioral analytics.
+
+
+### M07.5 — Browser-local saved searches and preferences — CI verified (2026-11-02)
+- [x] Save the current query, category, brand, price range, minimum rating and sort order under a user-defined name.
+- [x] Persist up to twelve saved searches in browser localStorage only; provide apply and delete actions.
+- [x] Prevent duplicate filter/sort combinations and validate browser-stored data before using it.
+- [x] Ignore malformed entries safely and keep saved-search state independent from cart/favorites data.
+- [x] Add unit coverage for storage normalization, invalid records, collection bounds and duplicate detection.
+- [x] Verify TypeScript, catalog/domain tests and production build.
+
+**Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539848) also passed.
+
+**Privacy boundary:** saved searches live in this browser only. No account, server sync, analytics profile or backend endpoint is involved.
+
+### M07.6 — Explicit catalog empty/loading/offline states — CI verified (2026-11-02)
+- [x] Keep the generated last-known-good catalog visible immediately while a background source refresh is pending.
+- [x] Show a loading state only when no generated snapshot is available yet.
+- [x] Surface a clear stale-snapshot status when the online source fails or returns an empty collection; never replace a valid snapshot with empty data.
+- [x] Distinguish the last-known-good snapshot from the local fixture fallback used only when no snapshot exists.
+- [x] Retain the existing explicit no-results state for empty filtered results and announce source states through a status region.
+- [x] Add pure state-resolution tests for pending, live, empty and error outcomes with and without a snapshot.
+- [x] Verify TypeScript, catalog/domain tests and production build.
+
+**Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539848) passed.
+
+**Safety:** a failed or empty refresh does not clear or overwrite the last-known-good generated snapshot.
+
+
+## M08.1 — Static storefront browser journeys — CI verified (2026-11-02)
+- [x] Add Playwright desktop Chromium and Pixel 7 mobile projects against the actual Next.js static export, served locally with the GitHub Pages `/globalcart/` base path.
+- [x] Block third-party network requests during browser tests so the committed catalog snapshot is the deterministic source of truth.
+- [x] Verify Persian/English locale switching and opening a pre-generated static product detail route.
+- [x] Verify accessible search suggestions with Arrow/Enter selection and the Ctrl/⌘+K command palette.
+- [x] Verify saved searches survive page reload, can be applied, and can be deleted from browser-local storage.
+- [x] Verify cart drawer and clearly simulated checkout/order completion without any real payment/shipping path.
+- [x] Add a static file server for E2E that enforces the configured base path and rejects path traversal.
+- [x] Add Playwright traces, screenshots on failure and a short-lived CI artifact for debugging.
+
+**Verification on implementation head 08c86aeb909228ecc1ba03d35195ad4fba6ab987:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369733216) and [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737767) passed, each running five journeys on desktop and mobile. [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737769) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737810) also passed, including PostgreSQL 17 checks and Docker build.
+
+**Coverage boundary:** this suite validates the existing demo storefront and does not imply live inventory, real payment, real order submission, or a hosted backend.
+
+
+## M08.2 — Automated accessibility checks and remediation — CI verified (2026-11-02)
+- [x] Add axe-core Playwright checks for the storefront homepage, open command-palette dialog and static product detail page.
+- [x] Run checks on Chromium desktop and Pixel 7 mobile, using WCAG 2.0 A/AA, WCAG 2.1 A/AA and WCAG 2.2 AA rule tags.
+- [x] Fix detected low-contrast muted text in catalog/product metadata, recommendation explanations, discount/rating badges, modal footer and product pricing.
+- [x] Increase FAQ summary and footer navigation target sizes to at least the automated 24 CSS-pixel target-size threshold.
+- [x] Make responsive cart text available to assistive technology without overriding its natural accessible name; align other icon/button labels with visible content and name the sort select.
+- [x] Verify Browser E2E Push and PR after remediation; Catalog CI and Backend CI PR checks also pass.
+
+**Verification on implementation head e515d696873aa2811c3edb35fc89ace74ae874df:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370817992), [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370823048), [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370822987) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370823026) all succeeded.
+
+**Coverage boundary:** this is an automated axe scan of the three listed states at two viewport profiles. It is not a legal accessibility certification and does not replace manual screen-reader, keyboard-only usability and human contrast review.
+
+
+## M08.3 — Keyboard-only modal focus verification — CI verified (2026-11-02)
+- [x] Add Playwright keyboard-only coverage for the command palette's Tab and Shift+Tab focus trap in desktop Chromium and Pixel 7 mobile.
+- [x] Verify Escape closes the command palette and restores focus to the exact invoking search field.
+- [x] Capture the invoking element before opening through Ctrl/⌘+K or the command button; restore focus after the modal has been removed from the DOM.
+- [x] Run all 18 browser tests on desktop/mobile with zero failures after the focus restoration fix.
+- [x] Verify Browser E2E Push and PR, Catalog CI PR and Backend CI PR on the same final implementation head.
+
+**Verification on implementation head 8937b54f0f631695ee02e51a128cc42815988f43:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375898314), [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903109), [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903056), and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903095) all succeeded. Browser E2E reports 18 passed across desktop and mobile.
+
+**Coverage boundary:** this automated keyboard test covers the Command Palette, not every dialog or every screen-reader combination. Manual keyboard walkthrough and assistive-technology review remain open.
+
+
+## M08.4 — Image loading policy and first-party asset budgets — CI verified (2026-11-02)
+- [x] Prioritize the homepage hero image with eager loading, high fetch priority and asynchronous decoding; reduce its requested width/quality to a responsive 1200px / q80 source.
+- [x] Prioritize the product-detail main image and defer gallery thumbnails, related products, catalog cards, merchandising rails, recent items and modal imagery with lazy loading and asynchronous decoding.
+- [x] Preserve fixed media-container dimensions so image loading does not change reserved layout geometry.
+- [x] Add desktop/mobile browser tests that enforce one critical eager image on the homepage and one on product detail, with all non-critical images lazy and asynchronously decoded.
+- [x] Measure first-party initial-route JavaScript and CSS transfer sizes in Chromium and assert budgets of 750 KB JS, 120 KB CSS, no more than 10 JS requests and 2 CSS requests.
+- [x] Verify the full 24-test Browser E2E suite on Push and PR, plus Catalog CI and Backend CI PR, on the same head.
+
+**Measured baseline on implementation head `a741cf60ab44a17acf31bba43f47eb40204f2be5`:** 512,814 bytes of JavaScript across 7 requests and 67,702 bytes of CSS across 1 request. Browser E2E [Push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376758145) and [PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763890) passed with 24 tests; [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763985) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763923) also passed.
+
+**Coverage boundary:** E2E intentionally blocks remote hosts to stay deterministic. These budgets measure first-party JavaScript/CSS and markup loading policy, not actual CDN image payloads, real-network image latency, LCP/CLS or third-party font delivery. Those checks remain open for a network-enabled performance audit.
