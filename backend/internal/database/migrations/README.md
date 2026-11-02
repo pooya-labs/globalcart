@@ -17,3 +17,6 @@ Rules:
 Migration 003 adds demo-only carts, checkout order snapshots, idempotency digests, temporary inventory reservations and order events. It is schema scaffolding only: do not expose write endpoints until the identity/deployment gates and the transaction protocol in `docs/COMMERCE_DESIGN.md` are satisfied. Never store raw cart capabilities or idempotency keys.
 
 Migration 007 adds the missing PostgreSQL upper bound for product ratings (`rating <= 5`). This matches the canonical catalog domain and the snapshot validator; keep the application and database limits aligned.
+
+
+Migration 009 enables `pg_trgm` and adds GIN indexes for normalized product titles and brands. Catalog search keeps PostgreSQL full-text matching as its primary path, then uses trigram/word similarity as a bounded fallback for queries of at least three characters. Exact full-text matches rank ahead of fuzzy matches. Keep both the list and count query predicates aligned.

@@ -35,7 +35,8 @@ paths:
       parameters:
         - in: query
           name: q
-          schema: { type: string }
+          schema: { type: string, maxLength: 200 }
+          description: Full-text search with trigram typo tolerance for queries of at least three characters. Exact full-text matches rank ahead of fuzzy matches.
         - in: query
           name: category
           schema: { type: string }

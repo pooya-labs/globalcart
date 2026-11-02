@@ -19,15 +19,35 @@ WHERE (f.category IS NULL OR EXISTS (
     WHERE c.id = p.category_id
       AND lower(btrim(c.name)) = lower(btrim(f.category))
   ))
-  AND (f.query IS NULL OR
-       to_tsvector('simple', p.title || ' ' || p.description) @@
-       plainto_tsquery('simple', f.query))
+  AND (
+       f.query IS NULL
+       OR to_tsvector('simple', p.title || ' ' || p.description) @@ plainto_tsquery('simple', f.query)
+       OR (
+           length(f.query) >= 3
+           AND (
+               lower(p.title) % lower(f.query)
+               OR lower(f.query) <% lower(p.title)
+               OR lower(p.brand) % lower(f.query)
+           )
+       )
+  )
   AND (f.brand IS NULL OR lower(btrim(p.brand)) = lower(btrim(f.brand)))
   AND (f.min_price IS NULL OR p.price >= f.min_price)
   AND (f.max_price IS NULL OR p.price <= f.max_price)
   AND (f.min_rating IS NULL OR p.rating >= f.min_rating)
   AND (f.max_rating IS NULL OR p.rating <= f.max_rating)
-ORDER BY p.id
+ORDER BY
+    CASE
+        WHEN f.query IS NULL THEN 0::real
+        WHEN to_tsvector('simple', p.title || ' ' || p.description) @@ plainto_tsquery('simple', f.query)
+            THEN 2::real + ts_rank(to_tsvector('simple', p.title || ' ' || p.description), plainto_tsquery('simple', f.query))
+        ELSE GREATEST(
+            word_similarity(lower(f.query), lower(p.title)),
+            similarity(lower(p.title), lower(f.query)),
+            similarity(lower(p.brand), lower(f.query))
+        )
+    END DESC,
+    p.id
 LIMIT sqlc.arg(page_limit)::integer
 OFFSET sqlc.arg(page_offset)::integer;
 
@@ -73,9 +93,18 @@ WHERE (f.category IS NULL OR EXISTS (
     WHERE c.id = p.category_id
       AND lower(btrim(c.name)) = lower(btrim(f.category))
   ))
-  AND (f.query IS NULL OR
-       to_tsvector('simple', p.title || ' ' || p.description) @@
-       plainto_tsquery('simple', f.query))
+  AND (
+       f.query IS NULL
+       OR to_tsvector('simple', p.title || ' ' || p.description) @@ plainto_tsquery('simple', f.query)
+       OR (
+           length(f.query) >= 3
+           AND (
+               lower(p.title) % lower(f.query)
+               OR lower(f.query) <% lower(p.title)
+               OR lower(p.brand) % lower(f.query)
+           )
+       )
+  )
   AND (f.brand IS NULL OR lower(btrim(p.brand)) = lower(btrim(f.brand)))
   AND (f.min_price IS NULL OR p.price >= f.min_price)
   AND (f.max_price IS NULL OR p.price <= f.max_price)
