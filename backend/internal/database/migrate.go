@@ -61,12 +61,15 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
 		if err != nil {
 			return err
 		}
-		// Execute statements individually: PostgreSQL extended-query mode does not
-		// accept a multi-command prepared statement.
-		for _, statement := range strings.Split(string(sqlBytes), ";") {
-			if strings.TrimSpace(statement) == "" {
-				continue
-			}
+		// Execute statements individually because pgx extended-query mode does not
+		// accept multi-command statements. splitSQLStatements preserves quoted SQL
+		// and dollar-quoted PostgreSQL function bodies.
+		statements, splitErr := splitSQLStatements(string(sqlBytes))
+		if splitErr != nil {
+			_ = tx.Rollback(ctx)
+			return fmt.Errorf("split %s: %w", name, splitErr)
+		}
+		for _, statement := range statements {
 			if _, err = tx.Exec(ctx, statement); err != nil {
 				break
 			}
