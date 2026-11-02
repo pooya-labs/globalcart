@@ -343,6 +343,15 @@ func TestManagedProductRequiresAdminAndValidInput(t *testing.T) {
 	if _, _, err := normalizeProductUpdate(conflict); !errors.Is(err, ErrInvalidProductInput) {
 		t.Fatalf("set-and-clear validation error = %v, want ErrInvalidProductInput", err)
 	}
+	if _, err := normalizeProductCreate(ProductCreateInput{Title: "Invalid Price", Category: "Test", Price: "-1"}); !errors.Is(err, ErrInvalidProductInput) {
+		t.Fatalf("negative manual product price error = %v, want ErrInvalidProductInput", err)
+	}
+	if _, err := normalizeProductCreate(ProductCreateInput{Title: "Invalid Precision", Category: "Test", Price: "10.001"}); !errors.Is(err, ErrInvalidProductInput) {
+		t.Fatalf("over-precise manual product price error = %v, want ErrInvalidProductInput", err)
+	}
+	if _, err := normalizeProductCreate(ProductCreateInput{Title: "Unsafe Image", Category: "Test", Price: "10", Thumbnail: "javascript:alert(1)"}); !errors.Is(err, ErrInvalidProductInput) {
+		t.Fatalf("unsafe manual product image URL error = %v, want ErrInvalidProductInput", err)
+	}
 	if _, _, err := normalizeProductUpdate(ProductUpdateInput{}); err != nil {
 		t.Fatalf("empty input normalization should be allowed for explicit no-op detection: %v", err)
 	}
