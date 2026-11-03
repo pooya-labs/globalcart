@@ -16,6 +16,21 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator(".product-card").first()).toBeVisible();
 });
 
+test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
+  await expect(page.locator(".hero-editorial-v2")).toBeVisible();
+  await expect(page.locator(".hero-proofline")).toBeVisible();
+  await expect(page.locator(".categories-section .category-tile")).toHaveCount(8);
+  await expect(page.locator(".merchandising-panel")).toHaveCount(3);
+  await expect(page.locator(".catalog-section .product-card").first()).toBeVisible();
+
+  const project = testInfo.project.name;
+  await page.screenshot({
+    path: `test-results/storefront-home-${project}.png`,
+    fullPage: true,
+    animations: "disabled"
+  });
+});
+
 test("switches locale and opens a statically exported product detail page", async ({ page }) => {
   await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
   await page.getByRole("button", { name: "EN", exact: true }).click();
