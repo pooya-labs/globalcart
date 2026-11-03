@@ -1,7 +1,6 @@
 package commerce_test
 
 import (
-	"context"
 	"crypto/sha256"
 	"errors"
 	"fmt"
