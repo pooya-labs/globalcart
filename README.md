@@ -1,8 +1,8 @@
 # GlobalCart — Intelligent Global Marketplace
 
 **Portfolio project 06 · Independent repository**  
-**Owner / product engineer:** [Pooya Goodarzi](https://github.com/pooya16pg-spec)  
-**Source repository:** https://github.com/pooya16pg-spec/globalcart  
+**Owner / product engineer:** [Pooya Goodarzi](https://github.com/pooya-labs)  
+**Source repository:** https://github.com/pooya-labs/globalcart  
 **Public preview:** https://pooya16pg-spec.github.io/globalcart/  
 **Bilingual case study:** https://pooya16pg-spec.github.io/globalcart/case-study/
 
@@ -23,7 +23,7 @@
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
 
-## Current status — v0.2.3-dev · portfolio and lab performance baseline complete; v1.0 gated by manual QA
+## Current status — v0.2.3-dev · automated release guards complete; v1.0 gated by manual QA
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -44,13 +44,13 @@ Implemented:
 - Real desktop/mobile full-page case-study screenshots are committed in `docs/screenshots/`.
 - Search suggestions, keyboard command palette, explainable sample recommendations and saved-search flows.
 - Backend foundation: Go REST/OpenAPI, PostgreSQL 17 and sqlc are available for local development and CI. Redis is optional; no hosted API or database is deployed.
-- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI. Latest Browser E2E passed 40/40 scenarios in [run 41596731945](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731945).
+- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI. Latest Browser E2E passed 40/40 scenarios in [run 41596731945](https://github.com/pooya-labs/globalcart/actions/runs/41596731945).
 
 Boundaries and remaining work:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
-- Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key interactive dialogs. Latest Browser E2E passed **70/70** in [run 41612960428](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960428) across Chromium desktop/mobile, Firefox and WebKit; the suite now also checks that image preconnect hints are limited to routes that use those origins.
+- Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key interactive dialogs. Latest Browser E2E passed **70/70** in [run 41612960428](https://github.com/pooya-labs/globalcart/actions/runs/41612960428) across Chromium desktop/mobile, Firefox and WebKit; the suite now also checks that image preconnect hints are limited to routes that use those origins.
 - Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
 
 
@@ -85,7 +85,7 @@ This repository is deliberately independent. It has no runtime, deployment or pa
 Requirements: Node.js 20.9+ and npm.
 
 ```bash
-git clone https://github.com/pooya16pg-spec/globalcart.git
+git clone https://github.com/pooya-labs/globalcart.git
 cd globalcart
 npm install
 npm run dev
@@ -108,7 +108,7 @@ npm run build
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system boundaries and data flow.
 - [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md) — migration-derived PostgreSQL ERD covering all 27 tables and key constraints.
 - [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md) — public Lighthouse lab baseline, methodology and manual 1.0 release checklist.
-- Latest public Lighthouse lab audit [run 41613166735](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735): storefront mobile 88 Performance / 3.2 s LCP / 180 ms TBT; product mobile 97 / 2.6 s LCP / 70 ms TBT; case study mobile 98 / 0.9 s LCP / 160 ms TBT. All six audits recorded 100 Accessibility, Best Practices and SEO. These are GitHub-runner lab measurements, not field Core Web Vitals; see `docs/PERFORMANCE_QA.md`.
+- Latest public Lighthouse lab audit [run 41613950109](https://github.com/pooya-labs/globalcart/actions/runs/41613950109): storefront mobile 92 Performance / 3.3 s LCP / 90 ms TBT; product mobile 97 / 2.6 s LCP / 60 ms TBT; case study mobile 100 / 0.9 s LCP / 70 ms TBT. All six audits recorded 100 Accessibility, Best Practices and SEO. These are GitHub-runner lab measurements, not field Core Web Vitals; see `docs/PERFORMANCE_QA.md`.
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
 - [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) — verification and semantic versioning.
@@ -124,4 +124,4 @@ GlobalCart follows semantic versioning. Every release must update package.json, 
 ## Backend foundation (local development)
 The M04 backend foundation is merged into `main`. It includes a Go REST API, PostgreSQL 17 Docker Compose setup, versioned SQL migrations, sqlc-generated query layer, catalog snapshot importer and OpenAPI 3.1 contract. It remains local-development infrastructure; the public GitHub Pages demo is static and no cloud database or API has been provisioned.
 
-Historical M04 backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) validated that foundation when it was merged; current public Pages checks are tracked in the roadmap. See [backend/README.md](backend/README.md) for local setup and [backend/openapi.yaml](backend/openapi.yaml) for the read-only API contract.
+Historical M04 backend CI [41382309964](https://github.com/pooya-labs/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya-labs/globalcart/actions/runs/41382310050) and Pages deployment [41382310024](https://github.com/pooya-labs/globalcart/actions/runs/41382310024) validated that foundation when it was merged; current public Pages checks are tracked in the roadmap. See [backend/README.md](backend/README.md) for local setup and [backend/openapi.yaml](backend/openapi.yaml) for the read-only API contract.
