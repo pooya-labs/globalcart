@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	sellerProductListQueryTimeout = 5 * time.Second
-	sellerProductListDefaultLimit = 20
-	sellerProductListMaximumLimit = 100
+	sellerProductListQueryTimeout  = 5 * time.Second
+	sellerProductListDefaultLimit  = 20
+	sellerProductListMaximumLimit  = 100
 	sellerProductListMaximumOffset = 10000
 )
 
@@ -40,24 +40,24 @@ type SellerProductListInput struct {
 // SellerProductRecord contains the effective storefront-facing product text
 // alongside the seller's own offer values. Supplier provenance remains read-only.
 type SellerProductRecord struct {
-	OfferID               int64     `json:"offerId"`
-	VendorID              int64     `json:"vendorId"`
-	ProductID             int64     `json:"productId"`
-	VariantID             *int64    `json:"variantId,omitempty"`
-	SellerSKU             string    `json:"sellerSku,omitempty"`
-	Title                 string    `json:"title"`
-	VariantTitle          string    `json:"variantTitle,omitempty"`
-	Description           string    `json:"description"`
-	Brand                 string    `json:"brand,omitempty"`
-	Category              string    `json:"category"`
-	Source                string    `json:"source"`
-	SourceID              string    `json:"sourceId"`
-	Price                 string    `json:"price"`
-	Currency              string    `json:"currency"`
-	Stock                 int32     `json:"stock"`
-	Status                string    `json:"status"`
-	CatalogVisibility     string    `json:"catalogVisibility"`
-	UpdatedAt             time.Time `json:"updatedAt"`
+	OfferID           int64     `json:"offerId"`
+	VendorID          int64     `json:"vendorId"`
+	ProductID         int64     `json:"productId"`
+	VariantID         *int64    `json:"variantId,omitempty"`
+	SellerSKU         string    `json:"sellerSku,omitempty"`
+	Title             string    `json:"title"`
+	VariantTitle      string    `json:"variantTitle,omitempty"`
+	Description       string    `json:"description"`
+	Brand             string    `json:"brand,omitempty"`
+	Category          string    `json:"category"`
+	Source            string    `json:"source"`
+	SourceID          string    `json:"sourceId"`
+	Price             string    `json:"price"`
+	Currency          string    `json:"currency"`
+	Stock             int32     `json:"stock"`
+	Status            string    `json:"status"`
+	CatalogVisibility string    `json:"catalogVisibility"`
+	UpdatedAt         time.Time `json:"updatedAt"`
 }
 
 type SellerProductPage struct {

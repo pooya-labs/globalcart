@@ -183,7 +183,6 @@ func TestSellerVendorOperationsUseCanonicalOfferScopeAndCurrentSession(t *testin
 	}
 }
 
-
 func TestSellerProductListIsBoundedFilteredAndVendorScoped(t *testing.T) {
 	pool, ctx := openAuthorizedVendorIntegrationPool(t)
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
