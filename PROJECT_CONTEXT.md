@@ -4,8 +4,8 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M06 admin/seller internal foundations; M06.1 read-only admin overview service is CI-verified; dashboards, seller UI and public routes remain gated by M04 deployment/identity prerequisites  
-**Last updated:** 2026-11-02
+**Active stage:** M06 admin/seller internal foundations; M06.1–M06.2 are CI-verified; M06.3 internal product listing is implemented with CI verification pending; dashboard UI, seller tools and public routes remain gated by M04 deployment/identity prerequisites  
+**Last updated:** 2026-11-03
 
 ## Product definition
 GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
@@ -38,7 +38,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering, search-suggestion, recommendation, saved-search and source-status tests, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - `ROADMAP.md` — authoritative milestone checklist.
-- `backend/` — Go REST API, PostgreSQL migrations 001–014, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract, `backend/internal/auth` and `backend/internal/admin`. M06.1 provides an aggregate-only admin overview; M06.2 adds admin-only manual product creation, editorial overrides, archive/restore and revision history, all internal services without HTTP handlers. Catalog reads apply overrides and hide archived records while supplier-owned rows remain unchanged. The auth package provides Argon2id primitives, digest-only opaque tokens, session lifecycle and transaction-time admin/seller/customer authorization guards; public auth and commerce routes remain disabled.
+- `backend/` — Go REST API, PostgreSQL migrations 001–014, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract, `backend/internal/auth` and `backend/internal/admin`. M06.1 provides an aggregate-only admin overview; M06.2 adds admin-only manual product creation, editorial overrides, archive/restore and revision history; M06.3 adds a bounded admin-only product listing service. These admin services remain internal and have no HTTP handlers. Catalog reads apply overrides and hide archived records while supplier-owned rows remain unchanged. The auth package provides Argon2id primitives, digest-only opaque tokens, session lifecycle and transaction-time admin/seller/customer authorization guards; public auth and commerce routes remain disabled.
 - `go.mod` — Go module at repository root.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
@@ -51,7 +51,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Homepage merchandising rails are derived from the current sample catalog (discounts, ratings and discovery).
 - Homepage overlay interactions support Escape dismissal; cart, favorites, quick view, comparison and checkout dialogs expose labelled dialog semantics, trap Tab/Shift+Tab focus and restore focus on close. When a mobile Command Palette action opens another dialog, the original opener is retained for focus restoration. The desktop/mobile Playwright regression suite verifies these paths; manual assistive-technology QA remains outstanding.
 - Recently viewed product IDs are stored in browser local storage, shown in a homepage rail and on /recently-viewed; the footer links to the history page. There is no server-side account history.
-- Product detail pages expose source USD price, sample discount, illustrative user-configured FX rate and converted demo price. No live FX provider is connected.
+- Product detail pages expose source USD price, sample discount and an indicative Tether/Toman conversion from the timestamped Wallex USDTTMN candle snapshot; it is not a checkout quote, and its freshness is determined by the snapshot timestamp.
 - Amazon URL intake validates supported Amazon domains and ASINs, then saves requests in browser local storage. Live Amazon data is not fetched.
 - Translation is out of scope and removed from the active CI pipeline.
 
@@ -691,6 +691,15 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - No emails, password hashes, token material/digests or audit payloads are returned. Customer and seller sessions are denied; tests verify stale role and session revocation is rejected even after an earlier principal resolution.
 - Backend CI [41465375163](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375163) passed Go formatting, govulncheck, go vet, all race-enabled tests, PostgreSQL integration tests, logical backup/restore, API/importer builds and Docker image build. Security scans [41465375326](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375326) passed.
 - Implementation head: `7ca99c04a348256aa0a6051241864213968f7f84`. The Pages deployment contains no frontend change; no HTTP handler, dashboard, public role switcher, account bootstrap, hosted database or production API was enabled.
+
+
+## Latest M06.3 checkpoint — internal administrator product listing (implementation committed; CI pending, 2026-11-03)
+- Added `backend/internal/admin.ListManagedProducts` with live-session authorization through `admin.products.manage` and transaction-time account/session/role revalidation.
+- The list supports case-insensitive matching against effective editorial title, description and brand, plus category, source, source ID and product ID. Supplier-source filtering remains based on the underlying source record.
+- Visibility defaults to active and can be narrowed to archived or expanded to all. Sorting uses a fixed allow-list; page size defaults to 20, is capped at 100, and offset is capped at 10,000.
+- PostgreSQL integration tests cover customer denial, editorial-value search/filtering, source and visibility filters, stable title ordering, total/page consistency for returned rows, out-of-range pages and invalid bounds.
+- Implementation commit: `cd9bfe3d246774a9a09df8cfe0ef67bb9e838e0a`. Backend CI and Security verification are pending; do not mark the slice CI-verified until those runs finish.
+- This is a service only: no HTTP handler, admin dashboard, public route, role switcher, new migration or hosted dependency was added. Existing migrations 013–014 remain unchanged.
 
 ## Latest M06.2 checkpoint — internal product creation and editorial management (CI verified, 2026-11-02)
 - Migrations 013–014 add `admin_product_overrides`, append-only `admin_product_revisions` and a reserved high-range product-ID sequence for manual products.
