@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import fxSnapshot from "../data/fx-rate.json";
+import { getFxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
 
 test.beforeEach(async ({ page }) => {
   // Keep the browser suite deterministic: the app must work from its committed
@@ -28,6 +30,41 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
 
+test("labels date-only TGJU quotes as stale on storefront and product detail", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+
+  const expectedStatus = getFxRateStatus(fxSnapshot as unknown as FxRateSnapshot);
+  const statusLabels = {
+    fresh: "Fresh",
+    aging: "Aging",
+    stale: "Stale",
+    unavailable: "Rate unavailable"
+  } as const;
+
+  const fxPanel = page.locator(".fx-control");
+  await expect(fxPanel).toHaveAttribute("data-status", expectedStatus);
+  await expect(fxPanel).toContainText(statusLabels[expectedStatus]);
+  if (fxSnapshot.sourceTimeKind === "date_only" && fxSnapshot.sourceTimeTehran) {
+    await expect(fxPanel).toContainText(fxSnapshot.sourceTimeTehran);
+    expect(expectedStatus).toBe("stale");
+  }
+
+  await page.locator(".product-card h3 a")
+    .filter({ hasText: "Essence Mascara Lash Princess" })
+    .click();
+  await expect(page).toHaveURL(/\\/product\\/1\\/?$/);
+
+  const breakdown = page.locator(".price-breakdown");
+  await breakdown.locator("summary").click();
+  if (expectedStatus === "fresh") {
+    await expect(breakdown.locator(".fx-warning")).toHaveCount(0);
+  } else {
+    await expect(breakdown.locator(".fx-warning"))
+      .toContainText(`FX freshness warning: ${statusLabels[expectedStatus]}`);
+  }
+  await expect(breakdown).toContainText("Toman / USD");
+});
+
 test("shows the TGJU free-market dollar quote and product provenance without a hard-coded FX fallback", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
 
@@ -54,7 +91,7 @@ test("shows the TGJU free-market dollar quote and product provenance without a h
   const priceBreakdown = page.locator(".price-breakdown");
   await priceBreakdown.locator("summary").click();
   if (await priceBreakdown.getByText("TGJU free-market USD rate", { exact: false }).count()) {
-    await expect(priceBreakdown).toContainText("Toman / USDT");
+    await expect(priceBreakdown).toContainText("Toman / USD");
     await expect(priceBreakdown).toContainText("Rial to Toman");
     await expect(priceBreakdown).toContainText("TGJU");
   } else {
