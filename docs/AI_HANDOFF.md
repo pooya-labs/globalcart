@@ -52,7 +52,7 @@ The repository, not chat history, is the canonical source of truth.
 
 ## Current continuation checkpoint (2026-11-03)
 - M06.1–M06.4 are complete; do not repeat.
-- M06.5 seller offer create/edit/archive is implemented on main but pending Backend CI + Security verification.
+- M06.5 seller offer create/edit/archive is implemented and CI-verified on main. Backend CI `41571374758`, Security `41571374594` and Pages `41571374873` passed.
 - New offers begin as drafts; seller edits require the current queue revision; self-publish is blocked and archive is terminal.
-- After M06.5 verification, continue with seller profile and demo analytics. Keep public HTTP/UI gated by existing identity, hosting, email and secret approvals.
+- Continue with internal seller profile and demo analytics. Keep public HTTP/UI gated by existing identity, hosting, email and secret approvals.
 - TGJU is the active FX source; do not reintroduce Wallex's USDT proxy.

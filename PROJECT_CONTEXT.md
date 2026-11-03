@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M06 admin/seller internal foundations; M06.1–M06.4 are CI-verified and M06.5 seller offer services are implemented pending CI; seller profile/analytics, dashboard UI and public routes remain gated by M04 deployment/identity prerequisites  
+**Active stage:** M06 admin/seller internal foundations; M06.1–M06.5 internal services are CI-verified; seller profile/analytics, dashboard UI and public routes remain gated by M04 deployment/identity prerequisites  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -38,7 +38,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering, search-suggestion, recommendation, saved-search and source-status tests, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - `ROADMAP.md` — authoritative milestone checklist.
-- `backend/` — Go REST API, PostgreSQL migrations 001–014, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract, `backend/internal/auth`, `backend/internal/admin` and `backend/internal/commerce`. M06.1 provides an aggregate-only admin overview; M06.2 adds admin-only manual product creation, editorial overrides, archive/restore and revision history; M06.3 adds a bounded admin product listing; M06.4 adds a bounded seller product work queue protected by transaction-time vendor membership checks. Admin and seller workspace services remain internal and have no HTTP handlers. Catalog reads apply overrides and hide archived records while supplier-owned rows remain unchanged. The auth package provides Argon2id primitives, digest-only opaque tokens, session lifecycle and transaction-time admin/seller/customer authorization guards; public auth and commerce routes remain disabled.
+- `backend/` — Go REST API, PostgreSQL migrations 001–014, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract, `backend/internal/auth`, `backend/internal/admin` and `backend/internal/commerce`. M06.1 provides an aggregate-only admin overview; M06.2 adds admin-only manual product creation, editorial overrides, archive/restore and revision history; M06.3 adds a bounded admin product listing; M06.4 adds a bounded seller product work queue protected by transaction-time vendor membership checks; M06.5 adds internal seller offer create/edit/archive with optimistic revisions, price/inventory history and append-only audit. Admin and seller workspace services remain internal and have no HTTP handlers. Catalog reads apply overrides and hide archived records while supplier-owned rows remain unchanged. The auth package provides Argon2id primitives, digest-only opaque tokens, session lifecycle and transaction-time admin/seller/customer authorization guards; public auth and commerce routes remain disabled.
 - `go.mod` — Go module at repository root.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
@@ -57,12 +57,12 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 
 
  
-## Latest M06.5 implementation checkpoint — seller offer lifecycle (2026-11-03; CI pending)
+## Latest M06.5 checkpoint — seller offer lifecycle (CI verified 2026-11-03)
 - Added internal seller offer create/edit/archive with transaction-bound account/session/role/vendor/membership checks.
 - New offers start in draft; sellers may edit SKU/price/stock, pause or terminally archive, but cannot self-publish to active.
 - Migration 015 advances the offer revision on every UPDATE and protects append-only revision history. Price, inventory, before/after snapshots and redacted audit events are written transactionally.
 - The existing seller queue returns the revision token; existing authorized price/stock operations share the same audit/revision contract.
-- PostgreSQL lifecycle integration coverage is added. Backend CI and Security verification remain pending; do not mark M06.5 complete until they pass.
+- Backend CI [41571374758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374758), Security [41571374594](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374594) and Pages deployment/smoke [41571374873](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374873) passed on implementation head `3a9a328fd7d7b1262d73dfefbc2e7a81fa994782`. This includes the race-enabled PostgreSQL lifecycle tests, migration execution, logical backup/restore, Go vulnerability scan, vet, API/importer and Docker builds.
 - No seller HTTP route, dashboard, payout, hosted runtime or production database was enabled.
 
 ## M04.1 identity schema checkpoint — 2026-11-02
@@ -179,7 +179,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M08.12 PostgreSQL backup/restore coverage remains CI-only; it is not hosted backup/DR. Manual screen-reader, real-device, full-site RTL/LTR and broader deep-link QA remain open.
 
 ## Immediate next actions
-1. Verify M06.5 seller offer create/edit/archive with Backend CI and Security scans, then continue with internal seller profile and demo analytics. M06.1–M06.4 are complete; do not redo them.
+1. Continue M06 with internal seller profile and demo analytics, reusing the verified vendor-scoped boundary; keep these operations off HTTP until deployment and identity prerequisites are approved. M06.1–M06.5 are complete; do not redo them.
 2. Keep authentication, customer commerce, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.
 3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are CI-verified, but manual assistive-technology QA remains open.
 4. Keep supplier feeds gated by documented authorization. For TGJU, respect its current terms, rate limits and access controls; do not bypass CAPTCHA, HTTP denial or other restrictions. Reassess the source if production service guarantees are required.
