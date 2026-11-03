@@ -3,11 +3,12 @@
 **Portfolio project 06 · Independent repository**  
 **Owner / product engineer:** [Pooya Goodarzi](https://github.com/pooya16pg-spec)  
 **Source repository:** https://github.com/pooya16pg-spec/globalcart  
-**Public preview:** https://pooya16pg-spec.github.io/globalcart/
+**Public preview:** https://pooya16pg-spec.github.io/globalcart/  
+**Bilingual case study:** https://pooya16pg-spec.github.io/globalcart/case-study/
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
 
-## Current status — v0.2.3-dev · marketplace redesign
+## Current status — v0.2.3-dev · M09 portfolio case study in progress
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -82,6 +83,7 @@ npm run build
 ## Documentation and handoff
 
 - [ROADMAP.md](ROADMAP.md) — milestone checklist, acceptance criteria and release ledger.
+- [Bilingual case study](https://pooya16pg-spec.github.io/globalcart/case-study/) — product story, feature tour and architecture overview.
 - [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) — current implementation state and next action.
 - [docs/AI_HANDOFF.md](docs/AI_HANDOFF.md) — mandatory instructions for a replacement AI/developer.
 - [CHANGELOG.md](CHANGELOG.md) — version history.
