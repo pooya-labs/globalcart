@@ -164,9 +164,9 @@ jobs:
           const fs = require("node:fs");
           const html = fs.readFileSync(process.argv[2], "utf8");
           const base = new URL(process.argv[3]);
-          const tags = [...html.matchAll(/<link\\b[^>]*>/gi)].map(match => match[0]);
-          const iconTag = tags.find(tag => /\\brel=["'][^"']*\\bicon\\b[^"']*["']/i.test(tag));
-          const href = iconTag?.match(/\\bhref=["']([^"']+)["']/i)?.[1];
+          const tags = [...html.matchAll(/<link\b[^>]*>/gi)].map(match => match[0]);
+          const iconTag = tags.find(tag => /\brel=["'][^"']*\bicon\b[^"']*["']/i.test(tag));
+          const href = iconTag?.match(/\bhref=["']([^"']+)["']/i)?.[1];
           if (!href) throw new Error("Published homepage does not declare a site icon.");
           const icon = new URL(href, base);
           const expectedPath = base.pathname.endsWith("/") ? base.pathname : base.pathname + "/";
