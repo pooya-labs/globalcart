@@ -10,7 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
+	"github.com/pooya-labs/globalcart/backend/internal/catalog"
 )
 
 func UpsertProducts(ctx context.Context, pool *pgxpool.Pool, products []catalog.Product) error {

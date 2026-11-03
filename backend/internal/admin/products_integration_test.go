@@ -10,10 +10,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/auth"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/database"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
+	"github.com/pooya-labs/globalcart/backend/internal/auth"
+	"github.com/pooya-labs/globalcart/backend/internal/catalog"
+	"github.com/pooya-labs/globalcart/backend/internal/database"
+	"github.com/pooya-labs/globalcart/backend/internal/dbgen"
 )
 
 func createProductManagementAdmin(t *testing.T, ctx context.Context, pool *pgxpool.Pool, suffix string) (string, auth.IssuedSession) {

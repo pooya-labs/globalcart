@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pooya16pg-spec/globalcart/backend/internal/auth"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/database"
+	"github.com/pooya-labs/globalcart/backend/internal/auth"
+	"github.com/pooya-labs/globalcart/backend/internal/catalog"
+	"github.com/pooya-labs/globalcart/backend/internal/database"
 )
 
 func TestListManagedProductsRequiresAdminAndSupportsFiltersAndPagination(t *testing.T) {

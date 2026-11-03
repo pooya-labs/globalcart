@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/commerce"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/database"
+	"github.com/pooya-labs/globalcart/backend/internal/catalog"
+	"github.com/pooya-labs/globalcart/backend/internal/commerce"
+	"github.com/pooya-labs/globalcart/backend/internal/database"
 )
 
 func newAwaitingDemoReturnOrder(t *testing.T, ctx context.Context, pool *pgxpool.Pool, label string) (*commerce.Service, []byte, commerce.Order, int64) {

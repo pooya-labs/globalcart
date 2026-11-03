@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/config"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/database"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/httpapi"
+	"github.com/pooya-labs/globalcart/backend/internal/config"
+	"github.com/pooya-labs/globalcart/backend/internal/database"
+	"github.com/pooya-labs/globalcart/backend/internal/httpapi"
 )
 
 func main() {

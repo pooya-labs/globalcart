@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
+	"github.com/pooya-labs/globalcart/backend/internal/catalog"
+	"github.com/pooya-labs/globalcart/backend/internal/dbgen"
 )
 
 func TestCatalogFacetFiltersAndCountStayConsistent(t *testing.T) {

@@ -12,8 +12,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/dbgen"
+	"github.com/pooya-labs/globalcart/backend/internal/catalog"
+	"github.com/pooya-labs/globalcart/backend/internal/dbgen"
 )
 
 type Handler struct {

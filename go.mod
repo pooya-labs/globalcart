@@ -1,4 +1,4 @@
-module github.com/pooya16pg-spec/globalcart
+module github.com/pooya-labs/globalcart
 
 go 1.26.0
 

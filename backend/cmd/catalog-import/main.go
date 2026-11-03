@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/catalog"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/config"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/database"
+	"github.com/pooya-labs/globalcart/backend/internal/catalog"
+	"github.com/pooya-labs/globalcart/backend/internal/config"
+	"github.com/pooya-labs/globalcart/backend/internal/database"
 )
 
 type snapshot struct {

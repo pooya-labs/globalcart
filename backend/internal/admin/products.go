@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pooya16pg-spec/globalcart/backend/internal/auth"
+	"github.com/pooya-labs/globalcart/backend/internal/auth"
 )
 
 const productManagementQueryTimeout = 5 * time.Second
