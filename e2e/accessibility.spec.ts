@@ -116,6 +116,35 @@ test("command palette dialog remains accessible when open", async ({ page }) => 
   await expectNoWcagViolations(page);
 });
 
+test("recently viewed page meets WCAG checks in populated and empty RTL/LTR states", async ({ page }) => {
+  await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
+  await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
+
+  const historyUrl = new URL("../recently-viewed", page.url()).toString();
+  const response = await page.goto(historyUrl);
+  expect(response?.status()).toBe(200);
+
+  const history = page.locator("main.history-page");
+  await expect(history).toHaveAttribute("dir", "rtl");
+  await expect(history.getByRole("heading", { name: "محصولات بازدیدشده" })).toBeVisible();
+  await expect(history.getByRole("link", { name: /Essence Mascara Lash Princess/ })).toBeVisible();
+  await expectNoWcagViolations(page);
+
+  await page.getByRole("button", { name: "تغییر زبان به انگلیسی" }).click();
+  await expect(history).toHaveAttribute("dir", "ltr");
+  await expect(history.getByRole("heading", { name: "Recently viewed products" })).toBeVisible();
+  await expectNoWcagViolations(page);
+
+  await page.getByRole("button", { name: "Clear recently viewed history" }).click();
+  await expect(history.getByText("No recently viewed products yet")).toBeVisible();
+  await expectNoWcagViolations(page);
+
+  await page.getByRole("button", { name: "Switch language to Persian" }).click();
+  await expect(history).toHaveAttribute("dir", "rtl");
+  await expect(history.getByText("هنوز محصولی بازدید نکرده‌ای")).toBeVisible();
+  await expectNoWcagViolations(page);
+});
+
 test("static product detail page meets WCAG 2.1 AA automated checks", async ({ page }) => {
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
   await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
