@@ -63,6 +63,8 @@ test("bilingual case study is navigable and meets WCAG checks in RTL and LTR", a
   await expect(main).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("یک بازار جهانی");
   await expect(page.getByRole("group", { name: "نمودار جریان داده و معماری" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "مدل داده و روابط پایگاه‌داده" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /مشاهده نمودار کامل ERD/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /مشاهده فروشگاه/ })).toBeVisible();
   await expectNoWcagViolations(page);
 
@@ -70,6 +72,8 @@ test("bilingual case study is navigable and meets WCAG checks in RTL and LTR", a
   await expect(main).toHaveAttribute("dir", "ltr");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("A global marketplace");
   await expect(page.getByRole("group", { name: "Data flow and architecture diagram" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Database model and relationships" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open the full PostgreSQL ERD/ })).toBeVisible();
   await expectNoWcagViolations(page);
 });
 
