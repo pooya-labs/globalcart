@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M06 admin/seller internal foundations; M06.1–M06.3 are CI-verified; dashboard UI, seller tools and public routes remain gated by M04 deployment/identity prerequisites  
+**Active stage:** M06 admin/seller internal foundations; M06.1–M06.4 internal services are CI-verified; dashboard UI, seller write flows and public routes remain gated by M04 deployment/identity prerequisites  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -38,7 +38,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `tests/*.test.ts` — catalog ingestion/quality, storefront facet filtering, search-suggestion, recommendation, saved-search and source-status tests, pricing and legacy translation tests.
 - `.github/workflows/deploy.yml` — CI, scheduled/manual catalog refresh, static build and Pages deployment.
 - `ROADMAP.md` — authoritative milestone checklist.
-- `backend/` — Go REST API, PostgreSQL migrations 001–014, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract, `backend/internal/auth` and `backend/internal/admin`. M06.1 provides an aggregate-only admin overview; M06.2 adds admin-only manual product creation, editorial overrides, archive/restore and revision history; M06.3 adds a bounded admin-only product listing service. These admin services remain internal and have no HTTP handlers. Catalog reads apply overrides and hide archived records while supplier-owned rows remain unchanged. The auth package provides Argon2id primitives, digest-only opaque tokens, session lifecycle and transaction-time admin/seller/customer authorization guards; public auth and commerce routes remain disabled.
+- `backend/` — Go REST API, PostgreSQL migrations 001–014, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract, `backend/internal/auth`, `backend/internal/admin` and `backend/internal/commerce`. M06.1 provides an aggregate-only admin overview; M06.2 adds admin-only manual product creation, editorial overrides, archive/restore and revision history; M06.3 adds a bounded admin product listing; M06.4 adds a bounded seller product work queue protected by transaction-time vendor membership checks. Admin and seller workspace services remain internal and have no HTTP handlers. Catalog reads apply overrides and hide archived records while supplier-owned rows remain unchanged. The auth package provides Argon2id primitives, digest-only opaque tokens, session lifecycle and transaction-time admin/seller/customer authorization guards; public auth and commerce routes remain disabled.
 - `go.mod` — Go module at repository root.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
@@ -169,10 +169,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M08.12 PostgreSQL backup/restore coverage remains CI-only; it is not hosted backup/DR. Manual screen-reader, real-device, full-site RTL/LTR and broader deep-link QA remain open.
 
 ## Immediate next actions
-1. Keep authentication, customer commerce, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.
-2. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are CI-verified, but manual assistive-technology QA remains open.
-3. Obtain owner approval and documented rights for a named supplier API/feed and an authorized FX provider/rate-staleness policy before enabling either integration.
-4. Benchmark Argon2id and add runtime rate limiting only after the deployment environment is approved.
+1. Continue M06 with internal seller offer creation/edit/archive and seller profile/analytics, reusing the verified vendor-scoped service boundary; keep these operations off HTTP until the deployment and identity prerequisites are approved.
+2. Keep authentication, customer commerce, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.
+3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are CI-verified, but manual assistive-technology QA remains open.
+4. Obtain owner approval and documented rights for a named supplier API/feed and an authorized FX provider/rate-staleness policy before enabling either integration.
+5. Benchmark Argon2id and add runtime rate limiting only after the deployment environment is approved.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.
@@ -701,6 +702,16 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The filter validator rejects invalid UTF-8, overlong text and NUL characters before query execution. No migration was added.
 - Final implementation/test head: `115fbac9dc716b09911151fb19e8e44aeede110f`. Backend CI [41562708698](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708698), Security scans [41562708607](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708607) and Pages deployment [41562708709](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708709) all passed. Race-enabled Go/PostgreSQL tests, backup/restore, API/importer and Docker builds, security scans and published-site smoke checks succeeded.
 - This is a service only: no HTTP handler, admin dashboard, public route, role switcher, new migration or hosted dependency was added. Existing migrations 013–014 remain unchanged.
+
+
+## Latest M06.4 checkpoint — internal seller product work queue (CI verified, 2026-11-03)
+- Added `backend/internal/commerce.ListSellerProductsForSeller`, a read-only, bounded seller offer queue using the existing PostgreSQL schema; no migration or new dependency was needed.
+- The caller's vendor ID is only a selector. The service revalidates the active verified account, live session, seller role, active vendor and exact active membership under row locks in the same transaction as the listing query.
+- The queue returns only the selected vendor's offers, including seller-owned SKU/price/currency/stock/status and current catalog visibility. Display title, description and brand use the effective catalog values, while source and source ID remain attached to the original product record.
+- Added bounded free-text search over effective product/variant text, brand, category, source, source ID, SKU and exact offer/product IDs; added status/category/source/brand filters, fixed sort allow-list and pagination (default 20, maximum 100, maximum offset 10,000).
+- PostgreSQL integration tests cover seller access, cross-vendor denial, customer denial, stale session after membership revocation, effective editorial-title search, status/source/category filters, price sorting, pagination, invalid bounds, NUL rejection and unsupported sort keys.
+- Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334), Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) and Pages deployment + published-site smoke test [41564104379](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104379) passed on implementation commit `b9c35829afa14d37c690fb4abad59e617140564e`. Backend CI completed sqlc generation, formatting, govulncheck, go vet, race-enabled PostgreSQL tests, logical backup/restore, API/importer builds and Docker image build.
+- This is an internal read service only: no HTTP handler, seller dashboard, browser role switcher, public seller route, new migration or hosted service was added. The existing same-site HTTPS, email, secret-management and runtime gates remain unchanged.
 
 ## Latest M06.2 checkpoint — internal product creation and editorial management (CI verified, 2026-11-02)
 - Migrations 013–014 add `admin_product_overrides`, append-only `admin_product_revisions` and a reserved high-range product-ID sequence for manual products.

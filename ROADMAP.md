@@ -317,8 +317,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Admin-only manual product creation with a reserved ID sequence, `admin_manual` provenance and a transactional GlobalCart Direct demo offer; M06.2 below.
 - [x] Admin-only product editorial edit, archive and restore with immutable revision history; M06.2 below.
 - [x] Internal admin product work queue with effective-value search, status/source/category/brand filters, safe sorting and bounded pagination; M06.3 below. Backend CI [41562259407](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562259407) and Security scans [41562285730](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562285730) passed.
+- [x] Internal seller product work queue with live vendor-membership authorization, effective catalog search, offer status/source/category/brand filters, safe sorting and bounded pagination; M06.4 below. Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334) and Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) passed.
 - [ ] Supplier connector configuration without secret exposure.
-- [ ] Seller profile, product management and demo analytics.
+- [ ] Seller profile, offer creation/edit/archive and demo analytics.
 
 ### M06.1 — Internal admin overview service foundation — CI verified (2026-11-02)
 - [x] Add a dedicated deny-by-default `admin.overview.read` authorization action.
@@ -358,6 +359,19 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify final Backend CI [41562708698](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708698), Security scans [41562708607](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708607) and Pages deployment [41562708709](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708709) on `115fbac9dc716b09911151fb19e8e44aeede110f`; race-enabled Go/PostgreSQL tests (including NUL rejection), backup/restore, API/importer builds, Docker image, security scans and published-site smoke checks passed.
 
 **Boundary:** this is a backend service only. It adds no HTTP handler, admin page, browser role switcher, public product endpoint or hosted dependency. No schema migration is required; the existing migrations 013–014 are unchanged.
+
+
+
+### M06.4 — Internal seller product work queue — CI verified (2026-11-03)
+- [x] Add `ListSellerProductsForSeller` as a read-only service using the existing vendor offer and catalog schema; no migration or dependency is required.
+- [x] Treat the requested vendor ID only as a selector; revalidate the active verified account, exact live session, seller role, active vendor and exact membership under row locks in the same transaction as the list.
+- [x] Return only the selected vendor's offers and distinguish seller-owned SKU/price/currency/stock/status from effective catalog title/description/brand and original source provenance.
+- [x] Add bounded free-text search across effective product/variant fields, category, source, source ID, SKU and product/offer IDs; add status/category/source/brand filters.
+- [x] Add fixed allow-listed sorting and stable offer-ID tie-breaking; default page size 20, maximum 100, maximum offset 10,000.
+- [x] Add PostgreSQL integration coverage for customer denial, cross-vendor isolation, membership revocation/stale sessions, effective editorial search, filters, sorting, pagination and invalid input.
+- [x] Verify Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334), Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) and Pages deployment [41564104379](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104379) on implementation commit `b9c35829afa14d37c690fb4abad59e617140564e`; all passed, including PostgreSQL race tests, backup/restore, API/importer and Docker builds, security scan and published-site smoke test.
+
+**Boundary:** `backend/internal/commerce` exposes this as an internal read service only. No seller HTTP handler, dashboard, browser role switcher, public seller route, migration, production database or hosting was added. Existing identity and deployment approval gates still apply.
 
 ## M07 — Search and discovery
 - [x] Faceted filters for brand, rating, price and category across the storefront and read-only API.
