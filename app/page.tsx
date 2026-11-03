@@ -577,7 +577,7 @@ export default function Home() {
   };
 
   return (
-    <main id="top" className={rtl?"store rtl":"store ltr"} dir={rtl?"rtl":"ltr"}>
+    <main id="top" className={rtl?"store storefront-v2 rtl":"store storefront-v2 ltr"} dir={rtl?"rtl":"ltr"}>
       <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.dummyjson.com" />
       <div className="topline"><span>{t.top}</span><span className="topline-right"><ShieldCheck size={13}/>{t.noPayment}</span></div>
