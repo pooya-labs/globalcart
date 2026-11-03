@@ -56,3 +56,10 @@ The repository, not chat history, is the canonical source of truth.
 - New offers begin as drafts; seller edits require the current queue revision; self-publish is blocked and archive is terminal.
 - Continue with internal seller profile and demo analytics. Keep public HTTP/UI gated by existing identity, hosting, email and secret approvals.
 - TGJU is the active FX source; do not reintroduce Wallex's USDT proxy.
+
+
+## Current continuation checkpoint — M06.6 (2026-11-03)
+- M06.1–M06.5 are CI-verified and complete; do not redo them.
+- M06.6 internal seller profile and aggregate demo analytics are implemented on main, pending Backend CI and PostgreSQL integration verification.
+- Profile changes are display-name-only and optimistic; order aggregates are vendor-scoped and paid totals include only simulated payments.
+- After CI succeeds, record run IDs and mark M06.6 verified. Keep public seller UI/routes gated by the existing identity/hosting approvals.

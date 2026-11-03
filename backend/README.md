@@ -167,3 +167,6 @@ This is an internal service only. It adds no migration, HTTP handler, public end
 
  
 M06.5 provides internal seller offer create/edit/archive services. New offers begin as drafts; edits require the revision returned by the seller queue; sellers cannot self-publish; archive is terminal. Revision history, price/inventory events and redacted audit records are transactional. No HTTP route or seller UI is enabled.
+
+
+M06.6 adds an internal seller workspace read with vendor-scoped profile, offer aggregates and simulated child-order analytics, plus display-name-only vendor profile editing guarded by optimistic concurrency and audit. Paid amounts are reported only for `paid_simulated` orders and are not real revenue. No customer personal data, HTTP route or seller dashboard is exposed.
