@@ -60,6 +60,6 @@ The repository, not chat history, is the canonical source of truth.
 
 ## Current continuation checkpoint — M06.6 (2026-11-03)
 - M06.1–M06.5 are CI-verified and complete; do not redo them.
-- M06.6 internal seller profile and aggregate demo analytics are implemented on main, pending Backend CI and PostgreSQL integration verification.
+- M06.6 internal seller profile and aggregate demo analytics are implemented and CI-verified on main. Backend CI `41572747044`, Security `41572747081` and Pages `41572746914` passed.
 - Profile changes are display-name-only and optimistic; order aggregates are vendor-scoped and paid totals include only simulated payments.
-- After CI succeeds, record run IDs and mark M06.6 verified. Keep public seller UI/routes gated by the existing identity/hosting approvals.
+- M06.1–M06.6 internal foundations are complete; keep public seller UI/routes gated by the existing identity/hosting approvals. Supplier connector setup still requires explicit source rights and secret-management approval.

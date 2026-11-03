@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M06 admin/seller internal foundations; M06.1–M06.5 are CI-verified and M06.6 seller profile/analytics is implemented pending CI; dashboard UI and public routes remain gated by M04 deployment/identity prerequisites  
+**Active stage:** M06 internal admin/seller foundations; M06.1–M06.6 internal services are CI-verified; dashboard UI and public routes remain gated by M04 deployment/identity prerequisites  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -59,12 +59,12 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
  
 
  
-## Latest M06.6 implementation checkpoint — seller profile and demo analytics (2026-11-03; CI pending)
+## Latest M06.6 checkpoint — seller profile and demo analytics (CI verified 2026-11-03)
 - Added `GetSellerWorkspaceForSeller`: transaction-time authorization and vendor-only profile/offer aggregates, order-state counts, 30-day order count and per-currency totals limited to `paid_simulated` orders.
 - Added `UpdateSellerVendorProfileForSeller`: display-name-only edit with optimistic `updated_at` checks and an actor-attributed audit event; slug, type and vendor lifecycle are not seller-editable.
 - No customer identifiers, email addresses, order-item details, personal data or real-revenue claims are returned. Amounts are explicitly simulated totals.
 - Added unit validation and PostgreSQL integration coverage for seller/customer/foreign-vendor isolation, profile stale-write protection and audit, demo vendor checkout/payment aggregation and membership revocation.
-- Backend CI, Security and Pages verification remain pending; do not mark M06.6 complete until the integration test passes and workflows succeed.
+- Backend CI [41572747044](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572747044), Security [41572747081](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572747081) and Pages deployment/smoke [41572746914](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572746914) passed on implementation head `fe24119685bfa8487cb8fa2abfb8ad85ed430904`. The PostgreSQL integration test creates and completes a demo vendor order, verifies the simulated paid totals, tests stale profile writes, customer/foreign-vendor denial and membership revocation. Backend race tests, backup/restore, Go vulnerability scan, vet and API/importer/Docker builds all passed.
 - No public seller HTTP/API route, dashboard, payout, hosted runtime or production database was added.
 
 ## Latest M06.5 checkpoint — seller offer lifecycle (CI verified 2026-11-03)
@@ -189,7 +189,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M08.12 PostgreSQL backup/restore coverage remains CI-only; it is not hosted backup/DR. Manual screen-reader, real-device, full-site RTL/LTR and broader deep-link QA remain open.
 
 ## Immediate next actions
-1. Verify M06.6 seller profile and demo analytics with Backend CI and the PostgreSQL lifecycle test; after all checks pass, continue with gated dashboard planning only after owner approval. M06.1–M06.5 are complete; do not redo them.
+1. Keep public seller/admin workspace UI and protected routes gated until same-site HTTPS hosting, identity, email delivery and secret storage are approved. M06.1–M06.6 internal foundations are complete; do not redo them. Supplier connector setup also remains blocked on explicit source/API rights and secret-management approval.
 2. Keep authentication, customer commerce, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.
 3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are CI-verified, but manual assistive-technology QA remains open.
 4. Keep supplier feeds gated by documented authorization. For TGJU, respect its current terms, rate limits and access controls; do not bypass CAPTCHA, HTTP denial or other restrictions. Reassess the source if production service guarantees are required.

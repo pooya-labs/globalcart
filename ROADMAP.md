@@ -319,7 +319,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Internal admin product work queue with effective-value search, status/source/category/brand filters, safe sorting and bounded pagination; M06.3 below. Backend CI [41562259407](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562259407) and Security scans [41562285730](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562285730) passed.
 - [x] Internal seller product work queue with live vendor-membership authorization, effective catalog search, offer status/source/category/brand filters, safe sorting and bounded pagination; M06.4 below. Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334) and Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) passed.
 - [ ] Supplier connector configuration without secret exposure.
-- [ ] Seller dashboard UI and browser role switcher remain gated; internal seller profile and demo analytics service are implemented in M06.6 pending CI.
+- [ ] Seller dashboard UI and browser role switcher remain gated; M06.6 internal seller profile and demo analytics services are CI-verified.
 
 ### M06.1 — Internal admin overview service foundation — CI verified (2026-11-02)
 - [x] Add a dedicated deny-by-default `admin.overview.read` authorization action.
@@ -385,14 +385,14 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 **Boundary:** internal Go service only. No seller HTTP route, dashboard, self-publish, payout or production hosting. Seller profile and demo analytics remain separate M06 work.
 
-### M06.6 — Internal seller profile and demo analytics — implementation pending CI (2026-11-03)
+### M06.6 — Internal seller profile and demo analytics — CI verified (2026-11-03)
 - [x] Add a vendor-scoped seller workspace read that revalidates the exact active membership, account and session under row locks in the same transaction.
 - [x] Return only selected vendor profile fields, offer-state/active-stock aggregates and child-order state counts; do not expose customer identity or line-item details.
 - [x] Aggregate paid amounts by currency only from `paid_simulated` child orders, explicitly naming them simulated totals; include a 30-day order count.
 - [x] Allow the seller to edit only the vendor display name, using `updated_at` as an optimistic revision token while preserving slug, type and vendor lifecycle state.
 - [x] Append an actor-attributed audit event for profile changes in the same transaction.
 - [x] Add PostgreSQL coverage for seller/customer/foreign-vendor isolation, profile optimistic concurrency and audit, and a real demo vendor checkout/payment flow reflected in workspace analytics.
-- [ ] Verify Backend CI, race-enabled PostgreSQL tests, Security scans and Pages smoke checks before marking the slice complete.
+- [x] Verify Backend CI [41572747044](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572747044), Security scans [41572747081](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572747081) and Pages deploy/smoke [41572746914](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572746914) on implementation head `fe24119685bfa8487cb8fa2abfb8ad85ed430904`; race-enabled PostgreSQL workspace/profile/demo-checkout tests, migration/backup/restore, vet, vulnerability scan, API/importer and Docker builds, TypeScript/unit tests, production build and published-site smoke all passed.
 
 **Boundary:** internal backend only. No seller HTTP route, dashboard, payout, real-revenue claim, customer-data disclosure or production hosting is added.
 
