@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08 quality hardening and manual QA, followed by M09 portfolio release; M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
+**Active stage:** M09.1 bilingual portfolio case study and feature tour; M08 manual device/screen-reader/CDN QA remains an external gate; M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -28,6 +28,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `app/product/[id]/page.tsx` — statically generated product routes from the current catalog snapshot.
 - `app/product/[id]/ProductDetailClient.tsx` — product gallery, illustrative price breakdown, product facts, browser-local visit tracking, local cart/favorite actions and related products.
 - `app/recently-viewed/page.tsx` — static-exportable history page reading and clearing browser-local recent product IDs.
+- `app/case-study/page.tsx` — bilingual, locale-aware portfolio case study with feature tour and architecture/data-flow diagram; `app/case-study/case-study.css` contains its responsive presentation.
 - `app/globals.css` — responsive marketplace design system, product detail, price breakdown, recently viewed rail, mega-menu, comparison and Amazon intake styling.
 - `app/layout.tsx` — metadata and global styles.
 - `data/catalog.json` — generated 100-product sample catalog snapshot.
@@ -758,3 +759,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - The scheduled GitHub Actions refresh makes one bounded request every five minutes. The browser consumes only the generated static JSON and never calls TGJU; no access-control bypass, proxy or third-party price API is used.
 - Automated use of TGJU remains subject to the site's current terms and availability. This portfolio estimate is indicative and is not an executable buy/sell or bank rate.
 - Latest verification: TGJU fetch-and-persist [run 41568568791](https://github.com/pooya16pg-spec/globalcart/actions/runs/41568568791) passed and saved 2,715,000 Rial = 271,500 Toman per USD with the source marker `11 آبان` (`date_only`); the quote is visible but marked stale because TGJU provided no exact clock. Security scan [41568713623](https://github.com/pooya16pg-spec/globalcart/actions/runs/41568713623), Pages production build/deploy and public smoke test [41568713584](https://github.com/pooya16pg-spec/globalcart/actions/runs/41568713584), and desktop/mobile Browser E2E including unit/type validation [41568713639](https://github.com/pooya16pg-spec/globalcart/actions/runs/41568713639) all passed. Five-minute schedule cadence remains under observation; no claim is made that every scheduled event will run at the exact cron minute.
+
+
+## Latest continuation checkpoint — M09.1 bilingual portfolio case study (implementation committed; CI pending, 2026-11-03)
+- Added the static-exportable `/case-study/` route in Persian RTL and English LTR, sharing the guarded `globalcart-locale-v1` preference with the storefront and history page.
+- Added a feature tour linking to existing storefront routes, a data-flow/architecture diagram, project metrics, technology stack and explicit product/security boundaries. The page distinguishes the public static storefront from the local Go/PostgreSQL foundation and does not imply public seller/admin endpoints or live commerce.
+- Added route metadata and a footer link from the storefront. No runtime dependency, migration, new service, translation provider or commerce behavior was introduced.
+- Current continuation: verify TypeScript, unit tests, static export, desktop/mobile browser tests and published Pages smoke. Then capture real screenshots and add the database ERD. M08 manual physical-device, screen-reader and live CDN/Core Web Vitals QA remains open.
+- Do not mark M09.1 verified or advance to 1.0.0 until the relevant Actions runs and published route are checked.
