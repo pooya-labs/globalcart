@@ -143,6 +143,26 @@ All six audits recorded 100 Accessibility, Best Practices and SEO. The mobile Pe
 
 All six audits recorded 100 Accessibility, Best Practices and SEO. Mobile Performance is home 94, product 99 and case study 100; desktop Performance is 100 across all routes. These are lab measurements, not CrUX/field Core Web Vitals.
 
+### Latest published audit — 2026-11-03 (canonical Pages, run 41620637413)
+
+**Run:** [Public Lighthouse 41620637413](https://github.com/pooya-labs/globalcart/actions/runs/41620637413) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · `https://pooya-labs.github.io/globalcart/`. The run passed and retained all six raw JSON reports in artifact [13223825714](https://github.com/pooya-labs/globalcart/actions/runs/41620637413).
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.8 s | 0 ms | 0 |
+| Storefront — mobile | 93 | 100 | 100 | 100 | 1.3 s | 3.2 s | 80 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 0 ms | 0.007 |
+| Product 1 — mobile | 95 | 100 | 100 | 100 | 0.9 s | 2.9 s | 50 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.2 s | 0 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 100 ms | 0 |
+
+All six audits recorded 100 Accessibility, Best Practices and SEO. Desktop Performance is 100 on every route; mobile Performance is 93 / 95 / 99 for storefront, product and case study. A single desktop product audit reports CLS 0.007, still a very small lab movement; this is not a field CLS measurement.
+
+**LCP request discovery:** the homepage hero `main#top > section.hero > div.hero-visual > img` is the mobile LCP element. It is visible in the initial HTML, uses `loading="eager"`, `fetchpriority="high"`, and a responsive `srcset`; Lighthouse's request-discovery checklist passes. Its LCP subparts were approximately 96 ms TTFB, 11 ms resource-load delay, 238 ms resource-load duration and 24 ms element-render delay. The product main image is likewise eager/high-priority and discoverable; its subparts were approximately 97 ms, 10 ms, 65 ms and 64 ms respectively. These numbers are subpart diagnostics from a lab run; do not infer that their sum must equal the displayed page-level LCP.
+
+**Decision:** do not add another preload or rewrite the image CDN URLs based only on the 3.2 s storefront LCP. The LCP request is already discoverable and begins promptly; further work should target measured browser/rendering/network causes and must be compared across repeat runs. Existing image-size observations and the reason no undocumented DummyJSON resize/proxy was added remain documented above.
+
+This remains lab-only evidence. It does not close physical-device, real screen-reader, comprehensive manual RTL/LTR or field-delivery QA.
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.
