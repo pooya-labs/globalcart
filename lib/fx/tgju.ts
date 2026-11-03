@@ -49,15 +49,15 @@ function findDollarRow(html: string): MarketRow {
   throw new Error("TGJU dollar market row (price_dollar_rl) was not found; the page may be blocked or its markup changed");
 }
 function parsePositiveInteger(value: string): number {
-  const normalized = normalizeDigits(value).replace(/[\\s,٬،]/g, "");
-  if (!/^\\d+$/.test(normalized)) throw new TypeError("TGJU dollar price is not a whole-number Rial quote");
+  const normalized = normalizeDigits(value).replace(/[\s,٬،]/g, "");
+  if (!/^\d+$/.test(normalized)) throw new TypeError("TGJU dollar price is not a whole-number Rial quote");
   const parsed = Number(normalized);
   if (!Number.isSafeInteger(parsed) || parsed <= 0) throw new RangeError("TGJU dollar price must be a positive safe integer");
   return parsed;
 }
 function parseTehranTime(value: string, now: number): { time: string; timestamp: string } {
   const normalized = normalizeDigits(value).trim();
-  const match = normalized.match(/^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$/);
+  const match = normalized.match(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/);
   if (!match) throw new TypeError("TGJU dollar row does not contain a live HH:mm:ss update time");
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit"
@@ -79,7 +79,7 @@ export function normalizeTgjuDollarPage(input: unknown, now = Date.now()): FxRat
   if (!Number.isFinite(now)) throw new RangeError("now must be a finite timestamp");
   const row = findDollarRow(input);
   const rawPriceText = readAttribute(row.attributes, "data-price");
-  const cells = [...row.html.matchAll(/<td\\b[^>]*>([\\s\\S]*?)<\\/td\\s*>/gi)].map(m => htmlText(m[1] ?? ""));
+  const cells = [...row.html.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td\s*>/gi)].map(m => htmlText(m[1] ?? ""));
   const rawPriceRial = parsePositiveInteger(rawPriceText ?? cells[0] ?? "");
   if (rawPriceRial < MIN_PLAUSIBLE_RIAL_PER_USD || rawPriceRial > MAX_PLAUSIBLE_RIAL_PER_USD) {
     throw new RangeError("TGJU dollar price is outside the supported Rial range");
