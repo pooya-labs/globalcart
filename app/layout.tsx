@@ -14,6 +14,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="fa" dir="rtl" className={`${dmSans.variable} ${vazirmatn.variable}`}>
       <head>
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        {/* Product and gallery images use regular non-CORS img requests; keep this hint in the matching mode. */}
+        <link rel="preconnect" href="https://cdn.dummyjson.com" />
       </head>
       <body>{children}</body>
     </html>

@@ -35,6 +35,14 @@ test("mobile hero stacks the copy and image and uses a responsive source", async
   }
 });
 
+test("preconnects the product image CDN using the normal image request mode", async ({ page }) => {
+  const cdnHint = page.locator('link[rel="preconnect"][href="https://cdn.dummyjson.com"]');
+  await expect(cdnHint).toHaveCount(1);
+  // The product gallery uses regular img requests, not CORS-enabled images.
+  // A crossorigin hint would open a separate CORS connection and waste the preconnect.
+  expect(await cdnHint.getAttribute("crossorigin")).toBeNull();
+});
+
 test("homepage prioritizes its hero and defers non-critical images", async ({ page }) => {
   const hero = page.locator(".hero-visual > img");
   await expect(hero).toHaveAttribute("loading", "eager");
