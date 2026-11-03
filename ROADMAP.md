@@ -587,6 +587,7 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 - [ ] Perform a manual RTL/LTR pass across the full public site, including narrow screens, text wrapping, menus, focus order and persisted language preference.
 - [ ] Measure published CDN response and field/lab Core Web Vitals; record methodology, URL, date and observed values. Do not infer field metrics from Playwright timings.
 - [ ] Resolve and document any findings, rerun the relevant automated checks, then update package version, changelog, roadmap and project context together and create the 1.0.0 release/tag.
+- [ ] **Owner-requested pre-release hold:** immediately before preparing any final publication or `1.0.0` release, stop and notify the owner. First agree on and complete a new redesign of the storefront shell/visual skin; only then run visual, responsive, RTL/LTR, accessibility and performance regression checks and proceed with release after owner approval. Do not publish/tag `1.0.0` before this redesign checkpoint.
 
 **Why this is still open:** the automated CI suite runs Chromium desktop/mobile emulation and axe checks; it cannot physically operate a user's device or verify the actual assistive-technology experience and field CDN metrics. Keep the release at `0.2.3-dev` until these checks are genuinely performed.
 
