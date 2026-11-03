@@ -190,7 +190,7 @@ export default function Home() {
   const [categoryMenu,setCategoryMenu]=useState(false);
   const [toast,setToast]=useState("");
   const [removedCartLine,setRemovedCartLine]=useState<{line:CartLine;index:number}|null>(null);
-  const toastTimerRef=useRef<ReturnType<typeof window.setTimeout>|null>(null);
+  const toastTimerRef=useRef<number|null>(null);
   const rate = typeof fxQuote.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const [hydrated,setHydrated]=useState(false);
