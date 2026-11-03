@@ -108,7 +108,7 @@ npm run build
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system boundaries and data flow.
 - [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md) — migration-derived PostgreSQL ERD covering all 27 tables and key constraints.
 - [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md) — public Lighthouse lab baseline, methodology and manual 1.0 release checklist.
-- Latest published Lighthouse on canonical Pages [run 41624263482](https://github.com/pooya-labs/globalcart/actions/runs/41624263482): storefront mobile 91 Performance / 3.0 s LCP / 200 ms TBT; product mobile 96 / 2.7 s / 90 ms; case study mobile 97 / 2.2 s / 160 ms. Desktop Performance is 100 for all routes. All six audits report 100 Accessibility, Best Practices and SEO. These are GitHub-runner lab measurements, not field Core Web Vitals.
+- Latest published Lighthouse on canonical Pages [run 41626880818](https://github.com/pooya-labs/globalcart/actions/runs/41626880818): storefront mobile 93 Performance / 3.2 s LCP / 40 ms TBT; product mobile 94 / 3.1 s / 40 ms; case study mobile 100 / 0.9 s / 60 ms. Desktop Performance is 100 for all routes. All six audits report 100 Accessibility, Best Practices and SEO. These are GitHub-runner lab measurements, not field Core Web Vitals.
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
 - [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) — verification and semantic versioning.

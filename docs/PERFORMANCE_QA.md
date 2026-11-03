@@ -200,6 +200,23 @@ All six audits recorded 100 Accessibility, Best Practices and SEO; all desktop r
 
 **Verification lineage:** Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed 74/74 across Chromium desktop/mobile, Firefox and WebKit. Pages deployment/public smoke [41623961650](https://github.com/pooya-labs/globalcart/actions/runs/41623961650) and Security [41623961528](https://github.com/pooya-labs/globalcart/actions/runs/41623961528) passed. The subsequent mainline head update only persisted the generated catalog snapshot and lockfile; it did not change application behavior.
 
+### Latest published canonical Pages audit — November 3, 2026 (run 41626880818)
+
+**Run:** [Public Lighthouse 41626880818](https://github.com/pooya-labs/globalcart/actions/runs/41626880818) · Lighthouse 13.6.0 · GitHub-hosted Chromium · `https://pooya-labs.github.io/globalcart/`. All six route/mode audits completed successfully.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.7 s | 0 ms | 0 |
+| Storefront — mobile | 93 | 100 | 100 | 100 | 1.3 s | 3.2 s | 40 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 0 ms | 0 |
+| Product 1 — mobile | 94 | 100 | 100 | 100 | 0.9 s | 3.1 s | 40 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 60 ms | 0 |
+
+All six audits report 100 Accessibility, Best Practices and SEO, and all desktop routes score 100 Performance. Compared with the prior audit [41624263482](https://github.com/pooya-labs/globalcart/actions/runs/41624263482), storefront mobile Performance improved from 91 to 93 and TBT from 200 ms to 40 ms; product mobile is 94 and case study mobile returned to 100. These are GitHub-runner lab measurements only, not CrUX or field Core Web Vitals.
+
+**Verification lineage:** Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed 74/74 across Chromium desktop/mobile, Firefox and WebKit. Pages deployment/public smoke [41626708812](https://github.com/pooya-labs/globalcart/actions/runs/41626708812) and Security [41626708835](https://github.com/pooya-labs/globalcart/actions/runs/41626708835) passed. The current application implementation did not change in the documentation-only continuation.
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.
