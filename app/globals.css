@@ -1257,3 +1257,30 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .product-card,
   .storefront-v2 .category-tile{transition:none!important}
 }
+
+
+/* Contrast remediation after the v2 shell is connected to the root element. */
+.storefront-v2 .benefits small,
+.storefront-v2 .fx-control small,
+.storefront-v2 .fx-caveat,
+.storefront-v2 .section-heading p,
+.storefront-v2 .merchandising-panel-head small,
+.storefront-v2 .merchandising-item small,
+.storefront-v2 .catalog-heading p,
+.storefront-v2 .recommendation-basis,
+.storefront-v2 .product-brand,
+.storefront-v2 .product-rating small,
+.storefront-v2 .amazon-request-copy > p,
+.storefront-v2 .amazon-request-copy > small {
+  color:#526458;
+}
+.storefront-v2 .category-index{color:#526458}
+.storefront-v2 .merchandising-panel-head>span{color:#526458}
+.storefront-v2 .product-rating>span{color:#75501c}
+.storefront-v2 .amazon-request-copy>.section-kicker{color:#174b3c}
+.storefront-v2 .editorial-index{color:#e1eadf}
+.storefront-v2 .footer-disclaimer>small{color:#d5e0d4}
+
+@media(max-width:760px){
+  .storefront-v2 .hero-editorial-v2{gap:8px}
+}
