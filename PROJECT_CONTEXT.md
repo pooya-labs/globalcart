@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M09.1 bilingual portfolio case study and feature tour; M08 manual device/screen-reader/CDN QA remains an external gate; M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
+**Active stage:** M09.2 PostgreSQL ERD and database section in the bilingual case study; M09.1 is CI-verified; M08 manual device/screen-reader/CDN QA remains an external gate; M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -28,7 +28,8 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `app/product/[id]/page.tsx` — statically generated product routes from the current catalog snapshot.
 - `app/product/[id]/ProductDetailClient.tsx` — product gallery, illustrative price breakdown, product facts, browser-local visit tracking, local cart/favorite actions and related products.
 - `app/recently-viewed/page.tsx` — static-exportable history page reading and clearing browser-local recent product IDs.
-- `app/case-study/page.tsx` — bilingual, locale-aware portfolio case study with feature tour and architecture/data-flow diagram; `app/case-study/case-study.css` contains its responsive presentation.
+- `app/case-study/page.tsx` — bilingual, locale-aware portfolio case study with feature tour, architecture/data-flow diagram and four-domain database model summary; `app/case-study/case-study.css` contains its responsive presentation.
+- `docs/DATABASE_ERD.md` — migration-derived Mermaid ERD for all 27 PostgreSQL tables across migrations 001–015, with composite-FK, ownership and demo-boundary notes.
 - `app/globals.css` — responsive marketplace design system, product detail, price breakdown, recently viewed rail, mega-menu, comparison and Amazon intake styling.
 - `app/layout.tsx` — metadata and global styles.
 - `data/catalog.json` — generated 100-product sample catalog snapshot.
@@ -767,3 +768,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Added route metadata and a footer link from the storefront. No runtime dependency, migration, new service, translation provider or commerce behavior was introduced.
 - Current continuation: verify TypeScript, unit tests, static export, desktop/mobile browser tests and published Pages smoke. Then capture real screenshots and add the database ERD. M08 manual physical-device, screen-reader and live CDN/Core Web Vitals QA remains open.
 - Do not mark M09.1 verified or advance to 1.0.0 until the relevant Actions runs and published route are checked.
+
+
+## Latest continuation checkpoint — M09.2 PostgreSQL ERD (implementation on main; CI pending, 2026-11-03)
+- Inspected all 15 SQL migrations under `backend/internal/database/migrations/`; source count is 27 tables. No SQL migration or database schema change was made.
+- Added `docs/DATABASE_ERD.md` with domain-grouped Mermaid diagrams for catalog/marketplace, demo commerce, identity/access and editorial/seller revision history. Notes explain composite foreign keys, parent/child vendor orders, cart ownership through `carts.owner_user_id`, digest-only tokens, and append-only audit/revision records.
+- Extended `/case-study/` with a bilingual four-domain schema summary and direct link to the ERD. Updated its desktop/mobile RTL/LTR accessibility E2E assertions.
+- Next: verify TypeScript, unit tests, production build, Browser E2E, Security and Pages published smoke on the final implementation head. Update the recorded test count after the new route assertions pass.
+- Remaining M09 work: capture real desktop/mobile portfolio screenshots, final README accuracy review, then the 1.0.0 release and published demo QA. M08 manual screen-reader, physical-device, and live CDN/Core Web Vitals review remains open.
+- TGJU remains the sole USD source; translation remains paused; public admin/seller routes and real commerce remain disabled.
