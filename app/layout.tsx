@@ -6,5 +6,14 @@ export const metadata: Metadata = {
   authors: [{ name: "Pooya Goodarzi", url: "https://github.com/pooya16pg-spec" }]
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="fa" dir="rtl"><body>{children}</body></html>;
+  return (
+    <html lang="fa" dir="rtl">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
 }
