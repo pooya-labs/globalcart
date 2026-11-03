@@ -9,6 +9,7 @@ export type FxRateSnapshot = {
   displayQuoteCurrency: "TOMAN";
   tomanPerUsd: number | null;
   sourceTimeTehran: string | null;
+  sourceTimeKind: "clock" | "date_only" | null;
   sourceUpdatedAt: string | null;
 };
 
@@ -55,10 +56,17 @@ function parsePositiveInteger(value: string): number {
   if (!Number.isSafeInteger(parsed) || parsed <= 0) throw new RangeError("TGJU dollar price must be a positive safe integer");
   return parsed;
 }
-function parseTehranTime(value: string, now: number): { time: string; timestamp: string } {
+function parseTehranTime(value: string, now: number): {
+  time: string; kind: "clock" | "date_only"; timestamp: string | null
+} {
   const normalized = normalizeDigits(value).trim();
   const match = normalized.match(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/);
-  if (!match) throw new TypeError("TGJU dollar row does not contain a live HH:mm:ss update time");
+  if (!match) {
+    const persianDate = normalized.match(/^([0-3]?\d)\s+(فروردین|اردیبهشت|خرداد|تیر|مرداد|شهریور|مهر|آبان|آذر|دی|بهمن|اسفند)$/);
+    const numericDate = normalized.match(/^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/);
+    if (persianDate || numericDate) return { time: normalized, kind: "date_only", timestamp: null };
+    throw new TypeError("TGJU dollar row does not contain a recognized clock or date-only update marker");
+  }
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit"
   }).formatToParts(new Date(now));
@@ -71,7 +79,7 @@ function parseTehranTime(value: string, now: number): { time: string; timestamp:
   // as a future quote. This intentionally makes closed-market values stale.
   if (timestamp > now + MAX_FUTURE_SKEW_MS) timestamp -= 24 * 60 * 60 * 1000;
   if (timestamp > now + MAX_FUTURE_SKEW_MS) throw new RangeError("TGJU source time is implausibly in the future");
-  return { time: normalized, timestamp: new Date(timestamp).toISOString() };
+  return { time: normalized, kind: "clock", timestamp: new Date(timestamp).toISOString() };
 }
 /** TGJU publishes price_dollar_rl in Rial. This adapter converts it to Toman and uses the latest non-future occurrence of its time-only Tehran clock. */
 export function normalizeTgjuDollarPage(input: unknown, now = Date.now()): FxRateSnapshot {
@@ -89,14 +97,17 @@ export function normalizeTgjuDollarPage(input: unknown, now = Date.now()): FxRat
   return {
     schemaVersion: 3, provider: "TGJU", instrument: "price_dollar_rl", baseCurrency: "USD",
     rawQuoteCurrency: "IRR", rawPriceRial, displayQuoteCurrency: "TOMAN",
-    tomanPerUsd: rawPriceRial / 10, sourceTimeTehran: sourceTime.time, sourceUpdatedAt: sourceTime.timestamp
+    tomanPerUsd: rawPriceRial / 10, sourceTimeTehran: sourceTime.time,
+    sourceTimeKind: sourceTime.kind, sourceUpdatedAt: sourceTime.timestamp
   };
 }
 export function getFxRateStatus(
-  snapshot: Pick<FxRateSnapshot, "tomanPerUsd" | "sourceUpdatedAt"> | null | undefined, now = Date.now()
+  snapshot: Pick<FxRateSnapshot, "tomanPerUsd" | "sourceUpdatedAt" | "sourceTimeKind"> | null | undefined, now = Date.now()
 ): FxRateStatus {
   if (!snapshot || typeof snapshot.tomanPerUsd !== "number" || !Number.isFinite(snapshot.tomanPerUsd) ||
-      snapshot.tomanPerUsd <= 0 || typeof snapshot.sourceUpdatedAt !== "string" || !Number.isFinite(now)) return "unavailable";
+      snapshot.tomanPerUsd <= 0 || !Number.isFinite(now)) return "unavailable";
+  if (snapshot.sourceTimeKind === "date_only") return "stale";
+  if (snapshot.sourceTimeKind !== "clock" || typeof snapshot.sourceUpdatedAt !== "string") return "unavailable";
   const timestamp = Date.parse(snapshot.sourceUpdatedAt);
   if (!Number.isFinite(timestamp) || timestamp > now + MAX_FUTURE_SKEW_MS) return "unavailable";
   const age = Math.max(0, now - timestamp);

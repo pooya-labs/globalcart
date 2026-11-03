@@ -8,5 +8,6 @@
   "displayQuoteCurrency": "TOMAN",
   "tomanPerUsd": null,
   "sourceTimeTehran": null,
+  "sourceTimeKind": null,
   "sourceUpdatedAt": null
 }

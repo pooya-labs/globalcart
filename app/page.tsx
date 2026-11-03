@@ -215,9 +215,11 @@ export default function Home() {
   const commandInputId=useId();
   const t=copy[locale];
   const rtl=locale==="fa";
-  const fxTimestampLabel = fxSnapshot.sourceUpdatedAt
-    ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt))
-    : null;
+  const fxTimestampLabel = fxSnapshot.sourceTimeKind==="date_only" && fxSnapshot.sourceTimeTehran
+    ? (locale==="fa"?fxSnapshot.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxSnapshot.sourceTimeTehran)
+    : fxSnapshot.sourceUpdatedAt
+      ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt))
+      : null;
   const fxStatusLabel = fxStatus==="fresh"?t.fxFresh:fxStatus==="aging"?t.fxAging:fxStatus==="stale"?t.fxStale:t.fxUnavailable;
 
   useEffect(()=>{

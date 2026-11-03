@@ -47,12 +47,18 @@ test("rejects missing, malformed and implausible Rial prices", () => {
   assert.throws(() => normalizeTgjuDollarPage(fixture("100,000,001"), NOW), /supported Rial range/);
   assert.throws(() => normalizeTgjuDollarPage(fixture("1.25"), NOW), /whole-number Rial quote/);
 });
-test("rejects date-only or malformed source times and safely ages a future time-only clock", () => {
-  assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "۲۵ آبان"), NOW), /live HH:mm:ss/);
-  assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "not-a-time"), NOW), /live HH:mm:ss/);
-  assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "12:49"), NOW), /live HH:mm:ss/);
+test("accepts TGJU date-only markers only as stale and rejects unknown time formats", () => {
+  const dateOnly = normalizeTgjuDollarPage(fixture("1,864,000", "۲۵ آبان"), NOW);
+  assert.equal(dateOnly.sourceTimeTehran, "25 آبان");
+  assert.equal(dateOnly.sourceTimeKind, "date_only");
+  assert.equal(dateOnly.sourceUpdatedAt, null);
+  assert.equal(dateOnly.tomanPerUsd, 186_400);
+  assert.equal(getFxRateStatus(dateOnly, NOW), "stale");
+  assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "not-a-time"), NOW), /recognized clock or date-only/);
+  assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "12:49"), NOW), /recognized clock or date-only/);
   const futureClock = normalizeTgjuDollarPage(fixture("1,864,000", "12:51:00"), NOW);
   assert.equal(futureClock.sourceTimeTehran, "12:51:00");
+  assert.equal(futureClock.sourceTimeKind, "clock");
   assert.equal(futureClock.sourceUpdatedAt, new Date(Date.parse("2026-11-02T09:21:00.000Z")).toISOString());
   assert.equal(getFxRateStatus(futureClock, NOW), "stale");
   assert.throws(() => normalizeTgjuDollarPage(fixture(), Number.NaN), /finite timestamp/);
