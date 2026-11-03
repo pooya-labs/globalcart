@@ -340,28 +340,51 @@ export default function Home() {
 
   useEffect(()=>{
     let active=true;
-    fetchDummyJsonCatalog()
-      .then(records=>{
-        if(!active)return;
-        const nextState=getCatalogSourceStatus(snapshotProducts.length>0,"success",records.length);
-        setCatalogSourceState(nextState);
-        if(nextState!=="live")return;
-        setCatalogTimestamp(new Date().toISOString());
-        const mapped:Product[]=records.map(p=>({
-          id:p.id,title:p.title,description:p.description,category:p.category,
-          price:p.price,discountPercentage:p.discountPercentage,rating:p.rating,
-          stock:p.stock,brand:p.brand,thumbnail:p.thumbnail,images:p.images,
-          source:p.source
-        }));
-        setProducts(mapped);
-      })
-      .catch(()=>{
-        if(active){
-          // Preserve the generated snapshot or fixture and surface its freshness state.
-          setCatalogSourceState(getCatalogSourceStatus(snapshotProducts.length>0,"error"));
-        }
-      });
-    return()=>{active=false;};
+    let timeoutHandle:number|null=null;
+    let idleHandle:number|null=null;
+    const idleWindow=window as Window & {
+      requestIdleCallback?:(callback:()=>void,options?:{timeout:number})=>number;
+      cancelIdleCallback?:(handle:number)=>void;
+    };
+    const refreshCatalog=()=>{
+      if(!active)return;
+      fetchDummyJsonCatalog()
+        .then(records=>{
+          if(!active)return;
+          const nextState=getCatalogSourceStatus(snapshotProducts.length>0,"success",records.length);
+          setCatalogSourceState(nextState);
+          if(nextState!=="live")return;
+          setCatalogTimestamp(new Date().toISOString());
+          const mapped:Product[]=records.map(p=>({
+            id:p.id,title:p.title,description:p.description,category:p.category,
+            price:p.price,discountPercentage:p.discountPercentage,rating:p.rating,
+            stock:p.stock,brand:p.brand,thumbnail:p.thumbnail,images:p.images,
+            source:p.source
+          }));
+          setProducts(mapped);
+        })
+        .catch(()=>{
+          if(active){
+            // Preserve the generated snapshot or fixture and surface its freshness state.
+            setCatalogSourceState(getCatalogSourceStatus(snapshotProducts.length>0,"error"));
+          }
+        });
+    };
+
+    // The committed snapshot renders the storefront immediately. Revalidate the
+    // optional public sample source only when the browser is idle, so its network
+    // response and product-array replacement do not compete with the first paint.
+    if(typeof idleWindow.requestIdleCallback==="function"){
+      idleHandle=idleWindow.requestIdleCallback(refreshCatalog,{timeout:6500});
+    }else{
+      timeoutHandle=window.setTimeout(refreshCatalog,5000);
+    }
+
+    return()=>{
+      active=false;
+      if(idleHandle!==null)idleWindow.cancelIdleCallback?.(idleHandle);
+      if(timeoutHandle!==null)window.clearTimeout(timeoutHandle);
+    };
   },[]);
 
   useEffect(()=>{
@@ -609,7 +632,15 @@ export default function Home() {
           <div className="hero-meta"><span>01</span><i></i><span>DISCOVER&nbsp; / &nbsp;COMPARE&nbsp; / &nbsp;CHOOSE</span></div>
         </div>
         <div className="hero-visual">
-          <img src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=1200&q=80" alt="A considered collection of lifestyle objects" loading="eager" fetchPriority="high" decoding="async"/>
+          <img
+            src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=1200&q=78"
+            srcSet="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=480&q=75 480w, https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=768&q=75 768w, https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=1200&q=78 1200w"
+            sizes="(max-width: 760px) 92vw, 50vw"
+            alt="A considered collection of lifestyle objects"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
           <div className="hero-image-caption"><small>GLOBAL EDITION / 001</small><b>Objects with a point of view.</b><span>CURATED FOR EVERYDAY LIFE</span></div>
           <div className="hero-index">GC<span>®</span></div>
           <div className="hero-side-note">A BETTER WAY TO BROWSE</div>
