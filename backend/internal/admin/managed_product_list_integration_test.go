@@ -157,6 +157,7 @@ func TestListManagedProductsRejectsUnboundedOrUnknownFilters(t *testing.T) {
 		{Limit: managedProductListMaximumLimit + 1},
 		{Offset: managedProductListMaximumOffset + 1},
 		{Query: string(make([]byte, 121))},
+		{Query: "invalid" + string(rune(0))},
 	}
 	for index, input := range cases {
 		if _, err := normalizeManagedProductListInput(input); !errors.Is(err, ErrInvalidProductListInput) {
