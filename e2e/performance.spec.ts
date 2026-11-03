@@ -43,6 +43,29 @@ test("preconnects the product image CDN using the normal image request mode", as
   expect(await cdnHint.getAttribute("crossorigin")).toBeNull();
 });
 
+test("scopes image preconnects to routes that use them", async ({ page }) => {
+  const origins = async () => page.locator('head link[rel="preconnect"]').evaluateAll(nodes =>
+    nodes.map(node => new URL((node as HTMLLinkElement).href).origin)
+  );
+
+  expect(await origins()).toEqual(expect.arrayContaining([
+    "https://images.unsplash.com",
+    "https://cdn.dummyjson.com"
+  ]));
+
+  await page.goto("./product/1/");
+  await expect(page.locator(".detail-information h1")).toBeVisible();
+  const productOrigins = await origins();
+  expect(productOrigins).toContain("https://cdn.dummyjson.com");
+  expect(productOrigins).not.toContain("https://images.unsplash.com");
+
+  await page.goto("./case-study/");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  const caseStudyOrigins = await origins();
+  expect(caseStudyOrigins).not.toContain("https://images.unsplash.com");
+  expect(caseStudyOrigins).not.toContain("https://cdn.dummyjson.com");
+});
+
 test("homepage prioritizes its hero and defers non-critical images", async ({ page }) => {
   const hero = page.locator(".hero-visual > img");
   await expect(hero).toHaveAttribute("loading", "eager");
