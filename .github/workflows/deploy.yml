@@ -115,7 +115,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Smoke test published Pages homepage, assets and product deep link
+      - name: Smoke test published Pages homepage, assets, product and case study routes
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
           PRODUCT_ID: ${{ needs.build.outputs.smoke_product_id }}
@@ -124,7 +124,8 @@ jobs:
           base_url="${PAGE_URL%/}/"
           home_html="$(mktemp)"
           product_html="$(mktemp)"
-          trap 'rm -f "$home_html" "$product_html"' EXIT
+          case_study_html="$(mktemp)"
+          trap 'rm -f "$home_html" "$product_html" "$case_study_html"' EXIT
 
           case "$base_url" in
             https://*) ;;
@@ -170,4 +171,25 @@ jobs:
           }
           NODE
 
-          echo "GitHub Pages smoke test passed: homepage, basePath JavaScript asset and product route $PRODUCT_ID."
+          case_study_url="${base_url}case-study/"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
+            "$case_study_url" --output "$case_study_html"
+
+          node - "$case_study_html" <<'NODE'
+          const fs = require("node:fs");
+          const html = fs.readFileSync(process.argv[2], "utf8");
+          for (const expected of [
+            "یک بازار جهانی",
+            "مدل داده و روابط پایگاه‌داده",
+            "DATABASE_ERD.md"
+          ]) {
+            if (!html.includes(expected)) {
+              throw new Error(`Published case-study page is missing expected content: ${expected}`);
+            }
+          }
+          if (/<title>404[ -]/i.test(html)) {
+            throw new Error("Published case-study route returned a 404 page.");
+          }
+          NODE
+
+          echo "GitHub Pages smoke test passed: homepage, basePath JavaScript asset, product route $PRODUCT_ID and bilingual portfolio case-study route."
