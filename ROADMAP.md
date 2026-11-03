@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M08 — quality hardening and manual QA; M09 portfolio release follows. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
+**Active stage:** M09.1 — bilingual portfolio case study and feature tour; M08 manual device/screen-reader/CDN QA remains an explicit external gate. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -480,6 +480,16 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [ ] Versioned 1.0.0 release and changelog.
 - [ ] README verified against actual behavior.
 - [ ] Final public demo smoke test.
+
+### M09.1 — Bilingual portfolio case study (implementation on main; CI pending, 2026-11-03)
+- [x] Add a dedicated statically exportable `/case-study/` route with Persian RTL and English LTR content, reusing the shared guarded locale preference.
+- [x] Explain the implemented product journey, real technology stack, catalog/TGJU data flow, local backend boundary and non-transactional demo limits without claiming unshipped infrastructure.
+- [x] Add a responsive architecture/data-flow diagram and a feature tour linking to existing storefront journeys.
+- [x] Add route metadata and a discoverable link from the storefront footer.
+- [ ] Verify typecheck, unit tests, production static export and desktop/mobile browser coverage; only then mark this slice CI-verified.
+- [ ] Capture real published screenshots and add the PostgreSQL ERD; the architecture/data-flow diagram above is not a substitute for the ERD.
+
+**Boundary:** no new commerce behavior, hosted service, supplier integration, translation runtime or live transaction path is introduced. M09.1 does not close M08 manual screen-reader, physical-device, full-site RTL/LTR or live CDN/Core Web Vitals QA.
 
 ## Handoff rule
 Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md and docs/DECISIONS.md before changing code. Continue from the earliest incomplete item, inspect current Actions, and update documentation only with verified facts.
