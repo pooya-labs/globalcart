@@ -251,24 +251,26 @@ All six reports have no Lighthouse run warnings; Accessibility, Best Practices a
 
 **Interpretation:** this is a single GitHub-hosted lab sample using simulated mobile and desktop presets. TBT is not field INP, and these reports are not CrUX or real-user Core Web Vitals. The run does not satisfy normal-network delivery, physical-device, real screen-reader or comprehensive manual RTL/LTR QA.
 
-### Latest published canonical Pages audit — 2026-11-03 (run 41639799398)
+### Latest published canonical Pages audit — 2026-11-03 (run 41642306099)
 
-**Run:** [Public Lighthouse 41639799398](https://github.com/pooya-labs/globalcart/actions/runs/41639799398) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · https://pooya-labs.github.io/globalcart/. All six published route/mode audits completed successfully; all six raw JSON reports were retained in the workflow artifact.
+**Run:** [Public Lighthouse 41642306099](https://github.com/pooya-labs/globalcart/actions/runs/41642306099) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · https://pooya-labs.github.io/globalcart/. All six published route/mode audits completed successfully and the six raw JSON reports were retained.
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.7 s | 0 ms | 0 |
-| Storefront — mobile | 88 | 100 | 100 | 100 | 1.4 s | 3.5 s | 80 ms | 0 |
-| Product 1 — desktop | 99 | 100 | 100 | 100 | 0.5 s | 0.8 s | 0 ms | 0 |
-| Product 1 — mobile | 96 | 100 | 100 | 100 | 1.2 s | 2.6 s | 40 ms | 0 |
-| Case study — desktop | 100 | 100 | 100 | 100 | 0.5 s | 0.5 s | 0 ms | 0.041 |
-| Case study — mobile | 100 | 100 | 100 | 100 | 1.2 s | 1.2 s | 60 ms | 0 |
+| Storefront — desktop | 99 | 100 | 100 | 100 | 0.5 s | 0.8 s | 0 ms | 0 |
+| Storefront — mobile | 89 | 100 | 100 | 100 | 1.4 s | 3.3 s | 140 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
+| Product 1 — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.6 s | 50 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 1.0 s | 1.0 s | 120 ms | 0 |
 
-Accessibility, Best Practices and SEO are 100 in every route/mode audit. The maximum CLS is 0.041. The mobile storefront remains the weakest Performance route (88; LCP 3.5 s), while product and case study score 96 and 100. These are repeatable diagnostics, not evidence of a sustained field improvement: runner, cache and network variance influence Lighthouse lab scores.
+Accessibility, Best Practices and SEO are 100 in all six audits; CLS is zero throughout. The homepage remains the weakest mobile Performance route at 89 (LCP 3.3 s / TBT 140 ms). Desktop Performance is 99 / 100 / 100 and mobile Performance is 89 / 97 / 99 for home / product / case study. Lab scores vary with runner, cache and network; these are not field Core Web Vitals.
 
-**New CI regression guard:** the same run passed the six-report budget enforcement step. It requires all six reports and enforces: mobile LCP ≤4.0 s / TBT ≤300 ms; desktop LCP ≤2.5 s / TBT ≤200 ms; CLS ≤0.10; Accessibility, Best Practices and SEO ≥95. Unit tests cover threshold boundaries, missing reports/metrics, invalid names and category regressions. These are guardrails for significant regressions, not substitutes for user-experience measurements.
+**Regression gate:** all six report files passed the enforced budgets: mobile LCP ≤4.0 s / TBT ≤300 ms; desktop LCP ≤2.5 s / TBT ≤200 ms; CLS ≤0.10; Accessibility, Best Practices and SEO ≥95. The evaluator also rejects missing/duplicate reports, invalid filenames and absent metrics. Its seven unit tests passed in Catalog CI [41639557537](https://github.com/pooya-labs/globalcart/actions/runs/41639557537).
 
-**Limits:** GitHub-hosted simulated mobile/desktop Lighthouse runs are not CrUX/field Core Web Vitals or physical-device tests. TBT is not field INP. M09.4 still requires physical-device and screen-reader QA plus normal-network/field-delivery evidence.
+**Browser and FX verification:** Browser E2E [41642120165](https://github.com/pooya-labs/globalcart/actions/runs/41642120165) passed **78/78** across Chromium desktop/mobile, Firefox and WebKit. A dedicated test verifies a date-only TGJU source timestamp is labelled Stale on the storefront and the product detail warning; this test passed on Chromium desktop and mobile. The product unit label assertion was corrected to `Toman / USD`.
+
+**Limits:** Lighthouse uses simulated mobile/desktop profiles on a GitHub runner. TBT is not field INP. E2E browser emulation is not a physical-device or real assistive-technology check. M09.4 remains open for physical desktop/mobile, actual screen-reader, comprehensive human RTL/LTR and normal-network/field-delivery evidence.
 
 ## Manual release checklist — fill with actual observations
 

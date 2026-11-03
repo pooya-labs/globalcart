@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — 2026-11-03
+
+### Verified — TGJU stale-rate disclosure and latest cross-browser run
+
+- Added a Playwright regression proving that a date-only TGJU timestamp is shown as Stale in the storefront and as an FX freshness warning on product detail. Corrected an existing test unit assertion from Toman / USDT to Toman / USD.
+- The first attempt failed TypeScript because of an invalidly escaped product URL regex [41641812126](https://github.com/pooya-labs/globalcart/actions/runs/41641812126); corrected it in [commit 17bd8c6](https://github.com/pooya-labs/globalcart/commit/17bd8c6bc624c44c17038891af72245d02e3b6ab). The corrected Browser E2E [41642120165](https://github.com/pooya-labs/globalcart/actions/runs/41642120165) passed **78/78** across Chromium desktop/mobile, Firefox and WebKit. The stale-rate test passed in Chromium desktop and mobile.
+- Pages build/deploy/public smoke [41642120270](https://github.com/pooya-labs/globalcart/actions/runs/41642120270) and Security [41642120200](https://github.com/pooya-labs/globalcart/actions/runs/41642120200) passed.
+- Latest public Lighthouse [41642306099](https://github.com/pooya-labs/globalcart/actions/runs/41642306099) passed all six reports and the regression budgets: mobile Performance 89 / 97 / 99, desktop 99 / 100 / 100; Accessibility, Best Practices and SEO 100 in all six; CLS 0 throughout. GitHub-hosted lab only, not field Core Web Vitals.
+- Keep version 0.2.3-dev. The owner-requested storefront-shell redesign is a mandatory checkpoint before any final publication or 1.0.0 tag.
+
 ### Verified — uncached PostgreSQL CI and migration guard (2026-11-03)
 
 - Backend integration tests now run with `-count=1` to prevent Go's test cache from reusing results without recreating the PostgreSQL schema required by backup/restore verification. The first run [41632176463](https://github.com/pooya-labs/globalcart/actions/runs/41632176463) exposed this latent CI issue (`schema_migrations` absent because the migration test result was cached); the corrected run [41632402711](https://github.com/pooya-labs/globalcart/actions/runs/41632402711) passed sqlc generation, module tidy/format, canonical module guard, govulncheck, vet, uncached race tests, PostgreSQL backup/restore comparison, API/importer builds and Docker image build.
