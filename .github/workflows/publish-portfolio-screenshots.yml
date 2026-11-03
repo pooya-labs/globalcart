@@ -36,23 +36,29 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           path: portfolio-artifact
 
-      - name: Publish desktop and mobile case-study screenshots
+      - name: Publish desktop and mobile storefront and case-study screenshots
         shell: bash
         run: |
           set -euo pipefail
           desktop="$(find portfolio-artifact/test-results -type f -name 'case-study-chromium-desktop.png' -print -quit)"
           mobile="$(find portfolio-artifact/test-results -type f -name 'case-study-chromium-mobile.png' -print -quit)"
+          storefront_desktop="$(find portfolio-artifact/test-results -type f -name 'storefront-home-chromium-desktop.png' -print -quit)"
+          storefront_mobile="$(find portfolio-artifact/test-results -type f -name 'storefront-home-chromium-mobile.png' -print -quit)"
           test -s "$desktop"
           test -s "$mobile"
+          test -s "$storefront_desktop"
+          test -s "$storefront_mobile"
 
           mkdir -p docs/screenshots
           cp "$desktop" docs/screenshots/case-study-desktop.png
           cp "$mobile" docs/screenshots/case-study-mobile.png
-          file docs/screenshots/case-study-desktop.png docs/screenshots/case-study-mobile.png
+          cp "$storefront_desktop" docs/screenshots/storefront-home-desktop.png
+          cp "$storefront_mobile" docs/screenshots/storefront-home-mobile.png
+          file docs/screenshots/case-study-desktop.png docs/screenshots/case-study-mobile.png docs/screenshots/storefront-home-desktop.png docs/screenshots/storefront-home-mobile.png
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/screenshots/case-study-desktop.png docs/screenshots/case-study-mobile.png
+          git add docs/screenshots/case-study-desktop.png docs/screenshots/case-study-mobile.png docs/screenshots/storefront-home-desktop.png docs/screenshots/storefront-home-mobile.png
           if git diff --cached --quiet; then
             echo "Portfolio screenshots are already up to date."
             exit 0
@@ -63,7 +69,7 @@ jobs:
             git fetch origin main
             git rebase origin/main
             if git push origin HEAD:main; then
-              echo "Published both verified browser screenshots to main."
+              echo "Published verified storefront and case-study screenshots to main."
               exit 0
             fi
             echo "main advanced during screenshot publication (attempt $attempt); retrying."

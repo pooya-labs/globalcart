@@ -577,7 +577,7 @@ export default function Home() {
   };
 
   return (
-    <main id="top" className={rtl?"store rtl":"store ltr"} dir={rtl?"rtl":"ltr"}>
+    <main id="top" className={rtl?"store storefront-v2 rtl":"store storefront-v2 ltr"} dir={rtl?"rtl":"ltr"}>
       <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.dummyjson.com" />
       <div className="topline"><span>{t.top}</span><span className="topline-right"><ShieldCheck size={13}/>{t.noPayment}</span></div>
@@ -648,39 +648,40 @@ export default function Home() {
         </section>
       </div>}
 
-      <section className="hero">
+      <section className="hero hero-editorial-v2">
         <div className="hero-copy">
-          <div className="eyebrow"><span></span>{t.heroEyebrow}</div>
+          <div className="eyebrow"><span></span>{t.heroEyebrow}<small>GLOBALCART / 2026</small></div>
           <h1>{t.heroTitle.split("\n").map((line,i)=><span key={i}>{line}</span>)}</h1>
           <p>{t.heroDesc}</p>
-          <a className="button-primary" href="#catalog">{t.explore}<ArrowLeft size={16}/></a>
-          <div className="hero-meta"><span>01</span><i></i><span>DISCOVER&nbsp; / &nbsp;COMPARE&nbsp; / &nbsp;CHOOSE</span></div>
+          <div className="hero-actions">
+            <a className="button-primary" href="#catalog">{t.explore}<ArrowLeft size={16}/></a>
+            <a className="hero-secondary" href="#categories">{rtl?"مرور دسته‌بندی‌ها":"Explore categories"}<ArrowLeft size={15}/></a>
+          </div>
+          <div className="hero-proofline">
+            <div><b>{money(products.length,locale)}+</b><span>{rtl?"محصول در کاتالوگ نمونه":"Sample catalog items"}</span></div>
+            <i></i>
+            <div><b>FA / EN</b><span>{rtl?"تجربه فارسی و انگلیسی":"Bilingual experience"}</span></div>
+            <i></i>
+            <div><b>DEMO</b><span>{rtl?"بدون پرداخت واقعی":"No real payments"}</span></div>
+          </div>
         </div>
         <div className="hero-visual">
           <img
             src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=1200&q=78"
             srcSet="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=480&q=75 480w, https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=768&q=75 768w, https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=1200&q=78 1200w"
-            sizes="(max-width: 760px) 92vw, 50vw"
+            sizes="(max-width: 760px) 92vw, 58vw"
             alt="A considered collection of lifestyle objects"
             loading="eager"
             fetchPriority="high"
             decoding="async"
           />
-          <div className="hero-image-caption"><small>GLOBAL EDITION / 001</small><b>Objects with a point of view.</b><span>CURATED FOR EVERYDAY LIFE</span></div>
-          <div className="hero-index">GC<span>®</span></div>
-          <div className="hero-side-note">A BETTER WAY TO BROWSE</div>
+          <div className="hero-image-caption"><small>THE GLOBAL EDIT / 001</small><b>{rtl?"انتخاب‌هایی با نگاه متفاوت":"Objects with a point of view."}</b><span>{rtl?"برای زندگی روزمره، با دقت انتخاب شده":"CURATED FOR EVERYDAY LIFE"}</span></div>
+          <div className="hero-image-stamp"><span>01</span><b>{rtl?"کشف کن":"DISCOVER"}</b><i></i><b>{rtl?"مقایسه کن":"COMPARE"}</b><i></i><b>{rtl?"انتخاب کن":"CHOOSE"}</b></div>
+          <span className="hero-image-coordinate">36° 17′ N / 59° 36′ E</span>
         </div>
       </section>
 
-      <section className="amazon-request-section" id="amazon-request">
-        <div className="amazon-request-copy"><span className="section-kicker">{t.amazonEyebrow}</span><h2>{t.amazonTitle}</h2><p>{t.amazonDesc}</p><small><ShieldCheck size={14}/>{t.amazonNote}</small></div>
-        <form className="amazon-link-form" onSubmit={submitAmazonLink}>
-          <label htmlFor="amazon-product-url">{rtl?"لینک محصول آمازون":"Amazon product URL"}</label>
-          <div className="amazon-link-input"><input id="amazon-product-url" type="url" dir="ltr" required value={amazonUrl} onChange={e=>{setAmazonUrl(e.target.value);setAmazonStatus(null);}} placeholder={t.amazonPlaceholder}/><button type="submit"><Package size={16}/>{t.amazonSubmit}<ArrowLeft size={15}/></button></div>
-          {amazonStatus==="success"&&<div className="amazon-link-feedback success" role="status" aria-live="polite"><Check size={15}/>{t.amazonSuccess} · ASIN: <b>{amazonAsin}</b></div>}
-          {amazonStatus==="error"&&<div className="amazon-link-feedback error" role="alert"><CircleHelp size={15}/>{t.amazonInvalid}</div>}
-        </form>
-      </section>
+
 
       <section className="benefits">
         <div><span className="benefit-icon"><Sparkles size={18}/></span><span><b>{t.feature1}</b><small>{t.feature1d}</small></span></div>
@@ -698,7 +699,7 @@ export default function Home() {
       <section className="section categories-section" id="categories">
         <div className="section-heading"><div><span className="section-kicker">01 / FIND YOUR INTEREST</span><h2>{t.categories}</h2><p>{t.categoriesDesc}</p></div><a href="#catalog">{t.all}<ArrowLeft size={15}/></a></div>
         <div className="category-strip">
-          {categories.slice(1,9).map((c,i)=><button key={c.id} className={"category-tile tile-"+i} onClick={()=>{setCategory(c.id);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});}}><span className="category-symbol">{c.symbol}</span><span>{rtl?c.fa:c.en}</span><ArrowLeft size={14}/></button>)}
+          {categories.slice(1,9).map((c,i)=><button key={c.id} className={"category-tile tile-"+i} onClick={()=>{setCategory(c.id);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});}}><small className="category-index">{String(i+1).padStart(2,"0")}</small><span className="category-symbol">{c.symbol}</span><span className="category-name">{rtl?c.fa:c.en}</span><ArrowLeft size={14}/></button>)}
         </div>
       </section>
 
@@ -777,6 +778,16 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="amazon-request-section" id="amazon-request">
+        <div className="amazon-request-copy"><span className="section-kicker">{t.amazonEyebrow}</span><h2>{t.amazonTitle}</h2><p>{t.amazonDesc}</p><small><ShieldCheck size={14}/>{t.amazonNote}</small></div>
+        <form className="amazon-link-form" onSubmit={submitAmazonLink}>
+          <label htmlFor="amazon-product-url">{rtl?"لینک محصول آمازون":"Amazon product URL"}</label>
+          <div className="amazon-link-input"><input id="amazon-product-url" type="url" dir="ltr" required value={amazonUrl} onChange={e=>{setAmazonUrl(e.target.value);setAmazonStatus(null);}} placeholder={t.amazonPlaceholder}/><button type="submit"><Package size={16}/>{t.amazonSubmit}<ArrowLeft size={15}/></button></div>
+          {amazonStatus==="success"&&<div className="amazon-link-feedback success" role="status" aria-live="polite"><Check size={15}/>{t.amazonSuccess} · ASIN: <b>{amazonAsin}</b></div>}
+          {amazonStatus==="error"&&<div className="amazon-link-feedback error" role="alert"><CircleHelp size={15}/>{t.amazonInvalid}</div>}
+        </form>
       </section>
 
       <section className="editorial" id="editors"><div className="editorial-image"><img src="https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=1200&q=80" alt="Quiet modern interior" loading="lazy" decoding="async"/></div><div className="editorial-copy"><span className="section-kicker">03 / A MORE CONSIDERED EXPERIENCE</span><h2>{rtl?"کمتر بگرد.\nبهتر انتخاب کن.":"Less scrolling.\nMore considered choices."}</h2><p>{t.whyText}</p><a href="#catalog" className="button-primary">{t.explore}<ArrowLeft size={16}/></a></div><span className="editorial-index">03</span></section>

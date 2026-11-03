@@ -16,6 +16,48 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator(".product-card").first()).toBeVisible();
 });
 
+test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
+  // Keep the suite deterministic while allowing only the two first-party visual
+  // sources used by the static demo catalog and its editorial hero.
+  await page.route("https://images.unsplash.com/**", route => route.continue());
+  await page.route("https://cdn.dummyjson.com/**", route => route.continue());
+  await page.reload();
+
+  await expect(page.locator("main.store")).toHaveClass(/storefront-v2/);
+  await expect(page.locator(".hero-editorial-v2")).toBeVisible();
+  await expect(page.locator(".hero-proofline")).toBeVisible();
+  await expect(page.locator(".categories-section .category-tile")).toHaveCount(8);
+  await expect(page.locator(".merchandising-panel")).toHaveCount(3);
+  await expect(page.locator(".catalog-section .product-card").first()).toBeVisible();
+
+  // Trigger image loading only for the hero and a small curated sample so the
+  // visual capture is useful without downloading the entire 100-item catalog.
+  await page.locator(".merchandising-item img, .product-card img").evaluateAll(images => {
+    images.slice(0, 8).forEach(image => { (image as HTMLImageElement).loading = "eager"; });
+  });
+  await expect.poll(
+    () => page.locator(".hero-visual > img").evaluate(image => (image as HTMLImageElement).naturalWidth),
+    { timeout: 15_000 }
+  ).toBeGreaterThan(0);
+  await expect.poll(
+    () => page.locator(".merchandising-item img").first().evaluate(image => (image as HTMLImageElement).naturalWidth),
+    { timeout: 15_000 }
+  ).toBeGreaterThan(0);
+
+  // Capture the first screen at the project viewport to keep the published
+  // review images readable; a full-page version remains in the report artifact.
+  const project = testInfo.project.name;
+  await page.screenshot({
+    path: `test-results/storefront-home-${project}.png`,
+    animations: "disabled"
+  });
+  await page.screenshot({
+    path: `test-results/storefront-home-full-${project}.png`,
+    fullPage: true,
+    animations: "disabled"
+  });
+});
+
 test("switches locale and opens a statically exported product detail page", async ({ page }) => {
   await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
   await page.getByRole("button", { name: "EN", exact: true }).click();
