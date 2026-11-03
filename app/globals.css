@@ -641,6 +641,7 @@ body{background:#f7f8f5;color:var(--ink)}
 }
 @media(max-width:760px){
   html{scroll-padding-top:80px}
+  .hero{grid-template-columns:1fr}
   .topline{height:30px;padding-inline:4%;font-size:8px}
   .header{height:66px;padding-inline:4%;gap:8px}
   .brand-name small{display:none}
@@ -727,8 +728,8 @@ body{background:#f7f8f5;color:var(--ink)}
 /* M09.5 product-card price provenance and mirrored quick actions */
 .product-image-link img{object-fit:contain;padding:12px}
 .compare-card-button{inset-inline-start:auto}
-.price-original{text-decoration:line-through;text-decoration-thickness:1px;color:#718078!important}
-.price-source{text-decoration:none;color:#718078!important}
+.price-original{text-decoration:line-through;text-decoration-thickness:1px;color:#59665e!important}
+.price-source{text-decoration:none;color:#59665e!important}
 
 /* M09.5 cart drawer undo affordance */
 .toast-undo{margin-inline-start:8px;padding:5px 10px;border:1px solid rgba(255,255,255,.45);border-radius:999px;background:rgba(255,255,255,.12);color:inherit;font-size:10px;font-weight:800}

@@ -216,6 +216,8 @@ test("recently viewed route inherits and persists the selected locale", async ({
 
 test("active catalog filter chips remove one facet or clear the complete filter set", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
+  const isMobile = await page.evaluate(() => window.matchMedia("(max-width: 760px)").matches);
+  if (isMobile) await page.getByRole("button", { name: "Filters" }).click();
 
   const brand = page.locator(".facet-select-group select").first();
   await brand.selectOption({ index: 1 });
