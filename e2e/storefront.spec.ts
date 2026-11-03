@@ -247,3 +247,16 @@ test("mobile filter sheet has a clear close action", async ({ page }) => {
   await page.getByRole("button", { name: "Close filters" }).click();
   await expect(page.locator(".filter-panel.filter-visible")).toHaveCount(0);
 });
+
+
+test("cart drawer supports undo after removing an item", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.locator(".product-card").first().locator(".product-price button").click();
+  await page.locator(".bag-button").click();
+  const drawer = page.locator(".side-drawer[role='dialog']");
+  await expect(drawer.locator(".drawer-item")).toHaveCount(1);
+  await drawer.getByRole("button", { name: "Remove item" }).click();
+  await expect(drawer.locator(".drawer-item")).toHaveCount(0);
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(drawer.locator(".drawer-item")).toHaveCount(1);
+});

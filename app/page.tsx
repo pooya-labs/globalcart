@@ -63,7 +63,7 @@ const copy = {
     saveSearch: "ذخیره جست‌وجو", savedSearches: "جست‌وجوهای ذخیره‌شده", savedSearchName: "نام جست‌وجو", savedSearchPlaceholder: "مثلاً هدفون اقتصادی",
     save: "ذخیره", savedSearchEmpty: "هنوز جست‌وجویی ذخیره نشده است.", savedSearchDefault: "جست‌وجوی من",
     savedSearchSuccess: "جست‌وجو در همین مرورگر ذخیره شد.", savedSearchDuplicate: "این ترکیب فیلترها قبلاً ذخیره شده است.",
-    applySavedSearch: "اعمال", deleteSavedSearch: "حذف", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "محصولت را در آمازون پیدا کردی؟", amazonDesc: "لینک مستقیم محصول را وارد کن تا درخواست بررسی آن در نسخه نمایشی ثبت شود.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "بررسی لینک محصول", amazonNote: "ثبت لینک در این نسخه نمایشی است؛ دریافت قیمت و موجودی زنده به دسترسی رسمی آمازون نیاز دارد.", amazonSuccess: "درخواست لینک محصول ذخیره شد", amazonInvalid: "لینک معتبر محصول آمازون با شناسه ASIN ده‌کاراکتری وارد کن.", decrease:"کاهش تعداد", increase:"افزایش تعداد", remove:"حذف محصول", searchClose:"بستن جست‌وجو"
+    applySavedSearch: "اعمال", deleteSavedSearch: "حذف", close: "بستن", compareAdd: "افزودن به مقایسه", compareTitle: "مقایسه محصولات", compareNeed: "برای مقایسه حداقل دو محصول انتخاب کن.", compareClear: "پاک کردن مقایسه", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "محصولت را در آمازون پیدا کردی؟", amazonDesc: "لینک مستقیم محصول را وارد کن تا درخواست بررسی آن در نسخه نمایشی ثبت شود.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "بررسی لینک محصول", amazonNote: "ثبت لینک در این نسخه نمایشی است؛ دریافت قیمت و موجودی زنده به دسترسی رسمی آمازون نیاز دارد.", amazonSuccess: "درخواست لینک محصول ذخیره شد", amazonInvalid: "لینک معتبر محصول آمازون با شناسه ASIN ده‌کاراکتری وارد کن.", decrease:"کاهش تعداد", increase:"افزایش تعداد", remove:"حذف محصول", undo:"بازگردانی", searchClose:"بستن جست‌وجو"
   },
   en: {
     top: "A fresh perspective on finding good things", search: "Search products, brands or categories...",
@@ -98,7 +98,7 @@ const copy = {
     saveSearch: "Save search", savedSearches: "Saved searches", savedSearchName: "Search name", savedSearchPlaceholder: "e.g. Budget headphones",
     save: "Save", savedSearchEmpty: "No saved searches yet.", savedSearchDefault: "My search",
     savedSearchSuccess: "Saved in this browser.", savedSearchDuplicate: "These filters are already saved.",
-    applySavedSearch: "Apply", deleteSavedSearch: "Delete", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "Found it on Amazon?", amazonDesc: "Paste the product link to save a sourcing request in this demo experience.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "Validate product link", amazonNote: "Link intake is simulated; live product data and pricing require authorized Amazon API access.", amazonSuccess: "Product link request saved", amazonInvalid: "Enter a valid Amazon product URL containing a 10-character ASIN.", decrease:"Decrease quantity", increase:"Increase quantity", remove:"Remove item", searchClose:"Close search"
+    applySavedSearch: "Apply", deleteSavedSearch: "Delete", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "Found it on Amazon?", amazonDesc: "Paste the product link to save a sourcing request in this demo experience.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "Validate product link", amazonNote: "Link intake is simulated; live product data and pricing require authorized Amazon API access.", amazonSuccess: "Product link request saved", amazonInvalid: "Enter a valid Amazon product URL containing a 10-character ASIN.", decrease:"Decrease quantity", increase:"Increase quantity", remove:"Remove item", undo:"Undo", searchClose:"Close search"
   }
 } as const;
 
@@ -189,6 +189,7 @@ export default function Home() {
   const [mobileSearchOpen,setMobileSearchOpen]=useState(false);
   const [categoryMenu,setCategoryMenu]=useState(false);
   const [toast,setToast]=useState("");
+  const [removedCartLine,setRemovedCartLine]=useState<{line:CartLine;index:number}|null>(null);
   const rate = typeof fxQuote.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const [hydrated,setHydrated]=useState(false);
@@ -422,6 +423,24 @@ export default function Home() {
     return rtl&&rate!==null?money(calculateDemoPrice({sourcePrice:p.price,fxRate:rate,discountPercentage:p.discountPercentage}).toman,locale)+" تومان":usd(discountedUsd);
   };
   const notify=(message:string)=>{setToast(message);window.setTimeout(()=>setToast(""),2100);};
+  const removeCartLine=(line:CartLine,index:number)=>{
+    setCart(old=>old.filter(item=>item.product.id!==line.product.id));
+    setRemovedCartLine({line,index});
+    setToast(locale==="fa"?"از سبد خرید حذف شد":"Removed from your bag");
+    window.setTimeout(()=>{setToast("");setRemovedCartLine(null);},5000);
+  };
+  const undoRemoveCartLine=()=>{
+    if(!removedCartLine)return;
+    const {line,index}=removedCartLine;
+    setCart(old=>{
+      const existing=old.find(item=>item.product.id===line.product.id);
+      if(existing)return old.map(item=>item.product.id===line.product.id?{...item,quantity:item.quantity+line.quantity}:item);
+      const next=[...old];next.splice(Math.min(index,next.length),0,line);return next;
+    });
+    setRemovedCartLine(null);
+    setToast(locale==="fa"?"محصول به سبد برگشت":"Item restored to your bag");
+    window.setTimeout(()=>setToast(""),2100);
+  };
   const addToCart=(product:Product)=>{
     setCart(old=>{const found=old.find(x=>x.product.id===product.id);return found?old.map(x=>x.product.id===product.id?{...x,quantity:x.quantity+1}:x):[...old,{product,quantity:1}];});
     notify(locale==="fa"?"به سبد خرید اضافه شد":"Added to your bag");
@@ -808,7 +827,7 @@ export default function Home() {
         </section>
       </div>}
 
-      {cartOpen&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setCartOpen(false);}}><aside className="side-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-dialog-title" tabIndex={-1}><div className="drawer-head"><div><span className="section-kicker">YOUR SELECTION</span><h3 id="cart-dialog-title">{t.cart} <small>({count})</small></h3></div><button className="icon-button" onClick={()=>setCartOpen(false)} aria-label={t.close}><X/></button></div>{cart.length===0?<div className="drawer-empty"><ShoppingBag size={38}/><b>{t.emptyCart}</b><button className="button-primary" onClick={()=>setCartOpen(false)}>{t.continue}</button></div>:<><div className="drawer-items">{cart.map(line=><div className="drawer-item" key={line.product.id}><img src={line.product.thumbnail} alt={line.product.title} loading="lazy" decoding="async"/><div className="drawer-item-info"><b>{line.product.title}</b><strong>{formatPrice(line.product)}</strong><div className="quantity"><button aria-label={t.decrease} onClick={()=>changeQuantity(line.product.id,-1)}><Minus size={13}/></button><span>{line.quantity}</span><button aria-label={t.increase} onClick={()=>changeQuantity(line.product.id,1)}><Plus size={13}/></button></div></div><button className="remove-item" aria-label={t.remove} onClick={()=>setCart(old=>old.filter(x=>x.product.id!==line.product.id))}><X size={16}/></button></div>)}</div><div className="drawer-bottom"><div><span>{t.subtotal}</span><b>{rtl&&subtotalToman!==null?money(subtotalToman,locale)+" تومان":usd(subtotalUsd)}</b></div><button className="button-primary full-button" onClick={()=>{setCartOpen(false);setCheckout(true);}}>{t.checkout}<ArrowLeft size={16}/></button><small>{t.noPayment}</small></div></>}</aside></div>}
+      {cartOpen&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setCartOpen(false);}}><aside className="side-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-dialog-title" tabIndex={-1}><div className="drawer-head"><div><span className="section-kicker">YOUR SELECTION</span><h3 id="cart-dialog-title">{t.cart} <small>({count})</small></h3></div><button className="icon-button" onClick={()=>setCartOpen(false)} aria-label={t.close}><X/></button></div>{cart.length===0?<div className="drawer-empty"><ShoppingBag size={38}/><b>{t.emptyCart}</b><button className="button-primary" onClick={()=>setCartOpen(false)}>{t.continue}</button></div>:<><div className="drawer-items">{cart.map((line,index)=><div className="drawer-item" key={line.product.id}><img src={line.product.thumbnail} alt={line.product.title} loading="lazy" decoding="async"/><div className="drawer-item-info"><b>{line.product.title}</b><strong>{formatPrice(line.product)}</strong><div className="quantity"><button aria-label={t.decrease} onClick={()=>changeQuantity(line.product.id,-1)}><Minus size={13}/></button><span>{line.quantity}</span><button aria-label={t.increase} onClick={()=>changeQuantity(line.product.id,1)}><Plus size={13}/></button></div></div><button className="remove-item" aria-label={t.remove} onClick={()=>removeCartLine(line,index)}><X size={16}/></button></div>)}</div><div className="drawer-bottom"><div><span>{t.subtotal}</span><b>{rtl&&subtotalToman!==null?money(subtotalToman,locale)+" تومان":usd(subtotalUsd)}</b></div><button className="button-primary full-button" onClick={()=>{setCartOpen(false);setCheckout(true);}}>{t.checkout}<ArrowLeft size={16}/></button><small>{t.noPayment}</small></div></>}</aside></div>}
 
       {favoriteOpen&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setFavoriteOpen(false);}}><aside className="side-drawer" role="dialog" aria-modal="true" aria-labelledby="favorites-dialog-title" tabIndex={-1}><div className="drawer-head"><div><span className="section-kicker">YOUR SHORTLIST</span><h3 id="favorites-dialog-title">{t.favorites} <small>({favorites.length})</small></h3></div><button className="icon-button" onClick={()=>setFavoriteOpen(false)} aria-label={t.close}><X/></button></div>{favoriteProducts.length===0?<div className="drawer-empty"><Heart size={38}/><b>{t.emptyFav}</b></div>:<div className="drawer-items">{favoriteProducts.map(p=><div className="drawer-item" key={p.id}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><div className="drawer-item-info"><b>{p.title}</b><strong>{formatPrice(p)}</strong><button className="text-action" onClick={()=>{setFavoriteOpen(false);openProduct(p);}}>{t.quick}</button></div><button className="remove-item" aria-label={t.remove} onClick={()=>toggleFavorite(p.id)}><X size={16}/></button></div>)}</div>}</aside></div>}
 
@@ -820,7 +839,7 @@ export default function Home() {
 
             {checkout&&<div className="overlay modal-overlay"><div className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-dialog-title" tabIndex={-1}><button className="modal-close icon-button" onClick={()=>setCheckout(false)} aria-label={t.close}><X/></button><span className="section-kicker">GLOBALCART / DEMO FLOW</span><h2 id="checkout-dialog-title">{t.demoCheckout}</h2><p>{t.demoText}</p><div className="checkout-total"><span>{t.subtotal}</span><b>{rtl&&subtotalToman!==null?money(subtotalToman,locale)+" تومان":usd(subtotalUsd)}</b></div><div className="checkout-warning"><ShieldCheck size={17}/>{t.noPayment}</div><button className="button-primary full-button" onClick={placeDemoOrder}>{t.confirm}<ArrowLeft size={16}/></button></div></div>}
 
-      {toast&&<div className="toast" role="status" aria-live="polite"><Check size={15}/>{toast}</div>}
+      {toast&&<div className="toast" role="status" aria-live="polite"><Check size={15}/>{toast}{removedCartLine&&<button type="button" className="toast-undo" onClick={undoRemoveCartLine}>{t.undo}</button>}</div>}
       <div className="demo-ribbon">{t.demo}</div>
     </main>
   );
