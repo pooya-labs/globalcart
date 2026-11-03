@@ -64,7 +64,7 @@ export default function RecentlyViewedPage() {
   return <main className={rtl?"history-page rtl":"history-page ltr"} dir={rtl?"rtl":"ltr"}>
     <header className="history-topbar">
       <Link href="/"><span className="brand-mark">g<span>.</span></span><b>globalcart</b></Link>
-      <div><button onClick={toggleLocale} aria-label={rtl?"تغییر زبان به انگلیسی":"Switch language to Persian"}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div>
+      <div><button onClick={toggleLocale} aria-label={rtl?"EN — تغییر زبان به انگلیسی":"فا — Switch language to Persian"}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div>
     </header>
     <section className="history-content">
       <div className="history-heading"><div><span className="section-kicker">GLOBALCART / BROWSING HISTORY</span><h1>{rtl?"محصولات بازدیدشده":"Recently viewed products"}</h1><p>{rtl?"محصولاتی که در همین مرورگر بررسی کرده‌ای؛ تاریخچه به حساب کاربری یا سرور ارسال نمی‌شود.":"Products you opened in this browser. This history is stored locally and is not sent to an account or server."}</p></div>{products.length>0&&<button className="history-clear" onClick={clearHistory} aria-label={rtl?"پاک کردن تاریخچه بازدید محصولات":"Clear recently viewed history"}><Trash2 size={15}/>{rtl?"پاک کردن تاریخچه":"Clear history"}</button>}</div>
