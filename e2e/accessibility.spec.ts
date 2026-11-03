@@ -274,3 +274,28 @@ test("checkout dialog keeps focus contained and returns focus to the cart trigge
   await expect(dialog).toBeHidden();
   await expect(cartTrigger).toBeFocused();
 });
+
+
+test("public GitHub links and case-study canonical URL use the renamed repository owner", async ({ page }) => {
+  const assertCanonicalGitHubLinks = async () => {
+    const links = await page.locator('a[href^="https://github.com/"]').evaluateAll(nodes =>
+      nodes.map(node => (node as HTMLAnchorElement).href)
+    );
+    expect(links.length).toBeGreaterThan(0);
+    expect(links.filter(href => href.includes("pooya16pg-spec"))).toEqual([]);
+    expect(links.every(href => href.includes("github.com/pooya-labs/"))).toBe(true);
+  };
+
+  await assertCanonicalGitHubLinks();
+  await expect(page.locator('a[href="https://github.com/pooya-labs/globalcart"]')).toHaveCount(1);
+
+  const response = await page.goto("./case-study/");
+  expect(response?.status()).toBe(200);
+  await expect(page.locator("main.case-study")).toBeVisible();
+  await assertCanonicalGitHubLinks();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://pooya-labs.github.io/globalcart/case-study/"
+  );
+  await expect(page.locator('a[href="https://github.com/pooya-labs/globalcart/blob/main/docs/DATABASE_ERD.md"]')).toHaveCount(1);
+});
