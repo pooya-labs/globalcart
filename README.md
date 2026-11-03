@@ -21,7 +21,7 @@ Implemented:
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
 - Browser-local cart, quantity changes, removal and simulated checkout.
-- Wallex USDTTMN one-minute candle close in Toman for demo price estimates; freshness is labelled and no hard-coded FX fallback is used. USDT is disclosed as a proxy, not cash USD.
+- TGJU free-market USD quote for demo price estimates; the source publishes Rial and GlobalCart explicitly converts it to Toman. Source time and freshness are labelled; no hard-coded FX fallback is used.
 - Decimal-safe pricing core using integer cents, fixed-point FX and explicit rounding.
 - Source/demo disclosures and visible owner attribution.
 - GitHub Pages deployment workflow and project handoff documentation.
@@ -29,7 +29,7 @@ Implemented:
 
 In progress / not yet claimed as complete:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
-- Live Amazon product retrieval, price/stock synchronization and a production FX feed require authorized provider access.
+- Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Seller/admin workspaces and account-backed order history remain planned; cart, checkout, returns and refunds are simulations/internal services, not live commerce.
 - Search suggestions, the keyboard command palette, explainable sample recommendations and saved-search flows are implemented.
 - Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI; manual assistive-technology/RTL/LTR QA and live CDN/Core Web Vitals review remain open.
@@ -42,7 +42,7 @@ In progress / not yet claimed as complete:
 | Product catalog | DummyJSON public sample API; local fixtures if unavailable |
 | Images | Source-provided remote image URLs |
 | Translation | Paused; source text is preserved |
-| Currency | Wallex USDTTMN one-minute close; not cash USD or an executable quote |
+| Currency | TGJU free-market USD page, Rial converted to Toman; indicative, not an executable quote |
 | Cart / favorites | Local browser state |
 | Checkout | Local simulation; never contacts a payment provider |
 | Inventory / shipping | Not real, not reserved, not fulfilled |

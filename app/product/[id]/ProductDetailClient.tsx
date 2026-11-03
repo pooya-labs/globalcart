@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
 import { calculateDemoPrice } from "../../../lib/pricing";
 import fxSnapshot from "../../../data/fx-rate.json";
-import { getFxRateStatus, type FxRateStatus } from "../../../lib/fx/wallex";
+import { getFxRateStatus, type FxRateStatus } from "../../../lib/fx/tgju";
 import { readLocalePreference, writeLocalePreference, type Locale } from "../../../lib/locale";
 
 type ProductVariant = {
@@ -49,7 +49,7 @@ export default function ProductDetailClient({product,related}:Props) {
   const [quantity,setQuantity]=useState(1);
   const [added,setAdded]=useState(false);
   const [saved,setSaved]=useState(false);
-  const rate = typeof fxSnapshot.tomanPerUsdt === "number" && Number.isFinite(fxSnapshot.tomanPerUsdt) && fxSnapshot.tomanPerUsdt > 0 ? fxSnapshot.tomanPerUsdt : null;
+  const rate = typeof fxSnapshot.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const rtl=locale==="fa";
   const toggleLocale=()=>{
@@ -62,7 +62,7 @@ export default function ProductDetailClient({product,related}:Props) {
   const discounted=product.price*(1-product.discountPercentage/100);
   const priceBreakdown=rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
-  const fxTimestampLabel=fxSnapshot.candleStartedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.candleStartedAt)):null;
+  const fxTimestampLabel=fxSnapshot.sourceUpdatedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.sourceUpdatedAt)):null;
   useEffect(()=>{
     const savedLocale=readLocalePreference();
     if(savedLocale)setLocale(savedLocale);
@@ -150,11 +150,11 @@ export default function ProductDetailClient({product,related}:Props) {
           <div><span>{rtl?"قیمت منبع (USD)":"Source catalog price (USD)"}</span><b>${product.price.toFixed(2)}</b></div>
           <div><span>{rtl?"تخفیف نمونه":"Catalog sample discount"}</span><b>{product.discountPercentage.toFixed(2)}%</b></div>
           {priceBreakdown?<>
-            <div><span>{rtl?"قیمت بسته‌شدن کندل یک‌دقیقه‌ای والکس":"Wallex one-minute candle close"}</span><b>{new Intl.NumberFormat(rtl?"fa-IR":"en-US",{maximumFractionDigits:0}).format(priceBreakdown.fxRate)} {rtl?"تومان / تتر":"Toman / USDT"}</b></div>
-            <div><span>{rtl?"زمان شروع آخرین کندل":"Latest candle start time"}</span><b>{fxTimestampLabel??fxStatusLabel}</b></div>
-            <small>{rtl?"مبنای تبدیل، قیمت بسته‌شدن آخرین کندل یک‌دقیقه‌ای بازار USDTTMN والکس است. قیمت برحسب تومان و مربوط به تتر است؛ با دلار نقدی تفاوت دارد و نرخ قابل اجرای خرید/فروش محسوب نمی‌شود.":"Conversion uses the latest one-minute candle close for Wallex USDTTMN. The quote is Toman-denominated and refers to Tether, which can differ from cash USD; it is not an executable buy/sell quote."}</small>
+            <div><span>{rtl?"نرخ دلار آزاد TGJU (ریال به تومان)":"TGJU free-market USD rate (Rial to Toman)"}</span><b>{new Intl.NumberFormat(rtl?"fa-IR":"en-US",{maximumFractionDigits:0}).format(priceBreakdown.fxRate)} {rtl?"تومان / دلار":"Toman / USD"}</b></div>
+            <div><span>{rtl?"زمان ثبت قیمت در TGJU":"TGJU source update time"}</span><b>{fxTimestampLabel??fxStatusLabel}</b></div>
+            <small>{rtl?"مبنای تبدیل، قیمت ثبت‌شدهٔ دلار بازار آزاد در صفحهٔ TGJU است که از ریال به تومان تبدیل شده. این عدد نرخ بانکی یا پیشنهاد قطعی خریدوفروش نیست.":"Conversion uses the free-market USD price displayed by TGJU, normalized from Rial to Toman. It is indicative, not a bank rate or executable buy/sell offer."}</small>
             {fxStatus!=="fresh"&&<small className="fx-warning">{rtl?"هشدار تازگی نرخ: "+fxStatusLabel:"FX freshness warning: "+fxStatusLabel}</small>}
-          </>:<small>{rtl?"نرخ معتبر صرافی فعلاً در دسترس نیست؛ مبلغ اصلی به دلار نمایش داده می‌شود.":"A valid exchange quote is currently unavailable, so the source USD price is shown."}</small>}
+          </>:<small>{rtl?"نرخ معتبر دلار TGJU فعلاً در دسترس نیست؛ مبلغ اصلی به دلار نمایش داده می‌شود.":"A valid TGJU dollar quote is currently unavailable, so the source USD price is shown."}</small>}
           <small>{rtl?"قیمت‌ها نمایشی‌اند و شامل هزینه ارسال، مالیات، کارمزد پرداخت یا تعهد خرید نیستند.":"Demo prices only; no shipping, tax, payment fees or purchase commitment are included."}</small>
         </details>
         <div className="buybox-stock"><span/> {rtl?"موجود در کاتالوگ نمونه":"Listed in sample catalog"}</div>

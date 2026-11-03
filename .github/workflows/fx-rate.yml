@@ -1,4 +1,4 @@
-name: Sync Wallex FX snapshot
+name: Sync TGJU FX snapshot
 on:
   schedule:
     # Avoid minute zero, when GitHub Actions scheduled events are most likely to be delayed.
@@ -8,12 +8,12 @@ on:
     paths:
       - ".github/workflows/fx-rate.yml"
       - "lib/fx/**"
-      - "scripts/sync-wallex-fx.ts"
+      - "scripts/sync-tgju-fx.ts"
   workflow_dispatch:
 permissions:
   contents: write
 concurrency:
-  group: wallex-fx-snapshot
+  group: tgju-fx-snapshot
   cancel-in-progress: false
 jobs:
   sync:
@@ -26,8 +26,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit
-      - name: Fetch and validate the public Wallex one-minute candle
-        run: npx tsx scripts/sync-wallex-fx.ts
+      - name: Fetch and validate the TGJU free-market dollar page
+        run: npx tsx scripts/sync-tgju-fx.ts
       - name: Persist the validated quote without overwriting concurrent main updates
         shell: bash
         run: |
@@ -42,10 +42,10 @@ jobs:
             cp "$quote" data/fx-rate.json
             git add -- data/fx-rate.json
             if git diff --cached --quiet; then
-              echo "Exchange candle is unchanged; no snapshot commit is needed."
+              echo "TGJU quote is unchanged; no snapshot commit is needed."
               exit 0
             fi
-            git commit -m "chore(fx): refresh Wallex USDTTMN candle [skip ci]"
+            git commit -m "chore(fx): refresh TGJU free-market USD quote [skip ci]"
             if git push origin HEAD:main; then exit 0; fi
             echo "main moved during FX snapshot persistence (attempt $attempt); retrying."
           done

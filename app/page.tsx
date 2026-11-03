@@ -12,7 +12,7 @@ import { getCatalogFreshness, type CatalogFreshnessStatus } from "../lib/catalog
 import catalogSnapshot from "../data/catalog.json";
 import fxSnapshot from "../data/fx-rate.json";
 import { calculateDemoPrice } from "../lib/pricing";
-import { getFxRateStatus, type FxRateStatus } from "../lib/fx/wallex";
+import { getFxRateStatus, type FxRateStatus } from "../lib/fx/tgju";
 import { readLocalePreference, writeLocalePreference, type Locale } from "../lib/locale";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, BookmarkCheck, BookmarkPlus, Check, ChevronDown, ChevronLeft,
@@ -51,7 +51,7 @@ const copy = {
     subtotal: "جمع جزء", checkout: "ادامه و ثبت سفارش نمایشی", demo: "نسخه نمایشی", noPayment: "پرداخت واقعی غیرفعال است؛ این پروژه فروشگاه واقعی نیست.",
     demoCheckout: "تکمیل سفارش آزمایشی", demoText: "این مرحله فقط برای نمایش تجربه کاربری است. هیچ پرداخت یا سفارش واقعی ثبت نمی‌شود.",
     confirm: "ثبت سفارش آزمایشی", success: "سفارش نمایشی ساخته شد", order: "شناسه سفارش", continue: "بازگشت به فروشگاه",
-    source: "منبع", fxTitle: "نرخ بازار تتر", fxProvider: "والکس · USDTTMN", fxFresh: "به‌روز", fxAging: "در حال کهنه‌شدن", fxStale: "قدیمی", fxUnavailable: "نرخ در دسترس نیست", fxUnknown: "زمان نامشخص", fxCaveat: "تتر دلار نقدی نیست؛ مبنا قیمت بسته‌شدن آخرین کندل یک‌دقیقه‌ای است.", fxUnavailableNote: "تا دریافت نرخ معتبر، قیمت به دلار نمایش داده می‌شود.", inStock: "موجود در کاتالوگ نمونه", off: "تخفیف",
+    source: "منبع", fxTitle: "نرخ دلار بازار آزاد", fxProvider: "TGJU · دلار آزاد", fxFresh: "به‌روز", fxAging: "در حال کهنه‌شدن", fxStale: "قدیمی", fxUnavailable: "نرخ در دسترس نیست", fxUnknown: "زمان نامشخص", fxCaveat: "قیمت تابلو از ریال به تومان تبدیل شده؛ نرخ قطعی خریدوفروش یا بانکی نیست.", fxUnavailableNote: "تا دریافت نرخ معتبر، قیمت به دلار نمایش داده می‌شود.", inStock: "موجود در کاتالوگ نمونه", off: "تخفیف",
     searchResults: "نتایج جست‌وجو", loading: "در حال دریافت کاتالوگ...", sourceFallback: "منبع آنلاین در دسترس نیست؛ داده‌های نمونه محلی نمایش داده شده‌اند.", snapshotFallback: "به‌روزرسانی آنلاین در دسترس نیست؛ آخرین کاتالوگ تولیدشده نمایش داده می‌شود.",
     catalogLastChecked: "آخرین بررسی منبع", snapshotGenerated: "زمان تولید کاتالوگ", freshnessFresh: "تازه", freshnessAging: "در حال کهنه‌شدن", freshnessStale: "قدیمی", freshnessUnknown: "زمان نامشخص",
     why: "چرا GlobalCart؟", whyText: "یک پروژه مستقل برای نمایش مهندسی محصول، معماری فرانت‌اند، یکپارچه‌سازی داده و طراحی تجربه تجارت الکترونیک.",
@@ -86,7 +86,7 @@ const copy = {
     subtotal: "Subtotal", checkout: "Continue to demo checkout", demo: "DEMO", noPayment: "Real payments are disabled. This is not a live store.",
     demoCheckout: "Demo checkout", demoText: "This step demonstrates the user experience only. No real order or payment will be created.",
     confirm: "Place demo order", success: "Demo order created", order: "Order reference", continue: "Back to store",
-    source: "Source", fxTitle: "Live Tether market quote", fxProvider: "Wallex · USDTTMN", fxFresh: "Fresh", fxAging: "Aging", fxStale: "Stale", fxUnavailable: "Rate unavailable", fxUnknown: "Timestamp unavailable", fxCaveat: "USDT is not cash USD; this uses the latest one-minute candle close.", fxUnavailableNote: "Prices remain in USD until a valid exchange quote is available.", inStock: "Sample catalog item", off: "OFF",
+    source: "Source", fxTitle: "Free-market USD rate", fxProvider: "TGJU · free market", fxFresh: "Fresh", fxAging: "Aging", fxStale: "Stale", fxUnavailable: "Rate unavailable", fxUnknown: "Timestamp unavailable", fxCaveat: "TGJU quotes Rial; GlobalCart converts it to Toman. This is indicative, not an executable buy/sell or bank rate.", fxUnavailableNote: "Prices remain in USD until a valid TGJU quote is available.", inStock: "Sample catalog item", off: "OFF",
     searchResults: "Search results", loading: "Loading catalog...", sourceFallback: "Live source is unavailable; showing local demo fixtures.", snapshotFallback: "Live refresh is unavailable; showing the last generated catalog snapshot.",
     catalogLastChecked: "Last source check", snapshotGenerated: "Snapshot generated", freshnessFresh: "Fresh", freshnessAging: "Aging", freshnessStale: "Stale", freshnessUnknown: "Unknown",
     why: "Why GlobalCart?", whyText: "An independent portfolio project showcasing product engineering, frontend architecture, data integration and commerce experience design.",
@@ -188,7 +188,7 @@ export default function Home() {
   const [mobileSearchOpen,setMobileSearchOpen]=useState(false);
   const [categoryMenu,setCategoryMenu]=useState(false);
   const [toast,setToast]=useState("");
-  const rate = typeof fxSnapshot.tomanPerUsdt === "number" && Number.isFinite(fxSnapshot.tomanPerUsdt) && fxSnapshot.tomanPerUsdt > 0 ? fxSnapshot.tomanPerUsdt : null;
+  const rate = typeof fxSnapshot.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const [hydrated,setHydrated]=useState(false);
   const [minPrice,setMinPrice]=useState(0);
@@ -215,8 +215,8 @@ export default function Home() {
   const commandInputId=useId();
   const t=copy[locale];
   const rtl=locale==="fa";
-  const fxTimestampLabel = fxSnapshot.candleStartedAt
-    ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.candleStartedAt))
+  const fxTimestampLabel = fxSnapshot.sourceUpdatedAt
+    ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.sourceUpdatedAt))
     : null;
   const fxStatusLabel = fxStatus==="fresh"?t.fxFresh:fxStatus==="aging"?t.fxAging:fxStatus==="stale"?t.fxStale:t.fxUnavailable;
 
@@ -629,7 +629,7 @@ export default function Home() {
         <div><span className="benefit-icon"><Truck size={18}/></span><span><b>{t.feature3}</b><small>{t.feature3d}</small></span></div>
         <div className="fx-control" data-status={fxStatus} role="status" aria-live="polite">
           <span><b>{t.fxTitle}</b><small>{t.fxProvider}</small></span>
-          <strong>{rate===null?t.fxUnavailable:(rtl?money(rate,locale)+" تومان / تتر":money(rate,locale)+" Toman / USDT")}</strong>
+          <strong>{rate===null?t.fxUnavailable:(rtl?money(rate,locale)+" تومان / دلار":money(rate,locale)+" Toman / USD")}</strong>
           <small>{fxTimestampLabel??t.fxUnknown} · {fxStatusLabel}</small>
           <small className="fx-caveat">{t.fxCaveat}</small>
           {rate===null&&<small>{t.fxUnavailableNote}</small>}

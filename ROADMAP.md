@@ -35,7 +35,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | M00 | 0.1.0 | Product definition, independence, governance and handoff | Complete |
 | M01 | 0.1.x | Storefront foundation, bilingual shell and deployment | Implemented; redesign supersedes original visual direction |
 | M02 | 0.2.x | Automated catalog import, normalization and snapshots | Snapshot pipeline implemented; authorized supplier feeds remain gated; translation paused |
-| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | Wallex USDTTMN candle feed and pricing provenance are integrated and deployed; recurring refresh reliability remains under observation |
+| M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | TGJU free-market USD page feed and Rial-to-Toman provenance implementation is in progress; scheduled refresh reliability and source markup stability remain to be verified |
 | M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Read-only local Go/PostgreSQL foundation implemented; authentication, workers and hosting gates remain |
 | M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo cart, checkout, order, coupon, vendor-split and full-order return/refund simulation implemented; public API exposure gated |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Internal read-only admin overview service CI-verified; UI and seller tools remain planned/gated |
@@ -103,7 +103,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M03 — Pricing and product experience
 - [x] Integer-cent pricing, fixed-point FX and BigInt intermediate arithmetic.
 - [x] Explicit rounding and invalid-input tests.
-- [x] Add a timestamped Wallex USDTTMN one-minute candle-close feed with 5/15-minute freshness states, no-key server-side refresh, and no hard-coded fallback. A validated live snapshot is persisted to `data/fx-rate.json`; Browser E2E [41414269385](https://github.com/pooya16pg-spec/globalcart/actions/runs/41414269385) and Pages deployment [41413878826](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413878826) passed. Scheduled refresh reliability remains under observation.
+- [ ] Replace the former Wallex USDT proxy with a timestamped TGJU free-market USD quote from the requested public dollar page; normalize the source's Rial figure to Toman, validate the TGJU market row and Tehran source clock, retain last-known-good data, and apply 5/15-minute freshness labels. Deployment and source-refresh verification are pending.
 - [x] Transparent source-price, discount and exchange-derived Tether/Toman estimate breakdown on product pages (no shipping, tax, payment fees or executable checkout quote).
 - [x] Dedicated static product details for the imported catalog, responsive image gallery and related products.
 - [x] Show source record ID, import time, source URL when present, provided variants/attributes, and disclose when source review count is not supplied.

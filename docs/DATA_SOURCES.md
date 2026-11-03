@@ -16,21 +16,21 @@ Amazon is not connected. Do not scrape product pages or copy the catalog. A futu
 The code currently defines a provider interface and safe orchestration metadata. It does **not** yet automatically translate the full catalog. Until a provider adapter is configured, translated text is null and status is unavailable; source text must remain visible. A future scheduled job must translate title, description, category and attributes, preserve original fields, cache results, handle quotas/retries and record provider/locale/timestamp. API keys belong in GitHub Actions secrets and must never enter browser bundles or committed files.
 
 ## Foreign exchange
-The static storefront consumes `data/fx-rate.json`, refreshed every five minutes by `.github/workflows/fx-rate.yml` from Wallex's public TradingView UDF endpoint: `GET https://api.wallex.ir/v1/udf/history?symbol=USDTTMN&resolution=1&from=...&to=...`. The endpoint uses no API key. The pipeline reads the latest one-minute candle's close (`c`) and start timestamp (`t`); timestamps are Unix seconds and the close is already quoted in Toman. No Rial conversion is applied. The browser never calls the exchange directly.
+The static storefront consumes `data/fx-rate.json`, refreshed every five minutes by `.github/workflows/fx-rate.yml` from the exact public TGJU dollar page requested for this project: `https://www.tgju.org/قیمت-دلار`. The scheduled job makes a single bounded HTML request and reads only the `price_dollar_rl` instrument row. It does not use a third-party proxy or API aggregator, and the browser never calls TGJU directly.
 
-**Important currency distinction:** the market is `USDTTMN` (USDT/Toman). USDT (Tether) is a USD proxy, not cash USD; it can trade at a premium or discount. The displayed number is the close of the latest one-minute candle, not an order-book midpoint, cash-exchange quote, guaranteed executable rate or checkout commitment.
+**Currency and unit contract:** TGJU's `price_dollar_rl` field is the free-market US dollar quoted in Rial. The raw Rial value is preserved in the snapshot and divided by ten to produce the displayed Toman-per-USD rate. This is not a Tether/USDT quote. The page's Tehran-local update clock is stored with its interpreted UTC timestamp; date-only, malformed or unavailable update values fail closed instead of being treated as fresh.
 
-Freshness uses the candle-start timestamp: fresh up to five minutes, aging over five to 15 minutes, stale after 15 minutes, and unavailable when the quote/timestamp is missing or invalid. On fetch/validation failure, the last-known-good file is not overwritten; the UI labels it stale as the last candle ages. With no valid snapshot, prices remain in USD rather than falling back to a hard-coded rate.
+Freshness uses the source update timestamp: fresh up to five minutes, aging over five to 15 minutes, stale after 15 minutes, and unavailable when the quote/timestamp is missing or invalid. On fetch, status, markup or validation failure, the last-known-good file is not overwritten; the UI labels it stale as the source timestamp ages. With no valid snapshot, prices remain in USD rather than falling back to a hard-coded rate.
 
-Wallex documents the unauthenticated UDF history endpoint, one-minute resolution, Unix candle timestamps, and close-price array. Its public market/depth documentation and sample data identify the `USDTTMN` Tether/Toman market. References: https://api-docs.wallex.ir/ and https://github.com/HKUDS/Vibe-Trading/blob/main/agent/backtest/loaders/wallex.py.
+TGJU's public currency board uses the stable row key `price_dollar_rl` and the market page's raw prices are Rial-denominated. The page may change markup or restrict automated requests; the job does not bypass CAPTCHA, HTTP errors, rate limits or access controls. Automated use remains subject to TGJU's current terms and availability.
 
 ## Provenance labels
 - **External demo source:** a sample record returned by DummyJSON.
 - **Local fallback:** fixture data included for offline resilience.
 - **Translated:** only when a provider returns a non-empty translation.
 - **Translation unavailable/error:** original text is retained.
-- **Exchange-derived estimate:** converted using the latest validated Wallex USDTTMN one-minute candle close (USDT/Toman); the UI discloses that USDT is a USD proxy, not cash USD.
-- **Stale exchange quote:** the last-known-good rate remains visible only with an aging/stale warning; no hard-coded fallback is used.
+- **Exchange-derived estimate:** converted using the latest validated TGJU free-market USD quote, preserving the raw Rial value and deriving Toman per USD.
+- **Stale exchange quote:** the last-known-good TGJU rate remains visible only with an aging/stale warning; no hard-coded fallback is used.
 
 
 ## Supplier adapter contract (M08.3)

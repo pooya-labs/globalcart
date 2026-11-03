@@ -28,18 +28,18 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
 
-test("shows the Wallex exchange candle and product provenance without a hard-coded FX fallback", async ({ page }) => {
+test("shows the TGJU free-market dollar quote and product provenance without a hard-coded FX fallback", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
 
   const fxPanel = page.locator(".fx-control");
   await expect(fxPanel).toBeVisible();
-  await expect(fxPanel).toContainText("Wallex · USDTTMN");
+  await expect(fxPanel).toContainText("TGJU · free market");
 
   const displayedRate = await fxPanel.locator("strong").innerText();
   if (displayedRate.includes("Rate unavailable")) {
     await expect(fxPanel).toContainText("Prices remain in USD until a valid exchange quote is available.");
   } else {
-    await expect(fxPanel).toContainText("Toman / USDT");
+    await expect(fxPanel).toContainText("Toman / USD");
     await expect(fxPanel).toContainText(/Fresh|Aging|Stale/);
   }
 
@@ -53,12 +53,12 @@ test("shows the Wallex exchange candle and product provenance without a hard-cod
 
   const priceBreakdown = page.locator(".price-breakdown");
   await priceBreakdown.locator("summary").click();
-  if (await priceBreakdown.getByText("Wallex one-minute candle close", { exact: false }).count()) {
+  if (await priceBreakdown.getByText("TGJU free-market USD rate", { exact: false }).count()) {
     await expect(priceBreakdown).toContainText("Toman / USDT");
-    await expect(priceBreakdown).toContainText("cash USD");
-    await expect(priceBreakdown).toContainText("one-minute candle close");
+    await expect(priceBreakdown).toContainText("Rial to Toman");
+    await expect(priceBreakdown).toContainText("TGJU");
   } else {
-    await expect(priceBreakdown).toContainText("A valid exchange quote is currently unavailable");
+    await expect(priceBreakdown).toContainText("A valid TGJU dollar quote is currently unavailable");
   }
 });
 

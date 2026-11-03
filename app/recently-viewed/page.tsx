@@ -25,7 +25,7 @@ const catalog = Array.isArray(catalogSnapshot.products)
 export default function RecentlyViewedPage() {
   const [locale,setLocale]=useState<"fa"|"en">("fa");
   const [ids,setIds]=useState<number[]>([]);
-  const rate = typeof fxSnapshot.tomanPerUsdt === "number" && Number.isFinite(fxSnapshot.tomanPerUsdt) && fxSnapshot.tomanPerUsdt > 0 ? fxSnapshot.tomanPerUsdt : null;
+  const rate = typeof fxSnapshot.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const rtl=locale==="fa";
 
   useEffect(()=>{
@@ -69,7 +69,7 @@ export default function RecentlyViewedPage() {
     <section className="history-content">
       <div className="history-heading"><div><span className="section-kicker">GLOBALCART / BROWSING HISTORY</span><h1>{rtl?"محصولات بازدیدشده":"Recently viewed products"}</h1><p>{rtl?"محصولاتی که در همین مرورگر بررسی کرده‌ای؛ تاریخچه به حساب کاربری یا سرور ارسال نمی‌شود.":"Products you opened in this browser. This history is stored locally and is not sent to an account or server."}</p></div>{products.length>0&&<button className="history-clear" onClick={clearHistory} aria-label={rtl?"پاک کردن تاریخچه بازدید محصولات":"Clear recently viewed history"}><Trash2 size={15}/>{rtl?"پاک کردن تاریخچه":"Clear history"}</button>}</div>
       {products.length===0?<div className="history-empty"><Clock3 size={34}/><b>{rtl?"هنوز محصولی بازدید نکرده‌ای":"No recently viewed products yet"}</b><p>{rtl?"با مشاهده جزئیات محصولات، آن‌ها اینجا نمایش داده می‌شوند.":"Open a product’s detail page and it will appear here."}</p><Link href="/#catalog">{rtl?"رفتن به فروشگاه":"Explore the catalog"} <ArrowLeft size={15}/></Link></div>:<div className="history-grid">{products.map(p=><Link href={`/product/${p.id}`} key={p.id} className="history-card"><img src={p.thumbnail} alt={p.title} loading="lazy"/><div><small>{p.brand||"GLOBAL SELECT"}</small><b>{p.title}</b><span>★ {p.rating.toFixed(1)}</span><strong>{format(p)}</strong></div><ArrowLeft size={16}/></Link>)}</div>}
-      <p className="history-note">{rtl?"تاریخچه فقط روی همین دستگاه و مرورگر ذخیره می‌شود. نرخ تبدیل در صورت موجود بودن از قیمت بسته‌شدن کندل یک‌دقیقه‌ای بازار USDTTMN والکس می‌آید، نه از تنظیم دستی مرورگر.":"History is stored only in this browser. When available, price conversion uses the latest Wallex USDTTMN one-minute candle close, not a browser-entered rate."}</p>
+      <p className="history-note">{rtl?"تاریخچه فقط روی همین دستگاه و مرورگر ذخیره می‌شود. نرخ تبدیل در صورت موجود بودن از قیمت دلار بازار آزاد TGJU می‌آید و نرخ خام ریالی به تومان تبدیل می‌شود.":"History is stored only in this browser. When available, price conversion uses TGJU’s free-market USD quote, normalized from Rial to Toman."}</p>
     </section>
   </main>;
 }

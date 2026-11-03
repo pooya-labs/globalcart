@@ -51,7 +51,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Homepage merchandising rails are derived from the current sample catalog (discounts, ratings and discovery).
 - Homepage overlay interactions support Escape dismissal; cart, favorites, quick view, comparison and checkout dialogs expose labelled dialog semantics, trap Tab/Shift+Tab focus and restore focus on close. When a mobile Command Palette action opens another dialog, the original opener is retained for focus restoration. The desktop/mobile Playwright regression suite verifies these paths; manual assistive-technology QA remains outstanding.
 - Recently viewed product IDs are stored in browser local storage, shown in a homepage rail and on /recently-viewed; the footer links to the history page. There is no server-side account history.
-- Product detail pages expose source USD price, sample discount and an indicative Tether/Toman conversion from the timestamped Wallex USDTTMN candle snapshot; it is not a checkout quote, and its freshness is determined by the snapshot timestamp.
+- Product detail pages expose source USD price, sample discount and an indicative Toman conversion from the TGJU free-market dollar page. The source's Rial quote and Tehran update clock are preserved; this is not a checkout or executable buy/sell quote.
 - Amazon URL intake validates supported Amazon domains and ASINs, then saves requests in browser local storage. Live Amazon data is not fetched.
 - Translation is out of scope and removed from the active CI pipeline.
 
@@ -172,7 +172,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 1. Continue M06 with internal seller offer creation/edit/archive and seller profile/analytics, reusing the verified vendor-scoped service boundary; keep these operations off HTTP until the deployment and identity prerequisites are approved.
 2. Keep authentication, customer commerce, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.
 3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are CI-verified, but manual assistive-technology QA remains open.
-4. Obtain owner approval and documented rights for a named supplier API/feed and an authorized FX provider/rate-staleness policy before enabling either integration.
+4. Keep supplier feeds gated by documented authorization. For TGJU, respect its current terms, rate limits and access controls; do not bypass CAPTCHA, HTTP denial or other restrictions. Reassess the source if production service guarantees are required.
 5. Benchmark Argon2id and add runtime rate limiting only after the deployment environment is approved.
 
 ## Backend/database architecture
@@ -666,11 +666,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Other supplier onboarding remains gated by approved API/feed access and rights; no live commercial supplier credentials or feeds were connected.
 
 
-## Latest M03 exchange-price checkpoint — Wallex candle feed and storefront verification (2026-11-02)
+## Previous M03 exchange-price checkpoint — Wallex candle feed and storefront verification (superseded 2026-11-03)
 - Nobitex public USDT/IRT orderbook requests from GitHub-hosted runners returned HTTP 403; that adapter was removed without using proxies or bypassing provider access controls.
-- Wallex public TradingView UDF history for `USDTTMN`, resolution `1` minute, succeeded in GitHub Actions [run 41409982177](https://github.com/pooya16pg-spec/globalcart/actions/runs/41409982177). The initial persisted record was 271,995 Toman per USDT with candle start `2026-11-02T07:59:00Z`; a later validated push refresh is recorded below. These are timestamped historical candles, not claims about the current market rate.
+- This historical checkpoint records the former Wallex public TradingView UDF source. It has been replaced by the TGJU free-market dollar page; no current quote should be inferred from the historical values below.
 - The displayed figure is the latest one-minute candle close (already in Toman), not a bid/ask midpoint, cash USD quote or executable rate. Freshness thresholds are 5 minutes fresh, 5–15 minutes aging, and over 15 minutes stale. Invalid/missing responses preserve last-known-good data; there is no hard-coded fallback.
-- Homepage and product detail disclose the Wallex USDT/Toman pair, candle time and cash-USD distinction. Persian/English locale preference is shared through guarded browser storage (`globalcart-locale-v1`) and restored across homepage, product-detail and recently-viewed routes plus reloads; the history-page language toggle persists changes and exposes a correctly localized accessible name. Unsupported values or unavailable storage safely fall back to the default Persian locale. Browser E2E [run 41462200408](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200408) passed all 34 desktop/mobile tests, including the route-to-route history regression. Pages deployment [run 41462200496](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200496) passed the published homepage, base-path JavaScript asset and product deep-link smoke tests.
+- At that time, the homepage and product detail disclosed the Wallex USDT/Toman pair and candle time; those labels have been superseded by TGJU. Persian/English locale preference is shared through guarded browser storage (`globalcart-locale-v1`) and restored across homepage, product-detail and recently-viewed routes plus reloads; the history-page language toggle persists changes and exposes a correctly localized accessible name. Unsupported values or unavailable storage safely fall back to the default Persian locale. Browser E2E [run 41462200408](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200408) passed all 34 desktop/mobile tests, including the route-to-route history regression. Pages deployment [run 41462200496](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200496) passed the published homepage, base-path JavaScript asset and product deep-link smoke tests.
 - The scheduled FX workflow had no recorded scheduled runs after its initial push-triggered refresh. Its cron was moved from minute zero to `2-59/5` to avoid the busy hour boundary. The subsequent push-triggered refresh [run 41413175324](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413175324) passed and committed a validated candle close of 272,892 Toman per USDT with candle start `2026-11-02T08:27:00Z`. This record was fresh when verified; the recurring `schedule` event itself remains unverified.
 
 ## Latest M04 migration-integrity checkpoint — CI verified (2026-11-02)
@@ -721,3 +721,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Before/after history captures effective and supplier values; history is bounded and append-only. PostgreSQL integration covers manual product creation/offer records, input validation, admin-only access, source refresh, revision conflicts, archive/restore and audit history.
 - Backend CI [41473127094](https://github.com/pooya16pg-spec/globalcart/actions/runs/41473127094) and Security scans [41473127072](https://github.com/pooya16pg-spec/globalcart/actions/runs/41473127072) passed on implementation head `e288cba2f0abe891656388d6e50638bff5fadc3c`.
 - Manual product creation, edit and archive are internal service operations only. No admin HTTP routes, dashboard UI, role switcher, seller workspace, public catalog write path or hosted database was enabled.
+
+
+## Latest M03 FX source migration — TGJU free-market USD (2026-11-03)
+- Replaced the former Wallex USDTTMN/USDT proxy with the requested TGJU public dollar page: `https://www.tgju.org/قیمت-دلار`.
+- The adapter selects only TGJU's `price_dollar_rl` market row, retains the raw Rial quote, and divides by ten to normalize Toman per USD. It does not mistake the raw Rial figure for Toman and does not describe the rate as Tether.
+- The source's Tehran-local update clock is normalized to UTC and drives the existing 5-minute fresh / 15-minute stale display states. Date-only rows, CAPTCHA/blocked pages, changed markup, invalid prices, external redirects and failed HTTP requests fail closed; the last-known-good snapshot is preserved.
+- The scheduled GitHub Actions refresh makes one bounded request every five minutes. The browser consumes only the generated static JSON and never calls TGJU; no access-control bypass, proxy or third-party price API is used.
+- Automated use of TGJU remains subject to the site's current terms and availability. This portfolio estimate is indicative and is not an executable buy/sell or bank rate.
+- Verification status at this checkpoint: implementation is committed; the TGJU refresh, security scan, browser E2E and Pages results must be recorded only after the corresponding runs finish successfully.

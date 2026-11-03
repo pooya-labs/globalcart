@@ -8,6 +8,10 @@
 - Aligned the data-source provenance description with the active Wallex USDTTMN Toman candle-close feed; removed the obsolete Nobitex midpoint description.
 - Moved the Wallex scheduled refresh from minute zero to `2-59/5` to avoid the busy hour boundary. Push-triggered refresh [41413175324](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413175324) passed, validated and persisted the 08:27 UTC candle at 272,892 Toman per USDT. A scheduled refresh has now also completed successfully in [Sync Wallex FX run 41558848340](https://github.com/pooya16pg-spec/globalcart/actions/runs/41558848340) on 2026-11-03; recurring cadence reliability remains under observation.
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Added the internal M06.4 seller product work queue with transaction-bound authorization, current account/session/role/vendor/membership revalidation, effective catalog text, source provenance, bounded search/filter/sort/pagination and seller-owned offer values. PostgreSQL tests cover customer/foreign-vendor denial, revoked memberships, filtering, paging and hostile input. Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334), Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) and Pages deployment/smoke test [41564104379](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104379) passed. No schema migration, seller HTTP route, dashboard or hosted service was added.\n- Added the internal M06.3 administrator product work queue: bounded search, active/archived/all status, source/category/effective-brand filters, allow-listed sorting and pagination. The filter validator rejects invalid UTF-8, PostgreSQL-incompatible NUL characters and overlong values. Final Backend CI [41562708698](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708698), Security scans [41562708607](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708607) and Pages deployment [41562708709](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708709) passed, including PostgreSQL integration/race tests, backup/restore, API/importer and Docker builds, and published-site smoke checks. No HTTP route or dashboard is exposed.
 - Added internal M06.2 manual product creation, editorial editing, archive/restore and revision-history services with migrations 013–014. Manual products receive IDs from a reserved sequence, `admin_manual` provenance and a GlobalCart Direct demo offer with opening price/stock history in one transaction.
@@ -63,6 +67,10 @@
 
 ## Unreleased — 2026-11-02
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Added migration 010 for one full-order return request per paid simulated order, fixed reason codes, review timestamps and terminal `refunded_simulated` states.
 - Added internal Go services for owner-scoped return requests, approve/reject review and idempotent full-order simulated refund completion.
@@ -85,6 +93,10 @@
 - Preserve the original invoking control when Command Palette actions transition directly into cart, favorites or comparison dialogs.
 - Keep dialog focus contained and restore focus after Escape dismissal across cart, favorites, quick view, comparison and checkout.
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Playwright regression coverage for Tab/Shift+Tab wrapping, Escape dismissal, focus restoration and the mobile Command Palette-to-saved-items path.
 - Touch-appropriate Quick View interaction in mobile tests; the test no longer assumes a hover-capable pointer on a touch viewport.
@@ -95,6 +107,10 @@
 
 
 ## 0.1.3 — 2026-11-01
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Server-side Gemini 2.5 Flash product translation adapter with strict JSON validation.
@@ -107,6 +123,10 @@
 - Run: https://github.com/pooya16pg-spec/globalcart/actions/runs/41295683515
 
 ## 0.1.2 — 2026-11-01
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Scheduled and manually triggerable catalog refresh in GitHub Actions.
@@ -138,11 +158,19 @@
 - Paused translation and removed the translation job and credentials from the GitHub Pages deployment workflow.
 - Added a dedicated quick-category navigation rail and began the visual-system migration toward a cleaner, denser marketplace layout.
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Responsive catalog-driven category mega-menu with live category counts, direct filtering, backdrop dismissal and mobile layout.
 - Quick category rail now reflects categories present in the current catalog rather than only the initial hand-picked list.
 
 ## 0.2.1-dev — 2026-11-01
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Catalog-driven category mega-menu and dynamic quick-category rail.
 - Dedicated static product routes with image gallery, product attributes, source disclosure, related products and demo cart actions.
@@ -154,6 +182,10 @@
 
 
 ## 0.2.2-dev — 2026-11-01
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Validated Amazon product-link intake with supported marketplace domains, ASIN extraction and a browser-local sourcing request queue.
 - Marketplace service shortcuts for sourcing requests, product comparison, planned seller tools and GitHub feedback.
@@ -169,6 +201,10 @@
 
 
 ## 0.2.3-dev — 2026-11-01
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Data-driven homepage merchandising rails for top discounts, top-rated products and fresh discoveries.
 - Browser-local recently viewed product rail, updated from both quick view and dedicated product pages, with a clear-history action.
@@ -209,7 +245,11 @@
 
 
 ### M04 catalog platform extension — 2026-11-01
-#### Added
+#### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
+### Added
 - Normalized category table with product foreign-key backfill and category product counts.
 - Product variants schema with SKU/source identity constraints, non-negative price/stock and JSONB attributes.
 - sqlc v2 generation targeting PostgreSQL and pgx/v5; generated typed product, category and variant queries.
@@ -476,6 +516,10 @@
 
 ## Unreleased — Catalog API and storefront facets (2026-11-02)
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Added normalized brand and inclusive source-price/rating facets to the read-only PostgreSQL product API. The paginated list and total count now share the same predicates.
 - Added strict decimal/range validation, stable API errors, OpenAPI documentation, PostgreSQL indexes and integration coverage.
@@ -487,6 +531,10 @@
 
 
 ## Unreleased — Accessible discovery and typo-tolerant search (2026-11-02)
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Added bounded, normalized product/brand/category suggestions with accessible combobox/listbox keyboard operation.
@@ -501,6 +549,10 @@
 
 ## Unreleased — Explainable recommendations (2026-11-02)
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Replaced the storefront's opaque rating/discount multiplication with a documented 70/30 sample-signal score, a 50% discount contribution cap and stable six-decimal precision.
 - Added per-product explanation labels and a clear disclosure that the demo ranking is not personalized.
@@ -511,6 +563,10 @@
 
 
 ## Unreleased — Saved searches and resilient catalog states (2026-11-02)
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Added browser-local saved searches for query, category, brand, price/rating facets and sort order, with naming, apply/delete, duplicate prevention, validation and a twelve-entry cap.
@@ -523,6 +579,10 @@
 
 ## Unreleased — Browser journey coverage (2026-11-02)
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Added Playwright desktop and mobile browser tests against the generated GitHub Pages static export, with external network calls blocked for repeatability.
 - Added browser coverage for locale/product navigation, keyboard search suggestions, command palette, saved-search persistence, cart drawer and simulated checkout.
@@ -533,6 +593,10 @@
 
 
 ## Unreleased — Accessibility improvements (2026-11-02)
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Added axe-core Playwright audits for the homepage, command palette and static product detail page on desktop Chromium and Pixel 7 mobile.
@@ -547,6 +611,10 @@
 
 ### Fixed
 - The Command Palette explicitly restores focus to the invoking control after dismissal, including when opened by Ctrl/⌘+K from the search field.
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Added Playwright keyboard-only checks for Tab/Shift+Tab focus containment and Escape focus restoration on desktop Chromium and Pixel 7 mobile.
@@ -568,6 +636,10 @@
 
 ## Unreleased — transaction-bound bulk session revocation (CI verified, 2026-11-02)
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Added an allow-listed `SessionRevocationReason` and `RevokeUserSessions` helper for password changes/resets, account disablement, privilege changes, administrative revocation and security rotation.
 - The helper accepts the caller's `pgx.Tx`, locks the account row to serialize against session creation, revokes all currently active sessions and appends one redacted audit event per session.
@@ -581,6 +653,10 @@
 
 ## Unreleased — atomic password changes and stale-login protection (CI verified, 2026-11-02)
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Require `CreateSession` callers to supply the password-hash snapshot they verified; the service compares it under the account row lock before issuing an opaque session.
 - Added internal `ChangePassword`, which verifies the expected old hash, stores a fresh Argon2id hash, revokes all active sessions and records a redacted password-change audit event in one transaction.
@@ -592,6 +668,10 @@
 
 
 ## Unreleased — one-time password-reset token lifecycle (CI verified, 2026-11-02)
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Reused migration 011 `auth_action_tokens` to issue digest-only, opaque password-reset tokens with a bounded lifetime and rotation of previous outstanding tokens.
@@ -606,6 +686,10 @@
 
 ## Unreleased — one-time email-verification token lifecycle (CI verified, 2026-11-02)
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Reused migration 011 `auth_action_tokens` for digest-only email-verification tokens; no new table or migration was added.
 - Added bounded issuance/rotation for pending accounts and one-time transactional activation with sibling-token revocation.
@@ -618,6 +702,10 @@
 
 
 ## Unreleased — audited administrator-role operations (CI verified, 2026-11-02)
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Added internal `GrantAdminRole` and `RevokeAdminRole` using the existing migration 011 role tables.
@@ -633,6 +721,10 @@
 
 ## Unreleased — internal seller-membership lifecycle (Backend CI and Security verified, 2026-11-02)
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Added internal seller-membership request, activation, suspension and revocation using migration 011; no additional schema migration was needed.
 - Pending requests grant no seller role. Admin activation grants seller only for an active, verified account and active vendor.
@@ -647,6 +739,10 @@
 
 ## Unreleased — deny-by-default internal authorization policy (CI verified, 2026-11-02)
 
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
+
 ### Added
 - Added a pure internal action/resource policy evaluator for customer-owned resources, seller vendor scope and administrator-only operations.
 - Require a `SessionPrincipal` resolved through the server-side session store; deny missing identity, unassigned vendor scopes and unknown actions by default.
@@ -657,6 +753,10 @@
 - Backend CI [run 41398064895](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064895), Security scans [run 41398064885](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064885) and Pages deployment [run 41398064905](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064905) passed on implementation head `c1b4b0ccfbd132ee95f8dc757a3518ff9b04899a`.
  
 ## Unreleased — transactional seller service authorization (CI verified, 2026-11-02)
+
+### Changed
+- Replaced Wallex's USDT/Toman candle feed with the requested TGJU free-market USD page. The adapter selects `price_dollar_rl`, preserves the source's Rial quote, converts it to Toman per USD, and derives freshness from TGJU's Tehran update clock. Blocked pages, CAPTCHA, schema drift, date-only timestamps and invalid prices fail closed without overwriting the last-known-good snapshot.
+- Updated the storefront, product breakdown, recently-viewed page, E2E expectations, architecture, source policy, README and handoff docs to identify TGJU accurately; removed the Tether-specific wording. The scheduled refresh remains a low-frequency direct page request and does not bypass source access controls.
 
 ### Added
 - Added a transaction-bound seller guard that rechecks active account, session, seller role, active vendor and exact active membership while holding PostgreSQL row locks.
