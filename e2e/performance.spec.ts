@@ -101,3 +101,48 @@ test("initial route stays within the static JavaScript and CSS transfer budgets"
   expect(assets.scriptRequests).toBeLessThanOrEqual(10);
   expect(assets.styleRequests).toBeLessThanOrEqual(2);
 });
+
+
+test("recently viewed page defers images and decodes them asynchronously", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.locator(".product-card h3 a").first().click();
+  await expect(page.locator(".detail-information h1")).toBeVisible();
+
+  // The product detail route records this visit in guarded browser storage.
+  await page.waitForFunction(() => {
+    try {
+      const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
+      return Array.isArray(state.recent) && state.recent.length > 0;
+    } catch {
+      return false;
+    }
+  });
+
+  // Resolve relative to the product route so the GitHub Pages /globalcart base
+  // path is preserved in CI as well as in the local development server.
+  const recentUrl = new URL("../../recently-viewed/", page.url());
+  await page.goto(recentUrl.href);
+  const historyImage = page.locator(".history-card > img").first();
+  await expect(historyImage).toBeVisible();
+  await expect(historyImage).toHaveAttribute("loading", "lazy");
+  await expect(historyImage).toHaveAttribute("decoding", "async");
+  await expect(historyImage).toHaveAttribute("alt", /.+/);
+
+  const imageBox = await historyImage.boundingBox();
+  expect(imageBox && imageBox.width > 0 && imageBox.height > 0).toBe(true);
+
+  const historyImages = await page.locator(".history-card > img").evaluateAll(images =>
+    images.map(node => {
+      const image = node as HTMLImageElement;
+      return {
+        loading: image.loading,
+        decoding: image.decoding,
+        hasAccessibleName: image.hasAttribute("alt") && image.alt.trim().length > 0
+      };
+    })
+  );
+  expect(historyImages.length).toBeGreaterThan(0);
+  expect(historyImages.filter(image => image.loading !== "lazy")).toEqual([]);
+  expect(historyImages.filter(image => image.decoding !== "async")).toEqual([]);
+  expect(historyImages.filter(image => !image.hasAccessibleName)).toEqual([]);
+});
