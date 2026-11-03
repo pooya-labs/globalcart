@@ -95,6 +95,21 @@ test("product detail prioritizes the main image and defers gallery extras", asyn
   expect(mainBox && mainBox.width > 0 && mainBox.height > 0).toBe(true);
 });
 
+test("site icon resolves under the GitHub Pages base path", async ({ page }) => {
+  const iconLink = page.locator('link[rel="icon"]').first();
+  await expect(iconLink).toHaveAttribute("href", /icon\.svg/);
+  const href = await iconLink.getAttribute("href");
+  expect(href).toBeTruthy();
+
+  const iconUrl = new URL(href!, page.url());
+  expect(iconUrl.pathname).toBe("/globalcart/icon.svg");
+
+  const response = await page.request.get(iconUrl.href);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toContain("image/svg+xml");
+  expect(await response.text()).toContain("<svg");
+});
+
 test("production fonts are self-hosted without Google Fonts requests", async ({ page }) => {
   const fontState = await page.evaluate(async () => {
     await document.fonts.ready;
