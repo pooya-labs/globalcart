@@ -2,6 +2,12 @@
 
 ## Unreleased — 2026-11-03
 
+### Verified — latest published QA recheck
+- Re-ran the six public Lighthouse audits in [run 41608446036](https://github.com/pooya16pg-spec/globalcart/actions/runs/41608446036): mobile Performance 91 (storefront), 95 (product), 98 (case study); all six modes recorded 100 Accessibility, Best Practices and SEO. This supersedes the older figures as the latest recorded run without deleting the original baseline. The results are lab data, not field Core Web Vitals.
+- Synchronized the README, roadmap, project context and AI handoff with the latest cross-browser (66/66), Pages, Security and Lighthouse results. Kept the 1.0.0 release gated by actual manual QA.
+- Reconfirmed the saved TGJU quote is stale by its source timestamp; no stale quote is presented as current and no alternative provider or hard-coded FX fallback was added.
+
+
 ### Added
 - Completed the first public Lighthouse baseline after targeted mobile and font optimizations. Latest run [41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513) measured storefront mobile Performance 87 / LCP 3.2 s / TBT 250 ms (initial baseline: 74 / 4.9 s / 320 ms); product mobile 96 and case-study mobile 99. All six lab audits recorded Accessibility 100 and SEO 100. Results are lab-only, not CrUX/field Core Web Vitals. Final 44/44 Browser E2E [41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095), Pages [41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) and Security [41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997) passed.
 - Added a post-deployment and weekly Lighthouse lab workflow for the public storefront, product and case-study pages in mobile and desktop modes. Lighthouse 13.6.0 is pinned; JSON reports are retained as a GitHub Actions artifact and a summary records category scores and lab metrics. Added an evidence-focused manual QA checklist. The workflow explicitly does not claim field Core Web Vitals or physical-device verification.

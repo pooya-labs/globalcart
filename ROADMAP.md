@@ -480,9 +480,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Audit the public storefront, representative product detail and bilingual case-study route in mobile and desktop lab modes; preserve raw JSON reports as a private GitHub Actions artifact.
 - [x] Summarize Performance, Accessibility, Best Practices, SEO, FCP, LCP, TBT and CLS without conflating lab results with field Core Web Vitals.
 - [x] Document manual physical-device, real screen-reader, comprehensive RTL/LTR and field-data acceptance steps in [PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
-- [x] Complete the first post-deployment Lighthouse run and review all six report results. Latest published lab report: [run 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513), against main snapshot `2eb11c745757f86ee9d5a3bd4d1fa8561c9e4cf1`.
+- [x] Complete the first post-deployment Lighthouse run and review all six report results: [run 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513), against main snapshot `2eb11c745757f86ee9d5a3bd4d1fa8561c9e4cf1`.
 
-**Latest recorded result (Lighthouse 13.6.0, GitHub-hosted Chromium; six published lab audits):**
+**First full baseline (Lighthouse 13.6.0, GitHub-hosted Chromium; six published lab audits):**
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -500,6 +500,25 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 **Verified code checks:** [Browser E2E run 41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095) passed 44/44 desktop/mobile tests, including mobile hero stacking, absence of external Google Fonts requests, and asset budgets. [Pages deployment 41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) passed production build and public-route smoke; [Security 41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997) passed.
 
 **Boundary:** Lighthouse desktop/mobile presets are lab emulation. They do not close physical-device, actual screen-reader or CrUX/field-data release gates. No third-party reporting server, API key or production secret is required.
+
+
+
+### M08.15 follow-up — latest published repeat measurement (verified, 2026-11-03)
+
+- [x] Re-run all six published Lighthouse route/mode audits after the cross-browser accessibility changes and final documentation synchronization.
+- [x] Review the job summary and all six raw reports in [run 41608446036](https://github.com/pooya16pg-spec/globalcart/actions/runs/41608446036); the workflow completed successfully.
+- [x] Record the current results in `docs/PERFORMANCE_QA.md` and synchronize the README, handoff and continuation checkpoint without overwriting the original baseline.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.8 s | 10 ms | 0 |
+| Storefront — mobile | 91 | 100 | 100 | 100 | 1.3 s | 3.3 s | 150 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.7 s | 10 ms | 0 |
+| Product 1 — mobile | 95 | 100 | 100 | 100 | 0.9 s | 2.9 s | 90 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 98 | 100 | 100 | 100 | 1.0 s | 1.0 s | 150 ms | 0 |
+
+**Interpretation:** all six audits recorded 100 Accessibility, Best Practices and SEO. Mobile Performance measured 91 / 95 / 98 for the storefront, product and case study. These are repeatable lab diagnostics only; run-to-run score and timing variation is expected. The homepage mobile LCP remains the hero image, with element-render delay the largest LCP subpart. This follow-up does not close the physical-device, screen-reader, complete manual RTL/LTR or field-delivery release gates.
 
 ## M09 — Portfolio release
 - [x] Persian and English case study (M09.1; automated desktop/mobile RTL/LTR and axe checks passed).

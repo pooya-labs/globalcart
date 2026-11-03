@@ -33,7 +33,7 @@ Each route is audited in Lighthouse's default mobile mode and its desktop preset
 
 The first baseline identified a mobile storefront bottleneck. The subsequent changes restored a single-column hero at mobile widths, added responsive image candidates, delayed the optional catalog revalidation until the browser is idle, and moved DM Sans/Vazirmatn to self-hosted `next/font` assets. Google Fonts render-blocking CSS was removed.
 
-**Latest full run:** [Lighthouse 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513), Lighthouse 13.6.0, public Pages routes, GitHub-hosted runner. Download the raw six-report artifact from the run's Artifacts section.
+**Initial full run:** [Lighthouse 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513), Lighthouse 13.6.0, public Pages routes, GitHub-hosted runner. The most recent follow-up measurement is recorded below.
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -44,9 +44,26 @@ The first baseline identified a mobile storefront bottleneck. The subsequent cha
 | Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
 | Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 140 ms | 0 |
 
-The initial storefront mobile audit (run 41601101775) recorded Performance 74, LCP 4.9 s and TBT 320 ms. The latest run records 87, 3.2 s and 250 ms respectively. The 1.7 s LCP reduction is approximately 35%; these remain lab comparisons, not field measurements.
+The initial storefront mobile audit (run 41601101775) recorded Performance 74, LCP 4.9 s and TBT 320 ms. The first full baseline above (run 41604368513) recorded 87, 3.2 s and 250 ms respectively, a 1.7 s (about 35%) lab LCP reduction. A later repeat measurement is listed below; repeated lab runs can vary and are not field measurements.
 
 The final relevant CI set is [Browser E2E 41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095) (44/44 tests), [Pages 41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) (production build and public-route smoke), and [Security 41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997).
+
+
+
+### Latest follow-up audit — 2026-11-03
+
+**Run:** [Public Lighthouse 41608446036](https://github.com/pooya16pg-spec/globalcart/actions/runs/41608446036) · Lighthouse 13.6.0 · GitHub-hosted Chromium · public GitHub Pages routes. The run completed successfully and saved six raw JSON reports in the [globalcart-public-lighthouse artifact](https://github.com/pooya16pg-spec/globalcart/actions/runs/41608446036).
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.8 s | 10 ms | 0 |
+| Storefront — mobile | 91 | 100 | 100 | 100 | 1.3 s | 3.3 s | 150 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.7 s | 10 ms | 0 |
+| Product 1 — mobile | 95 | 100 | 100 | 100 | 0.9 s | 2.9 s | 90 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 98 | 100 | 100 | 100 | 1.0 s | 1.0 s | 150 ms | 0 |
+
+The repeat audit confirms 100 Accessibility, Best Practices and SEO across all six route/mode combinations. Mobile Performance is 91 for the storefront, 95 for product detail and 98 for the case study. Compared with the preceding run, individual mobile figures fluctuate slightly; do not treat a single lab run as field data or infer a real-user regression from the score alone. The homepage mobile LCP remains the hero image and its render delay is the dominant LCP subpart in this run. This is a measurement checkpoint, not a claim that manual release QA is complete.
 
 ## Manual release checklist — fill with actual observations
 
