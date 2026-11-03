@@ -2,6 +2,13 @@
 
 ## Unreleased — 2026-11-03
 
+### Verified — latest six-route Lighthouse on canonical Pages
+
+- Lighthouse [41620637413](https://github.com/pooya-labs/globalcart/actions/runs/41620637413) passed all six audits on the renamed Pages host. Mobile Performance: home 93 / LCP 3.2 s / TBT 80 ms, product 95 / LCP 2.9 s / TBT 50 ms, case study 99 / LCP 0.9 s / TBT 100 ms. Desktop Performance is 100 across all routes; Accessibility, Best Practices and SEO are 100 in all six modes.
+- Raw diagnostics identify the homepage hero and product main image as LCP elements. Both are immediately discoverable, eager and high-priority; the homepage hero's request-load delay is ~11 ms and resource-load duration ~238 ms in this run. No extra preload or unsupported image URL transformation was added.
+- These are repeatable GitHub-hosted lab results, not field Core Web Vitals. Manual physical-device, platform screen-reader, whole-site RTL/LTR and normal-network release QA remains open.
+
+
 ### Verified — account rename, TGJU changed-quote relay and new Pages host
 
 - Latest post-documentation Lighthouse [41619642994](https://github.com/pooya-labs/globalcart/actions/runs/41619642994) succeeded on the new host: mobile Performance home 94 (LCP 3.0 s / TBT 90 ms), product 99 (2.3 s / 60 ms), case study 100 (0.9 s / 90 ms); desktop Performance 100 on all three routes. All six Accessibility, Best Practices and SEO scores are 100. Lab only.
