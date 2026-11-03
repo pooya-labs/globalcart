@@ -95,6 +95,20 @@ test("product detail prioritizes the main image and defers gallery extras", asyn
   expect(mainBox && mainBox.width > 0 && mainBox.height > 0).toBe(true);
 });
 
+test("production fonts are served locally without render-blocking Google Fonts requests", async ({ page }) => {
+  const fontResources = await page.evaluate(() =>
+    (performance.getEntriesByType("resource") as PerformanceResourceTiming[])
+      .filter(entry => /\\.(?:woff2?|ttf|otf)(?:[?#]|$)/i.test(new URL(entry.name).pathname))
+      .map(entry => ({ origin: new URL(entry.name).origin, path: new URL(entry.name).pathname }))
+  );
+  expect(fontResources.length).toBeGreaterThan(0);
+  expect(fontResources.every(resource => resource.origin === location.origin)).toBe(true);
+  expect(fontResources.every(resource => resource.path.includes("/_next/static/media/"))).toBe(true);
+  expect(await page.evaluate(() =>
+    performance.getEntriesByType("resource").some(entry => new URL(entry.name).origin === "https://fonts.googleapis.com" || new URL(entry.name).origin === "https://fonts.gstatic.com")
+  )).toBe(false);
+});
+
 test("initial route stays within the static JavaScript and CSS transfer budgets", async ({ page }) => {
   const assets = await page.evaluate(() => {
     const entries = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
