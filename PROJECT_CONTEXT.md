@@ -963,3 +963,18 @@ https://github.com/pooya-labs/globalcart/actions/runs/41299677941
 - M09.4 is still blocked on actual owner evidence: physical desktop and phone, real platform screen-reader, comprehensive manual Persian RTL/English LTR, and normal-network/published delivery plus eligible field metrics. Automation cannot supply these observations. Keep `0.2.3-dev`; do not tag `1.0.0`.
 - Do not repeat M06.1–M06.6, M09.1–M09.3, TGJU parsing/publication relay, ERD, screenshot publishing or completed app features. Translation remains paused; production database/API, public seller/admin routes, real payments and fulfillment remain disabled.
 
+
+
+
+## Latest continuation checkpoint — 76/76 Browser E2E and canonical Pages verification (2026-11-03)
+
+- Canonical repo/site: `pooya-labs/globalcart` / `https://pooya-labs.github.io/globalcart/`; continue on `main`. At the start of this checkpoint main was `05e6de8d915b03a4803ba266604be71619984e0a`; its only difference from the tested parent `2df4c724fb25a50ea82ba10e6b9394c898e21fe2` is the bot-generated `data/catalog.json` snapshot. No application code changed after the browser test.
+- Added `e2e/locale-regression.spec.ts` in [commit 2df4c72](https://github.com/pooya-labs/globalcart/commit/2df4c724fb25a50ea82ba10e6b9394c898e21fe2). It verifies Persian RTL and English LTR preference persistence across storefront, product, recently-viewed and case-study route transitions, reloads, and document horizontal-overflow checks.
+- [Browser E2E 41635693445](https://github.com/pooya-labs/globalcart/actions/runs/41635693445) passed **76/76** in 2.4 minutes: Chromium desktop/mobile, Firefox accessibility and WebKit accessibility. The newly added test passed in Chromium desktop and mobile. TypeScript, unit tests and static production build also passed before Playwright execution; the HTML report and screenshots are retained in the workflow artifact.
+- Security [41635693431](https://github.com/pooya-labs/globalcart/actions/runs/41635693431) passed. Pages build/deploy and public smoke for homepage, Next.js assets, product deep link and bilingual case study [41635694057](https://github.com/pooya-labs/globalcart/actions/runs/41635694057) passed.
+- Latest public Lighthouse [41635876534](https://github.com/pooya-labs/globalcart/actions/runs/41635876534) passed all six audits. Mobile Performance: home 91 / LCP 3.3 s / TBT 90 ms; product 97 / 2.6 s / 60 ms; case study 99 / 1.0 s / 110 ms. Desktop Performance 100 on all three routes; Accessibility, Best Practices and SEO 100 across all six; CLS 0 throughout. These are GitHub-hosted simulated lab results, not field Core Web Vitals.
+- Latest backend verification remains [Backend CI 41632402711](https://github.com/pooya-labs/globalcart/actions/runs/41632402711): canonical Go module guard, uncached race-enabled Go suite, PostgreSQL logical backup/restore comparison and API/importer/container builds all passed. No backend source changes followed that run.
+- No open PRs or issues were found at this checkpoint. Leave the highly divergent legacy `feat/m04-go-postgres-foundation` branch untouched. Do not repeat completed backend foundation, TGJU publication relay, ERD or portfolio screenshot work.
+- M09.4 is not closed: real physical desktop/phone inspection, actual platform screen-reader use, comprehensive human RTL/LTR review and normal-network/field-delivery evidence still require real-world owner observations. CI and simulated Lighthouse cannot supply these. Keep `0.2.3-dev`; do not tag `1.0.0`.
+- Translation remains paused. Production database/API hosting, public seller/admin routes, real payment and fulfillment remain disabled.
+

@@ -50,7 +50,7 @@ Boundaries and remaining work:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
-- Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key interactive dialogs. The latest Browser E2E passed **74/74** in [run 41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) across Chromium desktop/mobile, Firefox and WebKit; coverage also verifies canonical public GitHub links and case-study metadata.
+- Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key interactive dialogs. The latest Browser E2E passed **76/76** in [run 41635693445](https://github.com/pooya-labs/globalcart/actions/runs/41635693445) across Chromium desktop/mobile, Firefox and WebKit. The new route-round-trip regression verifies persistent Persian RTL / English LTR settings and no horizontal overflow across the public routes.
 - Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
 
 
@@ -108,7 +108,7 @@ npm run build
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system boundaries and data flow.
 - [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md) — migration-derived PostgreSQL ERD covering all 27 tables and key constraints.
 - [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md) — public Lighthouse lab baseline, methodology and manual 1.0 release checklist.
-- Latest published Lighthouse [41633195411](https://github.com/pooya-labs/globalcart/actions/runs/41633195411): mobile storefront Performance 94 / LCP 2.8 s / TBT 140 ms; product 96 / 2.6 s / 80 ms; case study 99 / 0.9 s / 120 ms. Desktop Performance is 100 on all three routes; Accessibility, Best Practices and SEO are 100 in all six audits; CLS is 0 throughout. GitHub-hosted lab results only, not field Core Web Vitals. Full methodology and six-route table: [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
+- Latest published Lighthouse [41635876534](https://github.com/pooya-labs/globalcart/actions/runs/41635876534): mobile storefront Performance 91 / LCP 3.3 s / TBT 90 ms; product 97 / 2.6 s / 60 ms; case study 99 / 1.0 s / 110 ms. Desktop Performance is 100 on all three routes; Accessibility, Best Practices and SEO are 100 in all six audits; CLS is 0 throughout. GitHub-hosted lab results only, not field Core Web Vitals. Full methodology and six-route table: [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
 - [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) — verification and semantic versioning.

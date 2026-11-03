@@ -251,6 +251,27 @@ All six reports have no Lighthouse run warnings; Accessibility, Best Practices a
 
 **Interpretation:** this is a single GitHub-hosted lab sample using simulated mobile and desktop presets. TBT is not field INP, and these reports are not CrUX or real-user Core Web Vitals. The run does not satisfy normal-network delivery, physical-device, real screen-reader or comprehensive manual RTL/LTR QA.
 
+### Latest published canonical Pages audit — 2026-11-03 (run 41635876534)
+
+**Run:** [Public Lighthouse 41635876534](https://github.com/pooya-labs/globalcart/actions/runs/41635876534) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · `https://pooya-labs.github.io/globalcart/`. All six route/mode audits completed successfully and the raw JSON reports were retained in the `globalcart-public-lighthouse` artifact.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.8 s | 0 ms | 0 |
+| Storefront — mobile | 91 | 100 | 100 | 100 | 1.3 s | 3.3 s | 90 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
+| Product 1 — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.6 s | 60 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.4 s | 0 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 1.0 s | 1.0 s | 110 ms | 0 |
+
+All six audits have 100 Accessibility, Best Practices and SEO. Desktop Performance is 100 across all three routes; mobile Performance is 91 / 97 / 99. CLS is zero in all six reports. Compared with run [41634141523](https://github.com/pooya-labs/globalcart/actions/runs/41634141523), this repeat measured home 90→91, product 94→97 and case study 97→99 on mobile. Treat that as a lab observation only: runner and network variability prevent a claim of sustained user-experienced improvement.
+
+**LCP and asset interpretation:** the home hero remains the mobile LCP element (3.3 s); its request is discoverable in initial HTML, eagerly loaded and marked `fetchpriority="high"`. The product main image has the same eager/high-priority policy. Lighthouse continues to flag image payload sizing, cache lifetime and render-blocking CSS/JavaScript opportunities. Do not invent unsupported DummyJSON image-resize parameters or add an unverified third-party proxy; a source-supported image derivative/transform contract is still required before changing those URLs.
+
+**Browser verification on the same application revision:** [Browser E2E 41635693445](https://github.com/pooya-labs/globalcart/actions/runs/41635693445) passed **76/76** in 2.4 minutes across Chromium desktop/mobile, Firefox and WebKit. The new `e2e/locale-regression.spec.ts` test passed on Chromium desktop and mobile, checking persisted Persian RTL / English LTR transitions across storefront, product, recently viewed and case-study routes, with a no-horizontal-overflow assertion at each step. The E2E run used commit `2df4c724`; the following bot commit `05e6de8` changed only the generated catalog snapshot.
+
+**Limits:** this Lighthouse run used simulated mobile/desktop profiles on a GitHub-hosted runner. TBT is not field INP, and none of these values are CrUX/real-user Core Web Vitals. Automated axe and Playwright checks do not replace a physical-device walkthrough, actual platform screen-reader use, complete human RTL/LTR review or normal-network/field evidence. M09.4 remains open.
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.
