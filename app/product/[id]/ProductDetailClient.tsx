@@ -62,7 +62,7 @@ export default function ProductDetailClient({product,related}:Props) {
   const discounted=product.price*(1-product.discountPercentage/100);
   const priceBreakdown=rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
-  const fxTimestampLabel=fxSnapshot.sourceUpdatedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.sourceUpdatedAt)):null;
+  const fxTimestampLabel=fxSnapshot.sourceUpdatedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt)):null;
   useEffect(()=>{
     const savedLocale=readLocalePreference();
     if(savedLocale)setLocale(savedLocale);

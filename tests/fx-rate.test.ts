@@ -47,11 +47,14 @@ test("rejects missing, malformed and implausible Rial prices", () => {
   assert.throws(() => normalizeTgjuDollarPage(fixture("100,000,001"), NOW), /supported Rial range/);
   assert.throws(() => normalizeTgjuDollarPage(fixture("1.25"), NOW), /whole-number Rial quote/);
 });
-test("rejects date-only, malformed and future source times", () => {
+test("rejects date-only or malformed source times and safely ages a future time-only clock", () => {
   assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "۲۵ آبان"), NOW), /live HH:mm:ss/);
   assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "not-a-time"), NOW), /live HH:mm:ss/);
   assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "12:49"), NOW), /live HH:mm:ss/);
-  assert.throws(() => normalizeTgjuDollarPage(fixture("1,864,000", "12:51:00"), NOW), /implausibly in the future/);
+  const futureClock = normalizeTgjuDollarPage(fixture("1,864,000", "12:51:00"), NOW);
+  assert.equal(futureClock.sourceTimeTehran, "12:51:00");
+  assert.equal(futureClock.sourceUpdatedAt, new Date(Date.parse("2026-11-02T09:21:00.000Z")).toISOString());
+  assert.equal(getFxRateStatus(futureClock, NOW), "stale");
   assert.throws(() => normalizeTgjuDollarPage(fixture(), Number.NaN), /finite timestamp/);
 });
 test("classifies freshness from TGJU source update time", () => {

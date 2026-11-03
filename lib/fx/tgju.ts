@@ -66,14 +66,14 @@ function parseTehranTime(value: string, now: number): { time: string; timestamp:
   const year = Number(part("year")), month = Number(part("month")), day = Number(part("day"));
   let timestamp = Date.UTC(year, month - 1, day, Number(match[1]), Number(match[2]), Number(match[3]))
     - TEHRAN_UTC_OFFSET_MINUTES * 60_000;
-  if (timestamp > now + MAX_FUTURE_SKEW_MS) {
-    if (timestamp - now > 12 * 60 * 60 * 1000) timestamp -= 24 * 60 * 60 * 1000;
-    else { const localClock = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Tehran", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(new Date(now)); throw new RangeError("TGJU source time " + normalized + " is ahead of Tehran clock " + localClock + " (UTC now " + new Date(now).toISOString() + ")"); }
-  }
+  // TGJU exposes a time-of-day but no calendar date. Interpret a clock later
+  // than the current Tehran clock as the most recent prior occurrence, never
+  // as a future quote. This intentionally makes closed-market values stale.
+  if (timestamp > now + MAX_FUTURE_SKEW_MS) timestamp -= 24 * 60 * 60 * 1000;
   if (timestamp > now + MAX_FUTURE_SKEW_MS) throw new RangeError("TGJU source time is implausibly in the future");
   return { time: normalized, timestamp: new Date(timestamp).toISOString() };
 }
-/** TGJU publishes price_dollar_rl in Rial. This adapter converts it to Toman and uses the source's Tehran clock. */
+/** TGJU publishes price_dollar_rl in Rial. This adapter converts it to Toman and uses the latest non-future occurrence of its time-only Tehran clock. */
 export function normalizeTgjuDollarPage(input: unknown, now = Date.now()): FxRateSnapshot {
   if (typeof input !== "string" || input.length < 100) throw new TypeError("TGJU response is not a complete HTML page");
   if (!Number.isFinite(now)) throw new RangeError("now must be a finite timestamp");

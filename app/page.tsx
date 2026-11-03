@@ -216,7 +216,7 @@ export default function Home() {
   const t=copy[locale];
   const rtl=locale==="fa";
   const fxTimestampLabel = fxSnapshot.sourceUpdatedAt
-    ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(fxSnapshot.sourceUpdatedAt))
+    ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt))
     : null;
   const fxStatusLabel = fxStatus==="fresh"?t.fxFresh:fxStatus==="aging"?t.fxAging:fxStatus==="stale"?t.fxStale:t.fxUnavailable;
 
