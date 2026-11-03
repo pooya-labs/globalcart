@@ -113,7 +113,7 @@ export default function CaseStudyPage() {
             <a href="https://github.com/pooya16pg-spec/globalcart" target="_blank" rel="noreferrer" className="cs-secondary">{t.github}<ArrowUpRight size={15}/></a>
           </div>
         </div>
-        <div className="cs-hero-art" aria-label="GlobalCart product architecture illustration">
+        <div className="cs-hero-art" role="img" aria-label="GlobalCart product architecture illustration">
           <div className="cs-art-orbit orbit-one"/><div className="cs-art-orbit orbit-two"/>
           <div className="cs-art-core"><span>g.</span><b>GLOBALCART</b><small>DISCOVER · COMPARE · CHOOSE</small></div>
           <div className="cs-art-chip chip-a">RTL ↔ LTR</div><div className="cs-art-chip chip-b">DATA → UX</div><div className="cs-art-chip chip-c">DEMO / SAFE</div>
