@@ -182,3 +182,163 @@ func TestSellerVendorOperationsUseCanonicalOfferScopeAndCurrentSession(t *testin
 		t.Fatal("fixture vendors unexpectedly share an ID")
 	}
 }
+
+
+func TestSellerProductListIsBoundedFilteredAndVendorScoped(t *testing.T) {
+	pool, ctx := openAuthorizedVendorIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	baseID := time.Now().UnixNano()%8000000000000000000 + 1000000000000000000
+	now := time.Now().UTC()
+	products := []catalog.Product{
+		{
+			ID: baseID, Title: "Seller Product Alpha", Description: "Alpha catalog description",
+			Category: "seller-workqueue-fixture", Price: 12.50, Rating: 4.4, Stock: 8,
+			Brand: "Source Brand", Images: []string{"https://example.invalid/seller-alpha.webp"},
+			Source: "seller-workqueue-fixture", SourceID: fmt.Sprintf("seller-alpha-%d", baseID), ImportedAt: now,
+		},
+		{
+			ID: baseID + 1, Title: "Seller Product Beta", Description: "Beta catalog description",
+			Category: "seller-workqueue-fixture", Price: 9.99, Rating: 4.6, Stock: 5,
+			Brand: "Source Brand", Images: []string{"https://example.invalid/seller-beta.webp"},
+			Source: "seller-workqueue-fixture", SourceID: fmt.Sprintf("seller-beta-%d", baseID), ImportedAt: now.Add(time.Second),
+		},
+		{
+			ID: baseID + 2, Title: "Foreign Seller Product", Description: "Foreign catalog description",
+			Category: "seller-workqueue-fixture", Price: 19.99, Rating: 4.2, Stock: 3,
+			Brand: "Foreign Brand", Images: []string{"https://example.invalid/seller-foreign.webp"},
+			Source: "seller-workqueue-fixture", SourceID: fmt.Sprintf("seller-foreign-%d", baseID), ImportedAt: now.Add(2 * time.Second),
+		},
+	}
+	if err := database.UpsertProducts(ctx, pool, products); err != nil {
+		t.Fatalf("insert seller product fixtures: %v", err)
+	}
+
+	svc := commerce.New(pool)
+	adminID := createAuthorizedVendorUser(t, ctx, pool, suffix+"-admin")
+	sellerID := createAuthorizedVendorUser(t, ctx, pool, suffix+"-seller")
+	customerID := createAuthorizedVendorUser(t, ctx, pool, suffix+"-customer")
+	if _, err := pool.Exec(ctx,
+		"INSERT INTO user_roles(user_id,role_key) VALUES($1,'admin')", adminID,
+	); err != nil {
+		t.Fatalf("grant admin fixture role: %v", err)
+	}
+
+	vendor, alphaOffer := createAuthorizedVendorOffer(t, ctx, pool, svc, products[0].ID, suffix+"-owned")
+	betaOffer, err := svc.UpsertVendorProduct(ctx, commerce.VendorProduct{
+		VendorID: vendor.ID, ProductID: products[1].ID,
+		Price: "9.99", Currency: "USD", Stock: 5, Status: "draft",
+	})
+	if err != nil {
+		t.Fatalf("create second seller offer: %v", err)
+	}
+	foreignVendor, _ := createAuthorizedVendorOffer(t, ctx, pool, svc, products[2].ID, suffix+"-foreign")
+
+	editorialTitle := "Curated Seller Product Beta"
+	if _, err := pool.Exec(ctx,
+		"INSERT INTO admin_product_overrides(product_id,title_override,created_by_user_id,updated_by_user_id) VALUES($1,$2,$3,$3)",
+		products[1].ID, editorialTitle, adminID,
+	); err != nil {
+		t.Fatalf("add fixture editorial title: %v", err)
+	}
+
+	membership, err := auth.RequestSellerMembership(ctx, pool, sellerID, vendor.ID)
+	if err != nil {
+		t.Fatalf("request seller membership: %v", err)
+	}
+	if _, err := auth.ActivateSellerMembership(ctx, pool, adminID, membership.ID); err != nil {
+		t.Fatalf("activate seller membership: %v", err)
+	}
+	issued, err := auth.CreateSession(ctx, pool, sellerID, sellerIntegrationPasswordHash)
+	if err != nil {
+		t.Fatalf("create seller session: %v", err)
+	}
+	principal, err := auth.ResolveSession(ctx, pool, issued.SessionToken)
+	if err != nil {
+		t.Fatalf("resolve seller session: %v", err)
+	}
+
+	all, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{
+		SortBy: "price", SortOrder: "asc",
+	})
+	if err != nil {
+		t.Fatalf("list seller products: %v", err)
+	}
+	if all.Total != 2 || len(all.Items) != 2 || all.Limit != 20 || all.Offset != 0 {
+		t.Fatalf("default seller page total/items/limit/offset = %d/%d/%d/%d, want 2/2/20/0",
+			all.Total, len(all.Items), all.Limit, all.Offset)
+	}
+	if all.Items[0].OfferID != betaOffer.ID || all.Items[0].Title != editorialTitle ||
+		all.Items[0].CatalogVisibility != "active" || all.Items[0].VendorID != vendor.ID {
+		t.Fatalf("first price-sorted seller offer = %+v", all.Items[0])
+	}
+	if all.Items[1].OfferID != alphaOffer.ID || all.Items[1].VendorID != vendor.ID {
+		t.Fatalf("second seller offer = %+v", all.Items[1])
+	}
+
+	search, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{
+		Query: "  curated seller product beta  ", Status: "draft", Category: "seller-workqueue",
+		Source: "SELLER-WORKQUEUE-FIXTURE",
+	})
+	if err != nil {
+		t.Fatalf("search effective seller product values: %v", err)
+	}
+	if search.Total != 1 || len(search.Items) != 1 ||
+		search.Items[0].OfferID != betaOffer.ID || search.Items[0].Title != editorialTitle {
+		t.Fatalf("effective-title filtered seller page = %+v", search)
+	}
+
+	active, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{Status: "active"})
+	if err != nil {
+		t.Fatalf("filter active offers: %v", err)
+	}
+	draft, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{Status: "draft"})
+	if err != nil {
+		t.Fatalf("filter draft offers: %v", err)
+	}
+	if active.Total != 1 || active.Items[0].OfferID != alphaOffer.ID ||
+		draft.Total != 1 || draft.Items[0].OfferID != betaOffer.ID {
+		t.Fatalf("active/draft totals = %d/%d, want 1/1", active.Total, draft.Total)
+	}
+
+	secondPage, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{
+		SortBy: "price", SortOrder: "asc", Limit: 1, Offset: 1,
+	})
+	if err != nil {
+		t.Fatalf("read second seller page: %v", err)
+	}
+	if secondPage.Total != 2 || len(secondPage.Items) != 1 || secondPage.Items[0].OfferID != alphaOffer.ID {
+		t.Fatalf("second seller page = %+v", secondPage)
+	}
+
+	if _, err := svc.ListSellerProductsForSeller(ctx, principal, foreignVendor.ID, commerce.SellerProductListInput{}); !errors.Is(err, auth.ErrForbidden) {
+		t.Fatalf("foreign vendor list error = %v, want auth.ErrForbidden", err)
+	}
+	customerSession, err := auth.CreateSession(ctx, pool, customerID, sellerIntegrationPasswordHash)
+	if err != nil {
+		t.Fatalf("create customer session: %v", err)
+	}
+	customerPrincipal, err := auth.ResolveSession(ctx, pool, customerSession.SessionToken)
+	if err != nil {
+		t.Fatalf("resolve customer session: %v", err)
+	}
+	if _, err := svc.ListSellerProductsForSeller(ctx, customerPrincipal, vendor.ID, commerce.SellerProductListInput{}); !errors.Is(err, auth.ErrForbidden) {
+		t.Fatalf("customer seller-list error = %v, want auth.ErrForbidden", err)
+	}
+
+	if _, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{Limit: 101}); !errors.Is(err, commerce.ErrInvalidSellerProductListInput) {
+		t.Fatalf("oversized page error = %v, want ErrInvalidSellerProductListInput", err)
+	}
+	if _, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{Query: "invalid\x00filter"}); !errors.Is(err, commerce.ErrInvalidSellerProductListInput) {
+		t.Fatalf("NUL search error = %v, want ErrInvalidSellerProductListInput", err)
+	}
+	if _, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{SortBy: "title; DROP TABLE products"}); !errors.Is(err, commerce.ErrInvalidSellerProductListInput) {
+		t.Fatalf("unsupported sort error = %v, want ErrInvalidSellerProductListInput", err)
+	}
+
+	if _, err := auth.RevokeSellerMembership(ctx, pool, adminID, membership.ID); err != nil {
+		t.Fatalf("revoke seller membership: %v", err)
+	}
+	if _, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{}); !errors.Is(err, auth.ErrInvalidSession) {
+		t.Fatalf("stale seller principal list error = %v, want auth.ErrInvalidSession", err)
+	}
+}
