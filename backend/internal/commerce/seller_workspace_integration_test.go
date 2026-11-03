@@ -22,10 +22,10 @@ func TestSellerWorkspaceProfileAndDemoAnalyticsAreVendorScoped(t *testing.T) {
 	product := catalog.Product{
 		ID: productID, Title: "Seller workspace analytics fixture",
 		Description: "Internal seller workspace integration fixture",
-		Category: "seller-workspace-fixture", Price: 12.50, Rating: 4.6, Stock: 10,
-		Images: []string{"https://example.invalid/seller-workspace.webp"},
-		Source: "seller-workspace-integration",
-		SourceID: fmt.Sprintf("seller-workspace-%d", productID),
+		Category:    "seller-workspace-fixture", Price: 12.50, Rating: 4.6, Stock: 10,
+		Images:     []string{"https://example.invalid/seller-workspace.webp"},
+		Source:     "seller-workspace-integration",
+		SourceID:   fmt.Sprintf("seller-workspace-%d", productID),
 		ImportedAt: now,
 	}
 	if err := database.UpsertProducts(ctx, pool, []catalog.Product{product}); err != nil {
@@ -94,7 +94,7 @@ func TestSellerWorkspaceProfileAndDemoAnalyticsAreVendorScoped(t *testing.T) {
 	updatedName := "Seller Studio " + suffix
 	updatedProfile, err := svc.UpdateSellerVendorProfileForSeller(ctx, principal, vendor.ID, commerce.SellerProfileUpdateInput{
 		ExpectedUpdatedAt: workspace.Profile.UpdatedAt,
-		DisplayName: updatedName,
+		DisplayName:       updatedName,
 	})
 	if err != nil {
 		t.Fatalf("update seller display name: %v", err)
@@ -105,13 +105,13 @@ func TestSellerWorkspaceProfileAndDemoAnalyticsAreVendorScoped(t *testing.T) {
 	}
 	if _, err := svc.UpdateSellerVendorProfileForSeller(ctx, principal, vendor.ID, commerce.SellerProfileUpdateInput{
 		ExpectedUpdatedAt: workspace.Profile.UpdatedAt,
-		DisplayName: "Stale name " + suffix,
+		DisplayName:       "Stale name " + suffix,
 	}); !errors.Is(err, commerce.ErrSellerProfileRevisionConflict) {
 		t.Fatalf("stale seller profile update error = %v, want revision conflict", err)
 	}
 	if _, err := svc.UpdateSellerVendorProfileForSeller(ctx, principal, vendor.ID, commerce.SellerProfileUpdateInput{
 		ExpectedUpdatedAt: updatedProfile.UpdatedAt,
-		DisplayName: updatedName,
+		DisplayName:       updatedName,
 	}); !errors.Is(err, commerce.ErrSellerProfileNoChanges) {
 		t.Fatalf("unchanged seller profile update error = %v, want no changes", err)
 	}
@@ -168,7 +168,7 @@ func TestSellerWorkspaceProfileAndDemoAnalyticsAreVendorScoped(t *testing.T) {
 	}
 	if _, err := svc.UpdateSellerVendorProfileForSeller(ctx, principal, vendor.ID, commerce.SellerProfileUpdateInput{
 		ExpectedUpdatedAt: updatedProfile.UpdatedAt,
-		DisplayName: "After revocation",
+		DisplayName:       "After revocation",
 	}); !errors.Is(err, auth.ErrInvalidSession) {
 		t.Fatalf("revoked membership profile update error = %v, want auth.ErrInvalidSession", err)
 	}
