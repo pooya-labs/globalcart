@@ -241,3 +241,36 @@ test("recently viewed page defers images and decodes them asynchronously", async
   expect(historyImages.filter(image => image.decoding !== "async")).toEqual([]);
   expect(historyImages.filter(image => !image.hasAccessibleName)).toEqual([]);
 });
+
+
+test("tablet viewport fits the storefront, product and case-study routes without horizontal overflow", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes("tablet"), "Tablet-only responsive regression check.");
+
+  const assertNoHorizontalOverflow = async (routeName: string) => {
+    const dimensions = await page.evaluate(() => ({
+      viewportWidth: document.documentElement.clientWidth,
+      documentWidth: document.documentElement.scrollWidth,
+      bodyWidth: document.body.scrollWidth
+    }));
+    expect(dimensions.viewportWidth).toBeGreaterThanOrEqual(768);
+    expect(
+      Math.max(dimensions.documentWidth, dimensions.bodyWidth),
+      `${routeName} overflows the tablet viewport: ${JSON.stringify(dimensions)}`
+    ).toBeLessThanOrEqual(dimensions.viewportWidth);
+  };
+
+  await expect(page.locator("main.store")).toBeVisible();
+  await assertNoHorizontalOverflow("Storefront");
+
+  const productResponse = await page.goto("./product/1/");
+  expect(productResponse?.status()).toBe(200);
+  await expect(page.locator("main.product-page")).toBeVisible();
+  await expect(page.locator(".detail-information h1")).toBeVisible();
+  await assertNoHorizontalOverflow("Product detail");
+
+  const caseStudyResponse = await page.goto("./case-study/");
+  expect(caseStudyResponse?.status()).toBe(200);
+  await expect(page.locator("main.case-study")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await assertNoHorizontalOverflow("Case study");
+});
