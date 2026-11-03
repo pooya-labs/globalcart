@@ -1,8 +1,8 @@
 name: Sync TGJU FX snapshot
 on:
   schedule:
-    # Avoid minute zero, when GitHub Actions scheduled events are most likely to be delayed.
-    - cron: "2-59/5 * * * *"
+    # Five-minute cadence, offset from the hour boundary; GitHub schedules are best-effort.
+    - cron: "3-59/5 * * * *"
   push:
     branches: [main]
     paths:
