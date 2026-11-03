@@ -24,6 +24,15 @@ const content = {
     ],
     architectureTitle: "معماری امروز، نه معماری خیالی",
     architectureIntro: "مسیر عمومی روی GitHub Pages یک خروجی ایستا است. Go و PostgreSQL در محیط توسعه و CI اعتبارسنجی می‌شوند؛ سرویس‌های مدیریتی و فروشنده هنوز endpoint عمومی ندارند.",
+    databaseTitle: "مدل داده و روابط پایگاه‌داده",
+    databaseIntro: "مدل ERD بر اساس ۱۵ مهاجرت نسخه‌بندی‌شده PostgreSQL استخراج شده است: ۲۷ جدول در چهار حوزه، همراه با روابط کلید خارجی و محدودیت‌های مهم.",
+    databaseGroups: [
+      ["07", "کاتالوگ و بازارگاه", "products · categories · variants · vendors · offers"],
+      ["10", "تجارت نمایشی", "carts · orders · reservations · coupons · returns"],
+      ["07", "هویت و دسترسی", "users · roles · seller memberships · sessions"],
+      ["03", "مدیریت و تاریخچه", "admin overrides · product revisions · seller revisions"]
+    ],
+    databaseLink: "مشاهده نمودار کامل ERD در GitHub",
     source: "منابع و ورودی‌ها", normalize: "نرمال‌سازی و اعتبارسنجی", snapshot: "کاتالوگ ایستا", storefront: "ویترین Next.js", local: "وضعیت محلی مرورگر",
     backend: "Go REST + PostgreSQL 17", backendNote: "زیرساخت محلی؛ API فقط خواندنی و سرویس‌های داخلی",
     ci: "GitHub Actions", ciNote: "تست، اسکن امنیتی، ساخت و انتشار Pages",
@@ -59,6 +68,15 @@ const content = {
     ],
     architectureTitle: "The architecture that exists—not an imaginary one",
     architectureIntro: "The public experience is a static GitHub Pages export. Go and PostgreSQL are validated in local development and CI; admin and seller services do not expose public HTTP routes.",
+    databaseTitle: "Database model and relationships",
+    databaseIntro: "The ERD is derived from the 15 versioned PostgreSQL migrations: 27 tables across four domains, including declared foreign keys and key integrity rules.",
+    databaseGroups: [
+      ["07", "Catalog & marketplace", "products · categories · variants · vendors · offers"],
+      ["10", "Demo commerce", "carts · orders · reservations · coupons · returns"],
+      ["07", "Identity & access", "users · roles · seller memberships · sessions"],
+      ["03", "Administration & history", "admin overrides · product revisions · seller revisions"]
+    ],
+    databaseLink: "Open the full PostgreSQL ERD on GitHub",
     source: "Sources & inputs", normalize: "Normalize & validate", snapshot: "Static catalog", storefront: "Next.js storefront", local: "Browser-local state",
     backend: "Go REST + PostgreSQL 17", backendNote: "Local foundation; read-only API and internal services",
     ci: "GitHub Actions", ciNote: "Tests, security scans, build and Pages deployment",
@@ -165,20 +183,38 @@ export default function CaseStudyPage() {
         </div>
       </section>
 
+      <section className="cs-database" id="database">
+        <div className="cs-section-heading">
+          <span className="cs-kicker">04 / DATA MODEL</span>
+          <h2>{t.databaseTitle}</h2>
+          <p>{t.databaseIntro}</p>
+        </div>
+        <div className="cs-database-grid">
+          {t.databaseGroups.map(([count,title,description]) => (
+            <article className="cs-database-card" key={title}>
+              <strong>{count}</strong><h3>{title}</h3><p>{description}</p>
+            </article>
+          ))}
+        </div>
+        <a className="cs-database-link" href="https://github.com/pooya16pg-spec/globalcart/blob/main/docs/DATABASE_ERD.md" target="_blank" rel="noreferrer">
+          {t.databaseLink}<ArrowUpRight size={16}/>
+        </a>
+      </section>
+
       <section className="cs-boundaries">
-        <div className="cs-section-heading"><span className="cs-kicker">04 / TRUST & ENGINEERING</span><h2>{t.boundaryTitle}</h2></div>
+        <div className="cs-section-heading"><span className="cs-kicker">05 / TRUST & ENGINEERING</span><h2>{t.boundaryTitle}</h2></div>
         <div className="cs-boundary-list">
           {t.boundaries.map(([title,description],index) => <article key={title}><span>{String(index+1).padStart(2,"0")}</span><div><h3>{title}</h3><p>{description}</p></div><CheckCircle2 size={18}/></article>)}
         </div>
       </section>
 
       <section className="cs-stack">
-        <div><span className="cs-kicker">05 / TOOLKIT</span><h2>{t.stackTitle}</h2></div>
+        <div><span className="cs-kicker">06 / TOOLKIT</span><h2>{t.stackTitle}</h2></div>
         <div className="cs-stack-list">{t.stack.map(item=><span key={item}>{item}</span>)}</div>
       </section>
 
       <section className="cs-next">
-        <span className="cs-kicker">06 / ROAD AHEAD</span><h2>{t.nextTitle}</h2><p>{t.next}</p>
+        <span className="cs-kicker">07 / ROAD AHEAD</span><h2>{t.nextTitle}</h2><p>{t.next}</p>
         <Link href="/">{t.back}{rtl ? <ArrowLeft size={16}/> : <ArrowRight size={16}/>}</Link>
       </section>
 
