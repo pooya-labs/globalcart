@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	managedProductListDefaultLimit = 20
-	managedProductListMaximumLimit = 100
+	managedProductListDefaultLimit  = 20
+	managedProductListMaximumLimit  = 100
 	managedProductListMaximumOffset = 10000
 )
 
@@ -86,7 +86,7 @@ func ListManagedProducts(
 	}
 
 	sortColumns := map[string]string{
-		"updated_at": "COALESCE(apo.updated_at, p.updated_at)",
+		"updated_at":  "COALESCE(apo.updated_at, p.updated_at)",
 		"imported_at": "p.imported_at",
 		"title":       "lower(COALESCE(apo.title_override, p.title))",
 		"price":       "p.price",
