@@ -9,7 +9,7 @@ The current schema defines **27 tables across 15 versioned migrations**. The dia
 
 | Domain | Tables | Main responsibility |
 |---|---:|---|
-| Catalog and marketplace | 8 | Source products, categories, variants, vendors, offers and offer history |
+| Catalog and marketplace | 7 | Source products, categories, variants, vendors, offers and offer history |
 | Demo commerce | 10 | Carts, parent/vendor orders, immutable item snapshots, reservations, coupons, returns and events |
 | Identity and access | 7 | Accounts, roles, seller memberships, sessions, one-time tokens and audit events |
 | Editorial and offer history | 3 | Admin product overrides/revisions and seller offer revisions |
