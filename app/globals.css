@@ -1284,3 +1284,6 @@ body{background:#f7f8f5;color:var(--ink)}
 @media(max-width:760px){
   .storefront-v2 .hero-editorial-v2{gap:8px}
 }
+
+/* The compact category navigation label must remain readable on the light header. */
+.storefront-v2 .categorybar-label{color:#526458}
