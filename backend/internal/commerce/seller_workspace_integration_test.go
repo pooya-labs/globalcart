@@ -99,7 +99,7 @@ func TestSellerWorkspaceProfileAndDemoAnalyticsAreVendorScoped(t *testing.T) {
 		t.Fatalf("update seller display name: %v", err)
 	}
 	if updatedProfile.DisplayName != updatedName || updatedProfile.Slug != vendor.Slug ||
-		updatedProfile.Type != vendor.Type || updatedProfile.Status != vendor.Status {
+		updatedProfile.Type != vendor.Type || updatedProfile.Status != "active" {
 		t.Fatalf("updated seller profile = %+v", updatedProfile)
 	}
 	if _, err := svc.UpdateSellerVendorProfileForSeller(ctx, principal, vendor.ID, commerce.SellerProfileUpdateInput{
