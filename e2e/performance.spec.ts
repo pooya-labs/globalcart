@@ -284,3 +284,42 @@ test("tablet viewport fits the storefront, product and case-study routes without
     await assertNoHorizontalOverflow("Case study", orientation.name);
   }
 });
+
+
+test("compact phone widths fit all public routes without horizontal overflow", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes("mobile"), "Compact phone viewport regression runs on the mobile project.");
+
+  const widths = [
+    { name: "narrow 320 px", width: 320, height: 740 },
+    { name: "compact 360 px", width: 360, height: 800 }
+  ];
+
+  for (const viewport of widths) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    const assertFits = async (route: string) => {
+      const dimensions = await page.evaluate(() => ({
+        viewport: document.documentElement.clientWidth,
+        document: document.documentElement.scrollWidth,
+        body: document.body.scrollWidth
+      }));
+      expect(
+        Math.max(dimensions.document, dimensions.body),
+        `${route} overflows ${viewport.name}: ${JSON.stringify(dimensions)}`
+      ).toBeLessThanOrEqual(dimensions.viewport);
+    };
+
+    await page.goto("./");
+    await expect(page.locator("main.store")).toBeVisible();
+    await assertFits("Storefront");
+
+    const product = await page.goto("./product/1/");
+    expect(product?.status()).toBe(200);
+    await expect(page.locator("main.product-page")).toBeVisible();
+    await assertFits("Product detail");
+
+    const caseStudy = await page.goto("./case-study/");
+    expect(caseStudy?.status()).toBe(200);
+    await expect(page.locator("main.case-study")).toBeVisible();
+    await assertFits("Case study");
+  }
+});
