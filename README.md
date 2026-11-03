@@ -44,13 +44,13 @@ Implemented:
 - Real desktop/mobile full-page case-study screenshots are committed in `docs/screenshots/`.
 - Search suggestions, keyboard command palette, explainable sample recommendations and saved-search flows.
 - Backend foundation: Go REST/OpenAPI, PostgreSQL 17 and sqlc are available for local development and CI. Redis is optional; no hosted API or database is deployed.
-- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI. Latest Browser E2E passed 40/40 scenarios in [run 41596731945](https://github.com/pooya-labs/globalcart/actions/runs/41596731945).
+- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI. The M09.3 screenshot-capture checkpoint passed 40/40 Browser E2E scenarios in [run 41596731945](https://github.com/pooya-labs/globalcart/actions/runs/41596731945).
 
 Boundaries and remaining work:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
-- Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key interactive dialogs. Latest Browser E2E passed **70/70** in [run 41612960428](https://github.com/pooya-labs/globalcart/actions/runs/41612960428) across Chromium desktop/mobile, Firefox and WebKit; the suite now also checks that image preconnect hints are limited to routes that use those origins.
+- Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key interactive dialogs. The latest Browser E2E passed **74/74** in [run 41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) across Chromium desktop/mobile, Firefox and WebKit; coverage also verifies canonical public GitHub links and case-study metadata.
 - Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
 
 
@@ -108,7 +108,7 @@ npm run build
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system boundaries and data flow.
 - [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md) — migration-derived PostgreSQL ERD covering all 27 tables and key constraints.
 - [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md) — public Lighthouse lab baseline, methodology and manual 1.0 release checklist.
-- Latest published Lighthouse on canonical Pages [run 41622967095](https://github.com/pooya-labs/globalcart/actions/runs/41622967095): storefront mobile 91 Performance / 3.2 s LCP / 90 ms TBT; product mobile 96 / 2.7 s LCP / 40 ms TBT; case study mobile 100 / 0.9 s LCP / 70 ms TBT. Desktop Performance is 100 for all routes. All six audits report 100 Accessibility, Best Practices and SEO. These are GitHub-runner lab measurements, not field Core Web Vitals.
+- Latest published Lighthouse on canonical Pages [run 41624263482](https://github.com/pooya-labs/globalcart/actions/runs/41624263482): storefront mobile 91 Performance / 3.0 s LCP / 200 ms TBT; product mobile 96 / 2.7 s / 90 ms; case study mobile 97 / 2.2 s / 160 ms. Desktop Performance is 100 for all routes. All six audits report 100 Accessibility, Best Practices and SEO. These are GitHub-runner lab measurements, not field Core Web Vitals.
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
 - [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) — verification and semantic versioning.

@@ -183,6 +183,23 @@ All six modes retained 100 Accessibility, Best Practices and SEO. Desktop Perfor
 **Canonical link regression:** Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed **74/74**. The added assertion validated homepage GitHub links, Case Study repository/ERD links and canonical metadata on Chromium desktop/mobile, Firefox and WebKit. Pages [41622800624](https://github.com/pooya-labs/globalcart/actions/runs/41622800624) and Security [41622800675](https://github.com/pooya-labs/globalcart/actions/runs/41622800675) passed.
 
 Manual M09.4 remains open: physical desktop/mobile, a real platform screen-reader, comprehensive manual RTL/LTR, and normal-network/field-delivery evidence.
+### Latest published canonical Pages audit — November 3, 2026 (run 41624263482)
+
+**Run:** [Public Lighthouse 41624263482](https://github.com/pooya-labs/globalcart/actions/runs/41624263482) · Lighthouse 13.6.0 · GitHub-hosted Chromium · `https://pooya-labs.github.io/globalcart/`. All six route/mode audits completed successfully.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 10 ms | 0 |
+| Storefront — mobile | 91 | 100 | 100 | 100 | 1.2 s | 3.0 s | 200 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.6 s | 10 ms | 0 |
+| Product 1 — mobile | 96 | 100 | 100 | 100 | 0.9 s | 2.7 s | 90 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.2 s | 10 ms | 0 |
+| Case study — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.2 s | 160 ms | 0 |
+
+All six audits recorded 100 Accessibility, Best Practices and SEO; all desktop routes scored 100 Performance. Compared with the immediately preceding published audit [41622967095](https://github.com/pooya-labs/globalcart/actions/runs/41622967095), case-study mobile varied from 100 / 0.9 s LCP / 70 ms TBT to 97 / 2.2 s / 160 ms. Treat this as a lab-run difference unless repeated, controlled evidence shows a reproducible application regression. These measurements are not CrUX or field Core Web Vitals.
+
+**Verification lineage:** Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed 74/74 across Chromium desktop/mobile, Firefox and WebKit. Pages deployment/public smoke [41623961650](https://github.com/pooya-labs/globalcart/actions/runs/41623961650) and Security [41623961528](https://github.com/pooya-labs/globalcart/actions/runs/41623961528) passed. The subsequent mainline head update only persisted the generated catalog snapshot and lockfile; it did not change application behavior.
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.
