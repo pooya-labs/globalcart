@@ -1137,6 +1137,8 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add functional active-filter chips with individual removal and clear-all for query, category, brand, price and rating.
 - [x] Refine product detail gallery and sticky purchase panel while retaining FX calculation/source freshness/provenance disclosures.
 - [x] Preserve bilingual locale state, local cart/favorites/compare, Amazon link intake and explicit no-real-payment/no-real-shipping boundaries.
+- [x] Add a locale-aware undo action after removing an item from the cart drawer; merge restored quantity safely if the same product was re-added.
+- [x] Add Browser E2E coverage for active-filter chip removal/clear-all, mobile filter-sheet dismissal and cart-remove undo.
 - [ ] Run pull-request TypeScript, unit, production build, Browser E2E and security workflows; fix any regressions.
 - [ ] Inspect desktop/tablet/compact-phone screenshots and axe results; verify RTL/LTR visual mirroring and sticky/mobile filter interactions.
 - [ ] Merge to main only after automated verification is green; deploy preview via normal Pages workflow and rerun published smoke/Lighthouse.
