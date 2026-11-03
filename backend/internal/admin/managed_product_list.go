@@ -227,4 +227,3 @@ func scanManagedProductRecord(row managedProductScanner) (ProductManagementRecor
 	}
 	return record, nil
 }
-
