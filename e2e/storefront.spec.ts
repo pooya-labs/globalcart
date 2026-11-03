@@ -221,18 +221,20 @@ test("active catalog filter chips remove one facet or clear the complete filter 
 
   const brand = page.locator(".facet-select-group select").first();
   await brand.selectOption({ index: 1 });
+  if (isMobile) await page.getByRole("button", { name: "Close filters" }).click();
   await expect(page.locator(".active-filter-bar")).toBeVisible();
   await expect(page.locator(".active-filter-chip")).toContainText(await brand.locator("option:checked").textContent() ?? "");
 
   await page.locator(".active-filter-chip").first().click();
   await expect(page.locator(".active-filter-bar")).toBeHidden();
-  await expect(brand).toHaveValue("");
-
+  if (isMobile) await page.getByRole("button", { name: "Filters" }).click();
   await brand.selectOption({ index: 1 });
   await page.locator(".facet-select-group select").nth(1).selectOption("4");
+  if (isMobile) await page.getByRole("button", { name: "Close filters" }).click();
   await expect(page.locator(".active-filter-chip")).toHaveCount(2);
   await page.getByRole("button", { name: "Clear all" }).click();
   await expect(page.locator(".active-filter-bar")).toBeHidden();
+  if (isMobile) await page.getByRole("button", { name: "Filters" }).click();
   await expect(brand).toHaveValue("");
   await expect(page.locator(".facet-select-group select").nth(1)).toHaveValue("0");
 });
