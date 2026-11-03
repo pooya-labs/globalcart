@@ -544,6 +544,7 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 
 ### M09.4 — Stable 1.0.0 release gate (blocked by manual M08 QA)
 - [ ] Verify the storefront on at least one physical desktop/laptop browser and one physical mobile browser; record browser/device/viewport and any regressions.
+- [x] Add automated axe/WCAG regression coverage to the public recently viewed route in populated and empty states in Persian RTL and English LTR, alongside the storefront, product detail, case study and key dialogs. The full desktop/mobile Browser E2E run [41606569768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569768) passed 48/48 tests.
 - [ ] Complete an actual keyboard and screen-reader review of primary navigation, dialogs/drawers, product detail, checkout simulation and the bilingual case-study route.
 - [ ] Perform a manual RTL/LTR pass across the full public site, including narrow screens, text wrapping, menus, focus order and persisted language preference.
 - [ ] Measure published CDN response and field/lab Core Web Vitals; record methodology, URL, date and observed values. Do not infer field metrics from Playwright timings.

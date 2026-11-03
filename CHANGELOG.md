@@ -17,6 +17,7 @@
 - Extended the image-loading/performance regression audit to the recently-viewed route. Product visits now have a Playwright desktop/mobile journey that verifies history rendering, the GitHub Pages base path, lazy loading, asynchronous decoding, accessible alt text and reserved image dimensions. Browser E2E [41575646034](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646034) passed all 36 tests; Pages deployment/smoke [41575646035](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646035) and Security [41575646222](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646222) also passed on `c358970b31d2272db98434a761c699355a9dbc57`. The initial-route CI measurement was 520,131 JS bytes/7 requests and 70,540 CSS bytes/1 request.
 
 ### Fixed
+- Extended route-level axe/WCAG tests to the recently viewed page in populated and empty Persian RTL / English LTR states; fixed contrast issues and button accessible-name mismatches surfaced by the new test. Final Browser E2E [41606569768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569768) passed 48/48, Pages [41606569808](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569808) and Security [41606569782](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569782) passed.
 - Preserved the `/globalcart` Pages base path in the new recently-viewed browser journey by deriving it from the product route instead of resolving a multi-level relative URL.
 
 ### Fixed

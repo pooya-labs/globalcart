@@ -802,3 +802,11 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Mobile hero is one column at <=760 px; the hero image offers responsive candidates; the sample DummyJSON revalidation starts on idle or after a bounded fallback delay; fonts are self-hosted using `next/font`. No runtime backend, schema, payment path or vendor service was introduced.
 - M08.15 is complete as an automated lab baseline. M09.4 remains open for real physical desktop/mobile checks, actual screen-reader tests, complete manual RTL/LTR, and normal-network/field metric evidence. Lighthouse lab scores and axe are not substitutes.
 - Keep the version at `0.2.3-dev` until those external checks are recorded. TGJU remains the only USD source; translation remains paused; do not redo M06 or open public admin/seller/real-commerce routes.
+
+
+## Latest continuation checkpoint — M09.4 automated accessibility coverage (CI verified, 2026-11-03)
+- Extended `e2e/accessibility.spec.ts` so recently viewed history is audited with axe in four UI states: populated Persian RTL, populated English LTR, empty English LTR and empty Persian RTL.
+- Fixed the findings uncovered by that sweep: insufficient contrast in recently viewed explanatory text and rating labels, plus a clear-history control whose redundant `aria-label` overrode its visible name. The language toggle accessible name now includes its visible locale text.
+- Browser E2E [41606569768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569768) passed **48/48** desktop/mobile tests. Pages deployment and published smoke [41606569808](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569808) passed; Security [41606569782](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569782) passed.
+- Latest public Lighthouse audit [41606821395](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606821395) also completed successfully against the unchanged application plus the latest generated catalog/lock snapshot.
+- This closes the automated route-level accessibility regression slice only. It does **not** close actual screen-reader, physical-device, or owner-performed full-site visual/keyboard QA. Keep version at 0.2.3-dev and M09.4 open until those external checks are recorded.

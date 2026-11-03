@@ -116,3 +116,11 @@ The repository, not chat history, is the canonical source of truth.
 - Homepage mobile improved from initial run 41601101775 (74 / 4.9 s / 320 ms) after mobile hero stacking, responsive image candidates, idle sample-catalog revalidation and local `next/font` fonts. These are lab results, not field Core Web Vitals.
 - M08.15 is completed. Next/remaining is only M09.4: actual physical device, real screen-reader, comprehensive manual RTL/LTR and normal-network/field-delivery review. Do not tag 1.0.0 or claim field performance until those are recorded.
 - Version stays 0.2.3-dev; TGJU is sole FX source; translation paused; don't redo M06, change DB schema, introduce hosted commerce or public admin/seller endpoints without an approved requirement.
+
+
+## Current continuation checkpoint — M09.4 automated route accessibility (2026-11-03)
+- Extended the axe suite to cover recently viewed history when populated and empty, in Persian RTL and English LTR. The test waits for actual browser-local history persistence before navigating, making desktop/mobile coverage deterministic.
+- axe findings fixed: recently viewed description/note contrast, rating text contrast, clear-history accessible-name mismatch, and locale toggle visible-label/name alignment.
+- Final Browser E2E [41606569768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569768) passed **48/48 tests**. Pages deployment/smoke [41606569808](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569808) passed. Security [41606569782](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569782) passed.
+- Public Lighthouse [41606821395](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606821395) succeeded. Performance lab results remain those documented in `docs/PERFORMANCE_QA.md` (home mobile 87 / LCP 3.2 s / TBT 250 ms).
+- Remaining release gate: actual assistive-technology/screen-reader and physical-device testing, full-site manual RTL/LTR review, and normal-network/field data. Automated axe/Playwright do not substitute for these. Keep the release at 0.2.3-dev.
