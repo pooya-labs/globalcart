@@ -58,6 +58,7 @@ type SellerProductRecord struct {
 	Status            string    `json:"status"`
 	CatalogVisibility string    `json:"catalogVisibility"`
 	UpdatedAt         time.Time `json:"updatedAt"`
+	Revision          int64     `json:"revision"`
 }
 
 type SellerProductPage struct {
@@ -142,7 +143,7 @@ func (s *Service) ListSellerProductsForSeller(
 			"COALESCE(pv.title, ''), COALESCE(apo.description_override, p.description), "+
 			"COALESCE(apo.brand_override, p.brand), p.category, p.source, p.source_id, "+
 			"vp.price::text, vp.currency, vp.stock, vp.status, "+
-			"COALESCE(apo.visibility_status, 'active'), vp.updated_at "+
+			"COALESCE(apo.visibility_status, 'active'), vp.updated_at, vp.revision "+
 			sellerProductListFrom+" ORDER BY "+orderBy+" LIMIT $7 OFFSET $8",
 		vendorID, filter.Query, filter.Status, filter.Category, filter.Source, filter.Brand,
 		filter.Limit, filter.Offset,
@@ -161,7 +162,7 @@ func (s *Service) ListSellerProductsForSeller(
 			&item.SellerSKU, &item.Title, &item.VariantTitle, &item.Description,
 			&item.Brand, &item.Category, &item.Source, &item.SourceID,
 			&item.Price, &item.Currency, &item.Stock, &item.Status,
-			&item.CatalogVisibility, &item.UpdatedAt,
+			&item.CatalogVisibility, &item.UpdatedAt, &item.Revision,
 		); err != nil {
 			return SellerProductPage{}, fmt.Errorf("scan seller product: %w", err)
 		}
