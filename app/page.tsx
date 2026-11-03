@@ -693,6 +693,15 @@ export default function Home() {
           <button type="button" className="saved-search-trigger" onClick={()=>{setSaveSearchFormOpen(value=>!value);setSavedSearchPanelOpen(false);setSavedSearchNotice("");}} aria-expanded={saveSearchFormOpen}><BookmarkPlus size={15}/>{t.saveSearch}</button>
           <button type="button" className="saved-search-trigger" onClick={()=>{setSavedSearchPanelOpen(value=>!value);setSaveSearchFormOpen(false);setSavedSearchNotice("");}} aria-expanded={savedSearchPanelOpen}><BookmarkCheck size={15}/>{t.savedSearches} <span>{savedSearches.length}</span></button>
           <button className="filter-toggle" onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={16}/>{t.filter}</button><label className="sort-select"><ArrowUpDown size={15}/><select aria-label={t.sort} value={sort} onChange={e=>setSort(e.target.value as SavedCatalogSearch["sort"])}><option value="popular">{t.popular}</option><option value="low">{t.low}</option><option value="high">{t.high}</option><option value="rating">{t.rating}</option></select><ChevronDown size={14}/></label></div></div>
+        {(query||category!=="all"||brandFilter||minPrice>0||maxPrice<1000||minRating>0)&&<div className="active-filter-bar" aria-label={rtl?"فیلترهای فعال":"Active filters"}>
+          <span className="active-filter-label">{rtl?"فیلترهای فعال":"Active filters"}</span>
+          {query&&<button type="button" className="active-filter-chip" onClick={()=>setQuery("")}>{rtl?"جست‌وجو":"Search"}: {query}<X size={13}/></button>}
+          {category!=="all"&&<button type="button" className="active-filter-chip" onClick={()=>setCategory("all")}>{categoryLabel(category)}<X size={13}/></button>}
+          {brandFilter&&<button type="button" className="active-filter-chip" onClick={()=>setBrandFilter("")}>{rtl?"برند":"Brand"}: {brandFilter}<X size={13}/></button>}
+          {(minPrice>0||maxPrice<1000)&&<button type="button" className="active-filter-chip" onClick={()=>{setMinPrice(0);setMaxPrice(1000);}}>{rtl?"قیمت":"Price"}: {minPrice}–{maxPrice} USD<X size={13}/></button>}
+          {minRating>0&&<button type="button" className="active-filter-chip" onClick={()=>setMinRating(0)}>{rtl?"امتیاز":"Rating"}: {minRating.toFixed(1)}+<X size={13}/></button>}
+          <button type="button" className="active-filter-clear" onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);}}>{rtl?"حذف همه":"Clear all"}</button>
+        </div>}
         {(saveSearchFormOpen||savedSearchPanelOpen)&&<div className="saved-search-panel">
           {saveSearchFormOpen&&<form className="saved-search-form" onSubmit={saveCurrentSearch}>
             <label htmlFor="saved-search-name">{t.savedSearchName}</label>
