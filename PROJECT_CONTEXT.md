@@ -885,3 +885,12 @@ https://github.com/pooya-labs/globalcart/actions/runs/41299677941
 - Latest FX JSON remains 2,715,000 Rial = 271,500 Toman/USD, TGJU `price_dollar_rl`, date-only marker 11 آبان, `sourceUpdatedAt: null`. It is stale under the 15-minute freshness policy. The dispatch-to-Pages path is already verified; do not infer a fresh time or use a fallback provider.
 - Latest Pages deploy [41620332749](https://github.com/pooya-labs/globalcart/actions/runs/41620332749) and Security [41620332620](https://github.com/pooya-labs/globalcart/actions/runs/41620332620) passed; Browser E2E [41618464270](https://github.com/pooya-labs/globalcart/actions/runs/41618464270) passed with the Node 24-compatible workflow actions.
 - Manual M09.4 still requires owner evidence from physical desktop/mobile, a real platform screen-reader, complete RTL/LTR route pass and normal-network/field delivery. Keep 0.2.3-dev and do not tag 1.0.0 before those checks are actually completed.
+
+## Latest continuation checkpoint — 74/74 E2E and newest canonical Pages audit (2026-11-03)
+
+- Canonical repo/site: https://github.com/pooya-labs/globalcart and https://pooya-labs.github.io/globalcart/.
+- Added a Playwright regression for all public GitHub links on the storefront and Case Study plus the Case Study canonical URL. Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed **74/74**; the new assertion passed on Chromium desktop/mobile, Firefox and WebKit.
+- Pages [41622800624](https://github.com/pooya-labs/globalcart/actions/runs/41622800624) passed build/public smoke; Security [41622800675](https://github.com/pooya-labs/globalcart/actions/runs/41622800675) passed.
+- Latest Lighthouse [41622967095](https://github.com/pooya-labs/globalcart/actions/runs/41622967095): mobile home 91 / LCP 3.2 s / TBT 90 ms, product 96 / 2.7 s / 40 ms, case study 100 / 0.9 s / 70 ms; desktop Performance 100 on all routes and all six Accessibility/Best Practices/SEO scores 100. Four close repeats ranged home mobile 80–93 / LCP 3.2–4.7 s; lab variation, not field data.
+- Latest FX snapshot remains TGJU-only, 2,715,000 Rial = 271,500 Toman/USD, date-only marker 11 آبان, no sourceUpdatedAt; stale by policy. Never infer a time or add a fallback.
+- Remaining M09.4: actual physical desktop/mobile, real platform screen-reader, full-site manual RTL/LTR and normal-network/field-delivery evidence. Keep 0.2.3-dev.

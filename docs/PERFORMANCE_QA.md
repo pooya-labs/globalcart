@@ -163,6 +163,26 @@ All six audits recorded 100 Accessibility, Best Practices and SEO. Desktop Perfo
 **Decision:** do not add another preload or rewrite the image CDN URLs based only on the 3.2 s storefront LCP. The LCP request is already discoverable and begins promptly; further work should target measured browser/rendering/network causes and must be compared across repeat runs. Existing image-size observations and the reason no undocumented DummyJSON resize/proxy was added remain documented above.
 
 This remains lab-only evidence. It does not close physical-device, real screen-reader, comprehensive manual RTL/LTR or field-delivery QA.
+### Latest canonical Pages audit and renamed-owner regression — 2026-11-03
+
+**Lighthouse run:** [41622967095](https://github.com/pooya-labs/globalcart/actions/runs/41622967095) · Lighthouse 13.6.0 · GitHub-hosted Chromium · canonical Pages host. All six route/mode audits completed successfully.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.8 s | 0 ms | 0 |
+| Storefront — mobile | 91 | 100 | 100 | 100 | 1.3 s | 3.2 s | 90 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
+| Product 1 — mobile | 96 | 100 | 100 | 100 | 1.0 s | 2.7 s | 40 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 70 ms | 0 |
+
+All six modes retained 100 Accessibility, Best Practices and SEO. Desktop Performance is 100 on all routes; mobile is 91 / 96 / 100 for storefront, product and case study.
+
+**Lab variability:** four close-together published runs on the canonical host showed home-mobile Performance/LCP: [41620637413](https://github.com/pooya-labs/globalcart/actions/runs/41620637413) 93 / 3.2 s, [41622539031](https://github.com/pooya-labs/globalcart/actions/runs/41622539031) 80 / 4.7 s, [41622704373](https://github.com/pooya-labs/globalcart/actions/runs/41622704373) 87 / 3.4 s and [41622967095](https://github.com/pooya-labs/globalcart/actions/runs/41622967095) 91 / 3.2 s. Product mobile ranged 94–96 and case-study mobile 97–100. The repeated variance is consistent with runner/network sensitivity; do not treat the lowest run as a confirmed code regression or select only the best run as a representative field result.
+
+**Canonical link regression:** Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed **74/74**. The added assertion validated homepage GitHub links, Case Study repository/ERD links and canonical metadata on Chromium desktop/mobile, Firefox and WebKit. Pages [41622800624](https://github.com/pooya-labs/globalcart/actions/runs/41622800624) and Security [41622800675](https://github.com/pooya-labs/globalcart/actions/runs/41622800675) passed.
+
+Manual M09.4 remains open: physical desktop/mobile, a real platform screen-reader, comprehensive manual RTL/LTR, and normal-network/field-delivery evidence.
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.

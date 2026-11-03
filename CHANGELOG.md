@@ -2,6 +2,12 @@
 
 ## Unreleased — 2026-11-03
 
+### Verified — canonical-link regression and latest six-route audit
+
+- Added a Playwright guard for public GitHub links on the storefront/Case Study and the Case Study canonical URL. Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed **74/74**; the new assertion passed on Chromium desktop/mobile, Firefox and WebKit. Pages [41622800624](https://github.com/pooya-labs/globalcart/actions/runs/41622800624) and Security [41622800675](https://github.com/pooya-labs/globalcart/actions/runs/41622800675) passed.
+- Latest Lighthouse [41622967095](https://github.com/pooya-labs/globalcart/actions/runs/41622967095): mobile Performance home 91 / LCP 3.2 s / TBT 90 ms, product 96 / 2.7 s / 40 ms, case study 100 / 0.9 s / 70 ms; desktop Performance 100 on every route. All six modes remain 100 for Accessibility, Best Practices and SEO. The four recent homepage-mobile runs ranged 80–93; lab-only variability, not field CWV.
+
+
 ### Verified — latest six-route Lighthouse on canonical Pages
 
 - Lighthouse [41620637413](https://github.com/pooya-labs/globalcart/actions/runs/41620637413) passed all six audits on the renamed Pages host. Mobile Performance: home 93 / LCP 3.2 s / TBT 80 ms, product 95 / LCP 2.9 s / TBT 50 ms, case study 99 / LCP 0.9 s / TBT 100 ms. Desktop Performance is 100 across all routes; Accessibility, Best Practices and SEO are 100 in all six modes.

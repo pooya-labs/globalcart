@@ -204,3 +204,12 @@ The repository, not chat history, is the canonical source of truth.
 - Latest FX file remains 2,715,000 Rial = 271,500 Toman/USD from TGJU, date-only 11 آبان, `sourceUpdatedAt:null`; stale by policy. The real changed-quote dispatch relay was verified twice and should not be redone.
 - Latest Pages deployment [41620332749](https://github.com/pooya-labs/globalcart/actions/runs/41620332749) and Security [41620332620](https://github.com/pooya-labs/globalcart/actions/runs/41620332620) passed. Browser E2E [41618464270](https://github.com/pooya-labs/globalcart/actions/runs/41618464270) passed.
 - Next work: only M09.4 owner evidence (physical devices, actual platform screen-reader, complete RTL/LTR, ordinary-network/field delivery). Keep 0.2.3-dev; no 1.0.0 tag yet.
+
+## Latest handoff checkpoint — canonical links guarded, 74/74 browser checks green (2026-11-03)
+
+- Repository/Pages: https://github.com/pooya-labs/globalcart and https://pooya-labs.github.io/globalcart/; version 0.2.3-dev.
+- New regression covers public GitHub links on homepage and Case Study plus Case Study canonical metadata. Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed **74/74**; the new assertion passed Chromium desktop/mobile, Firefox and WebKit.
+- Pages [41622800624](https://github.com/pooya-labs/globalcart/actions/runs/41622800624) and Security [41622800675](https://github.com/pooya-labs/globalcart/actions/runs/41622800675) passed.
+- Latest Lighthouse [41622967095](https://github.com/pooya-labs/globalcart/actions/runs/41622967095): mobile home 91 / LCP 3.2 s / TBT 90 ms, product 96 / 2.7 s / 40 ms, case study 100 / 0.9 s / 70 ms; desktops 100 and all Accessibility/Best Practices/SEO 100. Recent home-mobile repeats ranged 80–93 / LCP 3.2–4.7 s; do not claim field CWV.
+- Latest TGJU snapshot remains 2,715,000 Rial / 271,500 Toman/USD, date-only marker 11 آبان and no source timestamp; stale by policy. Publication relay already verified.
+- Next: M09.4 owner evidence only—physical desktop/mobile, actual screen-reader, full manual RTL/LTR and normal-network/field delivery. No 1.0.0 tag before those checks.
