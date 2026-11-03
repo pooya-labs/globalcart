@@ -4,6 +4,8 @@
 
 ### Verified — account rename, TGJU changed-quote relay and new Pages host
 
+- Latest post-documentation Lighthouse [41619642994](https://github.com/pooya-labs/globalcart/actions/runs/41619642994) succeeded on the new host: mobile Performance home 94 (LCP 3.0 s / TBT 90 ms), product 99 (2.3 s / 60 ms), case study 100 (0.9 s / 90 ms); desktop Performance 100 on all three routes. All six Accessibility, Best Practices and SEO scores are 100. Lab only.
+
 - A subsequent TGJU refresh read 271,500 Toman/USD from the page's date-only `11 آبان` marker. Sync [41618464249](https://github.com/pooya-labs/globalcart/actions/runs/41618464249) persisted the validated snapshot and Pages event [41618569410](https://github.com/pooya-labs/globalcart/actions/runs/41618569410) passed. Because the source supplied no exact clock, the committed quote is intentionally stale, not live.
 
 - The canonical GitHub owner changed to pooya-labs. Public Pages now resolves to https://pooya-labs.github.io/globalcart/; repository-dispatch Pages run [41616698725](https://github.com/pooya-labs/globalcart/actions/runs/41616698725) passed build, deployment and public homepage/assets/product/case-study smoke.
