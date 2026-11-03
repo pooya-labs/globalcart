@@ -869,3 +869,10 @@ https://github.com/pooya-labs/globalcart/actions/runs/41299677941
 - The prior exact-clock 274,500 Toman quote at 12:20:14 Tehran was the preceding genuine TGJU observation, not the latest saved value. Never move source time forward manually or add a fallback provider.
 - The old Pages domain pooya16pg-spec.github.io returned 404; the new canonical Pages base is verified. All public source links and canonical metadata now use pooya-labs.
 - Remaining M09.4 gate: physical desktop/mobile, actual screen reader, complete manual RTL/LTR, normal-network/field delivery. Keep version 0.2.3-dev.
+
+## Latest continuation checkpoint — final canonical Pages audit (2026-11-03)
+
+- Latest Lighthouse [41619642994](https://github.com/pooya-labs/globalcart/actions/runs/41619642994) passed all six route/mode audits on https://pooya-labs.github.io/globalcart/: mobile Performance home 94 / LCP 3.0 s / TBT 90 ms, product 99 / 2.3 s / 60 ms, case study 100 / 0.9 s / 90 ms. Desktop Performance 100 on all routes; Accessibility, Best Practices and SEO 100 in every mode. Lab only.
+- Latest TGJU snapshot remains 2,715,000 Rial = 271,500 Toman/USD with source marker 11 آبان (date_only, sourceUpdatedAt null); intentionally stale. The later refresh and its Pages dispatch are verified by [41618464249](https://github.com/pooya-labs/globalcart/actions/runs/41618464249) and [41618569410](https://github.com/pooya-labs/globalcart/actions/runs/41618569410).
+- Final Pages deployment after the docs refresh [41619533670](https://github.com/pooya-labs/globalcart/actions/runs/41619533670) succeeded at the canonical host; Security [41619533919](https://github.com/pooya-labs/globalcart/actions/runs/41619533919) succeeded. Browser E2E [41618464270](https://github.com/pooya-labs/globalcart/actions/runs/41618464270) passed; portfolio screenshot publish [41619153373](https://github.com/pooya-labs/globalcart/actions/runs/41619153373) succeeded.
+- Manual M09.4 physical desktop/mobile, real screen-reader, full-site RTL/LTR and normal-network/field evidence are still not satisfied by automation. Keep 0.2.3-dev and hold 1.0.0.
