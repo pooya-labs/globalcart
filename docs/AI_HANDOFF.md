@@ -124,3 +124,11 @@ The repository, not chat history, is the canonical source of truth.
 - Final Browser E2E [41606569768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569768) passed **48/48 tests**. Pages deployment/smoke [41606569808](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569808) passed. Security [41606569782](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569782) passed.
 - Public Lighthouse [41606821395](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606821395) succeeded. Performance lab results remain those documented in `docs/PERFORMANCE_QA.md` (home mobile 87 / LCP 3.2 s / TBT 250 ms).
 - Remaining release gate: actual assistive-technology/screen-reader and physical-device testing, full-site manual RTL/LTR review, and normal-network/field data. Automated axe/Playwright do not substitute for these. Keep the release at 0.2.3-dev.
+
+
+## Current continuation checkpoint — M09.4 Firefox/WebKit accessibility (2026-11-03)
+- Added focused Firefox and WebKit desktop projects for `e2e/accessibility.spec.ts`; full storefront flows continue on Chromium desktop and Pixel 7 mobile.
+- CI now installs Chromium, Firefox and WebKit. Browser E2E [41607322346](https://github.com/pooya16pg-spec/globalcart/actions/runs/41607322346) passed **66/66**: 48 Chromium desktop/mobile scenarios + 9 Firefox accessibility tests + 9 WebKit accessibility tests.
+- The matrix includes RTL/LTR home/case-study, populated/empty recently viewed, WCAG axe checks, reduced motion, command palette, shopping drawers/modals, checkout and focus behavior.
+- Pages [41607322372](https://github.com/pooya16pg-spec/globalcart/actions/runs/41607322372) and Security [41607322262](https://github.com/pooya16pg-spec/globalcart/actions/runs/41607322262) passed. Main's bot-generated current snapshot is `66467f63bb68a94967fc9be27354d89821a63c6d`.
+- Still open: physical desktop/mobile QA, real screen-reader, full site manual RTL/LTR, ordinary-network CDN and field metrics. Keep 0.2.3-dev; don't tag 1.0.0 before those gates.

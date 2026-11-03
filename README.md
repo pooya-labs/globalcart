@@ -50,7 +50,7 @@ Boundaries and remaining work:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
-- Automated axe/WCAG coverage now includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key interactive dialogs; latest desktop/mobile suite passed 48/48 in [Browser E2E 41606569768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569768).
+- Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key interactive dialogs. Latest suite passed **66/66** across Chromium desktop/mobile, Firefox and WebKit in [Browser E2E 41607322346](https://github.com/pooya16pg-spec/globalcart/actions/runs/41607322346).
 - Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
 
 
