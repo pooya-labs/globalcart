@@ -140,7 +140,7 @@ func normalizeManagedProductListInput(input ManagedProductListInput) (ManagedPro
 	normalized := input
 	normalizeText := func(value string, maximum int) (string, error) {
 		value = strings.TrimSpace(value)
-		if !utf8.ValidString(value) || utf8.RuneCountInString(value) > maximum {
+		if !utf8.ValidString(value) || strings.ContainsRune(value, rune(0)) || utf8.RuneCountInString(value) > maximum {
 			return "", ErrInvalidProductListInput
 		}
 		return value, nil
