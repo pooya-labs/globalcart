@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.1 — bilingual portfolio case study and feature tour; M08 manual device/screen-reader/CDN QA remains an explicit external gate. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
+**Active stage:** M09.2 — migration-derived PostgreSQL ERD and case-study database section; M08 manual device/screen-reader/CDN QA remains an explicit external gate. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -475,21 +475,35 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 **Boundary:** these checks validate browser-emulated loading policy, layout reservation and first-party asset budgets. They do not measure remote image CDN timing, field Core Web Vitals, physical-device performance or screen-reader output; those remain manual QA.
 
 ## M09 — Portfolio release
-- [ ] Persian and English case study.
-- [ ] Screenshots, architecture/ERD diagrams and feature tour.
+- [x] Persian and English case study (M09.1; automated desktop/mobile RTL/LTR and axe checks passed).
+- [x] Architecture/data-flow diagram and bilingual feature tour.
+- [x] PostgreSQL ERD and relationship notes derived from migrations 001–015 (M09.2).
+- [ ] Real published desktop/mobile screenshots and portfolio evidence.
 - [ ] Versioned 1.0.0 release and changelog.
 - [ ] README verified against actual behavior.
 - [ ] Final public demo smoke test.
 
-### M09.1 — Bilingual portfolio case study (implementation on main; CI pending, 2026-11-03)
+### M09.1 — Bilingual portfolio case study (CI verified, 2026-11-03)
 - [x] Add a dedicated statically exportable `/case-study/` route with Persian RTL and English LTR content, reusing the shared guarded locale preference.
 - [x] Explain the implemented product journey, real technology stack, catalog/TGJU data flow, local backend boundary and non-transactional demo limits without claiming unshipped infrastructure.
 - [x] Add a responsive architecture/data-flow diagram and a feature tour linking to existing storefront journeys.
 - [x] Add route metadata and a discoverable link from the storefront footer.
-- [ ] Verify typecheck, unit tests, production static export and desktop/mobile browser coverage; only then mark this slice CI-verified.
-- [ ] Capture real published screenshots and add the PostgreSQL ERD; the architecture/data-flow diagram above is not a substitute for the ERD.
+- [x] Verify typecheck, unit tests, production static export, desktop/mobile browser coverage and published Pages smoke. Browser E2E [41577703335](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703335), Security [41577703300](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703300) and Pages [41577703347](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703347) all passed on implementation head `a1d53de17a64e3dd80b74e87eca9e4880123538f`.
+- [ ] Capture real published screenshots for desktop and mobile; automated screenshots-on-failure are not portfolio screenshots.
 
 **Boundary:** no new commerce behavior, hosted service, supplier integration, translation runtime or live transaction path is introduced. M09.1 does not close M08 manual screen-reader, physical-device, full-site RTL/LTR or live CDN/Core Web Vitals QA.
+
+### M09.2 — PostgreSQL ERD and public project documentation (implementation on main; CI pending, 2026-11-03)
+- [x] Inspect all 15 append-only PostgreSQL migrations (001–015) and derive the table/foreign-key model from the SQL source of truth.
+- [x] Document all 27 tables in domain-grouped Mermaid ERDs: catalog/marketplace, demo commerce, identity/access and editorial/seller revision history.
+- [x] Record critical composite foreign keys, optional guest/account cart ownership, vendor-order parent/child invariants, append-only audit/revision history and the boundary between local DB state and browser-local state.
+- [x] Add a responsive four-domain database summary and a direct ERD link to the bilingual case-study page.
+- [x] Add desktop/mobile RTL/LTR accessibility regression assertions for the new database section and ERD link.
+- [ ] Verify TypeScript, unit tests, static build, desktop/mobile browser E2E, Security scans and published Pages smoke on the final implementation head.
+
+**Source:** [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md). The document describes the schema declared by migrations; it does not claim a production database is deployed. No SQL migration, database table, runtime dependency or API endpoint was changed.
+
+**Boundary:** M09.2 documents existing schema only. It does not expose the internal admin/seller/commerce services over HTTP or imply live payment, fulfillment or inventory operations. M08 manual screen-reader, physical-device and live CDN/Core Web Vitals QA remains open.
 
 ## Handoff rule
 Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md and docs/DECISIONS.md before changing code. Continue from the earliest incomplete item, inspect current Actions, and update documentation only with verified facts.
