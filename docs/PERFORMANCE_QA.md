@@ -234,6 +234,23 @@ All six audits report 100 Accessibility, Best Practices and SEO; desktop Perform
 
 **Verification lineage:** Backend CI [41632402711](https://github.com/pooya-labs/globalcart/actions/runs/41632402711) passed with uncached PostgreSQL integration tests and logical backup/restore. Security [41632402705](https://github.com/pooya-labs/globalcart/actions/runs/41632402705) and Pages deployment/public smoke [41632402717](https://github.com/pooya-labs/globalcart/actions/runs/41632402717) passed.
 
+### Latest published canonical Pages audit — 2026-11-03 (run 41633195411)
+
+**Run:** [Public Lighthouse 41633195411](https://github.com/pooya-labs/globalcart/actions/runs/41633195411) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · `https://pooya-labs.github.io/globalcart/`. The workflow completed successfully and retained six raw Lighthouse JSON reports in the `globalcart-public-lighthouse` artifact.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.7 s | 10 ms | 0 |
+| Storefront — mobile | 94 | 100 | 100 | 100 | 1.2 s | 2.8 s | 140 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 0 ms | 0 |
+| Product 1 — mobile | 96 | 100 | 100 | 100 | 0.9 s | 2.6 s | 80 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 10 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 120 ms | 0 |
+
+All six reports have no Lighthouse run warnings; Accessibility, Best Practices and SEO are 100 in every route/mode. Desktop Performance is 100 on all three routes. Mobile Performance is 94 / 96 / 99 for storefront, product and case study. CLS is 0 in all six reports. The improved mobile values relative to some immediately preceding runs are a useful lab observation, not proof of a sustained user-experienced gain: GitHub runner/network variation remains material.
+
+**Interpretation:** this is a single GitHub-hosted lab sample using simulated mobile and desktop presets. TBT is not field INP, and these reports are not CrUX or real-user Core Web Vitals. The run does not satisfy normal-network delivery, physical-device, real screen-reader or comprehensive manual RTL/LTR QA.
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.
