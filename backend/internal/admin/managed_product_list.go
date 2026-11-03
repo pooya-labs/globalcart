@@ -5,10 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 	"unicode/utf8"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -230,6 +228,3 @@ func scanManagedProductRecord(row managedProductScanner) (ProductManagementRecor
 	return record, nil
 }
 
-// Keep the default request deadline bounded even when a caller supplies an
-// unbounded context.
-var _ = time.Second
