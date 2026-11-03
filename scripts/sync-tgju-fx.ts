@@ -12,7 +12,7 @@ async function main(): Promise<void> {
     headers: {
       accept: "text/html,application/xhtml+xml",
       "accept-language": "fa-IR,fa;q=0.9,en;q=0.7",
-      "user-agent": "GlobalCart-FX-Snapshot/1.0 (+https://github.com/pooya16pg-spec/globalcart)"
+      "user-agent": "GlobalCart-FX-Snapshot/1.0 (+https://github.com/pooya-labs/globalcart)"
     },
     signal: AbortSignal.timeout(15_000),
     cache: "no-store",
