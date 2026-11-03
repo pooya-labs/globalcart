@@ -195,3 +195,12 @@ The repository, not chat history, is the canonical source of truth.
 - Latest TGJU JSON is 2,715,000 Rial / 271,500 Toman/USD with 11 آبان date-only source marker and no timestamp. Stale by policy. Run [41618464249](https://github.com/pooya-labs/globalcart/actions/runs/41618464249) updated it; Pages relay [41618569410](https://github.com/pooya-labs/globalcart/actions/runs/41618569410) succeeded.
 - Latest Pages deploy [41619533670](https://github.com/pooya-labs/globalcart/actions/runs/41619533670) and Security [41619533919](https://github.com/pooya-labs/globalcart/actions/runs/41619533919) passed. Browser E2E [41618464270](https://github.com/pooya-labs/globalcart/actions/runs/41618464270) passed; screenshot publishing [41619153373](https://github.com/pooya-labs/globalcart/actions/runs/41619153373) succeeded.
 - Remaining M09.4 gates are physical devices, real screen reader, comprehensive manual RTL/LTR and normal-network/field data. No 1.0.0 tag until those are actually performed. Current version remains 0.2.3-dev.
+
+## Latest handoff checkpoint — Lighthouse 41620637413 (2026-11-03)
+
+- Canonical repository: https://github.com/pooya-labs/globalcart; Pages: https://pooya-labs.github.io/globalcart/.
+- Latest Lighthouse [41620637413](https://github.com/pooya-labs/globalcart/actions/runs/41620637413) passed six audits. Mobile Performance: home 93 / LCP 3.2 s / TBT 80 ms, product 95 / 2.9 s / 50 ms, case study 99 / 0.9 s / 100 ms. All desktop Performance scores 100; Accessibility, Best Practices and SEO all 100 in all six. Lab-only, not field CWV.
+- Raw LCP: homepage hero and product main image are discoverable in the original HTML and use eager/high priority. Home image subparts ~96 ms TTFB / 11 ms resource delay / 238 ms resource duration / 24 ms element render. Do not add preload or unsupported resize params without new evidence.
+- Latest FX file remains 2,715,000 Rial = 271,500 Toman/USD from TGJU, date-only 11 آبان, `sourceUpdatedAt:null`; stale by policy. The real changed-quote dispatch relay was verified twice and should not be redone.
+- Latest Pages deployment [41620332749](https://github.com/pooya-labs/globalcart/actions/runs/41620332749) and Security [41620332620](https://github.com/pooya-labs/globalcart/actions/runs/41620332620) passed. Browser E2E [41618464270](https://github.com/pooya-labs/globalcart/actions/runs/41618464270) passed.
+- Next work: only M09.4 owner evidence (physical devices, actual platform screen-reader, complete RTL/LTR, ordinary-network/field delivery). Keep 0.2.3-dev; no 1.0.0 tag yet.
