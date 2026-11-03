@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import "./case-study.css";
 import Link from "next/link";
-import { ArrowDownLeft, ArrowLeft, ArrowRight, ArrowUpRight, CheckCircle2, Database, Globe2, Layers3, Search, ShieldCheck, Sparkles, Workflow } from "lucide-react";
+import { ArrowDownLeft, ArrowLeft, ArrowRight, ArrowUpLeft, ArrowUpRight, CheckCircle2, Database, Globe2, Layers3, Search, ShieldCheck, Sparkles, Workflow } from "lucide-react";
 import { readLocalePreference, writeLocalePreference, type Locale } from "../../lib/locale";
 
 const content = {
