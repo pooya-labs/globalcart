@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/pooya16pg-spec/globalcart/backend/internal/auth"
+	"unicode/utf8"
 )
 
 type vendorProductQuery interface {
@@ -150,7 +151,11 @@ func (s *Service) UpdateVendorPriceForSeller(
 	offerID int64,
 	newPrice string,
 ) error {
-	if offerID <= 0 || strings.TrimSpace(newPrice) == "" {
+	if offerID <= 0 {
+		return ErrInvalidVendorInput
+	}
+	normalized, err := normalizeSellerOfferPrice(newPrice)
+	if err != nil {
 		return ErrInvalidVendorInput
 	}
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
@@ -158,17 +163,31 @@ func (s *Service) UpdateVendorPriceForSeller(
 		return fmt.Errorf("begin authorized price update: %w", err)
 	}
 	defer func() { _ = tx.Rollback(context.Background()) }()
-
 	vendorID, err := vendorIDForOffer(ctx, tx, offerID)
 	if err != nil {
 		return err
 	}
-	if err := auth.AuthorizeSellerVendorTx(
-		ctx, tx, principal, auth.AuthorizationSellerWriteVendor, vendorID,
-	); err != nil {
+	if err := auth.AuthorizeSellerVendorTx(ctx, tx, principal, auth.AuthorizationSellerWriteVendor, vendorID); err != nil {
 		return err
 	}
-	if err := updateVendorPriceTx(ctx, tx, vendorID, offerID, newPrice); err != nil {
+	before, err := readSellerOfferTx(ctx, tx, vendorID, offerID, true)
+	if err != nil {
+		return err
+	}
+	if before.Status == "archived" {
+		return ErrSellerOfferArchived
+	}
+	if before.Price == normalized {
+		return tx.Commit(ctx)
+	}
+	if err := updateVendorPriceTx(ctx, tx, vendorID, offerID, normalized); err != nil {
+		return err
+	}
+	after, err := readSellerOfferTx(ctx, tx, vendorID, offerID, true)
+	if err != nil {
+		return err
+	}
+	if err := appendSellerOfferHistoryTx(ctx, tx, principal.UserID, "updated", &before, after, []string{"price"}); err != nil {
 		return err
 	}
 	if err := tx.Commit(ctx); err != nil {
@@ -190,23 +209,38 @@ func (s *Service) AdjustVendorInventoryForSeller(
 		(reason != "stock_adjustment" && reason != "restock" && reason != "return" && reason != "correction") {
 		return 0, ErrInvalidVendorInput
 	}
+	reference = strings.TrimSpace(reference)
+	if !utf8.ValidString(reference) || strings.ContainsRune(reference, 0) || utf8.RuneCountInString(reference) > 160 {
+		return 0, ErrInvalidVendorInput
+	}
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return 0, fmt.Errorf("begin authorized stock adjustment: %w", err)
 	}
 	defer func() { _ = tx.Rollback(context.Background()) }()
-
 	vendorID, err := vendorIDForOffer(ctx, tx, offerID)
 	if err != nil {
 		return 0, err
 	}
-	if err := auth.AuthorizeSellerVendorTx(
-		ctx, tx, principal, auth.AuthorizationSellerWriteVendor, vendorID,
-	); err != nil {
+	if err := auth.AuthorizeSellerVendorTx(ctx, tx, principal, auth.AuthorizationSellerWriteVendor, vendorID); err != nil {
 		return 0, err
+	}
+	before, err := readSellerOfferTx(ctx, tx, vendorID, offerID, true)
+	if err != nil {
+		return 0, err
+	}
+	if before.Status == "archived" {
+		return 0, ErrSellerOfferArchived
 	}
 	stock, err := adjustVendorInventoryTx(ctx, tx, vendorID, offerID, delta, reason, reference)
 	if err != nil {
+		return 0, err
+	}
+	after, err := readSellerOfferTx(ctx, tx, vendorID, offerID, true)
+	if err != nil {
+		return 0, err
+	}
+	if err := appendSellerOfferHistoryTx(ctx, tx, principal.UserID, "updated", &before, after, []string{"stock"}); err != nil {
 		return 0, err
 	}
 	if err := tx.Commit(ctx); err != nil {

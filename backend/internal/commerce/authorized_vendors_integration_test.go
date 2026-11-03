@@ -154,6 +154,16 @@ func TestSellerVendorOperationsUseCanonicalOfferScopeAndCurrentSession(t *testin
 	if got.Price != "17.25" || got.Stock != 11 {
 		t.Fatalf("updated own vendor offer price=%s stock=%d, want 17.25/11", got.Price, got.Stock)
 	}
+	var authorizedRevisions, authorizedAudits int
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM vendor_product_revisions WHERE vendor_product_id=$1", offer.ID).Scan(&authorizedRevisions); err != nil {
+		t.Fatalf("count authorized offer revisions: %v", err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT count(*)::int FROM audit_events WHERE actor_user_id=$1 AND resource_type='vendor_offer' AND resource_id=$2", sellerID, fmt.Sprint(offer.ID)).Scan(&authorizedAudits); err != nil {
+		t.Fatalf("count authorized offer audit: %v", err)
+	}
+	if authorizedRevisions != 2 || authorizedAudits != 2 {
+		t.Fatalf("authorized price/stock revision and audit counts=%d/%d, want 2/2", authorizedRevisions, authorizedAudits)
+	}
 
 	// The API does not accept vendorID. It resolves the foreign vendor from
 	// the offer row and denies it against the principal's database-backed scope.
@@ -341,3 +351,114 @@ func TestSellerProductListIsBoundedFilteredAndVendorScoped(t *testing.T) {
 		t.Fatalf("stale seller principal list error = %v, want auth.ErrInvalidSession", err)
 	}
 }
+
+func TestSellerOfferLifecycleRevisionAuditAndVendorIsolation(t *testing.T) {
+	pool, ctx := openAuthorizedVendorIntegrationPool(t)
+	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
+	productID := time.Now().UnixNano()%8000000000000000000 + 1000000000000000000
+	now := time.Now().UTC()
+	products := []catalog.Product{
+		{ID: productID, Title: "Seller lifecycle fixture", Description: "Internal fixture", Category: "seller-lifecycle", Price: 20, Rating: 4.5, Stock: 10, Images: []string{"https://example.invalid/seller.webp"}, Source: "seller-lifecycle", SourceID: fmt.Sprintf("seller-%d", productID), ImportedAt: now},
+		{ID: productID + 1, Title: "Seller SKU fixture", Description: "Internal fixture", Category: "seller-lifecycle", Price: 22, Rating: 4.5, Stock: 8, Images: []string{"https://example.invalid/seller-2.webp"}, Source: "seller-lifecycle", SourceID: fmt.Sprintf("seller-2-%d", productID), ImportedAt: now},
+	}
+	if err := database.UpsertProducts(ctx, pool, products); err != nil { t.Fatalf("insert products: %v", err) }
+	svc := commerce.New(pool)
+	adminID := createAuthorizedVendorUser(t, ctx, pool, suffix+"-admin")
+	sellerID := createAuthorizedVendorUser(t, ctx, pool, suffix+"-seller")
+	customerID := createAuthorizedVendorUser(t, ctx, pool, suffix+"-customer")
+	if _, err := pool.Exec(ctx, "INSERT INTO user_roles(user_id,role_key) VALUES($1,'admin')", adminID); err != nil { t.Fatal(err) }
+	vendor, err := svc.CreateVendor(ctx, "seller-life-"+suffix, "Seller Life "+suffix)
+	if err != nil { t.Fatal(err) }
+	if _, err := pool.Exec(ctx, "UPDATE vendors SET status='active' WHERE id=$1", vendor.ID); err != nil { t.Fatal(err) }
+	foreignVendor, foreignOffer := createAuthorizedVendorOffer(t, ctx, pool, svc, productID+1, suffix+"-foreign")
+	membership, err := auth.RequestSellerMembership(ctx, pool, sellerID, vendor.ID)
+	if err != nil { t.Fatal(err) }
+	if _, err := auth.ActivateSellerMembership(ctx, pool, adminID, membership.ID); err != nil { t.Fatal(err) }
+	issued, err := auth.CreateSession(ctx, pool, sellerID, sellerIntegrationPasswordHash)
+	if err != nil { t.Fatal(err) }
+	principal, err := auth.ResolveSession(ctx, pool, issued.SessionToken)
+	if err != nil { t.Fatal(err) }
+
+	created, err := svc.CreateVendorOfferForSeller(ctx, principal, vendor.ID, commerce.SellerOfferCreateInput{
+		ProductID: productID, SellerSKU: "SELLER-"+suffix, Price: "19.95", Stock: 4,
+	})
+	if err != nil { t.Fatalf("create draft: %v", err) }
+	if created.Status != "draft" || created.Revision != 1 || created.Currency != "USD" { t.Fatalf("created=%+v", created) }
+	if _, err := svc.CreateVendorOfferForSeller(ctx, principal, vendor.ID, commerce.SellerOfferCreateInput{
+		ProductID: productID, Price: "10.00", Stock: 1,
+	}); !errors.Is(err, commerce.ErrSellerOfferConflict) { t.Fatalf("duplicate base offer err=%v", err) }
+	if _, err := svc.CreateVendorOfferForSeller(ctx, principal, vendor.ID, commerce.SellerOfferCreateInput{
+		ProductID: productID+1, SellerSKU: created.SellerSKU, Price: "11.00", Stock: 1,
+	}); !errors.Is(err, commerce.ErrSellerOfferConflict) { t.Fatalf("duplicate seller SKU err=%v", err) }
+	if _, err := svc.CreateVendorOfferForSeller(ctx, principal, foreignVendor.ID, commerce.SellerOfferCreateInput{
+		ProductID: productID+1, Price: "10.00", Stock: 1,
+	}); !errors.Is(err, auth.ErrForbidden) { t.Fatalf("foreign vendor create err=%v", err) }
+	if _, err := svc.UpdateVendorOfferForSeller(ctx, principal, foreignOffer.ID, commerce.SellerOfferUpdateInput{
+		ExpectedRevision: 0, Price: ptrPrice("30.00"),
+	}); !errors.Is(err, auth.ErrForbidden) { t.Fatalf("foreign vendor update err=%v", err) }
+	customerSession, err := auth.CreateSession(ctx, pool, customerID, sellerIntegrationPasswordHash)
+	if err != nil { t.Fatal(err) }
+	customerPrincipal, err := auth.ResolveSession(ctx, pool, customerSession.SessionToken)
+	if err != nil { t.Fatal(err) }
+	if _, err := svc.CreateVendorOfferForSeller(ctx, customerPrincipal, vendor.ID, commerce.SellerOfferCreateInput{
+		ProductID: productID+1, Price: "10.00", Stock: 1,
+	}); !errors.Is(err, auth.ErrForbidden) { t.Fatalf("customer create err=%v", err) }
+
+	// A system-side UPDATE advances the shared revision and invalidates stale seller views.
+	var systemRevision int64
+	if err := pool.QueryRow(ctx, "UPDATE vendor_products SET updated_at=now() WHERE id=$1 RETURNING revision", created.OfferID).Scan(&systemRevision); err != nil { t.Fatal(err) }
+	if systemRevision != created.Revision+1 { t.Fatalf("system revision=%d want %d", systemRevision, created.Revision+1) }
+	queue, err := svc.ListSellerProductsForSeller(ctx, principal, vendor.ID, commerce.SellerProductListInput{})
+	if err != nil { t.Fatal(err) }
+	var listedRevision int64
+	for _, item := range queue.Items { if item.OfferID == created.OfferID { listedRevision = item.Revision } }
+	if listedRevision != systemRevision { t.Fatalf("queue revision=%d want %d", listedRevision, systemRevision) }
+
+	price, sku, stock, paused := "21.50", "SELLER-RENAMED-"+suffix, int32(7), "paused"
+	if _, err := svc.UpdateVendorOfferForSeller(ctx, principal, created.OfferID, commerce.SellerOfferUpdateInput{
+		ExpectedRevision: created.Revision, Price: &price,
+	}); !errors.Is(err, commerce.ErrSellerOfferRevisionConflict) { t.Fatalf("stale edit err=%v", err) }
+	updated, err := svc.UpdateVendorOfferForSeller(ctx, principal, created.OfferID, commerce.SellerOfferUpdateInput{
+		ExpectedRevision: systemRevision, Price: &price, SellerSKU: &sku, Stock: &stock, Status: &paused,
+	})
+	if err != nil { t.Fatalf("update offer: %v", err) }
+	if updated.Revision != systemRevision+1 || updated.Status != "paused" || updated.Price != "21.50" || updated.Stock != 7 {
+		t.Fatalf("updated=%+v", updated)
+	}
+	active := "active"
+	if _, err := svc.UpdateVendorOfferForSeller(ctx, principal, created.OfferID, commerce.SellerOfferUpdateInput{
+		ExpectedRevision: updated.Revision, Status: &active,
+	}); !errors.Is(err, commerce.ErrInvalidSellerOfferInput) { t.Fatalf("self publish err=%v", err) }
+	archived, err := svc.ArchiveVendorOfferForSeller(ctx, principal, created.OfferID, updated.Revision)
+	if err != nil || archived.Status != "archived" { t.Fatalf("archive=%+v err=%v", archived, err) }
+	if _, err := svc.UpdateVendorOfferForSeller(ctx, principal, created.OfferID, commerce.SellerOfferUpdateInput{
+		ExpectedRevision: archived.Revision, Price: &price,
+	}); !errors.Is(err, commerce.ErrSellerOfferArchived) { t.Fatalf("edit archived err=%v", err) }
+
+	var revisions, prices, stocks, audits int
+	checks := []struct{ query string; dest *int }{
+		{"SELECT count(*)::int FROM vendor_product_revisions WHERE vendor_product_id=$1", &revisions},
+		{"SELECT count(*)::int FROM vendor_price_history WHERE vendor_product_id=$1", &prices},
+		{"SELECT count(*)::int FROM vendor_inventory_events WHERE vendor_product_id=$1", &stocks},
+		{"SELECT count(*)::int FROM audit_events WHERE actor_user_id=$1 AND resource_type='vendor_offer' AND resource_id=$2", &audits},
+	}
+	for i, check := range checks {
+		var err error
+		if i == 3 { err = pool.QueryRow(ctx, check.query, sellerID, fmt.Sprint(created.OfferID)).Scan(check.dest) } else {
+			err = pool.QueryRow(ctx, check.query, created.OfferID).Scan(check.dest)
+		}
+		if err != nil { t.Fatalf("history count %d: %v", i, err) }
+	}
+	if revisions != 3 || prices != 2 || stocks != 2 || audits != 3 {
+		t.Fatalf("revision/price/stock/audit counts=%d/%d/%d/%d want 3/2/2/3", revisions, prices, stocks, audits)
+	}
+	if _, err := pool.Exec(ctx, "UPDATE vendor_product_revisions SET action=action WHERE vendor_product_id=$1", created.OfferID); err == nil {
+		t.Fatal("append-only seller history allowed UPDATE")
+	}
+	if _, err := auth.RevokeSellerMembership(ctx, pool, adminID, membership.ID); err != nil { t.Fatal(err) }
+	if _, err := svc.ArchiveVendorOfferForSeller(ctx, principal, created.OfferID, archived.Revision); !errors.Is(err, auth.ErrInvalidSession) {
+		t.Fatalf("revoked seller session err=%v", err)
+	}
+}
+
+func ptrPrice(value string) *string { return &value }

@@ -164,3 +164,6 @@ These remain internal services only. No admin HTTP route, dashboard, browser rol
 The query supports effective title/description/brand search, category, source, source-ID and product-ID matching, active (default), archived or all visibility states, exact source filtering, effective-brand filtering, and a fixed sort allow-list (updated time, import time, title, price, rating or stock). Pagination defaults to 20 rows, allows at most 100 rows and caps the offset at 10,000. A total count is returned with each page. User-provided sort strings are never interpolated into SQL.
 
 This is an internal service only. It adds no migration, HTTP handler, public endpoint, browser dashboard or GitHub Pages integration. Supplier provenance is read from the original catalog row; editorial search uses the separate effective override values. PostgreSQL integration tests cover non-admin denial, filters, archive visibility, ordering, pagination and invalid bounds.
+
+ 
+M06.5 provides internal seller offer create/edit/archive services. New offers begin as drafts; edits require the revision returned by the seller queue; sellers cannot self-publish; archive is terminal. Revision history, price/inventory events and redacted audit records are transactional. No HTTP route or seller UI is enabled.

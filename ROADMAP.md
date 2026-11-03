@@ -319,7 +319,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Internal admin product work queue with effective-value search, status/source/category/brand filters, safe sorting and bounded pagination; M06.3 below. Backend CI [41562259407](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562259407) and Security scans [41562285730](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562285730) passed.
 - [x] Internal seller product work queue with live vendor-membership authorization, effective catalog search, offer status/source/category/brand filters, safe sorting and bounded pagination; M06.4 below. Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334) and Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) passed.
 - [ ] Supplier connector configuration without secret exposure.
-- [ ] Seller profile, offer creation/edit/archive and demo analytics.
+- [ ] Seller profile and demo analytics; internal offer create/edit/archive is implemented in M06.5 pending CI.
 
 ### M06.1 — Internal admin overview service foundation — CI verified (2026-11-02)
 - [x] Add a dedicated deny-by-default `admin.overview.read` authorization action.
@@ -372,6 +372,18 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334), Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) and Pages deployment [41564104379](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104379) on implementation commit `b9c35829afa14d37c690fb4abad59e617140564e`; all passed, including PostgreSQL race tests, backup/restore, API/importer and Docker builds, security scan and published-site smoke test.
 
 **Boundary:** `backend/internal/commerce` exposes this as an internal read service only. No seller HTTP handler, dashboard, browser role switcher, public seller route, migration, production database or hosting was added. Existing identity and deployment approval gates still apply.
+
+### M06.5 — Internal seller offer create, edit and archive — implementation pending CI (2026-11-03)
+- [x] Add migration 015 with a database-maintained offer revision counter, append-only before/after history and protection against revision-history mutation.
+- [x] Create seller offers for existing catalog products as drafts and record opening price and stock.
+- [x] Revalidate active verified account, exact live session, seller role, active vendor and exact membership under row locks in the same transaction as every write.
+- [x] Support revision-checked edits of seller SKU, USD price and stock; write price/inventory history and immutable before/after state atomically.
+- [x] Allow sellers to pause or return an offer to draft; self-publish to active is blocked. Archive is terminal.
+- [x] Apply revision/audit semantics to the existing authorized seller price and stock methods.
+- [x] Add PostgreSQL lifecycle coverage for duplicate offers/SKUs, customer and foreign-vendor denial, stale revisions after system updates, archive and append-only history.
+- [ ] Verify Backend CI and Security scans on the implementation commit before marking this slice complete.
+
+**Boundary:** internal Go service only. No seller HTTP route, dashboard, self-publish, payout or production hosting. Seller profile and demo analytics remain separate M06 work.
 
 ## M07 — Search and discovery
 - [x] Faceted filters for brand, rating, price and category across the storefront and read-only API.

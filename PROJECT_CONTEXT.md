@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M06 admin/seller internal foundations; M06.1–M06.4 internal services are CI-verified; dashboard UI, seller write flows and public routes remain gated by M04 deployment/identity prerequisites  
+**Active stage:** M06 admin/seller internal foundations; M06.1–M06.4 are CI-verified and M06.5 seller offer services are implemented pending CI; seller profile/analytics, dashboard UI and public routes remain gated by M04 deployment/identity prerequisites  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -54,6 +54,16 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Product detail pages expose source USD price, sample discount and an indicative Toman conversion from the TGJU free-market dollar page. The source's Rial quote and Tehran update clock are preserved; this is not a checkout or executable buy/sell quote.
 - Amazon URL intake validates supported Amazon domains and ASINs, then saves requests in browser local storage. Live Amazon data is not fetched.
 - Translation is out of scope and removed from the active CI pipeline.
+
+
+ 
+## Latest M06.5 implementation checkpoint — seller offer lifecycle (2026-11-03; CI pending)
+- Added internal seller offer create/edit/archive with transaction-bound account/session/role/vendor/membership checks.
+- New offers start in draft; sellers may edit SKU/price/stock, pause or terminally archive, but cannot self-publish to active.
+- Migration 015 advances the offer revision on every UPDATE and protects append-only revision history. Price, inventory, before/after snapshots and redacted audit events are written transactionally.
+- The existing seller queue returns the revision token; existing authorized price/stock operations share the same audit/revision contract.
+- PostgreSQL lifecycle integration coverage is added. Backend CI and Security verification remain pending; do not mark M06.5 complete until they pass.
+- No seller HTTP route, dashboard, payout, hosted runtime or production database was enabled.
 
 ## M04.1 identity schema checkpoint — 2026-11-02
 
@@ -169,7 +179,7 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M08.12 PostgreSQL backup/restore coverage remains CI-only; it is not hosted backup/DR. Manual screen-reader, real-device, full-site RTL/LTR and broader deep-link QA remain open.
 
 ## Immediate next actions
-1. Continue M06 with internal seller offer creation/edit/archive and seller profile/analytics, reusing the verified vendor-scoped service boundary; keep these operations off HTTP until deployment and identity prerequisites are approved. M06.1–M06.4 are complete; do not redo them.
+1. Verify M06.5 seller offer create/edit/archive with Backend CI and Security scans, then continue with internal seller profile and demo analytics. M06.1–M06.4 are complete; do not redo them.
 2. Keep authentication, customer commerce, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.
 3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are CI-verified, but manual assistive-technology QA remains open.
 4. Keep supplier feeds gated by documented authorization. For TGJU, respect its current terms, rate limits and access controls; do not bypass CAPTCHA, HTTP denial or other restrictions. Reassess the source if production service guarantees are required.
