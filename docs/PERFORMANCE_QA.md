@@ -29,6 +29,25 @@ Each route is audited in Lighthouse's default mobile mode and its desktop preset
 - The workflow deliberately does not fail on an arbitrary Lighthouse score threshold before a stable baseline has been reviewed. Use repeated runs and inspect the raw reports before setting budgets.
 - The workflow does not upload reports to a third-party Lighthouse server and does not need a PSI API key.
 
+## Recorded published lab baseline — 2026-11-03
+
+The first baseline identified a mobile storefront bottleneck. The subsequent changes restored a single-column hero at mobile widths, added responsive image candidates, delayed the optional catalog revalidation until the browser is idle, and moved DM Sans/Vazirmatn to self-hosted `next/font` assets. Google Fonts render-blocking CSS was removed.
+
+**Latest full run:** [Lighthouse 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513), Lighthouse 13.6.0, public Pages routes, GitHub-hosted runner. Download the raw six-report artifact from the run's Artifacts section.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 10 ms | 0 |
+| Storefront — mobile | 87 | 100 | 100 | 100 | 1.2 s | 3.2 s | 250 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.6 s | 10 ms | 0 |
+| Product 1 — mobile | 96 | 100 | 100 | 100 | 0.9 s | 2.6 s | 80 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 140 ms | 0 |
+
+The initial storefront mobile audit (run 41601101775) recorded Performance 74, LCP 4.9 s and TBT 320 ms. The latest run records 87, 3.2 s and 250 ms respectively. The 1.7 s LCP reduction is approximately 35%; these remain lab comparisons, not field measurements.
+
+The final relevant CI set is [Browser E2E 41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095) (44/44 tests), [Pages 41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) (production build and public-route smoke), and [Security 41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997).
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.

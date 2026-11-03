@@ -100,10 +100,19 @@ The repository, not chat history, is the canonical source of truth.
 - Keep TGJU as the only USD source; do not reintroduce Wallex, restart translation, redo M06.1–M06.6, or expose public admin/seller/real-commerce routes without explicit owner approval.
 
 
-## Current continuation checkpoint — M08.15 public performance lab baseline (implementation added; first run pending, 2026-11-03)
+## Previous continuation checkpoint — M08.15 public performance lab baseline (implementation initially added, 2026-11-03)
 - Main head at start of this slice was `f7435f94329c7b155cb47f8e8dc25420125824a5`; default branch remains `main`, package version remains `0.2.3-dev`.
 - Added `.github/workflows/lighthouse-public.yml`: after a successful Pages deployment, it audits the public home, `/product/1/` and `/case-study/` routes in mobile and desktop Lighthouse modes with exact Lighthouse CLI `13.6.0`, Node 22 and Chromium from the committed Playwright toolchain. It keeps JSON reports as a GitHub Actions artifact and summarizes lab scores/metrics. The workflow is also manually dispatchable and weekly.
 - Added `scripts/summarize-lighthouse.mjs` and `docs/PERFORMANCE_QA.md`. No PSI API key or external report server is used. This is runner-based lab data, not CrUX/field CWV or physical-device evidence.
-- First post-deployment audit run remains pending. Do not invent scores or establish thresholds until reports exist and are reviewed.
+- This initial pending note is superseded by the completed measurements below.
 - M09.4 remains blocked on actual physical desktop/mobile, real screen-reader, complete site RTL/LTR, and published delivery/field-data checks. The new doc gives the route sequence and evidence table. Keep 0.2.3-dev until those manual gates are truly recorded.
 - TGJU remains the only USD source; translation remains paused; do not repeat M06 or enable public admin/seller/real-commerce routes.
+
+
+## Current continuation checkpoint — M08.15 measured; M09.4 external QA remains (2026-11-03)
+- Latest browser suite [41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095): 44/44 tests passed. Includes responsive mobile hero, idle catalog refresh and self-hosted font assertions.
+- Latest deploy [41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) passed production build and the published Pages smoke test; security [41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997) passed.
+- Latest published Lighthouse [41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513): home mobile 87 / LCP 3.2 s / TBT 250 ms; product mobile 96; case-study mobile 99. All 6 routes/modes recorded 100 Accessibility and 100 SEO. Full table and first-baseline comparison are in `docs/PERFORMANCE_QA.md`.
+- Homepage mobile improved from initial run 41601101775 (74 / 4.9 s / 320 ms) after mobile hero stacking, responsive image candidates, idle sample-catalog revalidation and local `next/font` fonts. These are lab results, not field Core Web Vitals.
+- M08.15 is completed. Next/remaining is only M09.4: actual physical device, real screen-reader, comprehensive manual RTL/LTR and normal-network/field-delivery review. Do not tag 1.0.0 or claim field performance until those are recorded.
+- Version stays 0.2.3-dev; TGJU is sole FX source; translation paused; don't redo M06, change DB schema, introduce hosted commerce or public admin/seller endpoints without an approved requirement.

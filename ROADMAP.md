@@ -475,12 +475,29 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 **Boundary:** these checks validate browser-emulated loading policy, layout reservation and first-party asset budgets. They do not measure remote image CDN timing, field Core Web Vitals, physical-device performance or screen-reader output; those remain manual QA.
 
 
-### M08.15 — Published Lighthouse lab baseline (implementation added; first run pending)
+### M08.15 — Published Lighthouse lab baseline (verified, 2026-11-03)
 - [x] Add a scheduled and post-deployment Lighthouse workflow using the exact CLI version 13.6.0 and the committed Node 22/Playwright Chromium toolchain.
 - [x] Audit the public storefront, representative product detail and bilingual case-study route in mobile and desktop lab modes; preserve raw JSON reports as a private GitHub Actions artifact.
 - [x] Summarize Performance, Accessibility, Best Practices, SEO, FCP, LCP, TBT and CLS without conflating lab results with field Core Web Vitals.
 - [x] Document manual physical-device, real screen-reader, comprehensive RTL/LTR and field-data acceptance steps in [PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
-- [ ] Complete the first post-deployment Lighthouse run and review the six report results before establishing any performance score budget.
+- [x] Complete the first post-deployment Lighthouse run and review all six report results. Latest published lab report: [run 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513), against main snapshot `2eb11c745757f86ee9d5a3bd4d1fa8561c9e4cf1`.
+
+**Latest recorded result (Lighthouse 13.6.0, GitHub-hosted Chromium; six published lab audits):**
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 10 ms | 0 |
+| Storefront — mobile | 87 | 100 | 100 | 100 | 1.2 s | 3.2 s | 250 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.6 s | 10 ms | 0 |
+| Product 1 — mobile | 96 | 100 | 100 | 100 | 0.9 s | 2.6 s | 80 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 140 ms | 0 |
+
+Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513).
+
+**Measured storefront mobile improvement:** the initial public run recorded Performance 74, LCP 4.9 s and TBT 320 ms. After restoring the mobile single-column hero, using responsive hero image candidates, deferring the noncritical sample-catalog revalidation until idle, and self-hosting DM Sans/Vazirmatn via `next/font`, the latest run recorded Performance 87, LCP 3.2 s and TBT 250 ms. That is a 1.7 s (about 35%) lab LCP reduction and a 13-point Performance score increase. The run environment and emulation are the same general GitHub-hosted Lighthouse lab workflow; repeated runs can still vary.
+
+**Verified code checks:** [Browser E2E run 41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095) passed 44/44 desktop/mobile tests, including mobile hero stacking, absence of external Google Fonts requests, and asset budgets. [Pages deployment 41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) passed production build and public-route smoke; [Security 41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997) passed.
 
 **Boundary:** Lighthouse desktop/mobile presets are lab emulation. They do not close physical-device, actual screen-reader or CrUX/field-data release gates. No third-party reporting server, API key or production secret is required.
 

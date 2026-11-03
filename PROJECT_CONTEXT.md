@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M08.15 public Lighthouse lab baseline; M09.1–M09.3 are implemented and CI-verified. M09.4 manual device/screen-reader/full-site RTL/LTR and field-delivery QA remains an external gate; M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
+**Active stage:** M09.4 release readiness; M08.15 public Lighthouse lab baseline is completed and documented. M09.1–M09.3 are implemented and CI-verified. Manual device/screen-reader/full-site RTL/LTR and field-delivery QA remains an external gate; M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -792,3 +792,13 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - README now presents the verified product scope and both screenshot assets; CHANGELOG and release process reflect the new workflow.
 - **Next:** finish only the manual M08 external checks (physical device, screen reader, whole-site RTL/LTR and live CDN/Core Web Vitals). Do not tag 1.0.0 until those gates are genuinely reviewed. No need to revisit M06, redo completed ERD work, or introduce real payment/fulfillment/provider infrastructure.
 - TGJU remains the sole USD source; translation remains paused; public admin/seller routes and real commerce remain disabled.
+
+
+## Latest continuation checkpoint — M08.15 measured and verified (2026-11-03)
+- Latest main snapshot after the font, mobile hero and catalog-idle changes is `2eb11c745757f86ee9d5a3bd4d1fa8561c9e4cf1`; version remains `0.2.3-dev`.
+- Browser E2E [41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095) passed **44/44** desktop/mobile tests. This includes mobile hero stacking/responsive image coverage and the `document.fonts` assertion for self-hosted DM Sans/Vazirmatn with no Google Fonts requests.
+- Production build + public Pages smoke [41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) passed; security [41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997) passed.
+- Latest published Lighthouse [41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513) completed all six route/mode audits. Homepage mobile Performance is 87, LCP 3.2 s, TBT 250 ms; the initial baseline was 74 / 4.9 s / 320 ms. The detailed six-row table is in `docs/PERFORMANCE_QA.md`.
+- Mobile hero is one column at <=760 px; the hero image offers responsive candidates; the sample DummyJSON revalidation starts on idle or after a bounded fallback delay; fonts are self-hosted using `next/font`. No runtime backend, schema, payment path or vendor service was introduced.
+- M08.15 is complete as an automated lab baseline. M09.4 remains open for real physical desktop/mobile checks, actual screen-reader tests, complete manual RTL/LTR, and normal-network/field metric evidence. Lighthouse lab scores and axe are not substitutes.
+- Keep the version at `0.2.3-dev` until those external checks are recorded. TGJU remains the only USD source; translation remains paused; do not redo M06 or open public admin/seller/real-commerce routes.

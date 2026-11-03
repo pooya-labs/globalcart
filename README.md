@@ -23,7 +23,7 @@
 
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
 
-## Current status — v0.2.3-dev · M09.3 portfolio evidence complete; v1.0 release gated by manual QA
+## Current status — v0.2.3-dev · portfolio and lab performance baseline complete; v1.0 gated by manual QA
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -107,6 +107,7 @@ npm run build
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system boundaries and data flow.
 - [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md) — migration-derived PostgreSQL ERD covering all 27 tables and key constraints.
 - [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md) — public Lighthouse lab baseline, methodology and manual 1.0 release checklist.
+- Latest public Lighthouse lab audit: homepage mobile 87 Performance / 3.2 s LCP; product mobile 96; case study mobile 99. All six audits recorded 100 Accessibility and SEO. See the QA report for exact lab values and limitations.
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
 - [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) — verification and semantic versioning.
