@@ -118,10 +118,16 @@ test("recently viewed page defers images and decodes them asynchronously", async
     }
   });
 
-  // Resolve relative to the product route so the GitHub Pages /globalcart base
-  // path is preserved in CI as well as in the local development server.
-  const recentUrl = new URL("../../recently-viewed/", page.url());
-  await page.goto(recentUrl.href);
+  // Derive the Pages base path from the product route instead of relying on
+  // a relative URL: Next.js client routes omit the trailing slash in the URL,
+  // so resolving "../../" would otherwise escape the /globalcart prefix.
+  const productUrl = new URL(page.url());
+  const productPath = productUrl.pathname.replace(/\/$/, "");
+  const productDirectory = productPath.slice(0, productPath.lastIndexOf("/"));
+  const basePath = productDirectory.slice(0, productDirectory.lastIndexOf("/"));
+  const recentUrl = new URL(`${basePath}/recently-viewed/`, productUrl.origin);
+  const historyResponse = await page.goto(recentUrl.href);
+  expect(historyResponse?.status()).toBe(200);
   const historyImage = page.locator(".history-card > img").first();
   await expect(historyImage).toBeVisible();
   await expect(historyImage).toHaveAttribute("loading", "lazy");
