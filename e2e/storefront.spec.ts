@@ -52,7 +52,7 @@ test("labels date-only TGJU quotes as stale on storefront and product detail", a
   await page.locator(".product-card h3 a")
     .filter({ hasText: "Essence Mascara Lash Princess" })
     .click();
-  await expect(page).toHaveURL(/\\/product\\/1\\/?$/);
+  await expect(page).toHaveURL(/\/product\/1\/?$/);
 
   const breakdown = page.locator(".price-breakdown");
   await breakdown.locator("summary").click();
