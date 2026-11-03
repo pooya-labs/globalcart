@@ -505,3 +505,8 @@ details>summary{min-height:28px;padding-block:5px;line-height:1.5}
 .detail-variant small{flex-basis:100%;background:transparent;padding-inline:0}
 @media(max-width:900px){.fx-control{min-width:0}.benefits .fx-control{grid-column:1/-1;border-inline-start:0;border-top:1px solid #e7edf1;padding:12px 0 2px}}
 @media(max-width:600px){.detail-provenance-grid{grid-template-columns:1fr}.detail-provenance-heading{align-items:flex-start;flex-direction:column}}
+
+
+/* M09.4 automated accessibility sweep — recently viewed contrast */
+.history-heading p,.history-note,.history-empty p{color:#536174}
+.history-card span{color:#77520c}
