@@ -30,6 +30,10 @@ Browser-local cart / favorites / simulated checkout
 
 The browser may attempt a live catalog refresh. If it fails, the storefront keeps the generated snapshot; local fixtures are used only if no snapshot exists.
 
+## Database schema reference
+
+The actual PostgreSQL schema is defined by migrations 001–015 (27 tables). See [DATABASE_ERD.md](DATABASE_ERD.md) for domain-grouped Mermaid ERDs and the declared foreign-key, composite-key and ownership constraints. The diagrams describe the local-development/CI schema and do not imply a hosted production database.
+
 ## Backend foundation (main; local development only)
 
 The merged `main` branch contains a runnable Go API and PostgreSQL 17 Compose environment. The API applies embedded versioned migrations on startup, exposes liveness/readiness probes and read-only catalog list/detail endpoints, and uses a local CLI to import the normalized static catalog snapshot. OpenAPI is maintained in `backend/openapi.yaml`. The Compose ports bind to loopback; this is not a public or production deployment. The branch now also includes normalized catalog categories and product variants while preserving the current product API shape. The repository uses a sqlc-generated pgx/v5 typed catalog query layer. The embedded migration runner applies one file per transaction under a PostgreSQL advisory lock and records exact-byte SHA-256 checksums; it rejects changed or missing applied migration files. See docs/DATABASE_MIGRATION_POLICY.md for immutable migration, forward-fix and recovery rules. Migration 011 provides identity/session/RBAC storage scaffolding, but authentication, write endpoints and hosted infrastructure remain gated future work. PostgreSQL integration tests cover concurrent/idempotent migrations, checksum adoption/drift, catalog upserts and transactional rollback.
