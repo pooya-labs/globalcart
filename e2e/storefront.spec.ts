@@ -234,3 +234,16 @@ test("active catalog filter chips remove one facet or clear the complete filter 
   await expect(brand).toHaveValue("");
   await expect(page.locator(".facet-select-group select").nth(1)).toHaveValue("0");
 });
+
+
+test("mobile filter sheet has a clear close action", async ({ page }) => {
+  const isMobile = await page.evaluate(() => window.matchMedia("(max-width: 760px)").matches);
+  test.skip(!isMobile, "The filter sheet is a mobile-only interaction.");
+
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("button", { name: "Filters" }).click();
+  const panel = page.locator(".filter-panel.filter-visible");
+  await expect(panel).toBeVisible();
+  await page.getByRole("button", { name: "Close filters" }).click();
+  await expect(page.locator(".filter-panel.filter-visible")).toHaveCount(0);
+});

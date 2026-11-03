@@ -723,3 +723,9 @@ body{background:#f7f8f5;color:var(--ink)}
   .filter-title-actions{gap:6px}
   .filter-close{display:grid}
 }
+
+/* M09.5 product-card price provenance and mirrored quick actions */
+.product-image-link img{object-fit:contain;padding:12px}
+.compare-card-button{inset-inline-start:auto}
+.price-original{text-decoration:line-through;text-decoration-thickness:1px;color:#718078!important}
+.price-source{text-decoration:none;color:#718078!important}
