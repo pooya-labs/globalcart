@@ -246,7 +246,7 @@ test("recently viewed page defers images and decodes them asynchronously", async
 test("tablet viewport fits the storefront, product and case-study routes without horizontal overflow", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("tablet"), "Tablet-only responsive regression check.");
 
-  const assertNoHorizontalOverflow = async (routeName: string) => {
+  const assertNoHorizontalOverflow = async (routeName: string, orientation: string) => {
     const dimensions = await page.evaluate(() => ({
       viewportWidth: document.documentElement.clientWidth,
       documentWidth: document.documentElement.scrollWidth,
@@ -255,22 +255,32 @@ test("tablet viewport fits the storefront, product and case-study routes without
     expect(dimensions.viewportWidth).toBeGreaterThanOrEqual(768);
     expect(
       Math.max(dimensions.documentWidth, dimensions.bodyWidth),
-      `${routeName} overflows the tablet viewport: ${JSON.stringify(dimensions)}`
+      `${routeName} overflows the tablet ${orientation} viewport: ${JSON.stringify(dimensions)}`
     ).toBeLessThanOrEqual(dimensions.viewportWidth);
   };
 
-  await expect(page.locator("main.store")).toBeVisible();
-  await assertNoHorizontalOverflow("Storefront");
+  const orientations = [
+    { name: "portrait", width: 810, height: 1080 },
+    { name: "landscape", width: 1080, height: 810 }
+  ];
 
-  const productResponse = await page.goto("./product/1/");
-  expect(productResponse?.status()).toBe(200);
-  await expect(page.locator("main.product-page")).toBeVisible();
-  await expect(page.locator(".detail-information h1")).toBeVisible();
-  await assertNoHorizontalOverflow("Product detail");
+  for (const orientation of orientations) {
+    await page.setViewportSize({ width: orientation.width, height: orientation.height });
 
-  const caseStudyResponse = await page.goto("./case-study/");
-  expect(caseStudyResponse?.status()).toBe(200);
-  await expect(page.locator("main.case-study")).toBeVisible();
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await assertNoHorizontalOverflow("Case study");
+    await page.goto("./");
+    await expect(page.locator("main.store")).toBeVisible();
+    await assertNoHorizontalOverflow("Storefront", orientation.name);
+
+    const productResponse = await page.goto("./product/1/");
+    expect(productResponse?.status()).toBe(200);
+    await expect(page.locator("main.product-page")).toBeVisible();
+    await expect(page.locator(".detail-information h1")).toBeVisible();
+    await assertNoHorizontalOverflow("Product detail", orientation.name);
+
+    const caseStudyResponse = await page.goto("./case-study/");
+    expect(caseStudyResponse?.status()).toBe(200);
+    await expect(page.locator("main.case-study")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await assertNoHorizontalOverflow("Case study", orientation.name);
+  }
 });
