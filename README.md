@@ -6,9 +6,24 @@
 **Public preview:** https://pooya16pg-spec.github.io/globalcart/  
 **Bilingual case study:** https://pooya16pg-spec.github.io/globalcart/case-study/
 
+
+<details>
+<summary>Desktop — full-page case-study capture</summary>
+
+![GlobalCart bilingual case study, desktop Chromium](docs/screenshots/case-study-desktop.png)
+
+</details>
+
+<details>
+<summary>Mobile — full-page case-study capture</summary>
+
+![GlobalCart bilingual case study, mobile Chromium](docs/screenshots/case-study-mobile.png)
+
+</details>
+
 GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
 
-## Current status — v0.2.3-dev · M09.2 database ERD and portfolio release in progress
+## Current status — v0.2.3-dev · M09.3 portfolio evidence complete; v1.0 release gated by manual QA
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -25,15 +40,17 @@ Implemented:
 - TGJU free-market USD quote for demo price estimates; the source publishes Rial and GlobalCart explicitly converts it to Toman. Source time and freshness are labelled; no hard-coded FX fallback is used.
 - Decimal-safe pricing core using integer cents, fixed-point FX and explicit rounding.
 - Source/demo disclosures and visible owner attribution.
-- GitHub Pages deployment workflow and project handoff documentation.
-- Target architecture: Go REST/OpenAPI, PostgreSQL + sqlc, Python workers and optional Redis at the backend milestone.
+- GitHub Pages deployment workflow, project handoff documentation and a bilingual portfolio case study with architecture/data-flow view and a 27-table PostgreSQL ERD.
+- Real desktop/mobile full-page case-study screenshots are committed in `docs/screenshots/`.
+- Search suggestions, keyboard command palette, explainable sample recommendations and saved-search flows.
+- Backend foundation: Go REST/OpenAPI, PostgreSQL 17 and sqlc are available for local development and CI. Redis is optional; no hosted API or database is deployed.
+- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI. Latest Browser E2E passed 40/40 scenarios in [run 41596731945](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731945).
 
 In progress / not yet claimed as complete:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
-- Search suggestions, the keyboard command palette, explainable sample recommendations and saved-search flows are implemented.
-- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys (including recently viewed image loading), and first-party asset budgets run in CI; manual screen-reader/real-device RTL/LTR QA and live CDN/Core Web Vitals review remain open.
+- Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
 
 
 ## Demo boundaries
@@ -104,4 +121,4 @@ GlobalCart follows semantic versioning. Every release must update package.json, 
 ## Backend foundation (local development)
 The M04 backend foundation is merged into `main`. It includes a Go REST API, PostgreSQL 17 Docker Compose setup, versioned SQL migrations, sqlc-generated query layer, catalog snapshot importer and OpenAPI 3.1 contract. It remains local-development infrastructure; the public GitHub Pages demo is static and no cloud database or API has been provisioned.
 
-Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and GitHub Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) passed on the current `main` implementation. See [backend/README.md](backend/README.md) for local setup and [backend/openapi.yaml](backend/openapi.yaml) for the read-only API contract.
+Historical M04 backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) validated that foundation when it was merged; current public Pages checks are tracked in the roadmap. See [backend/README.md](backend/README.md) for local setup and [backend/openapi.yaml](backend/openapi.yaml) for the read-only API contract.

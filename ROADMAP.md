@@ -477,33 +477,43 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M09 — Portfolio release
 - [x] Persian and English case study (M09.1; automated desktop/mobile RTL/LTR and axe checks passed).
 - [x] Architecture/data-flow diagram and bilingual feature tour.
-- [x] PostgreSQL ERD and relationship notes derived from migrations 001–015 (M09.2).
-- [ ] Real published desktop/mobile screenshots and portfolio evidence.
-- [ ] Versioned 1.0.0 release and changelog.
-- [ ] README verified against actual behavior.
-- [ ] Final public demo smoke test.
+- [x] PostgreSQL ERD and relationship notes derived from migrations 001–015 (27 tables; M09.2).
+- [x] Real full-page desktop/mobile screenshots captured from the production static export and committed under `docs/screenshots/` (M09.3).
+- [x] README audited against the implemented behavior, public/static hosting boundary and remaining prerequisites.
+- [x] Final public demo smoke test: homepage, JavaScript asset, product deep link, and published `/case-study/` with ERD content.
+- [ ] Versioned 1.0.0 release and release changelog. Keep gated until the remaining M08 manual device, screen-reader, full-site RTL/LTR and live CDN/Core Web Vitals reviews are completed.
 
 ### M09.1 — Bilingual portfolio case study (CI verified, 2026-11-03)
 - [x] Add a dedicated statically exportable `/case-study/` route with Persian RTL and English LTR content, reusing the shared guarded locale preference.
 - [x] Explain the implemented product journey, real technology stack, catalog/TGJU data flow, local backend boundary and non-transactional demo limits without claiming unshipped infrastructure.
 - [x] Add a responsive architecture/data-flow diagram and a feature tour linking to existing storefront journeys.
 - [x] Add route metadata and a discoverable link from the storefront footer.
-- [x] Verify typecheck, unit tests, production static export, desktop/mobile browser coverage and published Pages smoke. Browser E2E [41577703335](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703335), Security [41577703300](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703300) and Pages [41577703347](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703347) all passed on implementation head `a1d53de17a64e3dd80b74e87eca9e4880123538f`.
-- [ ] Capture real published screenshots for desktop and mobile; automated screenshots-on-failure are not portfolio screenshots.
+- [x] Verify typecheck, unit tests, production static export, desktop/mobile browser coverage and published Pages smoke. Browser E2E [41577703335](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703335), Security [41577703300](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703300) and Pages [41577703347](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703347) passed on the first implementation head.
+- [x] Superseding regression coverage includes the database section and ERD link in both locales; the current suite now contains 40 desktop/mobile scenarios.
 
-**Boundary:** no new commerce behavior, hosted service, supplier integration, translation runtime or live transaction path is introduced. M09.1 does not close M08 manual screen-reader, physical-device, full-site RTL/LTR or live CDN/Core Web Vitals QA.
+**Boundary:** no new commerce behavior, hosted service, supplier integration, translation runtime or live transaction path was introduced. M09.1 does not close M08 manual screen-reader, physical-device, full-site RTL/LTR or live CDN/Core Web Vitals QA.
 
-### M09.2 — PostgreSQL ERD and public project documentation (implementation on main; CI pending, 2026-11-03)
+### M09.2 — PostgreSQL ERD and public project documentation (CI verified, 2026-11-03)
 - [x] Inspect all 15 append-only PostgreSQL migrations (001–015) and derive the table/foreign-key model from the SQL source of truth.
 - [x] Document all 27 tables in domain-grouped Mermaid ERDs: catalog/marketplace, demo commerce, identity/access and editorial/seller revision history.
 - [x] Record critical composite foreign keys, optional guest/account cart ownership, vendor-order parent/child invariants, append-only audit/revision history and the boundary between local DB state and browser-local state.
 - [x] Add a responsive four-domain database summary and a direct ERD link to the bilingual case-study page.
 - [x] Add desktop/mobile RTL/LTR accessibility regression assertions for the new database section and ERD link.
-- [ ] Verify TypeScript, unit tests, static build, desktop/mobile browser E2E, Security scans and published Pages smoke on the final implementation head.
+- [x] Verify TypeScript, unit tests, static build, desktop/mobile browser E2E (40 passed), Security scans and published Pages smoke. Browser E2E [41596731945](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731945), Security [41596731890](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731890), Pages [41596731889](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731889).
 
 **Source:** [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md). The document describes the schema declared by migrations; it does not claim a production database is deployed. No SQL migration, database table, runtime dependency or API endpoint was changed.
 
 **Boundary:** M09.2 documents existing schema only. It does not expose the internal admin/seller/commerce services over HTTP or imply live payment, fulfillment or inventory operations. M08 manual screen-reader, physical-device and live CDN/Core Web Vitals QA remains open.
+
+### M09.3 — Screenshot evidence and README accuracy (completed, 2026-11-03)
+- [x] Add a Playwright capture test that takes full-page Persian screenshots from the production static export in desktop and mobile Chromium projects.
+- [x] Publish the verified screenshot artifact to `docs/screenshots/case-study-desktop.png` and `docs/screenshots/case-study-mobile.png` through the guarded [Publish portfolio screenshots workflow](.github/workflows/publish-portfolio-screenshots.yml).
+- [x] Confirm the capture suite: 40/40 browser scenarios passed on [run 41596731945](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731945); screenshot publication [run 41597084953](https://github.com/pooya16pg-spec/globalcart/actions/runs/41597084953) succeeded and committed the two assets.
+- [x] Audit README feature claims, move completed search/command-palette/recommendation work into the implemented list, remove the unimplemented Python-worker claim, and document the true local-only backend boundary.
+- [x] Extend the Pages deployment smoke test to fetch the published `/case-study/` URL and assert its main heading, database section and ERD link. The final Pages smoke [41596731889](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731889) passed.
+- [x] Update AI handoff, project context, release process and changelog to match verified main.
+
+**Release gate:** do not tag 1.0.0 until M08 manual real-device, screen-reader, comprehensive RTL/LTR and live CDN/Core Web Vitals QA are performed. Browser emulation is useful regression coverage, not a substitute for those checks.
 
 ## Handoff rule
 Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md and docs/DECISIONS.md before changing code. Continue from the earliest incomplete item, inspect current Actions, and update documentation only with verified facts.

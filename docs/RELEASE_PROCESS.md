@@ -9,7 +9,9 @@
 For every release update package.json, CHANGELOG.md, ROADMAP.md, and PROJECT_CONTEXT.md together.
 
 ## Verification
-Use Node 22 and the committed `package-lock.json`: run `npm ci`, `npm run typecheck`, `npm test`, and `npm run build`. Do not use a floating `npm install` in routine CI. Verify the GitHub Pages base path. The Pages workflow runs an HTTP smoke test after deployment against the published homepage, a generated Next.js JavaScript asset and one catalog-backed product deep link. Do not claim deployment success unless the deploy action and this smoke step both pass.
+Use Node 22 and the committed `package-lock.json`: run `npm ci`, `npm run typecheck`, `npm test`, and `npm run build`. Do not use a floating `npm install` in routine CI. Verify the GitHub Pages base path. The Pages workflow runs an HTTP smoke test after deployment against the published homepage, a generated Next.js JavaScript asset, one catalog-backed product deep link and the `/case-study/` route (including its database-model section and ERD link). Do not claim deployment success unless the deploy action and this smoke step both pass.
+
+After a successful Browser E2E push to `main`, `publish-portfolio-screenshots.yml` downloads the test artifact and commits the desktop/mobile case-study screenshots. The publisher is restricted to successful same-repository pushes to `main`; failed or cancelled test artifacts are never published.
 
 The Pages workflow has a one-time bootstrap path for a branch without a lockfile: it creates the lockfile, persists it with the generated catalog snapshot, then validates it using a clean `npm ci` before continuing. Lockfile-based dependency resolution is reproducible for a fixed manifest/runtime; the static export is not byte-for-byte reproducible while its public demo catalog snapshot and generation timestamp are refreshed from an external source.
 

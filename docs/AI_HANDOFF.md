@@ -88,3 +88,13 @@ The repository, not chat history, is the canonical source of truth.
 - Next: validate the latest main head with TypeScript, unit tests, static build, desktop/mobile Browser E2E, Security scans and published Pages smoke. Only mark M09.2 CI-verified after all checks pass.
 - Remaining release work: real desktop/mobile screenshots, README final behavior audit, 1.0.0 and final public demo smoke. Do not repeat completed M06 work, do not add public admin/seller routes or real commerce, and do not reintroduce Wallex; TGJU remains the FX source.
 - Manual M08 screen-reader, physical-device and live CDN/Core Web Vitals checks remain external QA gates.
+
+
+## Current continuation checkpoint — M09.3 complete (2026-11-03)
+- Main contains the bilingual case study, the 27-table PostgreSQL ERD, README accuracy updates and real desktop/mobile screenshot assets.
+- Browser E2E [41596731945](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731945): 40/40 tests passed, including desktop/mobile screenshot capture, static build, unit tests and TypeScript validation.
+- Security [41596731890](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731890) passed. Pages [41596731889](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731889) passed the published homepage/asset/product/case-study/ERD smoke check.
+- Screenshot publishing workflow [41597084953](https://github.com/pooya16pg-spec/globalcart/actions/runs/41597084953) committed `docs/screenshots/case-study-desktop.png` and `docs/screenshots/case-study-mobile.png` (commit `73625e9a9191b6c850ee0a1c3ea3edca409e0216`). It only publishes after a successful Browser E2E push to main.
+- Database ERD source is the 15 SQL migrations under `backend/internal/database/migrations/`; there are 27 tables. No schema migration or hosted backend was introduced.
+- **Next action:** M08 manual physical-device, screen-reader, comprehensive RTL/LTR and live CDN/Core Web Vitals QA. These are not proven by browser emulation. Keep version at 0.2.3-dev; do not create/tag 1.0.0 before the external QA gate.
+- Keep TGJU as the only USD source; do not reintroduce Wallex, restart translation, redo M06.1–M06.6, or expose public admin/seller/real-commerce routes without explicit owner approval.
