@@ -88,6 +88,7 @@ npm run build
 - [docs/AI_HANDOFF.md](docs/AI_HANDOFF.md) — mandatory instructions for a replacement AI/developer.
 - [CHANGELOG.md](CHANGELOG.md) — version history.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system boundaries and data flow.
+- [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md) — migration-derived PostgreSQL ERD covering all 27 tables and key constraints.
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
 - [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) — verification and semantic versioning.
