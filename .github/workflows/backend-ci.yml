@@ -36,6 +36,20 @@ jobs:
         with:
           go-version: "1.27.3"
           cache: true
+      - name: Enforce canonical Go module path
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="github.com/pooya-labs/globalcart"
+          actual="$(awk '$1 == "module" { print $2; exit }' go.mod)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::Expected Go module $expected, found $actual"
+            exit 1
+          fi
+          if grep -R -n --include='*.go' -F 'github.com/pooya16pg-spec/globalcart' backend; then
+            echo "::error::Legacy GitHub owner found in backend Go imports"
+            exit 1
+          fi
       - name: Generate typed SQL access layer
         run: docker run --rm -v "$PWD:/src" -w /src sqlc/sqlc:1.29.0 generate
       - name: Resolve modules and format Go sources

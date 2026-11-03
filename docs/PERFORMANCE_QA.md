@@ -217,22 +217,22 @@ All six audits report 100 Accessibility, Best Practices and SEO, and all desktop
 
 **Verification lineage:** Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed 74/74 across Chromium desktop/mobile, Firefox and WebKit. Pages deployment/public smoke [41626708812](https://github.com/pooya-labs/globalcart/actions/runs/41626708812) and Security [41626708835](https://github.com/pooya-labs/globalcart/actions/runs/41626708835) passed. The current application implementation did not change in the documentation-only continuation.
 
-### Latest completed published audit — November 3, 2026 (run 41630849560)
+### Latest completed published audit — November 3, 2026 (run 41631496522)
 
-**Run:** [Public Lighthouse 41630849560](https://github.com/pooya-labs/globalcart/actions/runs/41630849560) · Lighthouse 13.6.0 · GitHub-hosted Chromium · `https://pooya-labs.github.io/globalcart/`. All six route/mode audits completed successfully.
+**Run:** [Public Lighthouse 41631496522](https://github.com/pooya-labs/globalcart/actions/runs/41631496522) · Lighthouse 13.6.0 · GitHub-hosted Chromium · `https://pooya-labs.github.io/globalcart/`. All six route/mode audits completed successfully.
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Storefront — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 60 ms | 0 |
-| Storefront — mobile | 89 | 100 | 100 | 100 | 1.3 s | 3.2 s | 170 ms | 0 |
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 10 ms | 0 |
+| Storefront — mobile | 91 | 100 | 100 | 100 | 1.3 s | 3.2 s | 180 ms | 0 |
 | Product 1 — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.6 s | 10 ms | 0 |
-| Product 1 — mobile | 93 | 100 | 100 | 100 | 0.9 s | 3.1 s | 70 ms | 0 |
+| Product 1 — mobile | 94 | 100 | 100 | 100 | 1.1 s | 2.9 s | 70 ms | 0 |
 | Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 10 ms | 0 |
-| Case study — mobile | 98 | 100 | 100 | 100 | 0.9 s | 0.9 s | 150 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 120 ms | 0 |
 
-All six audits report 100 Accessibility, Best Practices and SEO; desktop Performance is 100 on every route. These are GitHub-hosted lab results only, not CrUX/field Core Web Vitals. Compared with run 41627559678, the most recent mobile scores changed slightly (home 88→89, product 94→93, case study 99→98); treat individual-run variation as lab variance unless repeatable evidence establishes a regression.
+All six audits report 100 Accessibility, Best Practices and SEO; desktop Performance is 100 on every route. Compared with the previous completed audit [41630849560](https://github.com/pooya-labs/globalcart/actions/runs/41630849560), the mobile scores moved from 89→91 (storefront), 93→94 (product) and 98→99 (case study). These remain GitHub-hosted lab measurements only, not CrUX or real-user field Core Web Vitals. Lighthouse variation should be interpreted across repeated runs, not as a field trend.
 
-**Verification lineage:** Backend CI [41630685778](https://github.com/pooya-labs/globalcart/actions/runs/41630685778), Security [41630685755](https://github.com/pooya-labs/globalcart/actions/runs/41630685755), and Pages deployment/public smoke [41630685929](https://github.com/pooya-labs/globalcart/actions/runs/41630685929) passed for the canonical module path migration.
+**Verification lineage:** Go module-path migration Backend CI [41630685778](https://github.com/pooya-labs/globalcart/actions/runs/41630685778), Security [41630685755](https://github.com/pooya-labs/globalcart/actions/runs/41630685755), and Pages deployment/public smoke [41630685929](https://github.com/pooya-labs/globalcart/actions/runs/41630685929) passed. The later docs-only deployment [41631491927](https://github.com/pooya-labs/globalcart/actions/runs/41631491927) and Security [41631491938](https://github.com/pooya-labs/globalcart/actions/runs/41631491938) passed.
 
 ## Manual release checklist — fill with actual observations
 

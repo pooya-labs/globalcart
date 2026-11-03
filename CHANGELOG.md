@@ -1,5 +1,12 @@
 # Changelog
 
+### Verified — canonical Go module guard and latest published audit (2026-11-03)
+
+- Added a Backend CI assertion for the canonical `github.com/pooya-labs/globalcart` module declaration and a regression check rejecting legacy-owner import paths in backend Go sources.
+- Published Lighthouse [41631496522](https://github.com/pooya-labs/globalcart/actions/runs/41631496522): mobile storefront Performance 91 / LCP 3.2 s / TBT 180 ms; product 94 / 2.9 s / 70 ms; case study 99 / 0.9 s / 120 ms. Desktop Performance is 100 for all three routes; Accessibility, Best Practices and SEO are 100 in all six audits. GitHub-hosted lab results only, not field Core Web Vitals.
+- The preceding Go module migration remains verified by Backend CI [41630685778](https://github.com/pooya-labs/globalcart/actions/runs/41630685778), Security [41630685755](https://github.com/pooya-labs/globalcart/actions/runs/41630685755) and Pages/public smoke [41630685929](https://github.com/pooya-labs/globalcart/actions/runs/41630685929).
+
+
 ### Verified — canonical Go module path migration and release QA (2026-11-03)
 
 - Updated `go.mod` and all 27 Go source/test files to use the canonical module path `github.com/pooya-labs/globalcart`; 63 old module-path occurrences were replaced. No business logic or schema changed.
