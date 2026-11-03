@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M06 admin/seller internal foundations; M06.1–M06.2 are CI-verified; M06.3 internal product listing is implemented with CI verification pending; dashboard UI, seller tools and public routes remain gated by M04 deployment/identity prerequisites  
+**Active stage:** M06 admin/seller internal foundations; M06.1–M06.3 are CI-verified; dashboard UI, seller tools and public routes remain gated by M04 deployment/identity prerequisites  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -693,12 +693,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - Implementation head: `7ca99c04a348256aa0a6051241864213968f7f84`. The Pages deployment contains no frontend change; no HTTP handler, dashboard, public role switcher, account bootstrap, hosted database or production API was enabled.
 
 
-## Latest M06.3 checkpoint — internal administrator product listing (implementation committed; CI pending, 2026-11-03)
+## Latest M06.3 checkpoint — internal administrator product listing (CI verified, 2026-11-03)
 - Added `backend/internal/admin.ListManagedProducts` with live-session authorization through `admin.products.manage` and transaction-time account/session/role revalidation.
 - The list supports case-insensitive matching against effective editorial title, description and brand, plus category, source, source ID and product ID. Supplier-source filtering remains based on the underlying source record.
 - Visibility defaults to active and can be narrowed to archived or expanded to all. Sorting uses a fixed allow-list; page size defaults to 20, is capped at 100, and offset is capped at 10,000.
 - PostgreSQL integration tests cover customer denial, editorial-value search/filtering, source and visibility filters, stable title ordering, total/page consistency for returned rows, out-of-range pages and invalid bounds.
-- Implementation commit: `cd9bfe3d246774a9a09df8cfe0ef67bb9e838e0a`. Backend CI and Security verification are pending; do not mark the slice CI-verified until those runs finish.
+- Implementation commit: `cd9bfe3d246774a9a09df8cfe0ef67bb9e838e0a`. Backend CI [41562259407](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562259407) passed on the subsequent backend documentation head; Security scans [41562285730](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562285730) passed on the latest handoff head. Race-enabled Go/PostgreSQL tests, backup/restore and container build all passed.
 - This is a service only: no HTTP handler, admin dashboard, public route, role switcher, new migration or hosted dependency was added. Existing migrations 013–014 remain unchanged.
 
 ## Latest M06.2 checkpoint — internal product creation and editorial management (CI verified, 2026-11-02)
