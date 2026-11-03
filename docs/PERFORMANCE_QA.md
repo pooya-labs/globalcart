@@ -109,6 +109,25 @@ All six audits recorded 100 Accessibility, Best Practices and SEO. Desktop route
 **Other verification:** route-scoped preconnects remain correctly scoped (homepage: Unsplash + DummyJSON; product: DummyJSON only; case study: neither), with no unused-preconnect warning. Browser E2E [41612960428](https://github.com/pooya-labs/globalcart/actions/runs/41612960428) passed 70/70; Pages [41613825451](https://github.com/pooya-labs/globalcart/actions/runs/41613825451) and Security [41613825512](https://github.com/pooya-labs/globalcart/actions/runs/41613825512) passed. This does not close physical-device, screen-reader, complete manual RTL/LTR or field-delivery QA.
 
 
+### Latest audit on the canonical Pages host — 2026-11-03
+
+**Run:** [Public Lighthouse 41618638260](https://github.com/pooya-labs/globalcart/actions/runs/41618638260) · Lighthouse 13.6.0 · GitHub-hosted Chromium · https://pooya-labs.github.io/globalcart/. The run succeeded against the renamed Pages domain and retained six raw JSON reports.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 10 ms | 0 |
+| Storefront — mobile | 91 | 100 | 100 | 100 | 1.2 s | 3.2 s | 150 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.6 s | 10 ms | 0 |
+| Product 1 — mobile | 94 | 100 | 100 | 100 | 0.9 s | 3.0 s | 100 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 110 ms | 0 |
+
+All six audits recorded 100 Accessibility, Best Practices and SEO. The mobile Performance scores were home 91, product 94 and case study 99; all desktop route scores were 100. These are GitHub-hosted lab measurements only, not CrUX/field Core Web Vitals.
+
+**Host migration verification:** the previous `pooya16pg-spec.github.io` Pages host returned 404 in the earlier Lighthouse runs [41616550190](https://github.com/pooya-labs/globalcart/actions/runs/41616550190) and [41616834727](https://github.com/pooya-labs/globalcart/actions/runs/41616834727). The workflow now targets `https://pooya-labs.github.io/globalcart`; this audit completed successfully on the new base, and Pages repository-dispatch deployment [41618569410](https://github.com/pooya-labs/globalcart/actions/runs/41618569410) passed public smoke.
+
+**CI action migration:** the deployment workflow now uses checkout/setup-node v7 and upload-pages-artifact/deploy-pages v5; E2E/Lighthouse/screenshot/security workflows use Node 24-compatible checkout/setup-node/artifact actions. The later Pages deployment [41618842051](https://github.com/pooya-labs/globalcart/actions/runs/41618842051) and Security [41618841960](https://github.com/pooya-labs/globalcart/actions/runs/41618841960) both passed.
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.
