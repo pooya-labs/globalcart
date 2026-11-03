@@ -24,7 +24,17 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium-desktop", use: { ...devices["Desktop Chrome"] } },
-    { name: "chromium-mobile", use: { ...devices["Pixel 7"] } }
+    { name: "chromium-mobile", use: { ...devices["Pixel 7"] } },
+    {
+      name: "firefox-accessibility",
+      testMatch: "**/accessibility.spec.ts",
+      use: { browserName: "firefox", viewport: { width: 1280, height: 900 } }
+    },
+    {
+      name: "webkit-accessibility",
+      testMatch: "**/accessibility.spec.ts",
+      use: { browserName: "webkit", viewport: { width: 1280, height: 900 } }
+    }
   ],
   webServer: {
     command: "node scripts/serve-static.mjs",
