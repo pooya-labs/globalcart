@@ -321,4 +321,16 @@ type VendorProduct struct {
 	Status    string             `json:"status"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	Revision  int64              `json:"revision"`
+}
+
+type VendorProductRevision struct {
+	ID              int64              `json:"id"`
+	VendorProductID int64              `json:"vendor_product_id"`
+	Revision        int64              `json:"revision"`
+	Action          string             `json:"action"`
+	BeforeState     []byte             `json:"before_state"`
+	AfterState      []byte             `json:"after_state"`
+	ActorUserID     pgtype.UUID        `json:"actor_user_id"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
 }
