@@ -713,3 +713,13 @@ body{background:#f7f8f5;color:var(--ink)}
 @media(prefers-reduced-motion:reduce){
   .product-card,.category-tile,.service-card,.hero-visual>img{transition:none!important}
 }
+
+/* M09.5 mobile filter sheet dismissal and backdrop */
+.filter-title-actions{display:flex;align-items:center;gap:8px}
+.filter-close{display:none;width:32px;height:32px;place-items:center;border:1px solid #e5ebe6;border-radius:9px;background:#fff;color:#41594a}
+@media(max-width:760px){
+  body:has(.filter-panel.filter-visible)::before{content:"";position:fixed;inset:0;z-index:59;background:rgba(14,30,22,.42);backdrop-filter:blur(2px)}
+  .filter-panel.filter-visible{z-index:60}
+  .filter-title-actions{gap:6px}
+  .filter-close{display:grid}
+}

@@ -212,3 +212,25 @@ test("recently viewed route inherits and persists the selected locale", async ({
   await page.getByRole("link", { name: /بازگشت به فروشگاه/ }).click();
   await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
 });
+
+
+test("active catalog filter chips remove one facet or clear the complete filter set", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+
+  const brand = page.locator(".facet-select-group select").first();
+  await brand.selectOption({ index: 1 });
+  await expect(page.locator(".active-filter-bar")).toBeVisible();
+  await expect(page.locator(".active-filter-chip")).toContainText(await brand.locator("option:checked").textContent() ?? "");
+
+  await page.locator(".active-filter-chip").first().click();
+  await expect(page.locator(".active-filter-bar")).toBeHidden();
+  await expect(brand).toHaveValue("");
+
+  await brand.selectOption({ index: 1 });
+  await page.locator(".facet-select-group select").nth(1).selectOption("4");
+  await expect(page.locator(".active-filter-chip")).toHaveCount(2);
+  await page.getByRole("button", { name: "Clear all" }).click();
+  await expect(page.locator(".active-filter-bar")).toBeHidden();
+  await expect(brand).toHaveValue("");
+  await expect(page.locator(".facet-select-group select").nth(1)).toHaveValue("0");
+});
