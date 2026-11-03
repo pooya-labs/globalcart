@@ -33,7 +33,7 @@ Each route is audited in Lighthouse's default mobile mode and its desktop preset
 
 The first baseline identified a mobile storefront bottleneck. The subsequent changes restored a single-column hero at mobile widths, added responsive image candidates, delayed the optional catalog revalidation until the browser is idle, and moved DM Sans/Vazirmatn to self-hosted `next/font` assets. Google Fonts render-blocking CSS was removed.
 
-**Initial full run:** [Lighthouse 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513), Lighthouse 13.6.0, public Pages routes, GitHub-hosted runner. The most recent follow-up measurement is recorded below.
+**Initial full run:** [Lighthouse 41604368513](https://github.com/pooya-labs/globalcart/actions/runs/41604368513), Lighthouse 13.6.0, public Pages routes, GitHub-hosted runner. The most recent follow-up measurement is recorded below.
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -46,13 +46,13 @@ The first baseline identified a mobile storefront bottleneck. The subsequent cha
 
 The initial storefront mobile audit (run 41601101775) recorded Performance 74, LCP 4.9 s and TBT 320 ms. The first full baseline above (run 41604368513) recorded 87, 3.2 s and 250 ms respectively, a 1.7 s (about 35%) lab LCP reduction. A later repeat measurement is listed below; repeated lab runs can vary and are not field measurements.
 
-The final relevant CI set is [Browser E2E 41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095) (44/44 tests), [Pages 41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) (production build and public-route smoke), and [Security 41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997).
+The final relevant CI set is [Browser E2E 41603301095](https://github.com/pooya-labs/globalcart/actions/runs/41603301095) (44/44 tests), [Pages 41603301049](https://github.com/pooya-labs/globalcart/actions/runs/41603301049) (production build and public-route smoke), and [Security 41603300997](https://github.com/pooya-labs/globalcart/actions/runs/41603300997).
 
 
 
 ### Latest follow-up audit — 2026-11-03
 
-**Run:** [Public Lighthouse 41608446036](https://github.com/pooya16pg-spec/globalcart/actions/runs/41608446036) · Lighthouse 13.6.0 · GitHub-hosted Chromium · public GitHub Pages routes. The run completed successfully and saved six raw JSON reports in the [globalcart-public-lighthouse artifact](https://github.com/pooya16pg-spec/globalcart/actions/runs/41608446036).
+**Run:** [Public Lighthouse 41608446036](https://github.com/pooya-labs/globalcart/actions/runs/41608446036) · Lighthouse 13.6.0 · GitHub-hosted Chromium · public GitHub Pages routes. The run completed successfully and saved six raw JSON reports in the [globalcart-public-lighthouse artifact](https://github.com/pooya-labs/globalcart/actions/runs/41608446036).
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -69,7 +69,7 @@ The repeat audit confirms 100 Accessibility, Best Practices and SEO across all s
 
 ### Latest published audit after route-scoped preconnects — 2026-11-03
 
-**Run:** [Public Lighthouse 41613166735](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · published Pages routes. The run completed successfully and retained six raw JSON reports in the [globalcart-public-lighthouse artifact](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735).
+**Run:** [Public Lighthouse 41613166735](https://github.com/pooya-labs/globalcart/actions/runs/41613166735) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · published Pages routes. The run completed successfully and retained six raw JSON reports in the [globalcart-public-lighthouse artifact](https://github.com/pooya-labs/globalcart/actions/runs/41613166735).
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -84,7 +84,30 @@ All six runs recorded 100 Accessibility, Best Practices and SEO. Mobile Performa
 
 **Preconnect verification from the raw mobile reports:** the homepage has Unsplash and DummyJSON preconnects with no unused warnings; product detail has only the DummyJSON preconnect with no unused warning; the case study has no external image preconnects. Product 1's LCP remains the product image, discoverable in the initial HTML and eagerly loaded. Its reported LCP breakdown in this run is approximately 125 ms TTFB, 13 ms resource-load delay, 73 ms resource-load duration and 90 ms element-render delay. The preconnect is a resource-connection hint, not a guarantee of a fixed score increase.
 
-**Browser regression:** [E2E 41612960428](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960428) passed 70/70; TypeScript, unit tests, static export, Pages deployment/public smoke [41612960450](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960450) and Security [41612960405](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960405) passed. This still does not close physical-device, screen-reader, comprehensive manual RTL/LTR or field-delivery QA.
+**Browser regression:** [E2E 41612960428](https://github.com/pooya-labs/globalcart/actions/runs/41612960428) passed 70/70; TypeScript, unit tests, static export, Pages deployment/public smoke [41612960450](https://github.com/pooya-labs/globalcart/actions/runs/41612960450) and Security [41612960405](https://github.com/pooya-labs/globalcart/actions/runs/41612960405) passed. This still does not close physical-device, screen-reader, comprehensive manual RTL/LTR or field-delivery QA.
+
+
+### Latest published audit — 2026-11-03 (post-documentation deployment)
+
+**Run:** [Public Lighthouse 41613950109](https://github.com/pooya-labs/globalcart/actions/runs/41613950109) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · public Pages routes. The run completed successfully and retained all six raw JSON reports.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.8 s | 0 ms | 0 |
+| Storefront — mobile | 92 | 100 | 100 | 100 | 1.3 s | 3.3 s | 90 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 50 ms | 0 |
+| Product 1 — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.6 s | 60 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.4 s | 0 ms | 0 |
+| Case study — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 70 ms | 0 |
+
+All six audits recorded 100 Accessibility, Best Practices and SEO. Desktop routes scored 100 Performance; mobile scores were 92 / 97 / 100 for storefront, product and case study. These are comparative lab results, not CrUX/field Core Web Vitals.
+
+**Raw image-delivery findings:** estimated savings were 160 KiB on homepage desktop, 108 KiB on homepage mobile, 82 KiB on product desktop and 84 KiB on product mobile; case-study routes had no material candidates. The largest product-page candidate was a 1000×1000 alternate gallery image downloaded for a 54×54 thumbnail (about 63 KiB potential savings). Homepage/product merchandising candidates were mostly 300×300 catalog thumbnails displayed at 105–181 px. The homepage mobile hero used a 768×508 source for a 379×253 display and remains immediately discoverable, eager and high-priority. Its LCP breakdown was approximately 98 ms TTFB, 13 ms resource-load delay, 248 ms resource-load duration and 1,002 ms element-render delay.
+
+**Why no speculative image rewrite was made:** the catalog provides 300×300 thumbnail.webp files alongside larger alternate images. The public [DummyJSON placeholder-image documentation](https://dummyjson.com/docs/image) documents generated placeholders, not transformations of existing cdn.dummyjson.com product assets. A working resize contract has not been established. Do not append undocumented width parameters, add a third-party proxy, substitute one thumbnail for every gallery angle or degrade previews. Revisit only through a source-supported transformer or controlled build-time derivative pipeline after its network, licensing, storage and maintenance costs are justified.
+
+**Other verification:** route-scoped preconnects remain correctly scoped (homepage: Unsplash + DummyJSON; product: DummyJSON only; case study: neither), with no unused-preconnect warning. Browser E2E [41612960428](https://github.com/pooya-labs/globalcart/actions/runs/41612960428) passed 70/70; Pages [41613825451](https://github.com/pooya-labs/globalcart/actions/runs/41613825451) and Security [41613825512](https://github.com/pooya-labs/globalcart/actions/runs/41613825512) passed. This does not close physical-device, screen-reader, complete manual RTL/LTR or field-delivery QA.
+
 
 ## Manual release checklist — fill with actual observations
 
