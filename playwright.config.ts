@@ -26,6 +26,11 @@ export default defineConfig({
     { name: "chromium-desktop", use: { ...devices["Desktop Chrome"] } },
     { name: "chromium-mobile", use: { ...devices["Pixel 7"] } },
     {
+      name: "chromium-tablet",
+      testMatch: ["**/accessibility.spec.ts", "**/performance.spec.ts"],
+      use: { ...devices["iPad (gen 7)"], browserName: "chromium" }
+    },
+    {
       name: "firefox-accessibility",
       testMatch: "**/accessibility.spec.ts",
       use: { browserName: "firefox", viewport: { width: 1280, height: 900 } }
