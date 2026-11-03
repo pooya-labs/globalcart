@@ -128,6 +128,21 @@ All six audits recorded 100 Accessibility, Best Practices and SEO. The mobile Pe
 
 **CI action migration:** the deployment workflow now uses checkout/setup-node v7 and upload-pages-artifact/deploy-pages v5; E2E/Lighthouse/screenshot/security workflows use Node 24-compatible checkout/setup-node/artifact actions. The later Pages deployment [41618842051](https://github.com/pooya-labs/globalcart/actions/runs/41618842051) and Security [41618841960](https://github.com/pooya-labs/globalcart/actions/runs/41618841960) both passed.
 
+### Latest published audit on canonical Pages — 2026-11-03
+
+**Run:** [Public Lighthouse 41619642994](https://github.com/pooya-labs/globalcart/actions/runs/41619642994) · Lighthouse 13.6.0 · GitHub-hosted Chromium · https://pooya-labs.github.io/globalcart/. The run succeeded against the renamed Pages host and uploaded six raw JSON reports.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
+| Storefront — mobile | 94 | 100 | 100 | 100 | 1.3 s | 3.0 s | 90 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
+| Product 1 — mobile | 99 | 100 | 100 | 100 | 0.9 s | 2.3 s | 60 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.2 s | 0 ms | 0 |
+| Case study — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 90 ms | 0 |
+
+All six audits recorded 100 Accessibility, Best Practices and SEO. Mobile Performance is home 94, product 99 and case study 100; desktop Performance is 100 across all routes. These are lab measurements, not CrUX/field Core Web Vitals.
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.
