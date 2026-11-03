@@ -156,3 +156,11 @@ Edits never write to supplier-owned product fields. Source imports continue upda
 Every edit/archive/restore call must provide the expected current revision. Stale mutations fail with `ErrStaleProductRevision`. The service resolves the opaque session token, requires `admin.products.manage`, then revalidates the verified account, exact live session and admin grant under row locks in the same transaction as the protected read/write. Before/after snapshots retain effective and supplier values; revision history is append-only and a redacted audit event is written atomically.
 
 These remain internal services only. No admin HTTP route, dashboard, browser role switcher or public catalog write path is enabled. The storefront is not connected to these backend services from GitHub Pages.
+
+## Internal administrator product work queue (M06.3; not an HTTP endpoint)
+
+`backend/internal/admin.ListManagedProducts` provides a bounded list for the future administrator workspace. It requires an opaque live session and the existing `admin.products.manage` permission; the account, exact session and admin grant are revalidated under row locks in the protected transaction.
+
+The query supports effective title/description/brand search, category, source, source-ID and product-ID matching, active (default), archived or all visibility states, exact source filtering, effective-brand filtering, and a fixed sort allow-list (updated time, import time, title, price, rating or stock). Pagination defaults to 20 rows, allows at most 100 rows and caps the offset at 10,000. A total count is returned with each page. User-provided sort strings are never interpolated into SQL.
+
+This is an internal service only. It adds no migration, HTTP handler, public endpoint, browser dashboard or GitHub Pages integration. Supplier provenance is read from the original catalog row; editorial search uses the separate effective override values. PostgreSQL integration tests cover non-admin denial, filters, archive visibility, ordering, pagination and invalid bounds.
