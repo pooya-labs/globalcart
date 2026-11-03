@@ -162,6 +162,7 @@ test("recently viewed route inherits and persists the selected locale", async ({
   const history = page.locator("main.history-page");
   await expect(history).toHaveAttribute("dir", "ltr");
   await expect(history.getByRole("heading", { name: "Recently viewed products" })).toBeVisible();
+  await expect(history.locator(".history-note")).toContainText("TGJU’s free-market USD quote");
   await expect(history.getByRole("link", { name: /Essence Mascara Lash Princess/ })).toBeVisible();
 
   await page.getByRole("button", { name: "Switch language to Persian" }).click();

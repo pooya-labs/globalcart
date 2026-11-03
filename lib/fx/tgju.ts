@@ -68,7 +68,7 @@ function parseTehranTime(value: string, now: number): { time: string; timestamp:
     - TEHRAN_UTC_OFFSET_MINUTES * 60_000;
   if (timestamp > now + MAX_FUTURE_SKEW_MS) {
     if (timestamp - now > 12 * 60 * 60 * 1000) timestamp -= 24 * 60 * 60 * 1000;
-    else throw new RangeError("TGJU source time is implausibly in the future");
+    else { const localClock = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Tehran", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(new Date(now)); throw new RangeError("TGJU source time " + normalized + " is ahead of Tehran clock " + localClock + " (UTC now " + new Date(now).toISOString() + ")"); }
   }
   if (timestamp > now + MAX_FUTURE_SKEW_MS) throw new RangeError("TGJU source time is implausibly in the future");
   return { time: normalized, timestamp: new Date(timestamp).toISOString() };
