@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.4 — 1.0.0 release readiness; M08.15 lab baseline and M09.1–M09.3 portfolio work are complete. Manual physical-device, real screen-reader, comprehensive RTL/LTR and field-delivery QA remain release gates. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
+**Active stage:** M09.4 — 1.0.0 release readiness; M08.15–M08.16 automated lab/performance and FX-publication wiring are implemented, and M09.1–M09.3 portfolio work is complete. Manual physical-device, real screen-reader, comprehensive RTL/LTR and field-delivery QA remain release gates. The first changed-quote `repository_dispatch` is still pending a real TGJU snapshot change. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -40,7 +40,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo cart, checkout, order, coupon, vendor-split and full-order return/refund simulation implemented; public API exposure gated |
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Internal admin and seller services through profile/demo analytics CI-verified; dashboard UI and public routes remain gated |
 | M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
-| M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget and CI security checks implemented; manual QA and operational recovery remain |
+| M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget, Lighthouse lab, route-scoped image hints and FX snapshot publication wiring implemented; manual QA and first changed-quote dispatch proof remain |
 | M09 | 1.0.0 | Portfolio case study, release and public demo QA | Planned |
 
 ## M00 — Product and governance
@@ -519,6 +519,20 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 | Case study — mobile | 98 | 100 | 100 | 100 | 1.0 s | 1.0 s | 150 ms | 0 |
 
 **Interpretation:** all six audits recorded 100 Accessibility, Best Practices and SEO. Mobile Performance measured 91 / 95 / 98 for the storefront, product and case study. These are repeatable lab diagnostics only; run-to-run score and timing variation is expected. The homepage mobile LCP remains the hero image, with element-render delay the largest LCP subpart. This follow-up does not close the physical-device, screen-reader, complete manual RTL/LTR or field-delivery release gates.
+
+
+
+### M08.16 — Route-scoped image hints and FX snapshot publication relay (implementation CI-verified, 2026-11-03)
+
+- [x] Move the Unsplash preconnect to the homepage only; keep the DummyJSON image CDN preconnect on the homepage and product-detail route; remove both hints from the unrelated case-study route.
+- [x] Add a Playwright route-transition regression that asserts the expected preconnect origins on the homepage, product detail and case study. The final Browser E2E [41612960428](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960428) passed **70/70** tests, including desktop/mobile route-scoping assertions.
+- [x] Add the product-image CDN preconnect in normal non-CORS mode and assert that no `crossorigin` attribute is added to that hint.
+- [x] When a validated TGJU quote changes and is persisted, send the same-repository `globalcart-fx-updated` `repository_dispatch`; configure the Pages workflow to rebuild on that event. Unchanged quotes deliberately skip dispatch and redundant deployment.
+- [x] Verify the workflow-file update via successful TGJU workflow [41612209256](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612209256), Security [41612208900](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612208900), Pages deployment and published smoke [41612209147](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612209147). A later push-triggered refresh found the quote unchanged and correctly skipped dispatch.
+- [x] Review the six-route published Lighthouse run [41613166735](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735): all six modes scored 100 for Accessibility, Best Practices and SEO. Mobile Performance was 88 (home), 97 (product) and 98 (case study). Raw reports showed no unused warning for the route-appropriate preconnects: home uses both origins, product detail only DummyJSON CDN, and case study uses neither.
+- [ ] Verify one actual `globalcart-fx-updated` event and its resulting Pages run after TGJU publishes a genuinely different validated quote. Do not fabricate a changed quote or advance the source timestamp to force this test.
+
+**Boundary:** GitHub scheduled runs are best-effort, not a guaranteed real-time five-minute clock. The FX workflow is configured for a five-minute poll and the cron offset was resynchronized, but only one TGJU `schedule` run is currently visible in Actions history. Keep cadence reliability under observation; the current date-only source marker remains stale.
 
 ## M09 — Portfolio release
 - [x] Persian and English case study (M09.1; automated desktop/mobile RTL/LTR and axe checks passed).

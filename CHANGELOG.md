@@ -2,6 +2,14 @@
 
 ## Unreleased — 2026-11-03
 
+### Performance and delivery hardening — CI verified
+
+- Scoped preconnect hints to the routes that actually request their origins: homepage (Unsplash + DummyJSON), product detail (DummyJSON only), and no external image preconnects on the case study. Lighthouse [41613166735](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735) confirms the corresponding mobile routes have no unused-preconnect warnings.
+- Added a route-transition regression to Browser E2E. The final run [41612960428](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960428) passed **70/70** desktop/mobile/cross-browser tests. Pages deployment and public smoke [41612960450](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960450) and Security [41612960405](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960405) also passed.
+- Added a validated-snapshot publication relay: on a changed TGJU quote, the FX workflow requests `globalcart-fx-updated` via `repository_dispatch`, and Pages rebuilds from the new committed snapshot. The current refresh was unchanged, so it correctly did not dispatch. First changed-quote event verification remains pending; no value or timestamp was fabricated.
+- Latest six-route Lighthouse lab run [41613166735](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735): all Accessibility, Best Practices and SEO scores are 100; mobile Performance is 88 (home), 97 (product) and 98 (case study). Results are lab data, not field Core Web Vitals.
+
+
 ### Verified — latest published QA recheck
 - Re-ran the six public Lighthouse audits in [run 41608446036](https://github.com/pooya16pg-spec/globalcart/actions/runs/41608446036): mobile Performance 91 (storefront), 95 (product), 98 (case study); all six modes recorded 100 Accessibility, Best Practices and SEO. This supersedes the older figures as the latest recorded run without deleting the original baseline. The results are lab data, not field Core Web Vitals.
 - Synchronized the README, roadmap, project context and AI handoff with the latest cross-browser (66/66), Pages, Security and Lighthouse results. Kept the 1.0.0 release gated by actual manual QA.

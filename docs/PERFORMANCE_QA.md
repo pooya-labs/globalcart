@@ -65,6 +65,27 @@ The final relevant CI set is [Browser E2E 41603301095](https://github.com/pooya1
 
 The repeat audit confirms 100 Accessibility, Best Practices and SEO across all six route/mode combinations. Mobile Performance is 91 for the storefront, 95 for product detail and 98 for the case study. Compared with the preceding run, individual mobile figures fluctuate slightly; do not treat a single lab run as field data or infer a real-user regression from the score alone. The homepage mobile LCP remains the hero image and its render delay is the dominant LCP subpart in this run. This is a measurement checkpoint, not a claim that manual release QA is complete.
 
+
+
+### Latest published audit after route-scoped preconnects — 2026-11-03
+
+**Run:** [Public Lighthouse 41613166735](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · published Pages routes. The run completed successfully and retained six raw JSON reports in the [globalcart-public-lighthouse artifact](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735).
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 99 | 100 | 100 | 100 | 0.4 s | 0.8 s | 10 ms | 0 |
+| Storefront — mobile | 88 | 100 | 100 | 100 | 1.3 s | 3.2 s | 180 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
+| Product 1 — mobile | 97 | 100 | 100 | 100 | 1.0 s | 2.6 s | 70 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.2 s | 10 ms | 0 |
+| Case study — mobile | 98 | 100 | 100 | 100 | 0.9 s | 0.9 s | 160 ms | 0 |
+
+All six runs recorded 100 Accessibility, Best Practices and SEO. Mobile Performance is 88 for the storefront, 97 for product detail and 98 for the case study. The scores and timings vary across repeated runs; use them as comparative lab diagnostics, not field Core Web Vitals.
+
+**Preconnect verification from the raw mobile reports:** the homepage has Unsplash and DummyJSON preconnects with no unused warnings; product detail has only the DummyJSON preconnect with no unused warning; the case study has no external image preconnects. Product 1's LCP remains the product image, discoverable in the initial HTML and eagerly loaded. Its reported LCP breakdown in this run is approximately 125 ms TTFB, 13 ms resource-load delay, 73 ms resource-load duration and 90 ms element-render delay. The preconnect is a resource-connection hint, not a guarantee of a fixed score increase.
+
+**Browser regression:** [E2E 41612960428](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960428) passed 70/70; TypeScript, unit tests, static export, Pages deployment/public smoke [41612960450](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960450) and Security [41612960405](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960405) passed. This still does not close physical-device, screen-reader, comprehensive manual RTL/LTR or field-delivery QA.
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.

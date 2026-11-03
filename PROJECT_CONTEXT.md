@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M09.4 release readiness; M08.15 public Lighthouse lab baseline is completed and documented. M09.1–M09.3 are implemented and CI-verified. Manual device/screen-reader/full-site RTL/LTR and field-delivery QA remains an external gate; M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
+**Active stage:** M09.4 release readiness; M08.15–M08.16 automated lab, route-scoped image hints and FX publication wiring are implemented and CI-verified. M09.1–M09.3 are complete. Manual device/screen-reader/full-site RTL/LTR and field-delivery QA remains an external gate; the first changed-quote FX dispatch remains unexercised until TGJU publishes a different quote. M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -829,3 +829,15 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - TGJU remains the single USD source. The committed snapshot contains 272,905 Toman/USD from 2,729,050 Rial, with source marker 17:15:43 Tehran / `2026-11-02T13:45:43.000Z`. It is **stale** under the 15-minute source-time policy; never describe this saved value as current or fresh. The five-minute scheduled cadence is configured but not proven by this snapshot alone. The storefront should continue to show its stale state; no hard-coded fallback or replacement provider is permitted.
 - M09.4 remains open only for actual physical desktop/mobile checks, real platform screen-reader testing, complete manual RTL/LTR review and normal-network/field-delivery evidence. Keep version `0.2.3-dev`; do not tag 1.0.0 or mark external QA complete based on emulation.
 - Do not repeat M06, M09.1–M09.3, the FX adapter, the Lighthouse workflow or the cross-browser automation. Resume from M09.4's remaining evidence gates; keep all work in `main`.
+
+
+## Latest continuation checkpoint — M08.16 route-scoped images and FX publication relay (2026-11-03)
+
+- Main implementation commit: `367c19fdced519d45a40cf48504b440d254c34c7`. The latest main after normal catalog snapshot persistence is `18a426cbfcaadd1782d7d142e71dcc0613033bae`.
+- Route-scoped resource hints: the homepage preconnects to Unsplash and DummyJSON; product detail preconnects only to DummyJSON; case study preconnects to neither. The new Playwright assertion verifies those route states. Browser E2E [41612960428](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960428) passed **70/70**, including both Chromium desktop/mobile route-scope checks. TypeScript, unit tests, production static build and published Pages smoke passed; Security [41612960405](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960405) passed.
+- Published Lighthouse [41613166735](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735) completed all six route/mode audits. Mobile Performance: home 88 (LCP 3.2 s, TBT 180 ms), product 97 (LCP 2.6 s, TBT 70 ms), case study 98 (LCP 0.9 s, TBT 160 ms). All six modes recorded 100 Accessibility, Best Practices and SEO. Raw mobile reports confirm there are no unused preconnect warnings for the route-appropriate origins. These are lab measurements, not field metrics.
+- FX publication relay: when a validated TGJU snapshot changes and is committed, `.github/workflows/fx-rate.yml` sends `globalcart-fx-updated` by `repository_dispatch`; `.github/workflows/deploy.yml` listens for that event and rebuilds Pages. Unchanged quotes correctly skip a redundant build. The workflow config and Pages push build are verified; the first event-triggered build still awaits an actual different TGJU quote.
+- Current FX snapshot remains 271,500 Toman per USD (2,715,000 Rial), source marker `11 آبان` with `date_only` precision and no exact timestamp. It is intentionally stale. Do not report it as fresh, infer an exact time, or insert a fixed fallback.
+- Schedule now uses `3-59/5 * * * *` to resynchronize the five-minute cadence away from minute zero. GitHub schedules are best-effort; Actions currently shows only one TGJU schedule run, so do not claim that every five-minute event is firing reliably.
+- **Next:** monitor for the first genuinely changed TGJU snapshot and verify its `repository_dispatch` → Pages deployment chain. Then continue M09.4's actual physical desktop/mobile, real screen-reader, comprehensive manual RTL/LTR and normal-network/field-delivery checks. Keep version `0.2.3-dev`; do not tag 1.0.0 before external QA is recorded.
+- Do not redo M06, M09.1–M09.3, the TGJU parser, the Pages handoff, or the existing cross-browser accessibility suite. Translation remains paused; public admin/seller routes and real commerce remain disabled.
