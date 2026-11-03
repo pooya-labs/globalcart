@@ -3,6 +3,9 @@
 ## Unreleased — 2026-11-03
 
 ### Added
+- Added a bilingual `/case-study/` portfolio route with shared Persian/English locale preference, responsive feature tour, architecture/data-flow diagram, route metadata and a storefront footer entry. It documents the actual static Pages storefront, local Go/PostgreSQL foundation, TGJU source handling and demo-only commerce boundaries. CI and published-route verification are pending; this is not a 1.0 release.
+
+### Added
 - Extended the image-loading/performance regression audit to the recently-viewed route. Product visits now have a Playwright desktop/mobile journey that verifies history rendering, the GitHub Pages base path, lazy loading, asynchronous decoding, accessible alt text and reserved image dimensions. Browser E2E [41575646034](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646034) passed all 36 tests; Pages deployment/smoke [41575646035](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646035) and Security [41575646222](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646222) also passed on `c358970b31d2272db98434a761c699355a9dbc57`. The initial-route CI measurement was 520,131 JS bytes/7 requests and 70,540 CSS bytes/1 request.
 
 ### Fixed
