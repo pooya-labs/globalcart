@@ -1,5 +1,12 @@
 # Changelog
 
+### Verified — uncached PostgreSQL CI and migration guard (2026-11-03)
+
+- Backend integration tests now run with `-count=1` to prevent Go's test cache from reusing results without recreating the PostgreSQL schema required by backup/restore verification. The first run [41632176463](https://github.com/pooya-labs/globalcart/actions/runs/41632176463) exposed this latent CI issue (`schema_migrations` absent because the migration test result was cached); the corrected run [41632402711](https://github.com/pooya-labs/globalcart/actions/runs/41632402711) passed sqlc generation, module tidy/format, canonical module guard, govulncheck, vet, uncached race tests, PostgreSQL backup/restore comparison, API/importer builds and Docker image build.
+- Security [41632402705](https://github.com/pooya-labs/globalcart/actions/runs/41632402705) and Pages/public smoke [41632402717](https://github.com/pooya-labs/globalcart/actions/runs/41632402717) passed.
+- Published Lighthouse [41631664623](https://github.com/pooya-labs/globalcart/actions/runs/41631664623): mobile storefront Performance 92 / LCP 3.1 s / TBT 170 ms; product 92 / 3.0 s / 70 ms; case study 98 / 0.9 s / 180 ms. Desktop Performance is 100 for all three routes; Accessibility, Best Practices and SEO are 100 in all six audits. GitHub-hosted lab results only, not field Core Web Vitals.
+
+
 ### Verified — canonical Go module guard and latest published audit (2026-11-03)
 
 - Added a Backend CI assertion for the canonical `github.com/pooya-labs/globalcart` module declaration and a regression check rejecting legacy-owner import paths in backend Go sources.
