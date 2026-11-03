@@ -251,24 +251,22 @@ All six reports have no Lighthouse run warnings; Accessibility, Best Practices a
 
 **Interpretation:** this is a single GitHub-hosted lab sample using simulated mobile and desktop presets. TBT is not field INP, and these reports are not CrUX or real-user Core Web Vitals. The run does not satisfy normal-network delivery, physical-device, real screen-reader or comprehensive manual RTL/LTR QA.
 
-### Latest published canonical Pages audit — 2026-11-03 (run 41646444864)
+### Latest published canonical Pages audit — 2026-11-03 (run 41652966386)
 
-**Run:** [Public Lighthouse 41646444864](https://github.com/pooya-labs/globalcart/actions/runs/41646444864) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · https://pooya-labs.github.io/globalcart/. All six published route/mode audits completed and the six raw JSON reports were retained.
+**Run:** [Public Lighthouse 41652966386](https://github.com/pooya-labs/globalcart/actions/runs/41652966386) · Lighthouse CLI 13.6.0 · GitHub-hosted Chromium · https://pooya-labs.github.io/globalcart/. All six published route/mode audits completed successfully; all six JSON reports were retained.
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.7 s | 0 ms | 0 |
-| Storefront — mobile | 92 | 100 | 100 | 100 | 1.3 s | 3.3 s | 70 ms | 0 |
-| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
-| Product 1 — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.6 s | 40 ms | 0 |
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.8 s | 0 ms | 0 |
+| Storefront — mobile | 91 | 100 | 100 | 100 | 1.2 s | 3.3 s | 70 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.6 s | 0 ms | 0 |
+| Product 1 — mobile | 94 | 100 | 100 | 100 | 0.9 s | 3.1 s | 60 ms | 0 |
 | Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
-| Case study — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 50 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 1.0 s | 1.0 s | 100 ms | 0 |
 
-Accessibility, Best Practices and SEO are 100 in all six audits; CLS is zero throughout. The six-report LCP/TBT/CLS/score budget gate passed: mobile LCP ≤4.0 s / TBT ≤300 ms; desktop LCP ≤2.5 s / TBT ≤200 ms; CLS ≤0.10; Accessibility, Best Practices and SEO ≥95.
+Accessibility, Best Practices and SEO are 100 in every audit; CLS is zero throughout. All six reports passed the enforced budgets: mobile LCP ≤4.0 s / TBT ≤300 ms; desktop LCP ≤2.5 s / TBT ≤200 ms; CLS ≤0.10; Accessibility, Best Practices and SEO ≥95. The storefront remains the lowest mobile score, but all route LCP/TBT values are within the guardrails.
 
-**Observed lab variability:** an intervening published run [41645326322](https://github.com/pooya-labs/globalcart/actions/runs/41645326322) exceeded the mobile home LCP budget by 196 ms (4.196 s vs 4.0 s); a subsequent run [41646444864](https://github.com/pooya-labs/globalcart/actions/runs/41646444864) measured 3.3 s and passed. The failed run's breakdown attributed ~2.10 s to hero element render delay, versus ~108 ms TTFB, ~9 ms resource delay and ~94 ms image load. The hero image was discoverable in the initial HTML, eager and fetch-priority high. Its file is ~25 KB. This points to rendering/hydration/layout work rather than a slow image download. Keep the 4.0 s budget; do not hide the outlier by relaxing it. Revisit the initial viewport / hero rendering as part of the owner-requested shell redesign.
-
-**Limits:** these are simulated GitHub-hosted mobile/desktop lab results, not CrUX/field Core Web Vitals. TBT is not field INP. Manual physical-device, actual screen-reader and normal-network/field-delivery checks remain open.
+**Interpretation:** these are simulated GitHub-hosted lab diagnostics, not field Core Web Vitals. The earlier outlier [41645326322](https://github.com/pooya-labs/globalcart/actions/runs/41645326322) exceeded the mobile homepage LCP budget by 196 ms; a raw-report breakdown attributed most of that delay to hero element render delay, not image transfer. The 4.0 s mobile LCP budget remains intentionally unchanged. Revisit above-the-fold rendering during the owner-requested shell redesign rather than weakening the guard.
 
 ## Manual release checklist — fill with actual observations
 
@@ -276,14 +274,15 @@ Do not tick these items based on CI emulation. Record actual device, browser/OS 
 
 | Area | Required evidence | Status / notes |
 |---|---|---|
-| Physical desktop | Open the public storefront and case study on a real laptop/desktop browser; inspect normal and narrow windows | Pending owner QA |
-| Physical mobile | Open the same routes on a real phone; inspect portrait and landscape, touch targets and overflow | Pending owner QA |
-| Persian RTL | Check navigation, search, filters, product detail, dialogs, cart simulation, case study and recently viewed | Pending owner QA |
-| English LTR | Repeat the full route pass after changing language; reload and verify the preference persists | Pending owner QA |
-| Keyboard | Verify logical tab order, visible focus, Escape-to-close, focus containment and focus restoration for dialogs/drawers | Pending owner QA |
-| Screen reader | Complete real navigation and form/dialog interactions with a platform screen reader; report announcements and focus order | Pending owner QA |
-| Published delivery | Repeat Lighthouse from a normal network/location and capture the URL/date/method; distinguish lab from field data | Pending owner QA |
-| Field Core Web Vitals | Record real-user/CrUX data only when the origin has eligible data; otherwise state that no field sample is available | Pending owner QA |
+| Physical desktop | Open the public storefront and case study on a real laptop/desktop browser; inspect normal and narrow windows | Pending physical-device QA |
+| Physical mobile | Open the same routes on a real phone; inspect portrait and landscape, touch targets and overflow | Pending physical-device QA |
+| Tablet hardware | Confirm both orientations and touch behavior on a real tablet; automated iPad emulation already passes | Automated iPad portrait/landscape passed in [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312); physical tablet remains unverified |
+| Persian RTL | Check navigation, search, filters, product detail, dialogs, cart simulation, case study and recently viewed | Automated route/locale regressions passed; full human visual pass pending |
+| English LTR | Repeat the full route pass after changing language; reload and verify the preference persists | Automated route/locale regressions passed; full human visual pass pending |
+| Keyboard | Verify logical tab order, visible focus, Escape-to-close, focus containment and focus restoration for dialogs/drawers | Playwright keyboard/focus regressions passed in the cross-browser suite; physical keyboard review pending |
+| Screen reader | Complete real navigation and form/dialog interactions with a platform screen reader; report announcements and focus order | Pending actual assistive-technology review |
+| Published delivery | Repeat Lighthouse from a normal network/location and capture the URL/date/method; distinguish lab from field data | GitHub-hosted lab audits and six-report guard passed; normal-network run pending |
+| Field Core Web Vitals | Record real-user/CrUX data only when the origin has eligible data; otherwise state that no field sample is available | No field sample claimed; check eligibility after redesign/public traffic |
 
 ### Suggested manual route sequence
 

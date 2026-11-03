@@ -2,6 +2,15 @@
 
 ## Unreleased — 2026-11-03
 
+### Verified — compact-phone and tablet-orientation browser coverage
+
+- Added automated viewport regressions for 320 px and 360 px mobile widths and iPad portrait (810×1080) / landscape (1080×810). The storefront, product and Case Study routes are checked for horizontal overflow.
+- Browser E2E [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312) passed **99 tests / 4 intentional skips**, no failed or flaky tests. Pages/public smoke [41652758510](https://github.com/pooya-labs/globalcart/actions/runs/41652758510) and Security [41652758613](https://github.com/pooya-labs/globalcart/actions/runs/41652758613) passed.
+- Latest Lighthouse [41652966386](https://github.com/pooya-labs/globalcart/actions/runs/41652966386) passed six reports and budgets: mobile Performance 91 / 94 / 99, desktop 100 / 100 / 100; Accessibility, Best Practices and SEO are 100 in all six, CLS 0 throughout.
+- Automated keyboard/focus regression coverage is green; actual platform screen-reader, physical-device and manual human RTL/LTR checks remain post-redesign release QA. Keep 0.2.3-dev; no 1.0.0 tag before owner-approved shell redesign.
+
+## Unreleased — 2026-11-03
+
 ### Verified — tablet accessibility / responsive coverage and lab performance follow-up
 
 - Added an iPad 7th-generation Chromium Playwright project for the accessibility/performance suites and a route-width regression for storefront, product and case study. Browser E2E [41644963684](https://github.com/pooya-labs/globalcart/actions/runs/41644963684) passed 97 tests including tablet overflow and axe coverage; Pages [41644963414](https://github.com/pooya-labs/globalcart/actions/runs/41644963414) and Security [41644963653](https://github.com/pooya-labs/globalcart/actions/runs/41644963653) passed.
