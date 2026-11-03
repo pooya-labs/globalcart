@@ -4,7 +4,7 @@
 
 - Updated `go.mod` and all 27 Go source/test files to use the canonical module path `github.com/pooya-labs/globalcart`; 63 old module-path occurrences were replaced. No business logic or schema changed.
 - Backend CI [41630685778](https://github.com/pooya-labs/globalcart/actions/runs/41630685778) passed sqlc generation, `go mod tidy`, formatting, govulncheck, vet, race-enabled tests, PostgreSQL backup/restore comparison, API/importer builds and container build. Security [41630685755](https://github.com/pooya-labs/globalcart/actions/runs/41630685755) and Pages/public smoke [41630685929](https://github.com/pooya-labs/globalcart/actions/runs/41630685929) passed.
-- Published Lighthouse [41627559678](https://github.com/pooya-labs/globalcart/actions/runs/41627559678): mobile storefront Performance 88 / LCP 3.2 s / TBT 200 ms; product 94 / 3.1 s / 50 ms; case study 99 / 0.9 s / 110 ms. Desktop Performance is 100 for all three routes, and Accessibility, Best Practices and SEO are 100 in all six audits. GitHub-hosted lab data only, not field Core Web Vitals.
+- Published Lighthouse [41630849560](https://github.com/pooya-labs/globalcart/actions/runs/41630849560): mobile storefront Performance 89 / LCP 3.2 s / TBT 170 ms; product 93 / 3.1 s / 70 ms; case study 98 / 0.9 s / 150 ms. Desktop Performance is 100 for all three routes; Accessibility, Best Practices and SEO are 100 in all six audits. GitHub-hosted lab results only, not field Core Web Vitals.
 
 ## Unreleased — 2026-11-03
 

@@ -241,3 +241,11 @@ The repository, not chat history, is the canonical source of truth.
 - Latest completed public Lighthouse audit remains [41627559678](https://github.com/pooya-labs/globalcart/actions/runs/41627559678): mobile Performance home 88 (LCP 3.2 s / TBT 200 ms), product 94 (3.1 s / 50 ms), case study 99 (0.9 s / 110 ms); all desktop Performance scores 100, and all six Accessibility/Best Practices/SEO scores are 100. Lab-only, not field data. Newer audit [41630849560](https://github.com/pooya-labs/globalcart/actions/runs/41630849560) was still in progress when this checkpoint was recorded; don't treat it as passed until it completes.
 - Latest full Browser E2E remains [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540), 74/74 across Chromium desktop/mobile, Firefox and WebKit. The module-path change is backend-only.
 - Keep release version `0.2.3-dev`. M09.4 still requires physical desktop/mobile, real platform screen-reader, full manual RTL/LTR and normal-network/eligible field evidence. Do not tag 1.0.0 or mark these external gates complete based on CI.
+
+
+## Latest published Lighthouse checkpoint — run 41630849560 (2026-11-03)
+
+- Public Lighthouse [41630849560](https://github.com/pooya-labs/globalcart/actions/runs/41630849560) completed successfully against the canonical Pages host. Mobile Performance: storefront 89 / LCP 3.2 s / TBT 170 ms, product 93 / 3.1 s / 70 ms, case study 98 / 0.9 s / 150 ms. Desktop Performance is 100 on all three routes; Accessibility, Best Practices and SEO are 100 across all six audits.
+- These are GitHub-hosted Lighthouse 13.6.0 lab results, not real-user field Core Web Vitals. They do not close the physical-device, real screen-reader, full RTL/LTR or field-delivery requirements in M09.4.
+- The Go module-path migration [eaef837](https://github.com/pooya-labs/globalcart/commit/eaef837d6027c5c6085340f883567ecc764ec092) has passed Backend CI [41630685778](https://github.com/pooya-labs/globalcart/actions/runs/41630685778), Security [41630685755](https://github.com/pooya-labs/globalcart/actions/runs/41630685755) and Pages deployment/public smoke [41630685929](https://github.com/pooya-labs/globalcart/actions/runs/41630685929).
+- Keep version `0.2.3-dev`; do not create a 1.0.0 tag until M09.4 owner evidence is recorded.
