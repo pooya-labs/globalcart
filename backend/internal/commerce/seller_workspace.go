@@ -149,7 +149,7 @@ func (s *Service) GetSellerWorkspaceForSeller(ctx context.Context, principal aut
 	rows, err := tx.Query(qctx, `
 		SELECT currency,count(*) FILTER(WHERE status='paid_simulated')::bigint,
 			COALESCE(sum(total) FILTER(WHERE status='paid_simulated'),0)::numeric(12,2)::text
-		FROM demo_vendor_orders WHERE vendor_id=$1 GROUP BY currency ORDER BY currency
+		FROM demo_vendor_orders WHERE vendor_id=$1 AND status='paid_simulated' GROUP BY currency ORDER BY currency
 	`, vendorID)
 	if err != nil {
 		return SellerWorkspace{}, fmt.Errorf("aggregate simulated paid totals: %w", err)
