@@ -46,7 +46,7 @@ Implemented:
 - Backend foundation: Go REST/OpenAPI, PostgreSQL 17 and sqlc are available for local development and CI. Redis is optional; no hosted API or database is deployed.
 - Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI. Latest Browser E2E passed 40/40 scenarios in [run 41596731945](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731945).
 
-In progress / not yet claimed as complete:
+Boundaries and remaining work:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.

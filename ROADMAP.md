@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.2 — migration-derived PostgreSQL ERD and case-study database section; M08 manual device/screen-reader/CDN QA remains an explicit external gate. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
+**Active stage:** M09.4 — 1.0.0 release readiness after completed M09.1–M09.3; manual M08 device/screen-reader/full-site RTL/LTR/CDN QA remains an explicit external gate. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -514,6 +514,15 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Update AI handoff, project context, release process and changelog to match verified main.
 
 **Release gate:** do not tag 1.0.0 until M08 manual real-device, screen-reader, comprehensive RTL/LTR and live CDN/Core Web Vitals QA are performed. Browser emulation is useful regression coverage, not a substitute for those checks.
+
+### M09.4 — Stable 1.0.0 release gate (blocked by manual M08 QA)
+- [ ] Verify the storefront on at least one physical desktop/laptop browser and one physical mobile browser; record browser/device/viewport and any regressions.
+- [ ] Complete an actual keyboard and screen-reader review of primary navigation, dialogs/drawers, product detail, checkout simulation and the bilingual case-study route.
+- [ ] Perform a manual RTL/LTR pass across the full public site, including narrow screens, text wrapping, menus, focus order and persisted language preference.
+- [ ] Measure published CDN response and field/lab Core Web Vitals; record methodology, URL, date and observed values. Do not infer field metrics from Playwright timings.
+- [ ] Resolve and document any findings, rerun the relevant automated checks, then update package version, changelog, roadmap and project context together and create the 1.0.0 release/tag.
+
+**Why this is still open:** the automated CI suite runs Chromium desktop/mobile emulation and axe checks; it cannot physically operate a user's device or verify the actual assistive-technology experience and field CDN metrics. Keep the release at `0.2.3-dev` until these checks are genuinely performed.
 
 ## Handoff rule
 Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md and docs/DECISIONS.md before changing code. Continue from the earliest incomplete item, inspect current Actions, and update documentation only with verified facts.
