@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 
 // Portfolio evidence is captured from the production static export that the
 // browser suite serves, not from a hand-built mock or a separate design file.
+// The CI workflow publishes these images only after both projects pass.
 test("capture the Persian case study for portfolio evidence", async ({ page }, testInfo) => {
   await page.goto("./case-study/");
   const main = page.locator("main.case-study");
