@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.4 — 1.0.0 release readiness; M08.15–M08.16 automated lab/performance and FX-publication wiring are implemented, and M09.1–M09.3 portfolio work is complete. Manual physical-device, real screen-reader, comprehensive RTL/LTR and field-delivery QA remain release gates. The first changed-quote `repository_dispatch` is still pending a real TGJU snapshot change. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
+**Active stage:** M09.4 — 1.0.0 release readiness; M08.15–M08.16 automated lab/performance and FX-publication wiring, M09.1–M09.3 portfolio work and M09.4.1 public API regression guards are CI verified. Manual physical-device, real screen-reader, comprehensive RTL/LTR and field-delivery QA remain release gates. The first changed-quote `repository_dispatch` is still pending a real TGJU snapshot change. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -55,7 +55,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Static export and Pages deployment workflow.
 - [x] Responsive editorial marketplace storefront.
 - [x] Persian-first RTL and English LTR.
-- [x] Persist the selected Persian/English locale across homepage, product-detail and recently-viewed routes and full reloads, with guarded browser storage and a safe Persian fallback; Browser E2E [41462200408](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200408) passed all 34 desktop/mobile tests, and Pages deployment [41462200496](https://github.com/pooya16pg-spec/globalcart/actions/runs/41462200496) passed published-site smoke checks.
+- [x] Persist the selected Persian/English locale across homepage, product-detail and recently-viewed routes and full reloads, with guarded browser storage and a safe Persian fallback; Browser E2E [41462200408](https://github.com/pooya-labs/globalcart/actions/runs/41462200408) passed all 34 desktop/mobile tests, and Pages deployment [41462200496](https://github.com/pooya-labs/globalcart/actions/runs/41462200496) passed published-site smoke checks.
 - [x] Search, categories, filters and sorting.
 - [x] Quick view, favorites and recently viewed.
 - [x] Local cart and simulated checkout.
@@ -63,7 +63,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] GitHub Actions build, typecheck, tests, artifact upload and Pages deploy passed in run 41294484252.
 - [ ] Visual QA on phone, tablet and desktop.
 - [ ] Keyboard, focus, screen-reader, contrast and reduced-motion audit.
-- [x] Verify published homepage, base-path assets and product deep links with the automated Pages smoke test [41413878826](https://github.com/pooya16pg-spec/globalcart/actions/runs/41413878826).
+- [x] Verify published homepage, base-path assets and product deep links with the automated Pages smoke test [41413878826](https://github.com/pooya-labs/globalcart/actions/runs/41413878826).
 
 ## M01.5 — Marketplace redesign and UX foundation
 - [x] Re-scope reference to a broad Amazon-style marketplace information architecture without copying proprietary code, branding or assets.
@@ -94,7 +94,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Translation intentionally paused; no translation secrets or external translation service required for CI.
 - [x] Translate title, description, category and brand while preserving original source fields and provenance.
 - [x] Translation cache via source-content fingerprints, sequential throttling, bounded retries and per-product error reporting.
-- [x] Show the last successful source-fetch time or generated snapshot timestamp and classify its age as fresh (≤36h), aging (>36h to 72h), stale (>72h) or unknown in Persian and English. Verified by Catalog CI [41406450515](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450515), Browser E2E [41406450651](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450651), Pages deploy + published smoke test [41406450478](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450478), and Security scans [41406450499](https://github.com/pooya16pg-spec/globalcart/actions/runs/41406450499). The timestamp measures GlobalCart fetch/generation time, not supplier modification time.
+- [x] Show the last successful source-fetch time or generated snapshot timestamp and classify its age as fresh (≤36h), aging (>36h to 72h), stale (>72h) or unknown in Persian and English. Verified by Catalog CI [41406450515](https://github.com/pooya-labs/globalcart/actions/runs/41406450515), Browser E2E [41406450651](https://github.com/pooya-labs/globalcart/actions/runs/41406450651), Pages deploy + published smoke test [41406450478](https://github.com/pooya-labs/globalcart/actions/runs/41406450478), and Security scans [41406450499](https://github.com/pooya-labs/globalcart/actions/runs/41406450499). The timestamp measures GlobalCart fetch/generation time, not supplier modification time.
 - [ ] Add other suppliers only through authorized APIs/feeds.
 **Acceptance:** products import automatically, the storefront survives source outages, and original source text remains intact. Translation is out of scope until explicitly reactivated.
 
@@ -103,7 +103,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M03 — Pricing and product experience
 - [x] Integer-cent pricing, fixed-point FX and BigInt intermediate arithmetic.
 - [x] Explicit rounding and invalid-input tests.
-- [x] Replace the former Wallex USDT proxy with the requested TGJU free-market USD page. The `price_dollar_rl` row is validated; the raw Rial quote is preserved and divided by ten for Toman per USD; Tehran clock and date-only markers are handled conservatively; blocked/invalid pages preserve last-known-good data; 5/15-minute freshness states are tested. TGJU refresh [41568568791](https://github.com/pooya16pg-spec/globalcart/actions/runs/41568568791), Security [41568713623](https://github.com/pooya16pg-spec/globalcart/actions/runs/41568713623), Pages deployment/smoke [41568713584](https://github.com/pooya16pg-spec/globalcart/actions/runs/41568713584), and desktop/mobile Browser E2E [41568713639](https://github.com/pooya16pg-spec/globalcart/actions/runs/41568713639) passed. Current source marker is date-only (`11 آبان`), so the stored 271,500 Toman/USD quote is deliberately labelled stale. Recurring schedule reliability remains under observation.
+- [x] Replace the former Wallex USDT proxy with the requested TGJU free-market USD page. The `price_dollar_rl` row is validated; the raw Rial quote is preserved and divided by ten for Toman per USD; Tehran clock and date-only markers are handled conservatively; blocked/invalid pages preserve last-known-good data; 5/15-minute freshness states are tested. TGJU refresh [41568568791](https://github.com/pooya-labs/globalcart/actions/runs/41568568791), Security [41568713623](https://github.com/pooya-labs/globalcart/actions/runs/41568713623), Pages deployment/smoke [41568713584](https://github.com/pooya-labs/globalcart/actions/runs/41568713584), and desktop/mobile Browser E2E [41568713639](https://github.com/pooya-labs/globalcart/actions/runs/41568713639) passed. Current source marker is date-only (`11 آبان`), so the stored 271,500 Toman/USD quote is deliberately labelled stale. Recurring schedule reliability remains under observation.
 - [x] Transparent source-price, discount and exchange-derived Tether/Toman estimate breakdown on product pages (no shipping, tax, payment fees or executable checkout quote).
 - [x] Dedicated static product details for the imported catalog, responsive image gallery and related products.
 - [x] Show source record ID, import time, source URL when present, provided variants/attributes, and disclose when source review count is not supplied.
@@ -151,7 +151,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Compare derived password keys in constant time and reject empty, invalid UTF-8 or oversized password inputs.
 - [x] Generate canonical opaque tokens from 256 bits of cryptographic randomness, persist only SHA-256 digests and compare digests in constant time.
 - [x] Add tests for correct/incorrect passwords, malformed/over-budget PHC strings, legacy rehash decisions, invalid password inputs, token entropy/shape and digest validation.
-- [x] Verify Backend CI [41385892498](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892498), Security scans [41385892505](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892505) and GitHub Pages deployment [41385892515](https://github.com/pooya16pg-spec/globalcart/actions/runs/41385892515) on implementation head `862ffb30edefb23695e34e407bfe7ea8180162ef`.
+- [x] Verify Backend CI [41385892498](https://github.com/pooya-labs/globalcart/actions/runs/41385892498), Security scans [41385892505](https://github.com/pooya-labs/globalcart/actions/runs/41385892505) and GitHub Pages deployment [41385892515](https://github.com/pooya-labs/globalcart/actions/runs/41385892515) on implementation head `862ffb30edefb23695e34e407bfe7ea8180162ef`.
 
 **Boundary:** these primitives and session-store methods remain internal; no registration/login handler, cookie, CSRF middleware, email delivery or public HTTP route is enabled. Benchmark hash parameters and add rate limits before authentication is activated.
 
@@ -175,9 +175,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Revoke every active session for one user and append one redacted audit event per session, with an optional actor identity.
 - [x] Return the affected count; repeated revocation is a no-op and does not create duplicate audit events.
 - [x] Add integration coverage for rollback, invalid reasons, user isolation, audit actor/reason and idempotency.
-- [x] Verify the complete race-enabled PostgreSQL Backend CI suite and security scans: Backend CI [run 41393919125](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919125) and Security scans [run 41393919064](https://github.com/pooya16pg-spec/globalcart/actions/runs/41393919064) both passed on code head `6e044b63048b0911c5a7078279e38fe354898605`.
-- [x] Verify the concurrent session-creation/account-disable regression: Backend CI [run 41394508053](https://github.com/pooya16pg-spec/globalcart/actions/runs/41394508053) passed the PostgreSQL race-enabled suite on implementation head `4e74a223e87ee55f84127039be99735eb30b089e`.
-- [x] Re-run the full current auth integration suite, including the session/account-disable race, password change and password-reset revocation paths: Backend CI [run 41395571464](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571464) passed on code head `8a504dca8ae23ca2c06143808452898281216abe`.
+- [x] Verify the complete race-enabled PostgreSQL Backend CI suite and security scans: Backend CI [run 41393919125](https://github.com/pooya-labs/globalcart/actions/runs/41393919125) and Security scans [run 41393919064](https://github.com/pooya-labs/globalcart/actions/runs/41393919064) both passed on code head `6e044b63048b0911c5a7078279e38fe354898605`.
+- [x] Verify the concurrent session-creation/account-disable regression: Backend CI [run 41394508053](https://github.com/pooya-labs/globalcart/actions/runs/41394508053) passed the PostgreSQL race-enabled suite on implementation head `4e74a223e87ee55f84127039be99735eb30b089e`.
+- [x] Re-run the full current auth integration suite, including the session/account-disable race, password change and password-reset revocation paths: Backend CI [run 41395571464](https://github.com/pooya-labs/globalcart/actions/runs/41395571464) passed on code head `8a504dca8ae23ca2c06143808452898281216abe`.
 
 **Boundary:** this is an internal transaction helper, not a password-change endpoint or authorization middleware. Callers must include the relevant credential/role/account update in the same transaction. No HTTP route, browser cookie, email flow or hosted database is enabled.
 
@@ -186,7 +186,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add an internal password-change service that re-checks the expected old hash, updates the Argon2id hash, revokes every active session and audits the change in one transaction.
 - [x] Reject login attempts whose previously verified password hash became stale while waiting for the account lock.
 - [x] Add PostgreSQL integration coverage for multi-session revocation, old-password rejection, new-password verification and stale credential snapshots.
-- [x] Verify Backend CI [run 41395032305](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032305), Security scans [run 41395032374](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032374) and GitHub Pages deployment [run 41395032292](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395032292) on code head `fe2ec6b9bfce6ec4aa20ea004029e2a68d5b05ab`; all passed.
+- [x] Verify Backend CI [run 41395032305](https://github.com/pooya-labs/globalcart/actions/runs/41395032305), Security scans [run 41395032374](https://github.com/pooya-labs/globalcart/actions/runs/41395032374) and GitHub Pages deployment [run 41395032292](https://github.com/pooya-labs/globalcart/actions/runs/41395032292) on code head `fe2ec6b9bfce6ec4aa20ea004029e2a68d5b05ab`; all passed.
 
 **Boundary:** this is an internal password-change primitive, not a public endpoint or password-reset-token flow. The caller must verify the old password against the supplied hash snapshot before invoking it. No login/register HTTP route, browser cookie, email delivery or hosted database is enabled.
 
@@ -198,7 +198,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Lock the user before token rows in issue/consume/change flows to avoid lock-order deadlocks; re-check expiry and single-use state inside the transaction.
 - [x] Invalidate outstanding reset tokens when a normal password change succeeds.
 - [x] Add PostgreSQL tests for digest-only storage, rotation, expiry, single use, concurrent double consumption and session invalidation.
-- [x] Verify PostgreSQL race-enabled Backend CI [run 41395571464](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571464), Security scans [run 41395571531](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571531) and GitHub Pages deployment [run 41395571666](https://github.com/pooya16pg-spec/globalcart/actions/runs/41395571666) on code head `8a504dca8ae23ca2c06143808452898281216abe`; all passed.
+- [x] Verify PostgreSQL race-enabled Backend CI [run 41395571464](https://github.com/pooya-labs/globalcart/actions/runs/41395571464), Security scans [run 41395571531](https://github.com/pooya-labs/globalcart/actions/runs/41395571531) and GitHub Pages deployment [run 41395571666](https://github.com/pooya-labs/globalcart/actions/runs/41395571666) on code head `8a504dca8ae23ca2c06143808452898281216abe`; all passed.
 
 **Boundary:** no email is sent and no public password-reset endpoint is enabled. The raw token is returned once to an internal caller for delivery by a future approved email worker; HTTP responses must not expose account existence.
 
@@ -208,7 +208,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Consume a verification token once, activate only the matching pending account, and revoke stale verification tokens transactionally.
 - [x] Audit issuance and successful verification without storing raw token/email secrets.
 - [x] Test expiry, duplicate/replayed tokens, token rotation, disabled-account behavior, customer-only roles and concurrent verification attempts in PostgreSQL.
-- [x] Verify Backend CI [run 41396081833](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081833) and Security scans [run 41396081844](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396081844) on code head `d720ffdebd77c6b28c82ce55567ea3bba90d95c8`; both passed, including PostgreSQL race-enabled tests.
+- [x] Verify Backend CI [run 41396081833](https://github.com/pooya-labs/globalcart/actions/runs/41396081833) and Security scans [run 41396081844](https://github.com/pooya-labs/globalcart/actions/runs/41396081844) on code head `d720ffdebd77c6b28c82ce55567ea3bba90d95c8`; both passed, including PostgreSQL race-enabled tests.
 - [x] Keep email delivery and public registration/verification routes disabled pending approved hosting, email provider and secret management.
 
 **Boundary:** pending-account activation only; this does not grant seller/admin roles or enable a public registration endpoint.
@@ -220,7 +220,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Serialize privileged role mutations with a transaction-scoped advisory lock and lock actor/target rows in stable order.
 - [x] Revoke every target session in the same transaction as the role mutation; append actor-attributed, redacted audit events.
 - [x] Add PostgreSQL tests for authorization, disabled actors, pending targets, self-change rejection, duplicate operations, session invalidation and concurrent admin grants.
-- [x] Verify Backend CI [run 41396823353](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823353), Security scans [run 41396823371](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823371) and GitHub Pages deployment [run 41396823403](https://github.com/pooya16pg-spec/globalcart/actions/runs/41396823403) on code head `aef92e7526cfbc9c51f0d803bcba8493e131d8d2`; all passed.
+- [x] Verify Backend CI [run 41396823353](https://github.com/pooya-labs/globalcart/actions/runs/41396823353), Security scans [run 41396823371](https://github.com/pooya-labs/globalcart/actions/runs/41396823371) and GitHub Pages deployment [run 41396823403](https://github.com/pooya-labs/globalcart/actions/runs/41396823403) on code head `aef92e7526cfbc9c51f0d803bcba8493e131d8d2`; all passed.
 - [x] Keep public/admin HTTP routes disabled. The first administrator must be provisioned through a reviewed operator-controlled database procedure; no self-bootstrap API exists.
 
 **Boundary:** internal privileged-role operations only. The trusted caller must derive `actorUserID` from a verified server-side session, never from request JSON or a browser-supplied role claim. Seller membership lifecycle and public authorization middleware are not included.
@@ -231,7 +231,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Serialize admin review with the existing privileged-mutation lock, preserve other vendor scopes, revoke the seller role only after the last active vendor scope is removed, and invalidate target sessions transactionally.
 - [x] Append actor-attributed audit events for membership requests, activation, suspension/revocation and automatic seller-role grant/revoke.
 - [x] Add PostgreSQL tests for multi-vendor scope retention, no-scope role removal, disabled target cleanup, inactive vendors, unauthorized actors and concurrent activation.
-- [x] Verify Backend CI [run 41397502226](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502226), Security scans [run 41397502232](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502232) and GitHub Pages deployment [run 41397502248](https://github.com/pooya16pg-spec/globalcart/actions/runs/41397502248) on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`; all three passed.
+- [x] Verify Backend CI [run 41397502226](https://github.com/pooya-labs/globalcart/actions/runs/41397502226), Security scans [run 41397502232](https://github.com/pooya-labs/globalcart/actions/runs/41397502232) and GitHub Pages deployment [run 41397502248](https://github.com/pooya-labs/globalcart/actions/runs/41397502248) on code head `f0756e0a3360b949b384aef1ff8e3a646192257b`; all three passed.
 
 
 
@@ -244,7 +244,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add table-driven policy tests for customer ownership, assigned/unassigned vendor scopes, seller role without a live scope, admin-only actions, unknown actions, missing session identity and client-supplied vendor scope.
 - [x] Keep the evaluator pure/internal; no middleware, public protected route or cookie flow was enabled.
 
-- [x] Verify Backend CI [run 41398064895](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064895), Security scans [run 41398064885](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064885) and GitHub Pages deployment [run 41398064905](https://github.com/pooya16pg-spec/globalcart/actions/runs/41398064905) on implementation head `c1b4b0ccfbd132ee95f8dc757a3518ff9b04899a`; all passed.
+- [x] Verify Backend CI [run 41398064895](https://github.com/pooya-labs/globalcart/actions/runs/41398064895), Security scans [run 41398064885](https://github.com/pooya-labs/globalcart/actions/runs/41398064885) and GitHub Pages deployment [run 41398064905](https://github.com/pooya-labs/globalcart/actions/runs/41398064905) on implementation head `c1b4b0ccfbd132ee95f8dc757a3518ff9b04899a`; all passed.
 
 **Boundary:** pure/internal authorization policy only. Its caller must pass a `SessionPrincipal` returned from `ResolveSession`; this evaluator does not authenticate, refresh sessions or replace transaction-level ownership checks. Public handlers, cookies, CSRF middleware and deployment remain blocked on ADR-010 owner approval.
 ### M04.11 — Service-boundary authorization and cross-tenant IDOR enforcement (CI verified, 2026-11-02)
@@ -254,9 +254,9 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add PostgreSQL coverage for own-offer success, cross-vendor read/write denial, stale/revoked session rejection, suspended membership and membership-revocation serialization with a protected seller transaction.
 - [x] Keep protected HTTP routes disabled; no cookies, middleware, CSRF route or public seller endpoints were enabled.
 
-- [x] Verify Backend CI [run 41399542624](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542539) and GitHub Pages deployment [run 41399542545](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542545) on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`; all passed, including PostgreSQL race tests, API/importer builds, Docker image, static build and Pages deploy.
+- [x] Verify Backend CI [run 41399542624](https://github.com/pooya-labs/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya-labs/globalcart/actions/runs/41399542539) and GitHub Pages deployment [run 41399542545](https://github.com/pooya-labs/globalcart/actions/runs/41399542545) on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`; all passed, including PostgreSQL race tests, API/importer builds, Docker image, static build and Pages deploy.
 
-- [x] Verify Backend CI [run 41399542624](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542539) and GitHub Pages deployment [run 41399542545](https://github.com/pooya16pg-spec/globalcart/actions/runs/41399542545) on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`; all passed, including PostgreSQL race tests, API/importer builds, Docker image, static build and Pages deploy.
+- [x] Verify Backend CI [run 41399542624](https://github.com/pooya-labs/globalcart/actions/runs/41399542624), Security scans [run 41399542539](https://github.com/pooya-labs/globalcart/actions/runs/41399542539) and GitHub Pages deployment [run 41399542545](https://github.com/pooya-labs/globalcart/actions/runs/41399542545) on implementation head `f06de264488bd59f1e76a7e3d6c67f26d40c0eb1`; all passed, including PostgreSQL race tests, API/importer builds, Docker image, static build and Pages deploy.
 
 **Boundary:** service/application-layer enforcement only; no login, cookie, CSRF middleware or public route is enabled.
 ### M04.12 — Customer resource ownership enforcement (CI verified, 2026-11-02)
@@ -267,7 +267,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add PostgreSQL integration coverage for foreign/guest-only cart and order denial, cart mutations, parent and vendor child-order reads, first-writer-wins binding races, expired carts, revoked sessions and idempotent cancellation.
 - [x] Keep customer HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret management and runtime are explicitly approved.
 
-**Verification on implementation head `928c3867e2d8e109e4e6595f9ac0898cf51b25b9`:** [Backend CI 41403135351](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135351), [Security scans 41403135364](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135364), and [GitHub Pages deployment 41403135344](https://github.com/pooya16pg-spec/globalcart/actions/runs/41403135344) all succeeded. Backend CI completed sqlc generation, Go formatting, dependency vulnerability scan, `go vet`, race-enabled Go tests, API/importer builds and Docker image build. The CI formatting-only commit is `5a5659d9b35789cf12072141152b0ab4be217c33`.
+**Verification on implementation head `928c3867e2d8e109e4e6595f9ac0898cf51b25b9`:** [Backend CI 41403135351](https://github.com/pooya-labs/globalcart/actions/runs/41403135351), [Security scans 41403135364](https://github.com/pooya-labs/globalcart/actions/runs/41403135364), and [GitHub Pages deployment 41403135344](https://github.com/pooya-labs/globalcart/actions/runs/41403135344) all succeeded. Backend CI completed sqlc generation, Go formatting, dependency vulnerability scan, `go vet`, race-enabled Go tests, API/importer builds and Docker image build. The CI formatting-only commit is `5a5659d9b35789cf12072141152b0ab4be217c33`.
 
 **Boundary:** account-backed service methods remain internal. No customer authentication, cart/order write, seller or admin HTTP route, cookie flow or public API was enabled.
 
@@ -277,7 +277,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Adopt pre-existing NULL checksums once, then enforce NOT NULL; reject checksum drift and applied ledger entries whose source migration file is missing.
 - [x] Add regression coverage for deterministic/content-sensitive checksums, legacy-ledger adoption and fail-closed drift detection.
 - [x] Document append-only migration rules, expand-and-contract rollout, transaction limitations, forward-fix decisions, backup/restore boundaries and an incident runbook in docs/DATABASE_MIGRATION_POLICY.md.
-- [x] Verify Backend CI [41415943162](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943162), Security scans [41415943090](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943090) and Pages deployment [41415943078](https://github.com/pooya16pg-spec/globalcart/actions/runs/41415943078); all passed on implementation/docs head `2cd5aaf72bbcddd14bfb1312768b6c708648f9d4`.
+- [x] Verify Backend CI [41415943162](https://github.com/pooya-labs/globalcart/actions/runs/41415943162), Security scans [41415943090](https://github.com/pooya-labs/globalcart/actions/runs/41415943090) and Pages deployment [41415943078](https://github.com/pooya-labs/globalcart/actions/runs/41415943078); all passed on implementation/docs head `2cd5aaf72bbcddd14bfb1312768b6c708648f9d4`.
 
 **Boundary:** CI/local PostgreSQL only. This policy does not provision a hosted database or claim production backups, PITR, RPO/RTO or an approved rollback window.
 
@@ -287,7 +287,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Validate `HTTP_ADDR` as a host/port listener with a non-ephemeral port in the valid TCP range.
 - [x] Accept only exact CORS origins; reject wildcard/null, credentials, paths, queries and fragments; permit plain HTTP only for loopback in development/test and require HTTPS in production.
 - [x] Add unit coverage for defaults, malformed database URLs, invalid listener addresses, normalized origins, unsafe CORS values and production TLS/HTTPS requirements.
-- [x] Verify Backend CI [41458549348](https://github.com/pooya16pg-spec/globalcart/actions/runs/41458549348) and Security scans [41458549236](https://github.com/pooya16pg-spec/globalcart/actions/runs/41458549236); both passed, including PostgreSQL 17 integration/race tests, logical backup/restore, API/importer builds and the container image.
+- [x] Verify Backend CI [41458549348](https://github.com/pooya-labs/globalcart/actions/runs/41458549348) and Security scans [41458549236](https://github.com/pooya-labs/globalcart/actions/runs/41458549236); both passed, including PostgreSQL 17 integration/race tests, logical backup/restore, API/importer builds and the container image.
 
 **Boundary:** configuration validation only. It does not provision a hosted database, terminate HTTPS, create secrets, or enable public authentication/commerce routes. The operator must still set `APP_ENV=production`, supply TLS-capable PostgreSQL settings and configure the exact production frontend origin.
 
@@ -306,7 +306,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Atomically update parent order, vendor child orders, return state and append-only event on simulated refund completion.
 - [x] Keep review and completion off the public HTTP router; never call a payment provider or mutate vendor/product stock.
 - [x] Add PostgreSQL integration tests for owner isolation, idempotency, approval/rejection, refund state, event history and unchanged stock.
-- [x] Verify Backend CI [41382309964](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310050) and GitHub Pages deployment [41382310024](https://github.com/pooya16pg-spec/globalcart/actions/runs/41382310024) on final implementation head `bc97475c0cce7f8de6aebe72071813c942b6a3d0`.
+- [x] Verify Backend CI [41382309964](https://github.com/pooya-labs/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya-labs/globalcart/actions/runs/41382310050) and GitHub Pages deployment [41382310024](https://github.com/pooya-labs/globalcart/actions/runs/41382310024) on final implementation head `bc97475c0cce7f8de6aebe72071813c942b6a3d0`.
 
 **Boundary:** this is a full-order portfolio simulation only. No real money, refund provider, customer login, item-level return, shipment or stock adjustment exists.
 
@@ -316,8 +316,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 - [x] Admin-only manual product creation with a reserved ID sequence, `admin_manual` provenance and a transactional GlobalCart Direct demo offer; M06.2 below.
 - [x] Admin-only product editorial edit, archive and restore with immutable revision history; M06.2 below.
-- [x] Internal admin product work queue with effective-value search, status/source/category/brand filters, safe sorting and bounded pagination; M06.3 below. Backend CI [41562259407](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562259407) and Security scans [41562285730](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562285730) passed.
-- [x] Internal seller product work queue with live vendor-membership authorization, effective catalog search, offer status/source/category/brand filters, safe sorting and bounded pagination; M06.4 below. Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334) and Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) passed.
+- [x] Internal admin product work queue with effective-value search, status/source/category/brand filters, safe sorting and bounded pagination; M06.3 below. Backend CI [41562259407](https://github.com/pooya-labs/globalcart/actions/runs/41562259407) and Security scans [41562285730](https://github.com/pooya-labs/globalcart/actions/runs/41562285730) passed.
+- [x] Internal seller product work queue with live vendor-membership authorization, effective catalog search, offer status/source/category/brand filters, safe sorting and bounded pagination; M06.4 below. Backend CI [41564104334](https://github.com/pooya-labs/globalcart/actions/runs/41564104334) and Security scans [41564104323](https://github.com/pooya-labs/globalcart/actions/runs/41564104323) passed.
 - [ ] Supplier connector configuration without secret exposure.
 - [ ] Seller dashboard UI and browser role switcher remain gated; M06.6 internal seller profile and demo analytics services are CI-verified.
 
@@ -329,7 +329,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Report translation as intentionally paused; do not imply a worker/provider is active.
 - [x] Return aggregate-only data without account emails, password hashes, raw session/CSRF tokens, token digests or audit payloads.
 - [x] Add PostgreSQL integration tests for customer/seller denial, active-admin reads, fixture diagnostics, stale role/session revocation and sensitive-field non-disclosure.
-- [x] Verify Backend CI [41465375163](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375163) and Security scans [41465375326](https://github.com/pooya16pg-spec/globalcart/actions/runs/41465375326) on implementation head `7ca99c04a348256aa0a6051241864213968f7f84`.
+- [x] Verify Backend CI [41465375163](https://github.com/pooya-labs/globalcart/actions/runs/41465375163) and Security scans [41465375326](https://github.com/pooya-labs/globalcart/actions/runs/41465375326) on implementation head `7ca99c04a348256aa0a6051241864213968f7f84`.
 
 **Boundary:** `backend/internal/admin.ReadOverview` is an internal Go service only. No HTTP route, UI, public role switcher, account bootstrap, hosted service or seller operation was enabled. The future dashboard must call this service only through approved authenticated middleware after same-site HTTPS hosting, email delivery and secret management are approved.
 
@@ -345,7 +345,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Apply effective title/description/brand overrides to catalog list, detail, search ranking and brand filters; apply the same predicates to result counts and exclude archived products from list/detail/category counts.
 - [x] Verify supplier re-imports update source values without replacing editorial overrides.
 - [x] Add PostgreSQL integration tests for customer/seller denial, manual creation/offer creation, validation, override/reset behavior, source preservation, stale revision conflicts, archive/restore visibility, history order and immutability.
-- [x] Verify Backend CI [41473127094](https://github.com/pooya16pg-spec/globalcart/actions/runs/41473127094) and Security scans [41473127072](https://github.com/pooya16pg-spec/globalcart/actions/runs/41473127072) on implementation head `e288cba2f0abe891656388d6e50638bff5fadc3c`.
+- [x] Verify Backend CI [41473127094](https://github.com/pooya-labs/globalcart/actions/runs/41473127094) and Security scans [41473127072](https://github.com/pooya-labs/globalcart/actions/runs/41473127072) on implementation head `e288cba2f0abe891656388d6e50638bff5fadc3c`.
 
 **Boundary:** `backend/internal/admin` remains an internal Go service. Manual creation, edit, archive/restore and history are available only to an authenticated active administrator at the service boundary. No admin HTTP routes, browser dashboard, role switcher, seller interface or public catalog write path is enabled.
 
@@ -356,7 +356,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Filter active (default), archived or all products; support bounded category/brand/source filters and a fixed allow-list of sort keys/directions.
 - [x] Enforce a default page size of 20, maximum page size of 100 and maximum offset of 10,000; return total count and stable ID tie-breaking.
 - [x] Add PostgreSQL integration coverage for customer denial, editorial-value matching, source/status filters, archive visibility, sort order, pagination, invalid bounds and NUL rejection.
-- [x] Verify final Backend CI [41562708698](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708698), Security scans [41562708607](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708607) and Pages deployment [41562708709](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708709) on `115fbac9dc716b09911151fb19e8e44aeede110f`; race-enabled Go/PostgreSQL tests (including NUL rejection), backup/restore, API/importer builds, Docker image, security scans and published-site smoke checks passed.
+- [x] Verify final Backend CI [41562708698](https://github.com/pooya-labs/globalcart/actions/runs/41562708698), Security scans [41562708607](https://github.com/pooya-labs/globalcart/actions/runs/41562708607) and Pages deployment [41562708709](https://github.com/pooya-labs/globalcart/actions/runs/41562708709) on `115fbac9dc716b09911151fb19e8e44aeede110f`; race-enabled Go/PostgreSQL tests (including NUL rejection), backup/restore, API/importer builds, Docker image, security scans and published-site smoke checks passed.
 
 **Boundary:** this is a backend service only. It adds no HTTP handler, admin page, browser role switcher, public product endpoint or hosted dependency. No schema migration is required; the existing migrations 013–014 are unchanged.
 
@@ -369,7 +369,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add bounded free-text search across effective product/variant fields, category, source, source ID, SKU and product/offer IDs; add status/category/source/brand filters.
 - [x] Add fixed allow-listed sorting and stable offer-ID tie-breaking; default page size 20, maximum 100, maximum offset 10,000.
 - [x] Add PostgreSQL integration coverage for customer denial, cross-vendor isolation, membership revocation/stale sessions, effective editorial search, filters, sorting, pagination and invalid input.
-- [x] Verify Backend CI [41564104334](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104334), Security scans [41564104323](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104323) and Pages deployment [41564104379](https://github.com/pooya16pg-spec/globalcart/actions/runs/41564104379) on implementation commit `b9c35829afa14d37c690fb4abad59e617140564e`; all passed, including PostgreSQL race tests, backup/restore, API/importer and Docker builds, security scan and published-site smoke test.
+- [x] Verify Backend CI [41564104334](https://github.com/pooya-labs/globalcart/actions/runs/41564104334), Security scans [41564104323](https://github.com/pooya-labs/globalcart/actions/runs/41564104323) and Pages deployment [41564104379](https://github.com/pooya-labs/globalcart/actions/runs/41564104379) on implementation commit `b9c35829afa14d37c690fb4abad59e617140564e`; all passed, including PostgreSQL race tests, backup/restore, API/importer and Docker builds, security scan and published-site smoke test.
 
 **Boundary:** `backend/internal/commerce` exposes this as an internal read service only. No seller HTTP handler, dashboard, browser role switcher, public seller route, migration, production database or hosting was added. Existing identity and deployment approval gates still apply.
 
@@ -381,7 +381,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Allow sellers to pause or return an offer to draft; self-publish to active is blocked. Archive is terminal.
 - [x] Apply revision/audit semantics to the existing authorized seller price and stock methods.
 - [x] Add PostgreSQL lifecycle coverage for duplicate offers/SKUs, customer and foreign-vendor denial, stale revisions after system updates, archive and append-only history.
-- [x] Verify Backend CI [41571374758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374758), Security scans [41571374594](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374594) and Pages deploy/smoke [41571374873](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374873) on implementation head `3a9a328fd7d7b1262d73dfefbc2e7a81fa994782`; race-enabled PostgreSQL lifecycle tests, migration/backup/restore, vet, vulnerability scan, API/importer build and Docker build passed.
+- [x] Verify Backend CI [41571374758](https://github.com/pooya-labs/globalcart/actions/runs/41571374758), Security scans [41571374594](https://github.com/pooya-labs/globalcart/actions/runs/41571374594) and Pages deploy/smoke [41571374873](https://github.com/pooya-labs/globalcart/actions/runs/41571374873) on implementation head `3a9a328fd7d7b1262d73dfefbc2e7a81fa994782`; race-enabled PostgreSQL lifecycle tests, migration/backup/restore, vet, vulnerability scan, API/importer build and Docker build passed.
 
 **Boundary:** internal Go service only. No seller HTTP route, dashboard, self-publish, payout or production hosting. Seller profile and demo analytics are implemented separately in M06.6.
 
@@ -392,7 +392,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Allow the seller to edit only the vendor display name, using `updated_at` as an optimistic revision token while preserving slug, type and vendor lifecycle state.
 - [x] Append an actor-attributed audit event for profile changes in the same transaction.
 - [x] Add PostgreSQL coverage for seller/customer/foreign-vendor isolation, profile optimistic concurrency and audit, and a real demo vendor checkout/payment flow reflected in workspace analytics.
-- [x] Verify Backend CI [41572747044](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572747044), Security scans [41572747081](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572747081) and Pages deploy/smoke [41572746914](https://github.com/pooya16pg-spec/globalcart/actions/runs/41572746914) on implementation head `fe24119685bfa8487cb8fa2abfb8ad85ed430904`; race-enabled PostgreSQL workspace/profile/demo-checkout tests, migration/backup/restore, vet, vulnerability scan, API/importer and Docker builds, TypeScript/unit tests, production build and published-site smoke all passed.
+- [x] Verify Backend CI [41572747044](https://github.com/pooya-labs/globalcart/actions/runs/41572747044), Security scans [41572747081](https://github.com/pooya-labs/globalcart/actions/runs/41572747081) and Pages deploy/smoke [41572746914](https://github.com/pooya-labs/globalcart/actions/runs/41572746914) on implementation head `fe24119685bfa8487cb8fa2abfb8ad85ed430904`; race-enabled PostgreSQL workspace/profile/demo-checkout tests, migration/backup/restore, vet, vulnerability scan, API/importer and Docker builds, TypeScript/unit tests, production build and published-site smoke all passed.
 
 **Boundary:** internal backend only. No seller HTTP route, dashboard, payout, real-revenue claim, customer-data disclosure or production hosting is added.
 
@@ -415,7 +415,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Extract pure client-side filtering logic and add regression tests for combined filters, normalized brand matching and non-mutating behavior.
 - [x] Verify TypeScript, Catalog unit tests, production build, sqlc generation, Go vet, PostgreSQL integration/race tests, API/importer builds and Docker image.
 
-**Verification:** latest implementation head `3372040d3cd71cd55d99724033065cf0dfa4537e` passed [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365136582), [Catalog CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141727) and [Backend CI pull request](https://github.com/pooya16pg-spec/globalcart/actions/runs/41365141780).
+**Verification:** latest implementation head `3372040d3cd71cd55d99724033065cf0dfa4537e` passed [Catalog CI push](https://github.com/pooya-labs/globalcart/actions/runs/41365136582), [Catalog CI pull request](https://github.com/pooya-labs/globalcart/actions/runs/41365141727) and [Backend CI pull request](https://github.com/pooya-labs/globalcart/actions/runs/41365141780).
 
 **Boundary:** storefront facets currently run against the local generated catalog snapshot. The Go API and PostgreSQL remain local/unhosted; no public API connection or production deployment is implied.
 
@@ -433,8 +433,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Dismiss dialogs with Escape and restore focus to the invoking control.
 - [x] Preserve the original opener when a Command Palette action opens a replacement dialog, including the mobile saved-items route.
 - [x] Use touch-appropriate Quick View interaction in mobile browser tests instead of assuming pointer hover.
-- [x] Verify implementation head `2182bbb1c55ad265e4264c1a0389fb0353f0010a` before merge: Browser E2E push [41380662904](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380662904) and PR [41380669829](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669829) passed (28 Playwright tests).
-- [x] On the same pre-merge PR head, Catalog CI [41380669723](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya16pg-spec/globalcart/actions/runs/41380669865) passed.
+- [x] Verify implementation head `2182bbb1c55ad265e4264c1a0389fb0353f0010a` before merge: Browser E2E push [41380662904](https://github.com/pooya-labs/globalcart/actions/runs/41380662904) and PR [41380669829](https://github.com/pooya-labs/globalcart/actions/runs/41380669829) passed (28 Playwright tests).
+- [x] On the same pre-merge PR head, Catalog CI [41380669723](https://github.com/pooya-labs/globalcart/actions/runs/41380669723), Backend CI [41380669722](https://github.com/pooya-labs/globalcart/actions/runs/41380669722) and Security scans [41380669865](https://github.com/pooya-labs/globalcart/actions/runs/41380669865) passed.
 
 **Boundary:** this is automated keyboard/focus coverage for the tested dialogs and desktop/mobile viewports. Manual screen-reader, physical-device, broader RTL/LTR and reduced-motion review remains open.
 
@@ -443,8 +443,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify `prefers-reduced-motion: reduce` disables smooth scrolling and limits image transitions and overlay animation.
 - [x] Correct the catalog stale-snapshot status text to exceed the 4.5:1 normal-text contrast threshold.
 - [x] Keep reduced-motion overlay interaction touch-safe on Pixel 7; the check uses the cart drawer rather than a hover-dependent quick-view control.
-- [x] Browser E2E run [41383420470](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420470) passed all 30 desktop/mobile Playwright tests on implementation head `9653fc7d2d03e45f726b7e6a0e47fd7cbd1295dc`.
-- [x] Security scans [41383420409](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420409) and GitHub Pages deployment [41383420345](https://github.com/pooya16pg-spec/globalcart/actions/runs/41383420345) passed on the same head.
+- [x] Browser E2E run [41383420470](https://github.com/pooya-labs/globalcart/actions/runs/41383420470) passed all 30 desktop/mobile Playwright tests on implementation head `9653fc7d2d03e45f726b7e6a0e47fd7cbd1295dc`.
+- [x] Security scans [41383420409](https://github.com/pooya-labs/globalcart/actions/runs/41383420409) and GitHub Pages deployment [41383420345](https://github.com/pooya-labs/globalcart/actions/runs/41383420345) passed on the same head.
 
 **Boundary:** automated scans cover the tested storefront states and desktop/mobile emulation. Manual screen-reader, real-device, full-site RTL/LTR and published URL/deep-link QA remain open.
 
@@ -453,7 +453,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Restore into a fresh `globalcart_restore` database with `pg_restore --exit-on-error`, excluding runner-specific owner and ACL metadata.
 - [x] Compare the ordered `schema_migrations` ledger, product/user/cart/vendor-offer row counts, validated constraint count and `pg_trgm` extension version between source and restored databases.
 - [x] Clean up the temporary dump and restore database on both success and failure.
-- [x] Verify Backend CI [run 41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) and Security scans [run 41404293071](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404293071) on implementation commit `0e8c8556fa04fa43d735b46820685632eef2df0a`; both passed.
+- [x] Verify Backend CI [run 41404292955](https://github.com/pooya-labs/globalcart/actions/runs/41404292955) and Security scans [run 41404293071](https://github.com/pooya-labs/globalcart/actions/runs/41404293071) on implementation commit `0e8c8556fa04fa43d735b46820685632eef2df0a`; both passed.
 
 **Boundary:** this proves logical backup and restore on disposable CI PostgreSQL only. It does not create retained/off-site backups, test encryption or point-in-time recovery, define production RPO/RTO, or replace a provider-backed restore drill after hosted PostgreSQL is approved.
 
@@ -462,7 +462,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Make Pages, Catalog CI and Browser E2E use `npm ci` whenever the lockfile exists; retain a one-time bootstrap path for branches without it.
 - [x] Persist `package-lock.json` alongside the refreshed catalog snapshot, then validate it with a clean `npm ci` before typecheck, tests and build.
 - [x] After Pages deployment, request the published homepage, resolve and request a Next.js JavaScript asset beneath the `/globalcart/` base path, and request one statically generated product deep link selected from the built catalog.
-- [x] Verify Pages deployment [run 41405289322](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289322) and Security scans [run 41405289317](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289317) on workflow implementation commit `8fec0d0c9bbb845fb7b1dc0788970929828e0a2a`; both passed. The lockfile and generated catalog snapshot were persisted on `main` by `a9aa72606839d04329837c570fd2cbf492499299`.
+- [x] Verify Pages deployment [run 41405289322](https://github.com/pooya-labs/globalcart/actions/runs/41405289322) and Security scans [run 41405289317](https://github.com/pooya-labs/globalcart/actions/runs/41405289317) on workflow implementation commit `8fec0d0c9bbb845fb7b1dc0788970929828e0a2a`; both passed. The lockfile and generated catalog snapshot were persisted on `main` by `a9aa72606839d04329837c570fd2cbf492499299`.
 
 **Boundary:** the lockfile makes dependency resolution reproducible for the committed manifest and Node/npm environment; it does not promise byte-identical exports because the scheduled public demo catalog can change content and generation time. The smoke test covers the published homepage, one JS asset and one product route, not every route, browser/assistive-technology behavior or live CDN performance.
 
@@ -470,7 +470,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Apply asynchronous image decoding to recently viewed product cards while retaining lazy loading, accessible alt text and fixed media dimensions.
 - [x] Add a desktop/mobile Playwright journey that opens a product, confirms the browser-local visit is recorded, follows the GitHub Pages base path to the history route, and verifies the route response, image loading/decoding attributes, accessible names and reserved layout box.
 - [x] Keep the performance audit explicit: the latest Browser E2E run measured the initial route at 520,131 bytes of JavaScript across 7 requests and 70,540 bytes of CSS in 1 request, within the existing 750,000/120,000-byte budgets.
-- [x] Verify Browser E2E [41575646034](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646034) passed all 36 desktop/mobile tests, Security scans [41575646222](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646222) passed, and Pages deployment plus published homepage/assets/product deep-link smoke test [41575646035](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646035) passed on implementation head `c358970b31d2272db98434a761c699355a9dbc57`.
+- [x] Verify Browser E2E [41575646034](https://github.com/pooya-labs/globalcart/actions/runs/41575646034) passed all 36 desktop/mobile tests, Security scans [41575646222](https://github.com/pooya-labs/globalcart/actions/runs/41575646222) passed, and Pages deployment plus published homepage/assets/product deep-link smoke test [41575646035](https://github.com/pooya-labs/globalcart/actions/runs/41575646035) passed on implementation head `c358970b31d2272db98434a761c699355a9dbc57`.
 
 **Boundary:** these checks validate browser-emulated loading policy, layout reservation and first-party asset budgets. They do not measure remote image CDN timing, field Core Web Vitals, physical-device performance or screen-reader output; those remain manual QA.
 
@@ -480,7 +480,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Audit the public storefront, representative product detail and bilingual case-study route in mobile and desktop lab modes; preserve raw JSON reports as a private GitHub Actions artifact.
 - [x] Summarize Performance, Accessibility, Best Practices, SEO, FCP, LCP, TBT and CLS without conflating lab results with field Core Web Vitals.
 - [x] Document manual physical-device, real screen-reader, comprehensive RTL/LTR and field-data acceptance steps in [PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
-- [x] Complete the first post-deployment Lighthouse run and review all six report results: [run 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513), against main snapshot `2eb11c745757f86ee9d5a3bd4d1fa8561c9e4cf1`.
+- [x] Complete the first post-deployment Lighthouse run and review all six report results: [run 41604368513](https://github.com/pooya-labs/globalcart/actions/runs/41604368513), against main snapshot `2eb11c745757f86ee9d5a3bd4d1fa8561c9e4cf1`.
 
 **First full baseline (Lighthouse 13.6.0, GitHub-hosted Chromium; six published lab audits):**
 
@@ -493,11 +493,11 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
 | Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 140 ms | 0 |
 
-Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://github.com/pooya16pg-spec/globalcart/actions/runs/41604368513).
+Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://github.com/pooya-labs/globalcart/actions/runs/41604368513).
 
 **Measured storefront mobile improvement:** the initial public run recorded Performance 74, LCP 4.9 s and TBT 320 ms. After restoring the mobile single-column hero, using responsive hero image candidates, deferring the noncritical sample-catalog revalidation until idle, and self-hosting DM Sans/Vazirmatn via `next/font`, the latest run recorded Performance 87, LCP 3.2 s and TBT 250 ms. That is a 1.7 s (about 35%) lab LCP reduction and a 13-point Performance score increase. The run environment and emulation are the same general GitHub-hosted Lighthouse lab workflow; repeated runs can still vary.
 
-**Verified code checks:** [Browser E2E run 41603301095](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301095) passed 44/44 desktop/mobile tests, including mobile hero stacking, absence of external Google Fonts requests, and asset budgets. [Pages deployment 41603301049](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603301049) passed production build and public-route smoke; [Security 41603300997](https://github.com/pooya16pg-spec/globalcart/actions/runs/41603300997) passed.
+**Verified code checks:** [Browser E2E run 41603301095](https://github.com/pooya-labs/globalcart/actions/runs/41603301095) passed 44/44 desktop/mobile tests, including mobile hero stacking, absence of external Google Fonts requests, and asset budgets. [Pages deployment 41603301049](https://github.com/pooya-labs/globalcart/actions/runs/41603301049) passed production build and public-route smoke; [Security 41603300997](https://github.com/pooya-labs/globalcart/actions/runs/41603300997) passed.
 
 **Boundary:** Lighthouse desktop/mobile presets are lab emulation. They do not close physical-device, actual screen-reader or CrUX/field-data release gates. No third-party reporting server, API key or production secret is required.
 
@@ -506,7 +506,7 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 ### M08.15 follow-up — latest published repeat measurement (verified, 2026-11-03)
 
 - [x] Re-run all six published Lighthouse route/mode audits after the cross-browser accessibility changes and final documentation synchronization.
-- [x] Review the job summary and all six raw reports in [run 41608446036](https://github.com/pooya16pg-spec/globalcart/actions/runs/41608446036); the workflow completed successfully.
+- [x] Review the job summary and all six raw reports in [run 41608446036](https://github.com/pooya-labs/globalcart/actions/runs/41608446036); the workflow completed successfully.
 - [x] Record the current results in `docs/PERFORMANCE_QA.md` and synchronize the README, handoff and continuation checkpoint without overwriting the original baseline.
 
 | Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
@@ -525,12 +525,14 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 ### M08.16 — Route-scoped image hints and FX snapshot publication relay (implementation CI-verified, 2026-11-03)
 
 - [x] Move the Unsplash preconnect to the homepage only; keep the DummyJSON image CDN preconnect on the homepage and product-detail route; remove both hints from the unrelated case-study route.
-- [x] Add a Playwright route-transition regression that asserts the expected preconnect origins on the homepage, product detail and case study. The final Browser E2E [41612960428](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612960428) passed **70/70** tests, including desktop/mobile route-scoping assertions.
+- [x] Add a Playwright route-transition regression that asserts the expected preconnect origins on the homepage, product detail and case study. The final Browser E2E [41612960428](https://github.com/pooya-labs/globalcart/actions/runs/41612960428) passed **70/70** tests, including desktop/mobile route-scoping assertions.
 - [x] Add the product-image CDN preconnect in normal non-CORS mode and assert that no `crossorigin` attribute is added to that hint.
 - [x] When a validated TGJU quote changes and is persisted, send the same-repository `globalcart-fx-updated` `repository_dispatch`; configure the Pages workflow to rebuild on that event. Unchanged quotes deliberately skip dispatch and redundant deployment.
-- [x] Verify the workflow-file update via successful TGJU workflow [41612209256](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612209256), Security [41612208900](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612208900), Pages deployment and published smoke [41612209147](https://github.com/pooya16pg-spec/globalcart/actions/runs/41612209147). A later push-triggered refresh found the quote unchanged and correctly skipped dispatch.
-- [x] Review the six-route published Lighthouse run [41613166735](https://github.com/pooya16pg-spec/globalcart/actions/runs/41613166735): all six modes scored 100 for Accessibility, Best Practices and SEO. Mobile Performance was 88 (home), 97 (product) and 98 (case study). Raw reports showed no unused warning for the route-appropriate preconnects: home uses both origins, product detail only DummyJSON CDN, and case study uses neither.
+- [x] Verify the workflow-file update via successful TGJU workflow [41612209256](https://github.com/pooya-labs/globalcart/actions/runs/41612209256), Security [41612208900](https://github.com/pooya-labs/globalcart/actions/runs/41612208900), Pages deployment and published smoke [41612209147](https://github.com/pooya-labs/globalcart/actions/runs/41612209147). A later push-triggered refresh found the quote unchanged and correctly skipped dispatch.
+- [x] Review the latest six-route published Lighthouse run [41613950109](https://github.com/pooya-labs/globalcart/actions/runs/41613950109): mobile Performance 92 (home), 97 (product) and 100 (case study); all six modes scored 100 for Accessibility, Best Practices and SEO. Raw reports show no unused preconnect warnings for route-appropriate origins.
 - [ ] Verify one actual `globalcart-fx-updated` event and its resulting Pages run after TGJU publishes a genuinely different validated quote. Do not fabricate a changed quote or advance the source timestamp to force this test.
+
+- [x] Inspect raw image-delivery findings in Lighthouse [41613950109](https://github.com/pooya-labs/globalcart/actions/runs/41613950109). Estimated savings are 160 KiB desktop / 108 KiB mobile on the homepage and 82/84 KiB on product detail, mostly from 300×300 thumbnails rendered at 105–181 px and one 1000×1000 alternate gallery image rendered at 54 px. The DummyJSON placeholder-image documentation does not establish a transformation contract for existing product CDN assets; no speculative resize parameters, third-party proxy or degraded duplicate previews were introduced. Keep source URLs until a supported resize path or controlled build-time image pipeline is established.
 
 **Boundary:** GitHub scheduled runs are best-effort, not a guaranteed real-time five-minute clock. The FX workflow is configured for a five-minute poll and the cron offset was resynchronized, but only one TGJU `schedule` run is currently visible in Actions history. Keep cadence reliability under observation; the current date-only source marker remains stale.
 
@@ -548,7 +550,7 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 - [x] Explain the implemented product journey, real technology stack, catalog/TGJU data flow, local backend boundary and non-transactional demo limits without claiming unshipped infrastructure.
 - [x] Add a responsive architecture/data-flow diagram and a feature tour linking to existing storefront journeys.
 - [x] Add route metadata and a discoverable link from the storefront footer.
-- [x] Verify typecheck, unit tests, production static export, desktop/mobile browser coverage and published Pages smoke. Browser E2E [41577703335](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703335), Security [41577703300](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703300) and Pages [41577703347](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703347) passed on the first implementation head.
+- [x] Verify typecheck, unit tests, production static export, desktop/mobile browser coverage and published Pages smoke. Browser E2E [41577703335](https://github.com/pooya-labs/globalcart/actions/runs/41577703335), Security [41577703300](https://github.com/pooya-labs/globalcart/actions/runs/41577703300) and Pages [41577703347](https://github.com/pooya-labs/globalcart/actions/runs/41577703347) passed on the first implementation head.
 - [x] Superseding regression coverage includes the database section and ERD link in both locales; the current suite now contains 40 desktop/mobile scenarios.
 
 **Boundary:** no new commerce behavior, hosted service, supplier integration, translation runtime or live transaction path was introduced. M09.1 does not close M08 manual screen-reader, physical-device, full-site RTL/LTR or live CDN/Core Web Vitals QA.
@@ -559,7 +561,7 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 - [x] Record critical composite foreign keys, optional guest/account cart ownership, vendor-order parent/child invariants, append-only audit/revision history and the boundary between local DB state and browser-local state.
 - [x] Add a responsive four-domain database summary and a direct ERD link to the bilingual case-study page.
 - [x] Add desktop/mobile RTL/LTR accessibility regression assertions for the new database section and ERD link.
-- [x] Verify TypeScript, unit tests, static build, desktop/mobile browser E2E (40 passed), Security scans and published Pages smoke. Browser E2E [41596731945](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731945), Security [41596731890](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731890), Pages [41596731889](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731889).
+- [x] Verify TypeScript, unit tests, static build, desktop/mobile browser E2E (40 passed), Security scans and published Pages smoke. Browser E2E [41596731945](https://github.com/pooya-labs/globalcart/actions/runs/41596731945), Security [41596731890](https://github.com/pooya-labs/globalcart/actions/runs/41596731890), Pages [41596731889](https://github.com/pooya-labs/globalcart/actions/runs/41596731889).
 
 **Source:** [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md). The document describes the schema declared by migrations; it does not claim a production database is deployed. No SQL migration, database table, runtime dependency or API endpoint was changed.
 
@@ -568,17 +570,17 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 ### M09.3 — Screenshot evidence and README accuracy (completed, 2026-11-03)
 - [x] Add a Playwright capture test that takes full-page Persian screenshots from the production static export in desktop and mobile Chromium projects.
 - [x] Publish the verified screenshot artifact to `docs/screenshots/case-study-desktop.png` and `docs/screenshots/case-study-mobile.png` through the guarded [Publish portfolio screenshots workflow](.github/workflows/publish-portfolio-screenshots.yml).
-- [x] Confirm the capture suite: 40/40 browser scenarios passed on [run 41596731945](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731945); screenshot publication [run 41597084953](https://github.com/pooya16pg-spec/globalcart/actions/runs/41597084953) succeeded and committed the two assets.
+- [x] Confirm the capture suite: 40/40 browser scenarios passed on [run 41596731945](https://github.com/pooya-labs/globalcart/actions/runs/41596731945); screenshot publication [run 41597084953](https://github.com/pooya-labs/globalcart/actions/runs/41597084953) succeeded and committed the two assets.
 - [x] Audit README feature claims, move completed search/command-palette/recommendation work into the implemented list, remove the unimplemented Python-worker claim, and document the true local-only backend boundary.
-- [x] Extend the Pages deployment smoke test to fetch the published `/case-study/` URL and assert its main heading, database section and ERD link. The final Pages smoke [41596731889](https://github.com/pooya16pg-spec/globalcart/actions/runs/41596731889) passed.
+- [x] Extend the Pages deployment smoke test to fetch the published `/case-study/` URL and assert its main heading, database section and ERD link. The final Pages smoke [41596731889](https://github.com/pooya-labs/globalcart/actions/runs/41596731889) passed.
 - [x] Update AI handoff, project context, release process and changelog to match verified main.
 
 **Release gate:** do not tag 1.0.0 until M08 manual real-device, screen-reader, comprehensive RTL/LTR and live CDN/Core Web Vitals QA are performed. Browser emulation is useful regression coverage, not a substitute for those checks.
 
 ### M09.4 — Stable 1.0.0 release gate (blocked by manual M08 QA)
 - [ ] Verify the storefront on at least one physical desktop/laptop browser and one physical mobile browser; record browser/device/viewport and any regressions.
-- [x] Add automated axe/WCAG regression coverage to the public recently viewed route in populated and empty states in Persian RTL and English LTR, alongside the storefront, product detail, case study and key dialogs. Chromium desktop/mobile passed 48/48 tests on [run 41606569768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41606569768).
-- [x] Extend the accessibility suite to Firefox and WebKit desktop while retaining the full Chromium desktop/mobile suite. Cross-browser Browser E2E [41607322346](https://github.com/pooya16pg-spec/globalcart/actions/runs/41607322346) passed **66/66**: 48 Chromium scenarios + 9 Firefox + 9 WebKit accessibility scenarios. Pages [41607322372](https://github.com/pooya16pg-spec/globalcart/actions/runs/41607322372) and Security [41607322262](https://github.com/pooya16pg-spec/globalcart/actions/runs/41607322262) also passed on the same implementation commit.
+- [x] Add automated axe/WCAG regression coverage to the public recently viewed route in populated and empty states in Persian RTL and English LTR, alongside the storefront, product detail, case study and key dialogs. Chromium desktop/mobile passed 48/48 tests on [run 41606569768](https://github.com/pooya-labs/globalcart/actions/runs/41606569768).
+- [x] Extend the accessibility suite to Firefox and WebKit desktop while retaining the full Chromium desktop/mobile suite. Cross-browser Browser E2E [41607322346](https://github.com/pooya-labs/globalcart/actions/runs/41607322346) passed **66/66**: 48 Chromium scenarios + 9 Firefox + 9 WebKit accessibility scenarios. Pages [41607322372](https://github.com/pooya-labs/globalcart/actions/runs/41607322372) and Security [41607322262](https://github.com/pooya-labs/globalcart/actions/runs/41607322262) also passed on the same implementation commit.
 - [ ] Complete an actual keyboard and screen-reader review of primary navigation, dialogs/drawers, product detail, checkout simulation and the bilingual case-study route.
 - [ ] Perform a manual RTL/LTR pass across the full public site, including narrow screens, text wrapping, menus, focus order and persisted language preference.
 - [ ] Measure published CDN response and field/lab Core Web Vitals; record methodology, URL, date and observed values. Do not infer field metrics from Playwright timings.
@@ -752,9 +754,9 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Backfill current products and variants into the explicit GlobalCart Direct platform vendor.
 - [x] Add append-only price history and inventory event tables with initial import/opening balance records.
 - [x] Add PostgreSQL integration assertions for vendor backfill, independent stock across vendors, audit records and duplicate-offer rejection.
-- [x] Integrate catalog importer so newly imported base products and supplied variants create/update GlobalCart Direct platform offers transactionally; price/inventory audit events are appended only for actual changes (Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed).
-- [x] Implement internal vendor and offer services with transactional price/inventory audit writes (covered by `TestVendorServiceTransactions`; Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed).
-- [x] Migrate cart lines, reservations and checkout to vendor-offer identity; split each checkout into vendor order groups (migration 006, vendor cart lifecycle and split-checkout PostgreSQL tests; Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955) passed).
+- [x] Integrate catalog importer so newly imported base products and supplied variants create/update GlobalCart Direct platform offers transactionally; price/inventory audit events are appended only for actual changes (Backend CI [41404292955](https://github.com/pooya-labs/globalcart/actions/runs/41404292955) passed).
+- [x] Implement internal vendor and offer services with transactional price/inventory audit writes (covered by `TestVendorServiceTransactions`; Backend CI [41404292955](https://github.com/pooya-labs/globalcart/actions/runs/41404292955) passed).
+- [x] Migrate cart lines, reservations and checkout to vendor-offer identity; split each checkout into vendor order groups (migration 006, vendor cart lifecycle and split-checkout PostgreSQL tests; Backend CI [41404292955](https://github.com/pooya-labs/globalcart/actions/runs/41404292955) passed).
 - [ ] Add verified seller membership and tenant-scoped authorization only after the approved identity/authentication boundary.
 - [ ] Keep seller APIs, seller UI, commission, payouts and fulfillment disabled until their separate security and product requirements are approved.
 
@@ -767,8 +769,8 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Snapshot canonical offer price and vendor identity; serialize cart/offer mutations with row locks.
 - [x] Add parent/child vendor order schema and vendor-aware order-item/reservation references.
 - [x] Prevent legacy checkout from mispricing or reserving vendor cart lines.
-- [x] Implement atomic split checkout, per-vendor reservations and coupon allocation (M09.2; PostgreSQL integration and competing-checkout race tests passed in Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955)).
-- [x] Propagate cancellation, expiry and simulated payment state to vendor child orders (parent/child lifecycle SQL and simulated-payment integration coverage; Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955)).
+- [x] Implement atomic split checkout, per-vendor reservations and coupon allocation (M09.2; PostgreSQL integration and competing-checkout race tests passed in Backend CI [41404292955](https://github.com/pooya-labs/globalcart/actions/runs/41404292955)).
+- [x] Propagate cancellation, expiry and simulated payment state to vendor child orders (parent/child lifecycle SQL and simulated-payment integration coverage; Backend CI [41404292955](https://github.com/pooya-labs/globalcart/actions/runs/41404292955)).
 
 
 ### M09.2 — Vendor split checkout
@@ -810,7 +812,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [ ] Then implement users, seller memberships, role grants, sessions, CSRF and audit events according to `docs/SECURITY_AUTH_DESIGN.md`.
 
 
-## M09.4.1 — Public API surface regression guards (in progress)
+## M09.4.1 — Public API surface regression guards (CI verified, 2026-11-01)
 - [x] Add handler tests proving seller order/product routes, cart writes and checkout writes remain unavailable over HTTP.
 - [x] Add tests proving catalog routes reject mutation methods and allowed CORS origins receive only GET/OPTIONS.
 - [x] Verify these handler tests and pre-auth CORS restrictions in Backend CI run `41353463006` (success).
@@ -893,7 +895,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add a PostgreSQL integration test proving an existing `(source, source_id)` cannot be reassigned to a different product.
 - [x] Include a valid earlier product in the same import batch and assert the identity conflict rolls back that earlier write too.
 - [x] Assert the original variant owner, SKU, price and stock remain unchanged and only one row exists for the source identity.
-- [x] Verify `TestVariantSourceIdentityCannotMoveBetweenProducts`, the complete race-enabled Go integration suite and Docker image build in Backend CI [41404292955](https://github.com/pooya16pg-spec/globalcart/actions/runs/41404292955).
+- [x] Verify `TestVariantSourceIdentityCannotMoveBetweenProducts`, the complete race-enabled Go integration suite and Docker image build in Backend CI [41404292955](https://github.com/pooya-labs/globalcart/actions/runs/41404292955).
 
 **M08.6 safety boundary:** source identity is immutable ownership, not merely a deduplication key. Conflicts fail the transaction; they never silently move a variant between products.
 
@@ -902,7 +904,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 
 
 ## M08.7 — Explicit feed completeness semantics (CI verified)
-- [x] Require every source adapter to declare whether it provides a complete snapshot or incremental/delta records (`snapshotMode` is mandatory; the scheduled snapshot writer requires `full` and rejects incremental mode before fetch; Catalog CI [41356770768](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770768) and Backend CI [41356770801](https://github.com/pooya16pg-spec/globalcart/actions/runs/41356770801) passed).
+- [x] Require every source adapter to declare whether it provides a complete snapshot or incremental/delta records (`snapshotMode` is mandatory; the scheduled snapshot writer requires `full` and rejects incremental mode before fetch; Catalog CI [41356770768](https://github.com/pooya-labs/globalcart/actions/runs/41356770768) and Backend CI [41356770801](https://github.com/pooya-labs/globalcart/actions/runs/41356770801) passed).
 - [x] Keep the static catalog snapshot writer restricted to complete snapshots; reject incremental feeds before fetching or replacing the last-known-good file.
 - [x] Add contract tests proving incremental records can be normalized for a merger but cannot be written as a full snapshot.
 - [x] Verify Catalog CI PR run `41356770768` and Backend CI PR run `41356770801` on head `2176ad14a30f196f4ae1624aa4a17dbac69dc9bd`; both passed all jobs.
@@ -927,7 +929,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Verify Catalog CI and Backend CI on the same PR head.
 - [x] Keep supplier onboarding separate and gated by owner approval.
 
-**Verification:** Catalog CI [41358956297](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358956297) and Backend CI [41358956380](https://github.com/pooya16pg-spec/globalcart/actions/runs/41358956380) succeeded on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`.
+**Verification:** Catalog CI [41358956297](https://github.com/pooya-labs/globalcart/actions/runs/41358956297) and Backend CI [41358956380](https://github.com/pooya-labs/globalcart/actions/runs/41358956380) succeeded on head `a4a0d16c2aa06cfc83558b6516c9ac282cec1701`.
 
 ## M08.9 — Authorized supplier onboarding (blocked)
 - Select a named supplier and confirm API/feed access rights and catalog/image/price reuse terms.
@@ -944,7 +946,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add regression coverage for mapper rejection, malformed normalized rows and duplicate product IDs.
 - [x] Verify Catalog CI and Backend CI on the same code head.
 
-**Verification:** Catalog CI [41359432556](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya16pg-spec/globalcart/actions/runs/41359432659) succeeded on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.
+**Verification:** Catalog CI [41359432556](https://github.com/pooya-labs/globalcart/actions/runs/41359432556) and Backend CI [41359432659](https://github.com/pooya-labs/globalcart/actions/runs/41359432659) succeeded on code head `29956b0423328bcf9ce28c8fbe83d391aff22a98`.
 
 
 ## M08.8.2 — Collision-safe atomic snapshot publication — CI verified
@@ -954,7 +956,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add concurrent-writer, failed-rename cleanup and serialization-failure regression tests.
 - [x] Verify Catalog CI, production build and Backend CI on the same code commit.
 
-**Verification:** Catalog CI [41360183218](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183218) and Backend CI [41360183283](https://github.com/pooya16pg-spec/globalcart/actions/runs/41360183283) succeeded on code head `062aabdf563626116a50ecba0d7f534e6af3f260`.
+**Verification:** Catalog CI [41360183218](https://github.com/pooya-labs/globalcart/actions/runs/41360183218) and Backend CI [41360183283](https://github.com/pooya-labs/globalcart/actions/runs/41360183283) succeeded on code head `062aabdf563626116a50ecba0d7f534e6af3f260`.
 
 **Safety note:** atomic rename protects readers from partial JSON, but it does not impose freshness ordering between independent writers; the last successful rename wins. The scheduled Pages workflow remains serialized.
 
@@ -966,7 +968,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add regression tests for missing files, malformed JSON, count mismatch and malformed product rows.
 - [x] Verify Catalog CI, production build and Backend CI on the same code head.
 
-**Verification on implementation commit `ff5cf42cc094bc4e35d317ad52f970762280ba2f`:** Catalog CI PR run [41361214644](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya16pg-spec/globalcart/actions/runs/41361214721) all succeeded.
+**Verification on implementation commit `ff5cf42cc094bc4e35d317ad52f970762280ba2f`:** Catalog CI PR run [41361214644](https://github.com/pooya-labs/globalcart/actions/runs/41361214644), Catalog CI push run [41361210412](https://github.com/pooya-labs/globalcart/actions/runs/41361210412), and Backend CI PR run [41361214721](https://github.com/pooya-labs/globalcart/actions/runs/41361214721) all succeeded.
 
 **Safety note:** a missing snapshot may use the documented first-import behavior; an existing but invalid snapshot now fails closed and requires repair rather than being silently discarded.
 
@@ -981,7 +983,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add regression tests for cross-product identity collisions, SKU conflicts, source mismatch and invalid numeric values.
 - [x] Verify Catalog CI and Backend CI on the same code head.
 
-**Verification on implementation commit `e9d864f6bdbf0013137929e02b6258007200db29`:** Catalog CI PR run [41362606331](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606331), Catalog CI push run [41362602994](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362602994), and Backend CI PR run [41362606267](https://github.com/pooya16pg-spec/globalcart/actions/runs/41362606267) all succeeded.
+**Verification on implementation commit `e9d864f6bdbf0013137929e02b6258007200db29`:** Catalog CI PR run [41362606331](https://github.com/pooya-labs/globalcart/actions/runs/41362606331), Catalog CI push run [41362602994](https://github.com/pooya-labs/globalcart/actions/runs/41362602994), and Backend CI PR run [41362606267](https://github.com/pooya-labs/globalcart/actions/runs/41362606267) all succeeded.
 
 **Safety note:** validation mirrors the PostgreSQL identity and numeric constraints plus the catalog's 0–5 rating domain; it rejects a snapshot rather than mutating, deduplicating or fabricating supplier data.
 
@@ -992,7 +994,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Ensure the regression isolates the rating constraint from variant/SKU constraints.
 - [x] Verify Catalog CI, Backend CI, PostgreSQL migration/integration tests and Docker build on the same implementation head.
 
-**Verification on implementation commit `cc36339bcac77d08abc37af3f88f08607a090367`:** Catalog CI PR run [41363342797](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342797), Backend CI PR run [41363342758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363342758), and Backend CI push run [41363337241](https://github.com/pooya16pg-spec/globalcart/actions/runs/41363337241) all succeeded.
+**Verification on implementation commit `cc36339bcac77d08abc37af3f88f08607a090367`:** Catalog CI PR run [41363342797](https://github.com/pooya-labs/globalcart/actions/runs/41363342797), Backend CI PR run [41363342758](https://github.com/pooya-labs/globalcart/actions/runs/41363342758), and Backend CI push run [41363337241](https://github.com/pooya-labs/globalcart/actions/runs/41363337241) all succeeded.
 
 **Safety note:** this tightens the existing canonical rating domain; it does not rewrite existing rows or fabricate rating values.
 
@@ -1005,7 +1007,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add unit tests for prefix ranking, normalization, de-duplication, bounded results and source-array non-mutation.
 - [x] Verify TypeScript, Catalog unit tests and production build.
 
-**Verification:** the feature was implemented in 3d6b840f769a4c23de134800877de9c9b47e8298; Catalog CI push run [41366011979](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366011979) and PR run [41366016027](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366016027) passed. The combined current PR head 87bc930da16367bd725b68fec460bae2fda6f26e also passed [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366593947).
+**Verification:** the feature was implemented in 3d6b840f769a4c23de134800877de9c9b47e8298; Catalog CI push run [41366011979](https://github.com/pooya-labs/globalcart/actions/runs/41366011979) and PR run [41366016027](https://github.com/pooya-labs/globalcart/actions/runs/41366016027) passed. The combined current PR head 87bc930da16367bd725b68fec460bae2fda6f26e also passed [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41366593947).
 
 **Scope:** suggestions and commands run against the browser-loaded sample catalog and local demo state; they do not call the unhosted API or create real orders/payments.
 
@@ -1018,7 +1020,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add PostgreSQL integration tests for exact-match precedence, typo-tolerant title/phrase and brand search, and count/list consistency.
 - [x] Verify sqlc generation, Go vet, PostgreSQL 17 integration/race tests, API/importer builds and Docker image build.
 
-**Verification on final implementation head 87bc930da16367bd725b68fec460bae2fda6f26e:** [Backend CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366589804), [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366594050) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366593947) all succeeded.
+**Verification on final implementation head 87bc930da16367bd725b68fec460bae2fda6f26e:** [Backend CI push](https://github.com/pooya-labs/globalcart/actions/runs/41366589804), [Backend CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41366594050) and [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41366593947) all succeeded.
 
 **Scope:** this changes only the local PostgreSQL search path. The public GitHub Pages storefront continues to search its generated static catalog; no hosted API connection is implied.
 
@@ -1031,7 +1033,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add unit tests for score weights, discount cap, reason labels, deterministic ranking, invalid-signal bounds and non-mutation.
 - [x] Verify TypeScript, catalog/domain unit tests and production build in Catalog CI.
 
-**Verification on implementation head 09fd73ea1f1dcb1f01e5022c3f4380ec2832855a:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366975455) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366979976) passed. [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41366979999) also passed, including PostgreSQL 17 tests and Docker image build.
+**Verification on implementation head 09fd73ea1f1dcb1f01e5022c3f4380ec2832855a:** [Catalog CI push](https://github.com/pooya-labs/globalcart/actions/runs/41366975455) and [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41366979976) passed. [Backend CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41366979999) also passed, including PostgreSQL 17 tests and Docker image build.
 
 **Boundary:** ranking uses only the sample rating and discount fields already in the loaded catalog. It does not use personal data, purchase history, real popularity or live behavioral analytics.
 
@@ -1044,7 +1046,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add unit coverage for storage normalization, invalid records, collection bounds and duplicate detection.
 - [x] Verify TypeScript, catalog/domain tests and production build.
 
-**Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539848) also passed.
+**Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya-labs/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41367539848) also passed.
 
 **Privacy boundary:** saved searches live in this browser only. No account, server sync, analytics profile or backend endpoint is involved.
 
@@ -1057,7 +1059,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add pure state-resolution tests for pending, live, empty and error outcomes with and without a snapshot.
 - [x] Verify TypeScript, catalog/domain tests and production build.
 
-**Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41367539848) passed.
+**Verification on implementation head ff80ebcfcf4bcec4cdbbf9217c866070614524be:** [Catalog CI push](https://github.com/pooya-labs/globalcart/actions/runs/41367502278) and [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41367539860) passed; [Backend CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41367539848) passed.
 
 **Safety:** a failed or empty refresh does not clear or overwrite the last-known-good generated snapshot.
 
@@ -1072,7 +1074,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Add a static file server for E2E that enforces the configured base path and rejects path traversal.
 - [x] Add Playwright traces, screenshots on failure and a short-lived CI artifact for debugging.
 
-**Verification on implementation head 08c86aeb909228ecc1ba03d35195ad4fba6ab987:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369733216) and [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737767) passed, each running five journeys on desktop and mobile. [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737769) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41369737810) also passed, including PostgreSQL 17 checks and Docker build.
+**Verification on implementation head 08c86aeb909228ecc1ba03d35195ad4fba6ab987:** [Browser E2E push](https://github.com/pooya-labs/globalcart/actions/runs/41369733216) and [Browser E2E PR](https://github.com/pooya-labs/globalcart/actions/runs/41369737767) passed, each running five journeys on desktop and mobile. [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41369737769) and [Backend CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41369737810) also passed, including PostgreSQL 17 checks and Docker build.
 
 **Coverage boundary:** this suite validates the existing demo storefront and does not imply live inventory, real payment, real order submission, or a hosted backend.
 
@@ -1085,7 +1087,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Make responsive cart text available to assistive technology without overriding its natural accessible name; align other icon/button labels with visible content and name the sort select.
 - [x] Verify Browser E2E Push and PR after remediation; Catalog CI and Backend CI PR checks also pass.
 
-**Verification on implementation head e515d696873aa2811c3edb35fc89ace74ae874df:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370817992), [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370823048), [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370822987) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41370823026) all succeeded.
+**Verification on implementation head e515d696873aa2811c3edb35fc89ace74ae874df:** [Browser E2E push](https://github.com/pooya-labs/globalcart/actions/runs/41370817992), [Browser E2E PR](https://github.com/pooya-labs/globalcart/actions/runs/41370823048), [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41370822987) and [Backend CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41370823026) all succeeded.
 
 **Coverage boundary:** this is an automated axe scan of the three listed states at two viewport profiles. It is not a legal accessibility certification and does not replace manual screen-reader, keyboard-only usability and human contrast review.
 
@@ -1097,7 +1099,7 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Run all 18 browser tests on desktop/mobile with zero failures after the focus restoration fix.
 - [x] Verify Browser E2E Push and PR, Catalog CI PR and Backend CI PR on the same final implementation head.
 
-**Verification on implementation head 8937b54f0f631695ee02e51a128cc42815988f43:** [Browser E2E push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375898314), [Browser E2E PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903109), [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903056), and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41375903095) all succeeded. Browser E2E reports 18 passed across desktop and mobile.
+**Verification on implementation head 8937b54f0f631695ee02e51a128cc42815988f43:** [Browser E2E push](https://github.com/pooya-labs/globalcart/actions/runs/41375898314), [Browser E2E PR](https://github.com/pooya-labs/globalcart/actions/runs/41375903109), [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41375903056), and [Backend CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41375903095) all succeeded. Browser E2E reports 18 passed across desktop and mobile.
 
 **Coverage boundary:** this automated keyboard test covers the Command Palette, not every dialog or every screen-reader combination. Manual keyboard walkthrough and assistive-technology review remain open.
 
@@ -1110,6 +1112,6 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Measure first-party initial-route JavaScript and CSS transfer sizes in Chromium and assert budgets of 750 KB JS, 120 KB CSS, no more than 10 JS requests and 2 CSS requests.
 - [x] Verify the full 24-test Browser E2E suite on Push and PR, plus Catalog CI and Backend CI PR, on the same head.
 
-**Measured baseline on implementation head `a741cf60ab44a17acf31bba43f47eb40204f2be5`:** 512,814 bytes of JavaScript across 7 requests and 67,702 bytes of CSS across 1 request. Browser E2E [Push](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376758145) and [PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763890) passed with 24 tests; [Catalog CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763985) and [Backend CI PR](https://github.com/pooya16pg-spec/globalcart/actions/runs/41376763923) also passed.
+**Measured baseline on implementation head `a741cf60ab44a17acf31bba43f47eb40204f2be5`:** 512,814 bytes of JavaScript across 7 requests and 67,702 bytes of CSS across 1 request. Browser E2E [Push](https://github.com/pooya-labs/globalcart/actions/runs/41376758145) and [PR](https://github.com/pooya-labs/globalcart/actions/runs/41376763890) passed with 24 tests; [Catalog CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41376763985) and [Backend CI PR](https://github.com/pooya-labs/globalcart/actions/runs/41376763923) also passed.
 
 **Coverage boundary:** E2E intentionally blocks remote hosts to stay deterministic. These budgets measure first-party JavaScript/CSS and markup loading policy, not actual CDN image payloads, real-network image latency, LCP/CLS or third-party font delivery. Those checks remain open for a network-enabled performance audit.
