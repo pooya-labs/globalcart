@@ -4,6 +4,8 @@
 
 ### Verified — account rename, TGJU changed-quote relay and new Pages host
 
+- A subsequent TGJU refresh read 271,500 Toman/USD from the page's date-only `11 آبان` marker. Sync [41618464249](https://github.com/pooya-labs/globalcart/actions/runs/41618464249) persisted the validated snapshot and Pages event [41618569410](https://github.com/pooya-labs/globalcart/actions/runs/41618569410) passed. Because the source supplied no exact clock, the committed quote is intentionally stale, not live.
+
 - The canonical GitHub owner changed to pooya-labs. Public Pages now resolves to https://pooya-labs.github.io/globalcart/; repository-dispatch Pages run [41616698725](https://github.com/pooya-labs/globalcart/actions/runs/41616698725) passed build, deployment and public homepage/assets/product/case-study smoke.
 - A genuine TGJU source update changed the quote from 271,500 to 274,500 Toman/USD (2,745,000 Rial; Tehran clock 12:20:14). Sync [41616645902](https://github.com/pooya-labs/globalcart/actions/runs/41616645902) persisted [snapshot commit 624eeb9](https://github.com/pooya-labs/globalcart/commit/624eeb994dbf21971fdec0d396d374af9364483c) and requested repository_dispatch; the event-driven Pages run completed successfully. Its source timestamp is stale under the 15-minute policy.
 - Corrected the public Lighthouse base URL after the old account-hosted Pages domain began returning 404. The workflow now tests the canonical Pages host.
