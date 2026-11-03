@@ -1,0 +1,74 @@
+name: Publish portfolio screenshots
+
+on:
+  workflow_run:
+    workflows: ["Browser E2E"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: publish-globalcart-portfolio-screenshots
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          github.event.workflow_run.repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the current main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download the successful browser test artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: globalcart-playwright-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: portfolio-artifact
+
+      - name: Publish desktop and mobile case-study screenshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          desktop="$(find portfolio-artifact/test-results -type f -name 'case-study-chromium-desktop.png' -print -quit)"
+          mobile="$(find portfolio-artifact/test-results -type f -name 'case-study-chromium-mobile.png' -print -quit)"
+          test -s "$desktop"
+          test -s "$mobile"
+
+          mkdir -p docs/screenshots
+          cp "$desktop" docs/screenshots/case-study-desktop.png
+          cp "$mobile" docs/screenshots/case-study-mobile.png
+          file docs/screenshots/case-study-desktop.png docs/screenshots/case-study-mobile.png
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots/case-study-desktop.png docs/screenshots/case-study-mobile.png
+          if git diff --cached --quiet; then
+            echo "Portfolio screenshots are already up to date."
+            exit 0
+          fi
+
+          git commit -m "docs(portfolio): publish desktop and mobile case-study screenshots [skip ci]"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "Published both verified browser screenshots to main."
+              exit 0
+            fi
+            echo "main advanced during screenshot publication (attempt $attempt); retrying."
+            sleep "$((attempt * 2))"
+          done
+
+          echo "::error::Could not publish screenshots without a concurrent main update."
+          exit 1
