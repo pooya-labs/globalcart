@@ -2,6 +2,14 @@
 
 ## Unreleased — 2026-11-03
 
+### Verified — account rename, TGJU changed-quote relay and new Pages host
+
+- The canonical GitHub owner changed to pooya-labs. Public Pages now resolves to https://pooya-labs.github.io/globalcart/; repository-dispatch Pages run [41616698725](https://github.com/pooya-labs/globalcart/actions/runs/41616698725) passed build, deployment and public homepage/assets/product/case-study smoke.
+- A genuine TGJU source update changed the quote from 271,500 to 274,500 Toman/USD (2,745,000 Rial; Tehran clock 12:20:14). Sync [41616645902](https://github.com/pooya-labs/globalcart/actions/runs/41616645902) persisted [snapshot commit 624eeb9](https://github.com/pooya-labs/globalcart/commit/624eeb994dbf21971fdec0d396d374af9364483c) and requested repository_dispatch; the event-driven Pages run completed successfully. Its source timestamp is stale under the 15-minute policy.
+- Corrected the public Lighthouse base URL after the old account-hosted Pages domain began returning 404. The workflow now tests the canonical Pages host.
+- Migrated remaining first-party workflow actions to Node 24-compatible major versions; this is tooling-only and does not change the application runtime (Node.js 22).
+- M09.4 manual desktop/mobile, screen-reader, comprehensive RTL/LTR and normal-network/field-delivery evidence remains open. Version stays 0.2.3-dev.
+
 ### Verified — latest published Lighthouse and API guard checkpoint
 
 - Public Lighthouse [41613950109](https://github.com/pooya-labs/globalcart/actions/runs/41613950109) completed all six route/mode audits: mobile Performance 92 (home), 97 (product) and 100 (case study); desktop Performance 100 on all three. Accessibility, Best Practices and SEO remain 100 in every mode.
