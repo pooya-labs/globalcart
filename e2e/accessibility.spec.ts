@@ -55,6 +55,24 @@ test("storefront homepage meets WCAG checks in RTL and LTR", async ({ page }) =>
   await expectNoWcagViolations(page);
 });
 
+test("bilingual case study is navigable and meets WCAG checks in RTL and LTR", async ({ page }) => {
+  const response = await page.goto("./case-study/");
+  expect(response?.status()).toBe(200);
+
+  const main = page.locator("main.case-study");
+  await expect(main).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("یک بازار جهانی");
+  await expect(page.getByRole("group", { name: "نمودار جریان داده و معماری" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /مشاهده فروشگاه/ })).toBeVisible();
+  await expectNoWcagViolations(page);
+
+  await page.getByRole("button", { name: "Switch language to English" }).click();
+  await expect(main).toHaveAttribute("dir", "ltr");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("A global marketplace");
+  await expect(page.getByRole("group", { name: "Data flow and architecture diagram" })).toBeVisible();
+  await expectNoWcagViolations(page);
+});
+
 test("reduced-motion preference disables smooth scrolling and long UI motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
 
