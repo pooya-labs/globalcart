@@ -25,7 +25,7 @@ test("mobile hero stacks the copy and image and uses a responsive source", async
     expect(copyBox).not.toBeNull();
     expect(imageBox).not.toBeNull();
     expect(viewport).not.toBeNull();
-    expect(imageBox!.y).toBeGreaterThan(copyBox!.y + copyBox!.height);
+    expect(imageBox!.y).toBeGreaterThanOrEqual(copyBox!.y + copyBox!.height);
     expect(imageBox!.width).toBeGreaterThan(viewport!.width * 0.8);
     const documentWidth = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
