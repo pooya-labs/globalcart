@@ -190,6 +190,7 @@ export default function Home() {
   const [categoryMenu,setCategoryMenu]=useState(false);
   const [toast,setToast]=useState("");
   const [removedCartLine,setRemovedCartLine]=useState<{line:CartLine;index:number}|null>(null);
+  const toastTimerRef=useRef<ReturnType<typeof window.setTimeout>|null>(null);
   const rate = typeof fxQuote.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const [hydrated,setHydrated]=useState(false);
@@ -422,15 +423,18 @@ export default function Home() {
     const discountedUsd=p.price*(1-p.discountPercentage/100);
     return rtl&&rate!==null?money(calculateDemoPrice({sourcePrice:p.price,fxRate:rate,discountPercentage:p.discountPercentage}).toman,locale)+" تومان":usd(discountedUsd);
   };
-  const notify=(message:string)=>{setToast(message);window.setTimeout(()=>setToast(""),2100);};
+  const clearToastTimer=()=>{if(toastTimerRef.current!==null){window.clearTimeout(toastTimerRef.current);toastTimerRef.current=null;}};
+  const notify=(message:string)=>{clearToastTimer();setToast(message);toastTimerRef.current=window.setTimeout(()=>{setToast("");toastTimerRef.current=null;},2100);};
   const removeCartLine=(line:CartLine,index:number)=>{
+    clearToastTimer();
     setCart(old=>old.filter(item=>item.product.id!==line.product.id));
     setRemovedCartLine({line,index});
     setToast(locale==="fa"?"از سبد خرید حذف شد":"Removed from your bag");
-    window.setTimeout(()=>{setToast("");setRemovedCartLine(null);},5000);
+    toastTimerRef.current=window.setTimeout(()=>{setToast("");setRemovedCartLine(null);toastTimerRef.current=null;},5000);
   };
   const undoRemoveCartLine=()=>{
     if(!removedCartLine)return;
+    clearToastTimer();
     const {line,index}=removedCartLine;
     setCart(old=>{
       const existing=old.find(item=>item.product.id===line.product.id);
@@ -439,7 +443,7 @@ export default function Home() {
     });
     setRemovedCartLine(null);
     setToast(locale==="fa"?"محصول به سبد برگشت":"Item restored to your bag");
-    window.setTimeout(()=>setToast(""),2100);
+    toastTimerRef.current=window.setTimeout(()=>{setToast("");toastTimerRef.current=null;},2100);
   };
   const addToCart=(product:Product)=>{
     setCart(old=>{const found=old.find(x=>x.product.id===product.id);return found?old.map(x=>x.product.id===product.id?{...x,quantity:x.quantity+1}:x):[...old,{product,quantity:1}];});
