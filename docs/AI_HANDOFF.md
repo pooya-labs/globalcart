@@ -98,3 +98,12 @@ The repository, not chat history, is the canonical source of truth.
 - Database ERD source is the 15 SQL migrations under `backend/internal/database/migrations/`; there are 27 tables. No schema migration or hosted backend was introduced.
 - **Next action:** M08 manual physical-device, screen-reader, comprehensive RTL/LTR and live CDN/Core Web Vitals QA. These are not proven by browser emulation. Keep version at 0.2.3-dev; do not create/tag 1.0.0 before the external QA gate.
 - Keep TGJU as the only USD source; do not reintroduce Wallex, restart translation, redo M06.1–M06.6, or expose public admin/seller/real-commerce routes without explicit owner approval.
+
+
+## Current continuation checkpoint — M08.15 public performance lab baseline (implementation added; first run pending, 2026-11-03)
+- Main head at start of this slice was `f7435f94329c7b155cb47f8e8dc25420125824a5`; default branch remains `main`, package version remains `0.2.3-dev`.
+- Added `.github/workflows/lighthouse-public.yml`: after a successful Pages deployment, it audits the public home, `/product/1/` and `/case-study/` routes in mobile and desktop Lighthouse modes with exact Lighthouse CLI `13.6.0`, Node 22 and Chromium from the committed Playwright toolchain. It keeps JSON reports as a GitHub Actions artifact and summarizes lab scores/metrics. The workflow is also manually dispatchable and weekly.
+- Added `scripts/summarize-lighthouse.mjs` and `docs/PERFORMANCE_QA.md`. No PSI API key or external report server is used. This is runner-based lab data, not CrUX/field CWV or physical-device evidence.
+- First post-deployment audit run remains pending. Do not invent scores or establish thresholds until reports exist and are reviewed.
+- M09.4 remains blocked on actual physical desktop/mobile, real screen-reader, complete site RTL/LTR, and published delivery/field-data checks. The new doc gives the route sequence and evidence table. Keep 0.2.3-dev until those manual gates are truly recorded.
+- TGJU remains the only USD source; translation remains paused; do not repeat M06 or enable public admin/seller/real-commerce routes.

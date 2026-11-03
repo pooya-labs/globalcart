@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.4 — 1.0.0 release readiness after completed M09.1–M09.3; manual M08 device/screen-reader/full-site RTL/LTR/CDN QA remains an explicit external gate. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
+**Active stage:** M08.15 — public Lighthouse lab baseline; M09.4 stable 1.0.0 readiness remains gated by manual device/screen-reader/full-site RTL/LTR and field-delivery QA. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -473,6 +473,16 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Browser E2E [41575646034](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646034) passed all 36 desktop/mobile tests, Security scans [41575646222](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646222) passed, and Pages deployment plus published homepage/assets/product deep-link smoke test [41575646035](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646035) passed on implementation head `c358970b31d2272db98434a761c699355a9dbc57`.
 
 **Boundary:** these checks validate browser-emulated loading policy, layout reservation and first-party asset budgets. They do not measure remote image CDN timing, field Core Web Vitals, physical-device performance or screen-reader output; those remain manual QA.
+
+
+### M08.15 — Published Lighthouse lab baseline (implementation added; first run pending)
+- [x] Add a scheduled and post-deployment Lighthouse workflow using the exact CLI version 13.6.0 and the committed Node 22/Playwright Chromium toolchain.
+- [x] Audit the public storefront, representative product detail and bilingual case-study route in mobile and desktop lab modes; preserve raw JSON reports as a private GitHub Actions artifact.
+- [x] Summarize Performance, Accessibility, Best Practices, SEO, FCP, LCP, TBT and CLS without conflating lab results with field Core Web Vitals.
+- [x] Document manual physical-device, real screen-reader, comprehensive RTL/LTR and field-data acceptance steps in [PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
+- [ ] Complete the first post-deployment Lighthouse run and review the six report results before establishing any performance score budget.
+
+**Boundary:** Lighthouse desktop/mobile presets are lab emulation. They do not close physical-device, actual screen-reader or CrUX/field-data release gates. No third-party reporting server, API key or production secret is required.
 
 ## M09 — Portfolio release
 - [x] Persian and English case study (M09.1; automated desktop/mobile RTL/LTR and axe checks passed).

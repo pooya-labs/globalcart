@@ -3,6 +3,10 @@
 ## Unreleased — 2026-11-03
 
 ### Added
+- Added a post-deployment and weekly Lighthouse lab workflow for the public storefront, product and case-study pages in mobile and desktop modes. Lighthouse 13.6.0 is pinned; JSON reports are retained as a GitHub Actions artifact and a summary records category scores and lab metrics. Added an evidence-focused manual QA checklist. The workflow explicitly does not claim field Core Web Vitals or physical-device verification.
+- Added `docs/PERFORMANCE_QA.md` and `scripts/summarize-lighthouse.mjs`; no third-party report server, API key or production secret was introduced.
+
+### Added
 - Added a bilingual `/case-study/` portfolio route with shared Persian/English locale preference, responsive feature tour, architecture/data-flow diagram, route metadata and a storefront footer entry. It documents the actual static Pages storefront, local Go/PostgreSQL foundation, TGJU source handling and demo-only commerce boundaries. Browser E2E [41577703335](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703335), Security [41577703300](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703300) and Pages deployment plus published smoke [41577703347](https://github.com/pooya16pg-spec/globalcart/actions/runs/41577703347) passed; this is not a 1.0 release.
 - Added full-page Persian case-study screenshots for desktop and mobile Chromium in `docs/screenshots/`. The capture test runs against the production static export, and the guarded publisher commits the artifact only after a green Browser E2E run. Screenshot publication [41597084953](https://github.com/pooya16pg-spec/globalcart/actions/runs/41597084953) succeeded.
 - Audited README claims against the actual implementation, separated completed search/recommendation work from external prerequisites, removed the unimplemented Python-worker claim and clarified the local-only backend boundary.

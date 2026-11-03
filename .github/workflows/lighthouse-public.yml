@@ -1,0 +1,106 @@
+name: Public Lighthouse lab audit
+
+on:
+  workflow_run:
+    workflows: ["Deploy GlobalCart to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+  schedule:
+    - cron: "30 6 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-lighthouse-${{ github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  lighthouse:
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.repository.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the current published source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the committed toolchain
+        run: npm ci --no-audit
+
+      - name: Install Chromium for Lighthouse
+        run: npx playwright install --with-deps chromium
+
+      - name: Locate the installed Chromium executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          chrome_path="$(find "$HOME/.cache/ms-playwright" -type f -name chrome -perm /111 -print -quit)"
+          if [ -z "$chrome_path" ]; then
+            echo "::error::Playwright Chromium executable was not found."
+            exit 1
+          fi
+          echo "CHROME_PATH=$chrome_path" >> "$GITHUB_ENV"
+          "$chrome_path" --version
+          npx --yes lighthouse@13.6.0 --version
+
+      - name: Audit published pages in mobile and desktop modes
+        shell: bash
+        env:
+          SITE_BASE: https://pooya16pg-spec.github.io/globalcart
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/lighthouse
+
+          while IFS='|' read -r page url; do
+            for mode in mobile desktop; do
+              report="artifacts/lighthouse/${page}-${mode}.json"
+              preset_args=()
+              if [ "$mode" = "desktop" ]; then
+                preset_args=(--preset=desktop)
+              fi
+
+              echo "Auditing $url ($mode)"
+              npx --yes lighthouse@13.6.0 "$url" \
+                --quiet \
+                --output=json \
+                --output-path="$report" \
+                --only-categories=performance,accessibility,best-practices,seo \
+                --max-wait-for-load=45000 \
+                --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+                "${preset_args[@]}"
+            done
+          done <<EOF
+          home|${SITE_BASE}/
+          product-1|${SITE_BASE}/product/1/
+          case-study|${SITE_BASE}/case-study/
+          EOF
+
+      - name: Summarize lab results without treating them as field data
+        if: always()
+        run: |
+          if compgen -G "artifacts/lighthouse/*.json" > /dev/null; then
+            node scripts/summarize-lighthouse.mjs artifacts/lighthouse/*.json
+          else
+            echo "No Lighthouse JSON reports were produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          {
+            echo
+            echo "> Method: GitHub-hosted runner, Playwright Chromium, Lighthouse 13.6.0. Mobile and desktop are emulated lab runs."
+            echo "> These results are not CrUX/field Core Web Vitals and are not physical-device measurements."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload raw Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: globalcart-public-lighthouse
+          path: artifacts/lighthouse/
+          if-no-files-found: warn
+          retention-days: 14

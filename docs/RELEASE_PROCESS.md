@@ -15,6 +15,10 @@ After a successful Browser E2E push to `main`, `publish-portfolio-screenshots.ym
 
 The Pages workflow has a one-time bootstrap path for a branch without a lockfile: it creates the lockfile, persists it with the generated catalog snapshot, then validates it using a clean `npm ci` before continuing. Lockfile-based dependency resolution is reproducible for a fixed manifest/runtime; the static export is not byte-for-byte reproducible while its public demo catalog snapshot and generation timestamp are refreshed from an external source.
 
+## Performance and accessibility release gate
+
+The public Lighthouse workflow runs after successful Pages deployment against the storefront, a representative product page and the case study in mobile and desktop lab modes. Raw reports are retained as a GitHub Actions artifact and the summary labels its results as lab measurements. It does not claim CrUX/field INP or physical-device performance. The manual acceptance sequence and evidence table live in [PERFORMANCE_QA.md](PERFORMANCE_QA.md). Do not treat Lighthouse emulation or automated axe checks as substitutes for a real screen-reader and device review.
+
 ## Database recovery and migration release gate
 
 Backend CI verifies the local recovery path on disposable PostgreSQL 17: after the race-enabled integration suite, it creates a custom-format logical dump, restores it into a fresh database, and compares the applied migration ledger, key table row counts, validated constraints and `pg_trgm` extension version. The temporary dump and restore database are removed by the job. This is a regression test, not a retained backup service or proof of production disaster recovery.
