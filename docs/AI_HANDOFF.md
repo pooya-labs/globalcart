@@ -76,6 +76,15 @@ The repository, not chat history, is the canonical source of truth.
 ## Current continuation checkpoint — M09.1 (2026-11-03)
 - M06.1–M06.6 internal admin/seller foundations are complete and CI-verified; do not repeat them. Public workspace UI/routes remain gated by same-site HTTPS hosting, identity, email and secret-management approval.
 - M08.14 browser-emulated image/history coverage passed 36 desktop/mobile tests on implementation head `c358970b31d2272db98434a761c699355a9dbc57`; physical-device, screen-reader, full-site RTL/LTR and live CDN/Core Web Vitals QA remain open.
-- Added `/case-study/` as a bilingual static-exportable portfolio page with feature tour and architecture/data-flow diagram. It reuses the shared locale preference and is linked from the storefront footer. This work is committed on `main`; CI and published-route verification are pending.
-- Next: verify the new route through typecheck, unit tests, static export, desktop/mobile browser checks and published Pages smoke. Then capture actual screenshots and add the PostgreSQL ERD. Do not mark M09 complete or tag 1.0.0 prematurely.
+- Added `/case-study/` as a bilingual static-exportable portfolio page with feature tour and architecture/data-flow diagram. Browser E2E, Security and published Pages smoke all passed on `a1d53de17a64e3dd80b74e87eca9e4880123538f` (runs `41577703335`, `41577703300`, `41577703347`).
+- Added `docs/DATABASE_ERD.md` from all 15 PostgreSQL migrations (27 tables), four domain-grouped Mermaid diagrams and relationship/constraint notes. The case-study page now links to the ERD and shows the four-domain schema summary.
+- M09.2 final CI and published-route verification are pending on the newest commit. Then capture actual screenshots and continue remaining M09 release checks. Do not tag 1.0.0 prematurely.
 - TGJU remains the only active USD source; never reintroduce Wallex's USDT proxy. Translation remains paused.
+
+
+## Current continuation checkpoint — M09.2 (2026-11-03)
+- M09.1 bilingual case study is CI-verified: Browser E2E `41577703335`, Security `41577703300` and Pages deployment/published smoke `41577703347` passed on `a1d53de17a64e3dd80b74e87eca9e4880123538f`.
+- M09.2 adds `docs/DATABASE_ERD.md`, derived from migrations 001–015 and covering 27 actual PostgreSQL tables in four Mermaid ERDs. The case-study route now contains a bilingual schema summary and direct link; the accessibility E2E test asserts the section/link in RTL and LTR.
+- Next: validate the latest main head with TypeScript, unit tests, static build, desktop/mobile Browser E2E, Security scans and published Pages smoke. Only mark M09.2 CI-verified after all checks pass.
+- Remaining release work: real desktop/mobile screenshots, README final behavior audit, 1.0.0 and final public demo smoke. Do not repeat completed M06 work, do not add public admin/seller routes or real commerce, and do not reintroduce Wallex; TGJU remains the FX source.
+- Manual M08 screen-reader, physical-device and live CDN/Core Web Vitals checks remain external QA gates.
