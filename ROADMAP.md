@@ -3,17 +3,10 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.5 — GlobalCart editorial marketplace redesign (in progress). All remotely executable software QA is verified: Browser E2E [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312) passed **99 tests / 4 intentional skips** across Chromium desktop/mobile, iPad 7th-generation tablet, Firefox and WebKit. Responsive coverage includes compact phones at 320/360 px and iPad portrait/landscape at 810×1080 / 1080×810, with storefront/product/case-study overflow checks. Automated keyboard focus loops, Escape handling, focus restoration, reduced motion, axe/WCAG, RTL/LTR route persistence and stale-TGJU disclosure passed. Pages and public Smoke Test [41652758510](https://github.com/pooya-labs/globalcart/actions/runs/41652758510), Security [41652758613](https://github.com/pooya-labs/globalcart/actions/runs/41652758613) and the latest six-route public Lighthouse audit [41652966386](https://github.com/pooya-labs/globalcart/actions/runs/41652966386) passed. Latest mobile Performance is 91 / 94 / 99, desktop 100 / 100 / 100 (home / product / case study); Accessibility, Best Practices and SEO are 100 in all six and CLS is 0. The six-report performance budget remains in force. Remaining before final release are physical-device validation, actual screen-reader review, comprehensive human RTL/LTR inspection and normal-network/eligible field evidence. **The next project checkpoint is the owner-requested storefront-shell redesign: notify the owner and do not make any 1.0.0 release/tag until that redesign and its post-redesign regression pass receive owner approval.** Keep version 0.2.3-dev.  
-**Repository:** pooya-labs/globalcart  
-**Owner:** Pooya Goodarzi
-
-## Engineering north star
-Build a polished, bilingual global marketplace with excellent usability, accessible interaction, responsive layouts, reliable data and credible production-style architecture. Visual effects must never compromise readability, performance or accessibility.
-
-## Target technology and database architecture
-
-| Layer | Target | Purpose | Stage |
-|---|---|---|---|
+**Active stage:** M09.5 — GlobalCart editorial marketplace redesign (implementation, automated verification and public Pages deployment complete; awaiting owner visual approval).  
+Mainline Browser E2E [41666976817](https://github.com/pooya-labs/globalcart/actions/runs/41666976817) passed **104 tests / 5 project-scoped skips** across Chromium desktop/mobile/tablet, Firefox and WebKit accessibility projects. TypeScript, unit tests and static production build passed; Security [41666976768](https://github.com/pooya-labs/globalcart/actions/runs/41666976768) passed.  
+Pages deploy and public smoke [41666976546](https://github.com/pooya-labs/globalcart/actions/runs/41666976546) verified the homepage, base-path JavaScript asset, product route and bilingual case study. Six-route public Lighthouse [41667277368](https://github.com/pooya-labs/globalcart/actions/runs/41667277368) passed all budgets: mobile Performance 88 / 91 / 99 and desktop 100 / 100 / 100 (home / product / case study); Accessibility, Best Practices and SEO 100 in all six; CLS 0. Mobile LCP/TBT: home 3.3 s / 170 ms, product 3.2 s / 70 ms, case study 0.9 s / 100 ms.  
+These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile case-study screenshots were published by [run 41667550279](https://github.com/pooya-labs/globalcart/actions/runs/41667550279). Remaining before final release: owner visual approval, physical-device validation, actual screen-reader review, comprehensive human RTL/LTR inspection and normal-network/eligible field evidence. **Do not create a 1.0.0 release/tag until the owner has reviewed and approved the redesigned storefront.** Keep version 0.2.3-dev.  
 | Frontend | Next.js App Router, React, TypeScript | Storefront, product pages, admin/seller UX | Current |
 | Backend | Go REST API + OpenAPI | Domain services, auth, catalog and orders | M04 |
 | Primary database | PostgreSQL | Relational data and transactional consistency | M04 |
@@ -1125,12 +1118,11 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Coverage boundary:** E2E intentionally blocks remote hosts to stay deterministic. These budgets measure first-party JavaScript/CSS and markup loading policy, not actual CDN image payloads, real-network image latency, LCP/CLS or third-party font delivery. Those checks remain open for a network-enabled performance audit.
 
 
-## M09.5 — GlobalCart editorial marketplace redesign (in progress)
+## M09.5 — GlobalCart editorial marketplace redesign (implementation and public preview complete; owner approval pending)
 
 **Reference brief:** owner-approved UX direction based on Allbirds/Nike homepage hierarchy, SSENSE/Zalando category and faceted-list patterns, Etsy search suggestions, Apple/Nike product detail patterns, concise demo cart/checkout, and Baymard structural guidance. Use interaction and information architecture patterns only; do not copy proprietary brand identity, copy or assets.
 
-- [x] Create isolated redesign branch `redesign/globalcart-editorial-marketplace`; keep `main` untouched until CI and review are green.
-- [x] Establish a light, restrained editorial visual system with GlobalCart's teal/green identity, accessible contrast and reduced-motion support.
+- [x] Implement the light editorial visual system while retaining GlobalCart's teal/green identity, accessible contrast and reduced-motion support.
 - [x] Refine sticky navigation, search surface, hero hierarchy, category tiles, merchandising spacing and responsive shell.
 - [x] Upgrade product cards with consistent image ratio, clearer title/rating/price hierarchy, discount treatment, persistent quick actions and responsive grid.
 - [x] Improve category/filter panel presentation and mobile filter sheet.
@@ -1139,10 +1131,14 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Preserve bilingual locale state, local cart/favorites/compare, Amazon link intake and explicit no-real-payment/no-real-shipping boundaries.
 - [x] Add a locale-aware undo action after removing an item from the cart drawer; merge restored quantity safely if the same product was re-added.
 - [x] Add Browser E2E coverage for active-filter chip removal/clear-all, mobile filter-sheet dismissal and cart-remove undo.
-- [ ] Run pull-request TypeScript, unit, production build, Browser E2E and security workflows; fix any regressions.
-- [ ] Inspect desktop/tablet/compact-phone screenshots and axe results; verify RTL/LTR visual mirroring and sticky/mobile filter interactions.
-- [ ] Merge to main only after automated verification is green; deploy preview via normal Pages workflow and rerun published smoke/Lighthouse.
-- [ ] Obtain owner visual approval before any final 1.0.0 release. Physical-device, actual screen-reader, comprehensive human RTL/LTR and field-delivery evidence remain separate manual release gates.
+- [x] Pass PR and mainline TypeScript, unit tests, static production build, Browser E2E and security checks. PR and post-merge Browser E2E each passed 104 tests / 5 project-scoped skips; mainline report: [41666976817](https://github.com/pooya-labs/globalcart/actions/runs/41666976817).
+- [x] Verify automated responsive, axe/WCAG, RTL/LTR, keyboard/focus and reduced-motion journeys across Chromium desktop/mobile/tablet, Firefox and WebKit accessibility projects.
+- [x] Merge PR #2 to main with squash commit [73acb2f](https://github.com/pooya-labs/globalcart/commit/73acb2fff9a19f52ae2fc29295bab1f9de1e33da).
+- [x] Deploy to canonical GitHub Pages and pass the published homepage, base-path JavaScript asset, product deep-link and bilingual case-study smoke tests: [run 41666976546](https://github.com/pooya-labs/globalcart/actions/runs/41666976546).
+- [x] Complete all six public Lighthouse 13.6.0 mobile/desktop audits and enforce the existing regression budgets: [run 41667277368](https://github.com/pooya-labs/globalcart/actions/runs/41667277368). Mobile Performance 88 / 91 / 99 and desktop 100 / 100 / 100 (home / product / case study); all six Accessibility, Best Practices and SEO scores 100; CLS 0 throughout. The LCP/TBT/CLS and category-score budget gate passed.
+- [x] Publish verified desktop/mobile portfolio case-study screenshots: [run 41667550279](https://github.com/pooya-labs/globalcart/actions/runs/41667550279).
+- [ ] Obtain owner visual approval of the redesigned storefront before any final 1.0.0 release. Physical-device, actual screen-reader, comprehensive human RTL/LTR and normal-network/eligible field evidence remain separate manual release gates.
 
-**Implementation PR:** https://github.com/pooya-labs/globalcart/pull/2  
-**Version remains:** `0.2.3-dev`; no release tag or production commerce behavior is changed.
+**Implementation PR:** [#2 — editorial marketplace redesign](https://github.com/pooya-labs/globalcart/pull/2) (merged).
+**Canonical preview:** https://pooya-labs.github.io/globalcart/
+**Version remains:** 0.2.3-dev; no release tag or production commerce behavior is changed.
