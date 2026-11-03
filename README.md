@@ -3,8 +3,8 @@
 **Portfolio project 06 · Independent repository**  
 **Owner / product engineer:** [Pooya Goodarzi](https://github.com/pooya-labs)  
 **Source repository:** https://github.com/pooya-labs/globalcart  
-**Public preview:** https://pooya16pg-spec.github.io/globalcart/  
-**Bilingual case study:** https://pooya16pg-spec.github.io/globalcart/case-study/
+**Public preview:** https://pooya-labs.github.io/globalcart/  
+**Bilingual case study:** https://pooya-labs.github.io/globalcart/case-study/
 
 
 <details>
@@ -101,7 +101,7 @@ npm run build
 ## Documentation and handoff
 
 - [ROADMAP.md](ROADMAP.md) — milestone checklist, acceptance criteria and release ledger.
-- [Bilingual case study](https://pooya16pg-spec.github.io/globalcart/case-study/) — product story, feature tour and architecture overview.
+- [Bilingual case study](https://pooya-labs.github.io/globalcart/case-study/) — product story, feature tour and architecture overview.
 - [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) — current implementation state and next action.
 - [docs/AI_HANDOFF.md](docs/AI_HANDOFF.md) — mandatory instructions for a replacement AI/developer.
 - [CHANGELOG.md](CHANGELOG.md) — version history.
