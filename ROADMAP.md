@@ -316,6 +316,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 
 - [x] Admin-only manual product creation with a reserved ID sequence, `admin_manual` provenance and a transactional GlobalCart Direct demo offer; M06.2 below.
 - [x] Admin-only product editorial edit, archive and restore with immutable revision history; M06.2 below.
+- [ ] Internal admin product work queue with effective-value search, status/source/category/brand filters, safe sorting and bounded pagination; M06.3 below.
 - [ ] Supplier connector configuration without secret exposure.
 - [ ] Seller profile, product management and demo analytics.
 
@@ -346,6 +347,17 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Backend CI [41473127094](https://github.com/pooya16pg-spec/globalcart/actions/runs/41473127094) and Security scans [41473127072](https://github.com/pooya16pg-spec/globalcart/actions/runs/41473127072) on implementation head `e288cba2f0abe891656388d6e50638bff5fadc3c`.
 
 **Boundary:** `backend/internal/admin` remains an internal Go service. Manual creation, edit, archive/restore and history are available only to an authenticated active administrator at the service boundary. No admin HTTP routes, browser dashboard, role switcher, seller interface or public catalog write path is enabled.
+
+
+### M06.3 — Internal administrator product work queue — implementation committed; CI verification pending (2026-11-03)
+- [x] Add `ListManagedProducts` as an internal service guarded by the existing `admin.products.manage` permission and transaction-time account/session/role checks.
+- [x] Search effective editorial title, description and brand, plus category, source, source ID and exact product ID; keep supplier provenance filters anchored to the source record.
+- [x] Filter active (default), archived or all products; support bounded category/brand/source filters and a fixed allow-list of sort keys/directions.
+- [x] Enforce a default page size of 20, maximum page size of 100 and maximum offset of 10,000; return total count and stable ID tie-breaking.
+- [x] Add PostgreSQL integration coverage for customer denial, editorial-value matching, source/status filters, archive visibility, sort order, pagination and invalid inputs.
+- [ ] Verify the complete Backend CI and Security scans on the implementation head before marking this slice CI-verified.
+
+**Boundary:** this is a backend service only. It adds no HTTP handler, admin page, browser role switcher, public product endpoint or hosted dependency. No schema migration is required; the existing migrations 013–014 are unchanged.
 
 ## M07 — Search and discovery
 - [x] Faceted filters for brand, rating, price and category across the storefront and read-only API.
