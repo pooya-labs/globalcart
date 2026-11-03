@@ -31,8 +31,8 @@ jobs:
     env:
       TEST_DATABASE_URL: postgres://globalcart:test-only-password@localhost:5432/globalcart_test?sslmode=disable
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: "1.27.3"
           cache: true
