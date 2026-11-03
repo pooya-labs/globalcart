@@ -50,8 +50,8 @@ jobs:
           else
             npm install --no-audit --no-fund
           fi
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium, Firefox and WebKit
+        run: npx playwright install --with-deps chromium firefox webkit
       - name: TypeScript validation
         run: npm run typecheck
       - name: Unit tests
