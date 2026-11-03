@@ -71,3 +71,11 @@ The repository, not chat history, is the canonical source of truth.
 - Browser E2E [41575646034](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646034) passed all 36 tests; Security [41575646222](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646222) and Pages deployment/published smoke [41575646035](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646035) passed on implementation head `c358970b31d2272db98434a761c699355a9dbc57`.
 - Next: complete manual screen-reader, physical-device, full-site RTL/LTR and published CDN/Core Web Vitals QA, then proceed with the M09 bilingual portfolio case study and feature tour. Do not claim that browser emulation completes manual QA.
 - Latest main may include a later bot commit for the scheduled catalog/lockfile snapshot. Refresh main before writing and use compare-and-swap updates.
+
+
+## Current continuation checkpoint — M09.1 (2026-11-03)
+- M06.1–M06.6 internal admin/seller foundations are complete and CI-verified; do not repeat them. Public workspace UI/routes remain gated by same-site HTTPS hosting, identity, email and secret-management approval.
+- M08.14 browser-emulated image/history coverage passed 36 desktop/mobile tests on implementation head `c358970b31d2272db98434a761c699355a9dbc57`; physical-device, screen-reader, full-site RTL/LTR and live CDN/Core Web Vitals QA remain open.
+- Added `/case-study/` as a bilingual static-exportable portfolio page with feature tour and architecture/data-flow diagram. It reuses the shared locale preference and is linked from the storefront footer. This work is committed on `main`; CI and published-route verification are pending.
+- Next: verify the new route through typecheck, unit tests, static export, desktop/mobile browser checks and published Pages smoke. Then capture actual screenshots and add the PostgreSQL ERD. Do not mark M09 complete or tag 1.0.0 prematurely.
+- TGJU remains the only active USD source; never reintroduce Wallex's USDT proxy. Translation remains paused.
