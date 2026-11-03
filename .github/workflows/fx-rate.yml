@@ -28,8 +28,10 @@ jobs:
         run: npm ci --no-audit
       - name: Fetch and validate the TGJU free-market dollar page
         run: npx tsx scripts/sync-tgju-fx.ts
-      - name: Persist the validated quote without overwriting concurrent main updates
+      - name: Persist the validated quote and request a static-site refresh
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -42,11 +44,18 @@ jobs:
             cp "$quote" data/fx-rate.json
             git add -- data/fx-rate.json
             if git diff --cached --quiet; then
-              echo "TGJU quote is unchanged; no snapshot commit is needed."
+              echo "TGJU quote is unchanged; no snapshot commit or Pages rebuild is needed."
               exit 0
             fi
             git commit -m "chore(fx): refresh TGJU free-market USD quote [skip ci]"
-            if git push origin HEAD:main; then exit 0; fi
+            if git push origin HEAD:main; then
+              # GITHUB_TOKEN pushes intentionally do not trigger push workflows.
+              # Dispatch only after a changed snapshot is safely committed.
+              gh api --method POST "repos/$GITHUB_REPOSITORY/dispatches" \
+                -f event_type=globalcart-fx-updated
+              echo "Requested a GitHub Pages rebuild for the updated TGJU snapshot."
+              exit 0
+            fi
             echo "main moved during FX snapshot persistence (attempt $attempt); retrying."
           done
           echo "::error::Could not persist the FX snapshot without a concurrent main update."

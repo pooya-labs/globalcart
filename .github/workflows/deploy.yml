@@ -5,6 +5,8 @@ on:
     - cron: "23 4 * * *"
   push:
     branches: [main]
+  repository_dispatch:
+    types: [globalcart-fx-updated]
   workflow_dispatch:
 permissions:
   contents: write
