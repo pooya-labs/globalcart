@@ -13,6 +13,28 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator(".product-card").first()).toBeVisible();
 });
 
+test("mobile hero stacks the copy and image and uses a responsive source", async ({ page }, testInfo) => {
+  const hero = page.locator(".hero-visual > img");
+  await expect(hero).toHaveAttribute("srcset", /480w/);
+  await expect(hero).toHaveAttribute("sizes", /92vw/);
+
+  if (testInfo.project.name.includes("mobile")) {
+    const copyBox = await page.locator(".hero-copy").boundingBox();
+    const imageBox = await page.locator(".hero-visual").boundingBox();
+    const viewport = page.viewportSize();
+    expect(copyBox).not.toBeNull();
+    expect(imageBox).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(imageBox!.y).toBeGreaterThan(copyBox!.y + copyBox!.height);
+    expect(imageBox!.width).toBeGreaterThan(viewport!.width * 0.8);
+    const documentWidth = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth
+    }));
+    expect(documentWidth.scrollWidth).toBeLessThanOrEqual(documentWidth.clientWidth);
+  }
+});
+
 test("homepage prioritizes its hero and defers non-critical images", async ({ page }) => {
   const hero = page.locator(".hero-visual > img");
   await expect(hero).toHaveAttribute("loading", "eager");
