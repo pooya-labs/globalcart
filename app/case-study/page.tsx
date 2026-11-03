@@ -128,7 +128,7 @@ export default function CaseStudyPage() {
           <p>{t.intro}</p>
           <div className="cs-actions">
             <Link href="/#catalog" className="cs-primary">{t.explore}{rtl ? <ArrowLeft size={16}/> : <ArrowRight size={16}/>}</Link>
-            <a href="https://github.com/pooya16pg-spec/globalcart" target="_blank" rel="noreferrer" className="cs-secondary">{t.github}<ArrowUpRight size={15}/></a>
+            <a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer" className="cs-secondary">{t.github}<ArrowUpRight size={15}/></a>
           </div>
         </div>
         <div className="cs-hero-art" role="img" aria-label="GlobalCart product architecture illustration">
@@ -196,7 +196,7 @@ export default function CaseStudyPage() {
             </article>
           ))}
         </div>
-        <a className="cs-database-link" href="https://github.com/pooya16pg-spec/globalcart/blob/main/docs/DATABASE_ERD.md" target="_blank" rel="noreferrer">
+        <a className="cs-database-link" href="https://github.com/pooya-labs/globalcart/blob/main/docs/DATABASE_ERD.md" target="_blank" rel="noreferrer">
           {t.databaseLink}<ArrowUpRight size={16}/>
         </a>
       </section>
@@ -218,7 +218,7 @@ export default function CaseStudyPage() {
         <Link href="/">{t.back}{rtl ? <ArrowLeft size={16}/> : <ArrowRight size={16}/>}</Link>
       </section>
 
-      <footer className="cs-footer"><Link href="/" className="cs-brand"><span className="cs-mark">g.</span><span>globalcart</span></Link><p>{t.footer}</p><a href="https://github.com/pooya16pg-spec/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14}/></a></footer>
+      <footer className="cs-footer"><Link href="/" className="cs-brand"><span className="cs-mark">g.</span><span>globalcart</span></Link><p>{t.footer}</p><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14}/></a></footer>
     </main>
   );
 }
