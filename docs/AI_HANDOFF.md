@@ -187,3 +187,11 @@ The repository, not chat history, is the canonical source of truth.
 - The prior quote 2,745,000 Rial / 274,500 Toman at Tehran 12:20:14 was observed during an earlier real TGJU pull; the subsequent fetch is the latest saved record. Never adjust source timestamps yourself or add a fallback provider.
 - Node 24 action migration: the deployment flow v7/v5 actions passed in Pages run [41618842051](https://github.com/pooya-labs/globalcart/actions/runs/41618842051); Security [41618841960](https://github.com/pooya-labs/globalcart/actions/runs/41618841960) passed. Browser E2E [41618464270](https://github.com/pooya-labs/globalcart/actions/runs/41618464270) completed success.
 - M09.4 still requires real physical desktop/mobile, platform screen-reader, full-site manual RTL/LTR and normal-network/field evidence. Keep 0.2.3-dev and do not tag 1.0.0 before the manual checks are real.
+
+## Latest handoff checkpoint — final Lighthouse and release status (2026-11-03)
+
+- Canonical repository and site: https://github.com/pooya-labs/globalcart and https://pooya-labs.github.io/globalcart/.
+- Latest Lighthouse [41619642994](https://github.com/pooya-labs/globalcart/actions/runs/41619642994) succeeded: mobile home 94 / LCP 3.0 s / TBT 90 ms, product 99 / 2.3 s / 60 ms, case study 100 / 0.9 s / 90 ms; desktop Performance 100 on all routes. Accessibility, Best Practices and SEO 100 in all six modes. Lab only.
+- Latest TGJU JSON is 2,715,000 Rial / 271,500 Toman/USD with 11 آبان date-only source marker and no timestamp. Stale by policy. Run [41618464249](https://github.com/pooya-labs/globalcart/actions/runs/41618464249) updated it; Pages relay [41618569410](https://github.com/pooya-labs/globalcart/actions/runs/41618569410) succeeded.
+- Latest Pages deploy [41619533670](https://github.com/pooya-labs/globalcart/actions/runs/41619533670) and Security [41619533919](https://github.com/pooya-labs/globalcart/actions/runs/41619533919) passed. Browser E2E [41618464270](https://github.com/pooya-labs/globalcart/actions/runs/41618464270) passed; screenshot publishing [41619153373](https://github.com/pooya-labs/globalcart/actions/runs/41619153373) succeeded.
+- Remaining M09.4 gates are physical devices, real screen reader, comprehensive manual RTL/LTR and normal-network/field data. No 1.0.0 tag until those are actually performed. Current version remains 0.2.3-dev.
