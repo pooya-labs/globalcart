@@ -1033,3 +1033,16 @@ https://github.com/pooya-labs/globalcart/actions/runs/41299677941
 - Automated keyboard/focus coverage includes logical Tab/Shift+Tab loops, Escape close, focus containment/restoration for command palette, cart/favorites drawers, quick view, compare and checkout. Cross-browser run [41646243770](https://github.com/pooya-labs/globalcart/actions/runs/41646243770) completed 98 passed / 4 intentional skips; the WebKit home dual-locale axe check passed in 24.8 s within its 60 s allowance, no retry needed. This is automated keyboard event/focus testing, not an actual screen-reader session.
 - All remotely executable pre-release software QA is now green. Remaining release work is physical-device verification, actual platform screen-reader review, comprehensive human RTL/LTR inspection, normal-network/eligible field evidence, and the requested shell redesign followed by regression and owner approval. Keep 0.2.3-dev; do not tag 1.0.0 before the redesign and approval.
 
+
+
+## Latest continuation checkpoint — M09.5 editorial marketplace redesign started (2026-11-03)
+
+- Canonical repository: `pooya-labs/globalcart`; canonical branch remains `main` until PR #2 is verified and merged.
+- Owner-approved redesign brief translated into implementation on `redesign/globalcart-editorial-marketplace`, based on the current main head `ac39b1492b6ae14a774856a9de0537431b809099`.
+- PR #2: https://github.com/pooya-labs/globalcart/pull/2 — commit `25b402c086dcd18b85bd73b45df73415dc52e211`.
+- Changed `app/globals.css` and `app/page.tsx`: light editorial palette, restrained teal accents, refined sticky shell/hero/category surfaces, product card and catalog grid hierarchy, mobile filter-sheet styling, responsive layout, reduced-motion-safe transitions, and functional active filter chips with per-chip removal/clear-all.
+- Preserved current commerce simulation boundaries, source/FX disclosure, locale persistence, search, compare, favorites, saved searches and Amazon link intake. No backend, payment, inventory, seller or provider integration changed.
+- Automated verification is pending for PR #2. Do not mark M09.5 complete or merge until TypeScript, unit tests, static build, Browser E2E and security checks pass. After merge, rerun published smoke and six-report Lighthouse. The actual physical-device, real screen-reader, comprehensive human RTL/LTR and field-delivery release gates remain open.
+- Keep version `0.2.3-dev`; no 1.0.0 tag or final publication before owner visual approval and post-redesign regression.
+
+- Follow-up interaction polish on PR #2: added explicit close action and backdrop for the mobile filter sheet; clarified struck-through original price only when discounted; corrected RTL compare-action anchoring; added cart-item removal undo with locale-aware copy and safe quantity merge. Added Browser E2E cases for active filters, mobile filter dismissal and cart undo. Current head: `fda5ffec5d07c9590a032db54d5543ba16aa7a53`; latest PR workflows are pending.
