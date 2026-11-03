@@ -64,8 +64,8 @@ export default function ProductDetailClient({product,related}:Props) {
   const priceBreakdown=rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
   const fxTimestampLabel=fxQuote.sourceTimeKind==="date_only"&&fxQuote.sourceTimeTehran
-    ?(rtl?fxSnapshot.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxSnapshot.sourceTimeTehran)
-    :fxQuote.sourceUpdatedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt)):null;
+    ?(rtl?fxQuote.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxQuote.sourceTimeTehran)
+    :typeof fxQuote.sourceUpdatedAt==="string"?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxQuote.sourceUpdatedAt)):null;
   useEffect(()=>{
     const savedLocale=readLocalePreference();
     if(savedLocale)setLocale(savedLocale);

@@ -217,9 +217,9 @@ export default function Home() {
   const t=copy[locale];
   const rtl=locale==="fa";
   const fxTimestampLabel = fxQuote.sourceTimeKind==="date_only" && fxQuote.sourceTimeTehran
-    ? (locale==="fa"?fxSnapshot.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxSnapshot.sourceTimeTehran)
-    : fxQuote.sourceUpdatedAt
-      ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt))
+    ? (locale==="fa"?fxQuote.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxQuote.sourceTimeTehran)
+    : typeof fxQuote.sourceUpdatedAt === "string"
+      ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxQuote.sourceUpdatedAt))
       : null;
   const fxStatusLabel = fxStatus==="fresh"?t.fxFresh:fxStatus==="aging"?t.fxAging:fxStatus==="stale"?t.fxStale:t.fxUnavailable;
 
