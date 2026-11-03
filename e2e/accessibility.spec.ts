@@ -119,6 +119,14 @@ test("command palette dialog remains accessible when open", async ({ page }) => 
 test("recently viewed page meets WCAG checks in populated and empty RTL/LTR states", async ({ page }) => {
   await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
   await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
+  await page.waitForFunction(() => {
+    try {
+      const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
+      return Array.isArray(state.recent) && state.recent.includes(1);
+    } catch {
+      return false;
+    }
+  });
 
   const historyUrl = new URL("../recently-viewed", page.url()).toString();
   const response = await page.goto(historyUrl);
@@ -135,7 +143,7 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
   await expect(history.getByRole("heading", { name: "Recently viewed products" })).toBeVisible();
   await expectNoWcagViolations(page);
 
-  await page.getByRole("button", { name: "Clear recently viewed history" }).click();
+  await page.getByRole("button", { name: "Clear history" }).click();
   await expect(history.getByText("No recently viewed products yet")).toBeVisible();
   await expectNoWcagViolations(page);
 
