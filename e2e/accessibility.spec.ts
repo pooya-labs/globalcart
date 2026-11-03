@@ -47,6 +47,8 @@ async function expectDialogFocusLoop(page: Page, dialog: ReturnType<Page["locato
 }
 
 test("storefront homepage meets WCAG checks in RTL and LTR", async ({ page }) => {
+  // Two axe scans (RTL + LTR) can take over 30 seconds on WebKit CI runners.
+  test.setTimeout(60_000);
   await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
   await expectNoWcagViolations(page);
 
