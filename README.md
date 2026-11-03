@@ -30,9 +30,9 @@ Implemented:
 In progress / not yet claimed as complete:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
 - Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
-- Seller/admin workspaces and account-backed order history remain planned; cart, checkout, returns and refunds are simulations/internal services, not live commerce.
+- Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
 - Search suggestions, the keyboard command palette, explainable sample recommendations and saved-search flows are implemented.
-- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI; manual assistive-technology/RTL/LTR QA and live CDN/Core Web Vitals review remain open.
+- Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys (including recently viewed image loading), and first-party asset budgets run in CI; manual screen-reader/real-device RTL/LTR QA and live CDN/Core Web Vitals review remain open.
 
 
 ## Demo boundaries

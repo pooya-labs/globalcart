@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M06 — Admin/seller internal foundations; public workspaces remain gated by M04 hosting and identity prerequisites  
+**Active stage:** M08 — quality hardening and manual QA; M09 portfolio release follows. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
 **Repository:** pooya16pg-spec/globalcart  
 **Owner:** Pooya Goodarzi
 
@@ -38,7 +38,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 | M03 | 0.3.0 | Pricing/FX provenance, product details, gallery and comparison | TGJU free-market USD page feed, Rial-to-Toman normalization, stale/date-only handling and storefront deployment are CI-verified; five-minute recurring cadence remains under observation |
 | M04 | 0.4.0 | Go API, PostgreSQL, migrations, auth boundary and Python workers | Read-only local Go/PostgreSQL foundation implemented; authentication, workers and hosting gates remain |
 | M05 | 0.5.0 | Persistent demo commerce journeys, orders, coupons and returns | Internal demo cart, checkout, order, coupon, vendor-split and full-order return/refund simulation implemented; public API exposure gated |
-| M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Internal admin and seller services through offer lifecycle CI-verified; dashboard UI, seller profile/analytics and public routes remain gated |
+| M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Internal admin and seller services through profile/demo analytics CI-verified; dashboard UI and public routes remain gated |
 | M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
 | M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget and CI security checks implemented; manual QA and operational recovery remain |
 | M09 | 1.0.0 | Portfolio case study, release and public demo QA | Planned |
@@ -383,7 +383,7 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Add PostgreSQL lifecycle coverage for duplicate offers/SKUs, customer and foreign-vendor denial, stale revisions after system updates, archive and append-only history.
 - [x] Verify Backend CI [41571374758](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374758), Security scans [41571374594](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374594) and Pages deploy/smoke [41571374873](https://github.com/pooya16pg-spec/globalcart/actions/runs/41571374873) on implementation head `3a9a328fd7d7b1262d73dfefbc2e7a81fa994782`; race-enabled PostgreSQL lifecycle tests, migration/backup/restore, vet, vulnerability scan, API/importer build and Docker build passed.
 
-**Boundary:** internal Go service only. No seller HTTP route, dashboard, self-publish, payout or production hosting. Seller profile and demo analytics remain separate M06 work.
+**Boundary:** internal Go service only. No seller HTTP route, dashboard, self-publish, payout or production hosting. Seller profile and demo analytics are implemented separately in M06.6.
 
 ### M06.6 — Internal seller profile and demo analytics — CI verified (2026-11-03)
 - [x] Add a vendor-scoped seller workspace read that revalidates the exact active membership, account and session under row locks in the same transaction.
@@ -422,7 +422,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 ## M08 — Quality and hardening
 - [x] Playwright tests for critical shopping journeys.
 - [x] Automated RTL/LTR axe checks, dialog keyboard/focus regression tests and reduced-motion behavior verified in desktop Chromium and Pixel 7 mobile; manual screen-reader, physical-device and broader keyboard review remains open.
-- [ ] Performance and image-loading audit (image policy and first-party JS/CSS budgets are automated; live CDN image timing and Core Web Vitals review remains open).
+- [x] Automated image-loading policy (priority for the main image, lazy loading/async decoding for non-critical images, and reserved media boxes) plus first-party JavaScript/CSS transfer and request budgets; the recently-viewed page is covered by M08.14.
+- [ ] Live CDN image timing and real-world Core Web Vitals review; automated CI measurements do not replace published-session and device profiling.
 - [x] Automated repository secret scan (Gitleaks), Go dependency vulnerability scan and `go vet` in CI; hosted API penetration/security review remains gated.
 - [x] PostgreSQL 17 logical backup/restore and migration-ledger verification in disposable CI; hosted backup policy and operational recovery drills remain gated on provider approval.
 - [x] Lockfile-based frontend dependency install (`npm ci`) and post-deploy GitHub Pages smoke test; byte-for-byte export reproducibility is not claimed while the scheduled external catalog snapshot changes.
@@ -464,6 +465,14 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Verify Pages deployment [run 41405289322](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289322) and Security scans [run 41405289317](https://github.com/pooya16pg-spec/globalcart/actions/runs/41405289317) on workflow implementation commit `8fec0d0c9bbb845fb7b1dc0788970929828e0a2a`; both passed. The lockfile and generated catalog snapshot were persisted on `main` by `a9aa72606839d04329837c570fd2cbf492499299`.
 
 **Boundary:** the lockfile makes dependency resolution reproducible for the committed manifest and Node/npm environment; it does not promise byte-identical exports because the scheduled public demo catalog can change content and generation time. The smoke test covers the published homepage, one JS asset and one product route, not every route, browser/assistive-technology behavior or live CDN performance.
+
+### M08.14 — Recently viewed image loading and layout regression — CI verified (2026-11-03)
+- [x] Apply asynchronous image decoding to recently viewed product cards while retaining lazy loading, accessible alt text and fixed media dimensions.
+- [x] Add a desktop/mobile Playwright journey that opens a product, confirms the browser-local visit is recorded, follows the GitHub Pages base path to the history route, and verifies the route response, image loading/decoding attributes, accessible names and reserved layout box.
+- [x] Keep the performance audit explicit: the latest Browser E2E run measured the initial route at 520,131 bytes of JavaScript across 7 requests and 70,540 bytes of CSS in 1 request, within the existing 750,000/120,000-byte budgets.
+- [x] Verify Browser E2E [41575646034](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646034) passed all 36 desktop/mobile tests, Security scans [41575646222](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646222) passed, and Pages deployment plus published homepage/assets/product deep-link smoke test [41575646035](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646035) passed on implementation head `c358970b31d2272db98434a761c699355a9dbc57`.
+
+**Boundary:** these checks validate browser-emulated loading policy, layout reservation and first-party asset budgets. They do not measure remote image CDN timing, field Core Web Vitals, physical-device performance or screen-reader output; those remain manual QA.
 
 ## M09 — Portfolio release
 - [ ] Persian and English case study.

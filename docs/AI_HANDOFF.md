@@ -63,3 +63,11 @@ The repository, not chat history, is the canonical source of truth.
 - M06.6 internal seller profile and aggregate demo analytics are implemented and CI-verified on main. Backend CI `41572747044`, Security `41572747081` and Pages `41572746914` passed.
 - Profile changes are display-name-only and optimistic; order aggregates are vendor-scoped and paid totals include only simulated payments.
 - M06.1–M06.6 internal foundations are complete; keep public seller UI/routes gated by the existing identity/hosting approvals. Supplier connector setup still requires explicit source rights and secret-management approval.
+
+
+## Current continuation checkpoint — M08.14 (2026-11-03)
+- M06.1–M06.6 internal admin/seller services are complete and CI-verified; do not repeat them. Public workspace UI/routes remain gated by same-site HTTPS hosting, identity, email and secret-management approval.
+- M08.14 adds asynchronous decoding to the recently-viewed product thumbnails and a base-path-aware desktop/mobile browser regression for visit persistence and image loading/layout policy.
+- Browser E2E [41575646034](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646034) passed all 36 tests; Security [41575646222](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646222) and Pages deployment/published smoke [41575646035](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646035) passed on implementation head `c358970b31d2272db98434a761c699355a9dbc57`.
+- Next: complete manual screen-reader, physical-device, full-site RTL/LTR and published CDN/Core Web Vitals QA, then proceed with the M09 bilingual portfolio case study and feature tour. Do not claim that browser emulation completes manual QA.
+- Latest main may include a later bot commit for the scheduled catalog/lockfile snapshot. Refresh main before writing and use compare-and-swap updates.

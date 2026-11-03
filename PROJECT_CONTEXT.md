@@ -4,7 +4,7 @@
 **Repository:** https://github.com/pooya16pg-spec/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M06 internal admin/seller foundations; M06.1–M06.6 internal services are CI-verified; dashboard UI and public routes remain gated by M04 deployment/identity prerequisites  
+**Active stage:** M08 quality hardening and manual QA, followed by M09 portfolio release; M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
 **Last updated:** 2026-11-03
 
 ## Product definition
@@ -59,6 +59,13 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
  
 
  
+## Latest M08.14 checkpoint — recently viewed image loading (CI verified 2026-11-03)
+- Added `decoding="async"` to recently viewed product thumbnails while retaining lazy loading and the existing fixed 92×92 media box.
+- Added a desktop/mobile Playwright journey covering product visit persistence, GitHub Pages base-path routing, history-card image attributes, accessible alt text and reserved layout dimensions.
+- Browser E2E [41575646034](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646034) passed all 36 tests on `c358970b31d2272db98434a761c699355a9dbc57`; Security [41575646222](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646222) passed; Pages deploy and published-site smoke [41575646035](https://github.com/pooya16pg-spec/globalcart/actions/runs/41575646035) passed.
+- The latest browser run measured 520,131 bytes of initial-route JavaScript (7 requests) and 70,540 bytes of CSS (1 request), within the current CI budgets.
+- This is browser-emulated verification only. Live CDN timing, field Core Web Vitals, physical-device behavior and manual screen-reader QA remain outstanding.
+
 ## Latest M06.6 checkpoint — seller profile and demo analytics (CI verified 2026-11-03)
 - Added `GetSellerWorkspaceForSeller`: transaction-time authorization and vendor-only profile/offer aggregates, order-state counts, 30-day order count and per-currency totals limited to `paid_simulated` orders.
 - Added `UpdateSellerVendorProfileForSeller`: display-name-only edit with optimistic `updated_at` checks and an actor-attributed audit event; slug, type and vendor lifecycle are not seller-editable.
@@ -189,11 +196,12 @@ https://github.com/pooya16pg-spec/globalcart/actions/runs/41299677941
 - M08.12 PostgreSQL backup/restore coverage remains CI-only; it is not hosted backup/DR. Manual screen-reader, real-device, full-site RTL/LTR and broader deep-link QA remain open.
 
 ## Immediate next actions
-1. Keep public seller/admin workspace UI and protected routes gated until same-site HTTPS hosting, identity, email delivery and secret storage are approved. M06.1–M06.6 internal foundations are complete; do not redo them. Supplier connector setup also remains blocked on explicit source/API rights and secret-management approval.
-2. Keep authentication, customer commerce, admin and seller HTTP routes, browser cookies and middleware disabled until same-site HTTPS hosting, email delivery, secret storage and runtime are explicitly approved. Actor IDs must come from verified server-side sessions.
-3. Complete manual responsive, RTL/LTR, screen-reader, real-device and published deep-link QA; automated axe, focus, reduced-motion and browser journeys are CI-verified, but manual assistive-technology QA remains open.
-4. Keep supplier feeds gated by documented authorization. For TGJU, respect its current terms, rate limits and access controls; do not bypass CAPTCHA, HTTP denial or other restrictions. Reassess the source if production service guarantees are required.
-5. Benchmark Argon2id and add runtime rate limiting only after the deployment environment is approved.
+1. Complete manual responsive, full-site RTL/LTR, screen-reader and physical-device QA; record device/browser/assistive-technology coverage and issues rather than treating desktop/mobile emulation as real-device verification.
+2. Measure the published demo's remote image timing and field Core Web Vitals on representative desktop and mobile connections; keep the current CI asset budgets as regression guardrails, not as a substitute for field data.
+3. Start M09 with a Persian/English portfolio case study, verified feature tour and original architecture/ERD visuals. Do not publish a 1.0.0 release until the roadmap acceptance items and final public demo smoke test are complete.
+4. Keep public seller/admin workspace UI, protected routes, authentication, customer commerce, browser cookies and middleware disabled until same-site HTTPS hosting, runtime, email delivery and secret management are explicitly approved. M06.1–M06.6 internal foundations are complete; do not redo them. Actor IDs must come from verified server-side sessions.
+5. Keep supplier feeds gated by documented API/source rights and secret-management approval. For TGJU, respect current terms, rate limits and access controls; never bypass CAPTCHA or HTTP denial.
+6. Benchmark Argon2id and add runtime rate limiting only after the deployment environment is approved.
 
 ## Backend/database architecture
 - Frontend: Next.js App Router, React and TypeScript, statically exported to GitHub Pages.
