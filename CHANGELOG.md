@@ -2,6 +2,15 @@
 
 ## Unreleased — 2026-11-03
 
+### Verified — tablet accessibility / responsive coverage and lab performance follow-up
+
+- Added an iPad 7th-generation Chromium Playwright project for the accessibility/performance suites and a route-width regression for storefront, product and case study. Browser E2E [41644963684](https://github.com/pooya-labs/globalcart/actions/runs/41644963684) passed 97 tests including tablet overflow and axe coverage; Pages [41644963414](https://github.com/pooya-labs/globalcart/actions/runs/41644963414) and Security [41644963653](https://github.com/pooya-labs/globalcart/actions/runs/41644963653) passed.
+- The full E2E run had one WebKit homepage axe timeout at 30 s, then passed on retry. Raised only that test's timeout to 60 s in [commit 81f447a](https://github.com/pooya-labs/globalcart/commit/81f447aaf9b07ca0a9c8a94bc05c3e6346943ec5). A verification rerun was still installing browsers at this checkpoint.
+- Latest Lighthouse [41646444864](https://github.com/pooya-labs/globalcart/actions/runs/41646444864) passed six reports and the regression budget. Mobile Performance 92 / 97 / 100, desktop 100 / 100 / 100; all Accessibility / Best Practices / SEO scores 100 and CLS 0. One intervening home-mobile LCP 4.196 s exceeded the 4.0 s budget; the next run measured 3.3 s and passed. The outlier breakdown points to hero render delay, not slow image transfer; investigate the above-the-fold structure in the requested redesign rather than weakening the budget.
+- Automated QA is approved. Physical-device, actual platform screen-reader, manual whole-site RTL/LTR and normal-network/field evidence remain outstanding; do not tag 1.0.0 before the requested shell redesign and owner approval.
+
+## Unreleased — 2026-11-03
+
 ### Verified — TGJU stale-rate disclosure and latest cross-browser run
 
 - Added a Playwright regression proving that a date-only TGJU timestamp is shown as Stale in the storefront and as an FX freshness warning on product detail. Corrected an existing test unit assertion from Toman / USDT to Toman / USD.
