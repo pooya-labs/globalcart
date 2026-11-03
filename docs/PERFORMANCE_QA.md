@@ -217,6 +217,23 @@ All six audits report 100 Accessibility, Best Practices and SEO, and all desktop
 
 **Verification lineage:** Browser E2E [41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540) passed 74/74 across Chromium desktop/mobile, Firefox and WebKit. Pages deployment/public smoke [41626708812](https://github.com/pooya-labs/globalcart/actions/runs/41626708812) and Security [41626708835](https://github.com/pooya-labs/globalcart/actions/runs/41626708835) passed. The current application implementation did not change in the documentation-only continuation.
 
+### Latest completed published audit — November 3, 2026 (run 41627559678)
+
+**Run:** [Public Lighthouse 41627559678](https://github.com/pooya-labs/globalcart/actions/runs/41627559678) · Lighthouse 13.6.0 · GitHub-hosted Chromium · `https://pooya-labs.github.io/globalcart/`. All six route/mode audits completed successfully.
+
+| Published route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Storefront — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.8 s | 10 ms | 0 |
+| Storefront — mobile | 88 | 100 | 100 | 100 | 1.3 s | 3.2 s | 200 ms | 0 |
+| Product 1 — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.7 s | 10 ms | 0 |
+| Product 1 — mobile | 94 | 100 | 100 | 100 | 1.0 s | 3.1 s | 50 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 0 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 110 ms | 0 |
+
+All six audits report 100 Accessibility, Best Practices and SEO; desktop Performance is 100 on every route. These are GitHub-hosted lab results, not CrUX/field Core Web Vitals. A newer audit [41630849560](https://github.com/pooya-labs/globalcart/actions/runs/41630849560) was still running at the time this record was written and is not counted as successful evidence.
+
+**Verification lineage:** Pages deployment and public smoke [41630685929](https://github.com/pooya-labs/globalcart/actions/runs/41630685929) passed; the backend module-path change does not alter storefront JavaScript.
+
 ## Manual release checklist — fill with actual observations
 
 Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.

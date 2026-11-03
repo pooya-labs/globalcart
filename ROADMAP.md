@@ -3,8 +3,8 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.4 — 1.0.0 release readiness; M08.15–M08.16 automated lab/performance and FX-publication wiring, M09.1–M09.3 portfolio work and M09.4.1 public API regression guards are CI verified. Browser E2E is green at 74/74 ([run 41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540)); latest canonical Pages Lighthouse is [run 41626880818](https://github.com/pooya-labs/globalcart/actions/runs/41626880818). Manual physical-device, real screen-reader, comprehensive RTL/LTR and field-delivery QA remain release gates. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
-**Repository:** pooya16pg-spec/globalcart  
+**Active stage:** M09.4 — 1.0.0 release readiness; M08.15–M08.16 automated lab/performance and FX-publication wiring, M09.1–M09.3 portfolio work and M09.4.1 public API regression guards are CI verified. Browser E2E is green at 74/74 ([run 41622800540](https://github.com/pooya-labs/globalcart/actions/runs/41622800540)); latest completed canonical Pages Lighthouse is [run 41627559678](https://github.com/pooya-labs/globalcart/actions/runs/41627559678). Manual physical-device, real screen-reader, comprehensive RTL/LTR and field-delivery QA remain release gates. Public admin/seller workspaces remain gated by M04 hosting and identity prerequisites  
+**Repository:** pooya-labs/globalcart  
 **Owner:** Pooya Goodarzi
 
 ## Engineering north star
