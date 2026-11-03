@@ -354,8 +354,8 @@ Build a polished, bilingual global marketplace with excellent usability, accessi
 - [x] Search effective editorial title, description and brand, plus category, source, source ID and exact product ID; keep supplier provenance filters anchored to the source record.
 - [x] Filter active (default), archived or all products; support bounded category/brand/source filters and a fixed allow-list of sort keys/directions.
 - [x] Enforce a default page size of 20, maximum page size of 100 and maximum offset of 10,000; return total count and stable ID tie-breaking.
-- [x] Add PostgreSQL integration coverage for customer denial, editorial-value matching, source/status filters, archive visibility, sort order, pagination and invalid inputs.
-- [x] Verify Backend CI [41562259407](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562259407) and Security scans [41562285730](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562285730); the race-enabled Go/PostgreSQL suite, backup/restore, API/importer builds, Docker image and repository scans passed. Implementation commit: `cd9bfe3d246774a9a09df8cfe0ef67bb9e838e0a`.
+- [x] Add PostgreSQL integration coverage for customer denial, editorial-value matching, source/status filters, archive visibility, sort order, pagination, invalid bounds and NUL rejection.
+- [x] Verify final Backend CI [41562708698](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708698), Security scans [41562708607](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708607) and Pages deployment [41562708709](https://github.com/pooya16pg-spec/globalcart/actions/runs/41562708709) on `115fbac9dc716b09911151fb19e8e44aeede110f`; race-enabled Go/PostgreSQL tests (including NUL rejection), backup/restore, API/importer builds, Docker image, security scans and published-site smoke checks passed.
 
 **Boundary:** this is a backend service only. It adds no HTTP handler, admin page, browser role switcher, public product endpoint or hosted dependency. No schema migration is required; the existing migrations 013–014 are unchanged.
 
