@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, Check, ChevronLeft, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
 import { calculateDemoPrice } from "../../../lib/pricing";
 import fxSnapshot from "../../../data/fx-rate.json";
-import { getFxRateStatus, type FxRateStatus } from "../../../lib/fx/tgju";
+const fxQuote = fxSnapshot as unknown as FxRateSnapshot;
+import { getFxRateStatus, type FxRateStatus, type FxRateSnapshot } from "../../../lib/fx/tgju";
 import { readLocalePreference, writeLocalePreference, type Locale } from "../../../lib/locale";
 
 type ProductVariant = {
@@ -49,7 +50,7 @@ export default function ProductDetailClient({product,related}:Props) {
   const [quantity,setQuantity]=useState(1);
   const [added,setAdded]=useState(false);
   const [saved,setSaved]=useState(false);
-  const rate = typeof fxSnapshot.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
+  const rate = typeof fxQuote.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const rtl=locale==="fa";
   const toggleLocale=()=>{
@@ -62,14 +63,14 @@ export default function ProductDetailClient({product,related}:Props) {
   const discounted=product.price*(1-product.discountPercentage/100);
   const priceBreakdown=rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
-  const fxTimestampLabel=fxSnapshot.sourceTimeKind==="date_only"&&fxSnapshot.sourceTimeTehran
+  const fxTimestampLabel=fxQuote.sourceTimeKind==="date_only"&&fxQuote.sourceTimeTehran
     ?(rtl?fxSnapshot.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxSnapshot.sourceTimeTehran)
-    :fxSnapshot.sourceUpdatedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt)):null;
+    :fxQuote.sourceUpdatedAt?new Intl.DateTimeFormat(rtl?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt)):null;
   useEffect(()=>{
     const savedLocale=readLocalePreference();
     if(savedLocale)setLocale(savedLocale);
   },[]);
-  useEffect(()=>{setFxStatus(getFxRateStatus(fxSnapshot));},[]);
+  useEffect(()=>{setFxStatus(getFxRateStatus(fxQuote));},[]);
   useEffect(()=>{
     try{
       const raw=localStorage.getItem("globalcart-state-v1");
@@ -153,7 +154,7 @@ export default function ProductDetailClient({product,related}:Props) {
           <div><span>{rtl?"تخفیف نمونه":"Catalog sample discount"}</span><b>{product.discountPercentage.toFixed(2)}%</b></div>
           {priceBreakdown?<>
             <div><span>{rtl?"نرخ دلار آزاد TGJU (ریال به تومان)":"TGJU free-market USD rate (Rial to Toman)"}</span><b>{new Intl.NumberFormat(rtl?"fa-IR":"en-US",{maximumFractionDigits:0}).format(priceBreakdown.fxRate)} {rtl?"تومان / دلار":"Toman / USD"}</b></div>
-            <div><span>{rtl?"زمان ثبت قیمت در TGJU":"TGJU source update time"}</span><b>{fxTimestampLabel??fxStatusLabel}</b></div>
+            <div><span>{rtl?"نشانگر به‌روزرسانی TGJU":"TGJU source update marker"}</span><b>{fxTimestampLabel??fxStatusLabel}</b></div>
             <small>{rtl?"مبنای تبدیل، قیمت ثبت‌شدهٔ دلار بازار آزاد در صفحهٔ TGJU است که از ریال به تومان تبدیل شده. این عدد نرخ بانکی یا پیشنهاد قطعی خریدوفروش نیست.":"Conversion uses the free-market USD price displayed by TGJU, normalized from Rial to Toman. It is indicative, not a bank rate or executable buy/sell offer."}</small>
             {fxStatus!=="fresh"&&<small className="fx-warning">{rtl?"هشدار تازگی نرخ: "+fxStatusLabel:"FX freshness warning: "+fxStatusLabel}</small>}
           </>:<small>{rtl?"نرخ معتبر دلار TGJU فعلاً در دسترس نیست؛ مبلغ اصلی به دلار نمایش داده می‌شود.":"A valid TGJU dollar quote is currently unavailable, so the source USD price is shown."}</small>}

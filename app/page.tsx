@@ -11,8 +11,9 @@ import { getCatalogSourceStatus, type CatalogSourceStatus } from "../lib/catalog
 import { getCatalogFreshness, type CatalogFreshnessStatus } from "../lib/catalog/freshness";
 import catalogSnapshot from "../data/catalog.json";
 import fxSnapshot from "../data/fx-rate.json";
+const fxQuote = fxSnapshot as unknown as FxRateSnapshot;
 import { calculateDemoPrice } from "../lib/pricing";
-import { getFxRateStatus, type FxRateStatus } from "../lib/fx/tgju";
+import { getFxRateStatus, type FxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
 import { readLocalePreference, writeLocalePreference, type Locale } from "../lib/locale";
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, BookmarkCheck, BookmarkPlus, Check, ChevronDown, ChevronLeft,
@@ -188,7 +189,7 @@ export default function Home() {
   const [mobileSearchOpen,setMobileSearchOpen]=useState(false);
   const [categoryMenu,setCategoryMenu]=useState(false);
   const [toast,setToast]=useState("");
-  const rate = typeof fxSnapshot.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
+  const rate = typeof fxQuote.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const [fxStatus,setFxStatus]=useState<FxRateStatus>("unavailable");
   const [hydrated,setHydrated]=useState(false);
   const [minPrice,setMinPrice]=useState(0);
@@ -215,9 +216,9 @@ export default function Home() {
   const commandInputId=useId();
   const t=copy[locale];
   const rtl=locale==="fa";
-  const fxTimestampLabel = fxSnapshot.sourceTimeKind==="date_only" && fxSnapshot.sourceTimeTehran
+  const fxTimestampLabel = fxQuote.sourceTimeKind==="date_only" && fxQuote.sourceTimeTehran
     ? (locale==="fa"?fxSnapshot.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxSnapshot.sourceTimeTehran)
-    : fxSnapshot.sourceUpdatedAt
+    : fxQuote.sourceUpdatedAt
       ? new Intl.DateTimeFormat(locale==="fa"?"fa-IR":"en-GB",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(fxSnapshot.sourceUpdatedAt))
       : null;
   const fxStatusLabel = fxStatus==="fresh"?t.fxFresh:fxStatus==="aging"?t.fxAging:fxStatus==="stale"?t.fxStale:t.fxUnavailable;
@@ -335,7 +336,7 @@ export default function Home() {
     try{localStorage.setItem("globalcart-saved-searches-v1",JSON.stringify(savedSearches));}catch{/* Browser storage can be unavailable. */}
   },[savedSearchesHydrated,savedSearches]);
 
-  useEffect(()=>{setFxStatus(getFxRateStatus(fxSnapshot));},[]);
+  useEffect(()=>{setFxStatus(getFxRateStatus(fxQuote));},[]);
 
   useEffect(()=>{
     let active=true;

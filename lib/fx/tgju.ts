@@ -102,7 +102,7 @@ export function normalizeTgjuDollarPage(input: unknown, now = Date.now()): FxRat
   };
 }
 export function getFxRateStatus(
-  snapshot: Pick<FxRateSnapshot, "tomanPerUsd" | "sourceUpdatedAt" | "sourceTimeKind"> | null | undefined, now = Date.now()
+  snapshot: (Pick<FxRateSnapshot, "tomanPerUsd" | "sourceUpdatedAt"> & Partial<Pick<FxRateSnapshot, "sourceTimeKind">>) | null | undefined, now = Date.now()
 ): FxRateStatus {
   if (!snapshot || typeof snapshot.tomanPerUsd !== "number" || !Number.isFinite(snapshot.tomanPerUsd) ||
       snapshot.tomanPerUsd <= 0 || !Number.isFinite(now)) return "unavailable";
