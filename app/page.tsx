@@ -667,8 +667,8 @@ export default function Home() {
         </div>
         <div className="hero-visual">
           <img
-            src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=1200&q=78"
-            srcSet="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=480&q=75 480w, https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=768&q=75 768w, https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=1200&q=78 1200w"
+            src="images/site/hero-1600.webp"
+            srcSet="images/site/hero-480.webp 480w, images/site/hero-768.webp 768w, images/site/hero-1600.webp 1600w"
             sizes="(max-width: 760px) 92vw, 58vw"
             alt="A considered collection of lifestyle objects"
             loading="eager"
@@ -790,7 +790,7 @@ export default function Home() {
         </form>
       </section>
 
-      <section className="editorial" id="editors"><div className="editorial-image"><img src="https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=1200&q=80" alt="Quiet modern interior" loading="lazy" decoding="async"/></div><div className="editorial-copy"><span className="section-kicker">03 / A MORE CONSIDERED EXPERIENCE</span><h2>{rtl?"کمتر بگرد.\nبهتر انتخاب کن.":"Less scrolling.\nMore considered choices."}</h2><p>{t.whyText}</p><a href="#catalog" className="button-primary">{t.explore}<ArrowLeft size={16}/></a></div><span className="editorial-index">03</span></section>
+      <section className="editorial" id="editors"><div className="editorial-image"><img src="images/site/editorial-1200.webp" alt="Quiet modern interior" loading="lazy" decoding="async"/></div><div className="editorial-copy"><span className="section-kicker">03 / A MORE CONSIDERED EXPERIENCE</span><h2>{rtl?"کمتر بگرد.\nبهتر انتخاب کن.":"Less scrolling.\nMore considered choices."}</h2><p>{t.whyText}</p><a href="#catalog" className="button-primary">{t.explore}<ArrowLeft size={16}/></a></div><span className="editorial-index">03</span></section>
 
       <section className="marketplace-services">
         <div className="section-heading"><div><span className="section-kicker">04 / MADE FOR REAL DISCOVERY</span><h2>{rtl?"از پیدا کردن تا انتخاب، ساده‌تر":"From discovery to a confident choice"}</h2><p>{rtl?"ابزارهای کاربردی برای مسیر انتخاب محصول؛ با مرز روشن بین تجربه نمایشی و خدمات واقعی.":"Useful tools for the product journey, with a clear boundary between demo features and live services."}</p></div></div>

@@ -4,6 +4,8 @@ on:
     branches: [main, feat/m04-go-postgres-foundation]
     paths:
       - "lib/catalog/**"
+      - "public/images/site/**"
+      - "scripts/sync-site-imagery.mjs"
       - "scripts/sync-catalog.ts"
       - "tests/**"
       - "package.json"
@@ -12,6 +14,8 @@ on:
       - ".github/workflows/catalog-ci.yml"
   pull_request:
     paths:
+      - "public/images/site/**"
+      - "scripts/sync-site-imagery.mjs"
       - "lib/catalog/**"
       - "scripts/sync-catalog.ts"
       - "tests/**"
@@ -40,6 +44,8 @@ jobs:
           else
             npm install --no-audit --no-fund
           fi
+      - name: Prepare optimized self-hosted site imagery
+        run: npm run assets:sync
       - name: Audit JavaScript dependencies
         run: npm audit --audit-level=high
       - name: TypeScript validation

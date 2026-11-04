@@ -4,6 +4,8 @@ on:
     branches: [main, feat/m04-go-postgres-foundation]
     paths:
       - "app/**"
+      - "public/images/site/**"
+      - "scripts/sync-site-imagery.mjs"
       - "data/catalog.json"
       - "lib/catalog/**"
       - "e2e/**"
@@ -15,6 +17,8 @@ on:
       - ".github/workflows/e2e.yml"
   pull_request:
     paths:
+      - "public/images/site/**"
+      - "scripts/sync-site-imagery.mjs"
       - "app/**"
       - "data/catalog.json"
       - "lib/catalog/**"
@@ -50,6 +54,8 @@ jobs:
           else
             npm install --no-audit --no-fund
           fi
+      - name: Prepare optimized self-hosted site imagery
+        run: npm run assets:sync
       - name: Install Chromium, Firefox and WebKit
         run: npx playwright install --with-deps chromium firefox webkit
       - name: TypeScript validation

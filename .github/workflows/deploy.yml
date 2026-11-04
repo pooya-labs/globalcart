@@ -36,6 +36,8 @@ jobs:
           fi
       - name: Refresh static catalog snapshot
         run: npm run catalog:sync
+      - name: Prepare optimized self-hosted site imagery
+        run: npm run assets:sync
       - name: Select a static product route for deployment smoke test
         id: smoke_product
         run: |
@@ -48,7 +50,7 @@ jobs:
           if (!product) throw new Error("Catalog snapshot has no valid product route for the deployment smoke test.");
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `product_id=${product.id}\n`);
           NODE
-      - name: Persist refreshed catalog snapshot and npm lockfile safely
+      - name: Persist refreshed catalog snapshot, site imagery and npm lockfile safely
         shell: bash
         run: |
           set -euo pipefail
@@ -60,9 +62,12 @@ jobs:
           # changes when the bot creates its commit.
           snapshot="$RUNNER_TEMP/catalog.json"
           package_lock="$RUNNER_TEMP/package-lock.json"
+          site_images="$RUNNER_TEMP/site-images"
           cp data/catalog.json "$snapshot"
           test -f package-lock.json
           cp package-lock.json "$package_lock"
+          mkdir -p "$site_images"
+          cp -R public/images/site/. "$site_images/"
 
           # Rebuild the snapshot/lockfile commit from the latest main on every attempt.
           # A non-fast-forward push is retried; force-push is never used.
@@ -71,14 +76,16 @@ jobs:
             git reset --hard origin/main
             cp "$snapshot" data/catalog.json
             cp "$package_lock" package-lock.json
-            git add -- data/catalog.json package-lock.json
+            mkdir -p public/images/site
+            cp -R "$site_images/." public/images/site/
+            git add -- data/catalog.json package-lock.json public/images/site/
 
             if git diff --cached --quiet; then
-              echo "Catalog snapshot is unchanged."
+              echo "Generated snapshots and site imagery are unchanged."
               exit 0
             fi
 
-            git commit -m "chore(ci): persist npm lockfile and catalog snapshot [skip ci]"
+            git commit -m "chore(ci): persist catalog snapshot, lockfile and site imagery [skip ci]"
             if git push origin HEAD:main; then
               exit 0
             fi
@@ -128,7 +135,8 @@ jobs:
           product_html="$(mktemp)"
           case_study_html="$(mktemp)"
           icon_file="$(mktemp)"
-          trap 'rm -f "$home_html" "$product_html" "$case_study_html" "$icon_file"' EXIT
+          site_image_file="$(mktemp)"
+          trap 'rm -f "$home_html" "$product_html" "$case_study_html" "$icon_file" "$site_image_file"' EXIT
 
           case "$base_url" in
             https://*) ;;
@@ -181,6 +189,21 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
             "$icon_url" --output "$icon_file"
           grep -q "<svg" "$icon_file"
+
+          # Site-owned editorial images must be served by this Pages origin.
+          for asset in images/site/hero-480.webp images/site/hero-768.webp images/site/hero-1600.webp images/site/editorial-1200.webp; do
+            curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
+              "${base_url}${asset}" --output "$site_image_file"
+            node - "$site_image_file" "$asset" <<'NODE'
+          const fs = require("node:fs");
+          const [file, asset] = process.argv.slice(2);
+          const bytes = fs.readFileSync(file);
+          if (bytes.length < 512 || bytes.toString("ascii", 0, 4) !== "RIFF" ||
+              bytes.toString("ascii", 8, 12) !== "WEBP") {
+            throw new Error(`Published site image is not a valid WebP asset: ${asset}`);
+          }
+          NODE
+          done
 
           product_url="${base_url}product/${PRODUCT_ID}/"
           curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
