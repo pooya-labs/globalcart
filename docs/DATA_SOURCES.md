@@ -30,6 +30,15 @@
 - Community-contributed product facts may be incomplete or inaccurate.
 - Scope: food/grocery records, not general retail inventory. It does not provide authoritative live retailer prices, stock, cart or fulfillment.
 
+### Open Facts sibling candidates (not connected)
+
+The Product Opener project documents related databases with separate hosts:
+- Open Beauty Facts: https://world.openbeautyfacts.org — cosmetics/personal care.
+- Open Pet Food Facts: https://world.openpetfoodfacts.org — pet food.
+- Open Products Facts: https://world.openproductsfacts.org — other product types.
+
+The official guide describes these as experimental/specific APIs; some shared capabilities are not available consistently. They are not retailer feeds and do not establish live seller price, stock or fulfillment. Verify each dataset's current terms, image rights, quality, rate limits and actual endpoint behavior independently before integration. Do not assume broad fashion/home/toys coverage or transfer license conclusions across datasets without checking the relevant terms.
+
 Neither candidate is currently connected to the storefront. Do not replace DummyJSON until source rights, field mapping, freshness semantics, attribution and operational limits are verified. The migration decision and acceptance criteria live in [REAL_CATALOG_MIGRATION.md](REAL_CATALOG_MIGRATION.md).
 
 ## Amazon policy

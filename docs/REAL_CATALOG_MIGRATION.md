@@ -36,6 +36,17 @@ Licensing is unusually clear but has obligations: the database is ODbL, individu
 
 This can provide authentic food/grocery SKUs and real package photos, but it is not a general retailer inventory feed: it does not provide reliable live retailer price, stock, cart or fulfillment. It is a valid **food-only open-data source candidate** if GlobalCart can satisfy the licenses and show source attribution.
 
+### Open Facts sibling databases: beauty, pet food and other products
+
+The official Product Opener documentation identifies three sibling databases that use related API infrastructure:
+- [Open Beauty Facts](https://world.openbeautyfacts.org): cosmetics and personal-care products.
+- [Open Pet Food Facts](https://world.openpetfoodfacts.org): pet-food products.
+- [Open Products Facts](https://world.openproductsfacts.org): products outside the food, beauty and pet-food scopes.
+
+The official guide calls these APIs experimental/specific and notes that several shared features are not yet supported consistently (including Search-a-licious and Open Prices). They are category databases, not retailer storefront feeds. Their existence therefore improves the discovery map but does not establish broad fashion/home/toys coverage, current seller prices or stock, or unrestricted image reuse. Each dataset's current terms, image rights, completeness, endpoint behavior and rate limits must be checked before importing. Do not infer that every Open Food Facts license statement automatically resolves third-party rights for every sibling dataset.
+
+Open Pet Food Facts is described by the project support documentation as largely API-compatible with Open Food Facts, with some feature differences. Treat this as a separate pet-food candidate, not a general merchandise source.
+
 ### Category coverage is still incomplete
 
 A technology editorial feed and an open food database do not provide a balanced general merchandise catalog. No verified no-account source has yet been found that simultaneously provides broad retail categories, authentic product images, clear reuse rights, seller attribution, current prices and stock, and stable API access.
