@@ -14,6 +14,7 @@ test.beforeEach(async ({ page }) => {
   });
   await page.goto("./");
   await expect(page.locator(".product-card").first()).toBeVisible();
+  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
 });
 
 test("mobile hero stacks the copy and image and uses a responsive source", async ({ page }, testInfo) => {
@@ -98,8 +99,10 @@ test("homepage prioritizes its hero and defers non-critical images", async ({ pa
 
 test("product detail prioritizes the main image and defers gallery extras", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
+  const productLink = page.locator(".product-card h3 a").first();
+  const productTitle = await productLink.innerText();
+  await productLink.click();
+  await expect(page.locator(".detail-information h1")).toHaveText(productTitle);
 
   const mainImage = page.locator(".detail-main-image > img");
   await expect(mainImage).toHaveAttribute("loading", "eager");
