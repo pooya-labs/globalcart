@@ -14,6 +14,8 @@ on:
       - ".github/workflows/catalog-ci.yml"
   pull_request:
     paths:
+      - "public/images/site/**"
+      - "scripts/sync-site-imagery.mjs"
       - "lib/catalog/**"
       - "scripts/sync-catalog.ts"
       - "tests/**"
