@@ -58,7 +58,12 @@ jobs:
             imageProbe: imageResponse ? { status: imageResponse.status, contentType: imageResponse.headers.get("content-type"), url: imageUrl } : null,
             rawCategorySamples: payload.products.slice(0, 6).map(product => ({
               title: product.title,
-              keys: Object.keys(product),\n              categories: product.categories,\n              category: product.category,\n              category_name: product.category_name,\n              product_type: product.product_type,\n              tags: product.tags
+              keys: Object.keys(product),
+              categories: product.categories,
+              category: product.category,
+              category_name: product.category_name,
+              product_type: product.product_type,
+              tags: product.tags
             })),
             rawMediaSamples: payload.products.slice(0, 3).map(product => ({
               title: product.title,
