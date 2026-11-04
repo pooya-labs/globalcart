@@ -94,7 +94,7 @@ function plainText(value: ShopifyRawProduct["description"]): string {
 }
 
 const CATEGORY_RULES: Array<{ id: string; pattern: RegExp }> = [
-  { id: "smartphones", pattern: /\b(smartphone|mobile phone|iphone|pixel phone|galaxy [a-z0-9]+|android phone)\b/i },
+  { id: "smartphones", pattern: /\b(smartphone|mobile phone|iphone|pixel phone|galaxy (?:s|z|a|note|fold|flip)\s?\d+|android phone)\b/i },
   { id: "laptops", pattern: /\b(laptop|notebook|macbook|chromebook|thinkpad)\b/i },
   { id: "mobile-accessories", pattern: /\b(phone case|screen protector|power bank|wall charger|phone charger|wireless charger|usb[- ]c cable|charging cable|phone adapter)\b/i },
   { id: "mens-watches", pattern: /\b(watch|smartwatch|wristwatch|apple watch|galaxy watch)\b/i },
