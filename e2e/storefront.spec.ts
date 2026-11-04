@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import catalogSnapshot from "../data/catalog.json";
 import fxSnapshot from "../data/fx-rate.json";
 import { getFxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
 
@@ -87,6 +88,36 @@ test("shows only live catalog categories, filters products locally and gives pro
   await firstTile.click();
   await expect(page.locator(".filter-option.active[data-category]")).toHaveAttribute("data-category", categoryId!);
   await expect(page.locator(".product-card").first()).toBeVisible();
+});
+
+test("product cards open native GlobalCart detail pages and every alternate image can be browsed", async ({ page }) => {
+  const galleryProduct = catalogSnapshot.products.find(product =>
+    Array.isArray(product.images) && product.images.length > 0
+  );
+  test.skip(!galleryProduct, "The committed catalog snapshot does not contain a multi-image gallery yet.");
+
+  const productLink = page.locator(`a[href$="/product/${galleryProduct!.id}/"]`).first();
+  await expect(productLink).toBeVisible();
+  const cardImage = productLink.locator("img").first();
+  await expect(cardImage).toHaveAttribute("loading", "lazy");
+  await expect(cardImage).toHaveAttribute("fetchpriority", "low");
+  await productLink.click();
+
+  await expect(page.locator("main.product-page")).toBeVisible();
+  await expect(page.locator("main.product-page h1")).toHaveText(galleryProduct!.title);
+  const mainImage = page.locator(".detail-main-image img");
+  await expect(mainImage).toHaveAttribute("loading", "lazy");
+  await expect(page.locator(".detail-provenance")).toHaveCount(0);
+  await expect(page.locator('a[href*="amazon."]')).toHaveCount(0);
+
+  const galleryItems = page.locator(".detail-thumbnails button");
+  await expect(galleryItems).toHaveCount(galleryProduct!.images.length + 1);
+  const firstImage = await mainImage.getAttribute("src");
+  await page.locator(".gallery-arrow-next").click();
+  await expect(mainImage).not.toHaveAttribute("src", firstImage || "");
+  await expect(page.locator(".gallery-counter")).toContainText("2 /");
+  await galleryItems.first().click();
+  await expect(mainImage).toHaveAttribute("src", firstImage || "");
 });
 
 test("switches locale and opens a statically exported product detail page", async ({ page }) => {

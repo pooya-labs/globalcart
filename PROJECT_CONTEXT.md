@@ -4,8 +4,18 @@
 **Repository:** https://github.com/pooya-labs/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M09.5 — the editorial marketplace storefront redesign is merged to `main` (PR #2) and deployed to the canonical GitHub Pages preview. Shopify Global Catalog anonymous live discovery, category normalization and direct merchant-image rendering are integrated and smoke-verified. Automated code-side checks are green; the 1.0.0 release remains gated by owner visual approval, physical-device checks, actual screen-reader review, comprehensive human RTL/LTR review and normal-network/CDN/eligible field evidence. M06.1–M06.6 internal admin/seller services are CI-verified; public workspace UI/routes remain gated  
+**Active stage:** M09.5 — the editorial marketplace storefront redesign is deployed. The active storefront uses a committed, offline-first 1,000-product ABO subset with self-hosted high-resolution WebP galleries and statically generated GlobalCart product pages; Shopify runtime discovery is not wired into the storefront. Automated code-side checks and public page/image smoke tests are required for each catalog refresh. The 1.0.0 release remains gated by owner visual approval, physical-device checks, actual screen-reader review and comprehensive human RTL/LTR review. M06.1–M06.6 internal admin/seller services remain CI-verified; public workspace UI/routes remain gated  
 **Last updated:** 2026-11-04
+
+## Latest storefront/catalog checkpoint — 2026-11-04
+
+- Replaced the 256px preview-photo import with the official ABO original-image metadata index. Importing resolves each product's `main_image_id` plus every `other_image_id`, downloads the original photographs server-side and optimizes them to self-hosted WebP assets.
+- The catalog refresh keeps 1,000 product listings and stores each full gallery in `public/images/catalog/`; product `thumbnail` is the lead image and `images[]` contains all alternate views.
+- Product cards and titles navigate to their own static GlobalCart product-detail route. Detail pages support thumbnail selection, previous/next gallery controls and an image counter. No product link or seller CTA points out to Amazon or another upstream product page.
+- The Amazon product-link intake panel and its FAQ/service shortcut were removed. Legal dataset credit remains in the catalog attribution disclosure, not in customer-facing product actions.
+- Product cards, thumbnails and detail photos use fixed image geometry, native lazy loading and low fetch priority. The site shell and text are not held up by slow image downloads.
+- Source data does not provide prices, ratings or stock. These stay explicitly unlisted rather than being fabricated. The 1,000 product records and image galleries are generated from the CC BY 4.0 ABO dataset; see `data/CATALOG_SOURCE.md`.
+- Shopify Global Catalog integration remains historical infrastructure in `lib/catalog/shopify.ts` and its Worker smoke workflow; it is not the active storefront source.
 
 ## Latest catalog-source discovery checkpoint — 2026-11-04
 
@@ -14,7 +24,7 @@
 - No catalog adapter or storefront data changed. DummyJSON remains explicitly temporary sample data; do not relabel it as genuine retail inventory.
 - Next gate: inspect each sibling's current endpoint/data quality and terms/image rights; continue searching for approved broad-category feeds. Preserve the shared `CatalogSourceAdapter` architecture and do not scrape retailers.
 
-## Latest Shopify Global Catalog integration checkpoint — 2026-11-04
+## Historical Shopify Global Catalog integration checkpoint — 2026-11-04 (not wired into the current storefront)
 
 - Shopify Global Catalog MCP is connected through the deployed Cloudflare Worker: `https://globalcart-catalog.pooyagame141.workers.dev/api/catalog`.
 - Anonymous catalog search without an API key or Shopify account was verified. The Worker uses Shopify's published reference UCP profile for capability negotiation; this is only a protocol reference for this non-transactional demo, not a claim that GlobalCart supports Shopify checkout.
@@ -26,14 +36,14 @@
 - The homepage uses the live source. Legacy static product/history routes still reference the old snapshot and are documented as legacy; they are not used by the main catalog.
 
 ## Product definition
-GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
+GlobalCart is an independent marketplace portfolio simulation. Its information architecture follows familiar retail discovery patterns while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
 
 ## Non-negotiable invariants
 - Keep this repository independent from all other portfolio projects.
 - Never collect card numbers/bank credentials or call a real payment gateway.
 - Label sample data, illustrative currency and simulated outcomes honestly.
 - Do not scrape or bulk-copy Amazon. Live catalog integration requires authorized API/feed access and terms review.
-- Amazon product-link intake currently validates an Amazon hostname and 10-character ASIN, then stores a local demo request only. It does not fetch product data.
+- The current product catalog is locally embedded and offline-first. Do not reintroduce outbound upstream product links or Amazon product-link intake into the storefront without explicit owner approval.
 - Translation is paused; preserve original source text and do not add translation back to CI unless explicitly requested.
 - Never expose provider secrets in browser code or Git history.
 - Persian is default with true RTL; English must retain correct LTR.
@@ -42,7 +52,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - Never mark roadmap work complete before verification.
 
 ## Current implementation map
-- `app/page.tsx` — bilingual storefront, catalog search/filter/sort with dynamic brand and minimum-rating facets, browser-local saved searches, explicit snapshot/live/offline catalog states, explainable sample recommendation ranking/reason labels, accessible product/brand/category suggestions and Ctrl/⌘+K command palette, category mega-menu, Amazon URL request intake, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
+- `app/page.tsx` — bilingual storefront, catalog search/filter/sort with dynamic brand and minimum-rating facets, browser-local saved searches, explicit snapshot/live/offline catalog states, explainable sample recommendation ranking/reason labels, accessible product/brand/category suggestions and Ctrl/⌘+K command palette, category mega-menu, static product-detail navigation, local cart/favorites/compare, quick view and simulated checkout, service shortcuts and FAQ.
 - `app/product/[id]/page.tsx` — statically generated product routes from the current catalog snapshot.
 - `app/product/[id]/ProductDetailClient.tsx` — product gallery, illustrative price breakdown, product facts, browser-local visit tracking, local cart/favorite actions and related products.
 - `app/recently-viewed/page.tsx` — static-exportable history page reading and clearing browser-local recent product IDs.
@@ -1068,7 +1078,7 @@ https://github.com/pooya-labs/globalcart/actions/runs/41299677941
 
 
 
-## Latest continuation checkpoint — live Shopify catalog and TGJU snapshot publication (2026-11-04)
+## Latest continuation checkpoint — offline catalog and TGJU snapshot publication (2026-11-04)
 
 - Canonical repository/site: `pooya-labs/globalcart` / https://pooya-labs.github.io/globalcart/; continue on `main` only. The TGJU snapshot commit at this checkpoint is [c8f1d36](https://github.com/pooya-labs/globalcart/commit/c8f1d36982d323eddfa5c1171d0069f55dae4451).
 - Shopify Global Catalog anonymous search remains live through the Cloudflare catalog Worker. The current code normalizes missing category metadata from product text and uses merchant-provided Shopify CDN image URLs directly; it does not cache, proxy or re-host merchant images. Catalog smoke [41828494685](https://github.com/pooya-labs/globalcart/actions/runs/41828494685) and mainline post-merge CI [41781286568](https://github.com/pooya-labs/globalcart/actions/runs/41781286568), Catalog CI [41781286575](https://github.com/pooya-labs/globalcart/actions/runs/41781286575) and Security [41781286598](https://github.com/pooya-labs/globalcart/actions/runs/41781286598) passed.

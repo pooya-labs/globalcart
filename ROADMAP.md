@@ -21,6 +21,16 @@ These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile 
 
 **Runtime gate:** Local Go/PostgreSQL development and CI are implemented on `main`. Public API/database hosting, Python worker deployment, production secrets and paid services remain gated on explicit owner approval.
 
+## Latest catalog/storefront checkpoint — 2026-11-04
+
+- [x] Keep the catalog as a committed 1,000-product local snapshot, not a runtime seller API dependency.
+- [x] Replace 256px preview imagery with full-resolution ABO original photos, processed to optimized self-hosted WebP.
+- [x] Import the main image and all alternate `other_image_id` images for each selected product.
+- [x] Restore dedicated static GlobalCart product pages and native multi-image gallery controls; remove outward Amazon product links and the Amazon sourcing intake panel.
+- [x] Defer all product images below the shell with stable image boxes, lazy loading and low fetch priority.
+- [ ] Verify the original-photo importer produces 1,000 complete galleries and all public gallery assets pass deploy smoke.
+- [ ] Verify desktop/mobile product-detail gallery interaction in Browser E2E and owner visual review.
+
 ## Release and stage map
 
 | Stage | Target | Scope | Status |
@@ -64,7 +74,7 @@ These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile 
 - [x] Rebuild the storefront shell around category-first discovery, prominent search and shopping utilities.
 - [x] Add a responsive category mega-menu generated from the live catalog, with product counts and direct category filtering.
 - [x] Add data-driven homepage modules for top discounts, top-rated products and fresh discoveries.
-- [x] Add Amazon product-link intake with domain/ASIN validation and a local-only demo request queue.
+- [x] Provide static GlobalCart-owned product detail routes and a self-hosted catalog; the former Amazon product-link intake was removed from the customer storefront.
 - [x] Add marketplace service shortcuts and a transparent FAQ for sourcing, support and demo boundaries.
 - [x] Improve product cards, price hierarchy, ratings, availability labels and quick actions.
 - [x] Add dedicated static product detail routes for the imported catalog, image gallery, product information and related products.

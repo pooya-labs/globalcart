@@ -141,7 +141,18 @@ export function stableAboProductId(sourceId: string): number {
   return ((hash >>> 0) & 0x7fffffff) || 1;
 }
 
-export type AboMappedProduct = CatalogProduct & { imageUrl: string };
+export type AboMappedProduct = CatalogProduct & { imageUrl: string; imageIds: string[] };
+
+function normalizeImageIds(primary: unknown, additional: unknown): string[] {
+  const values = [
+    ...(typeof primary === "string" ? [primary] : Array.isArray(primary) ? primary : []),
+    ...(Array.isArray(additional) ? additional : typeof additional === "string" ? [additional] : [])
+  ];
+  return [...new Set(values
+    .filter((value): value is string => typeof value === "string")
+    .map(value => value.trim())
+    .filter(value => /^[A-Za-z0-9+/_-]{8,20}$/.test(value)))];
+}
 
 export function mapAboListing(value: unknown, importedAt = new Date().toISOString()): AboMappedProduct | null {
   if (!isRecord(value)) return null;
@@ -149,15 +160,20 @@ export function mapAboListing(value: unknown, importedAt = new Date().toISOStrin
   const sourceId = localizedText(value.item_id ?? value.asin ?? raw.item_id ?? raw.asin).toUpperCase();
   const title = localizedText(value.title ?? value.item_name ?? raw.item_name ?? raw.title);
   const imageUrl = safeAboImageUrl(value, raw);
+  const imageIds = normalizeImageIds(
+    value.main_image_id ?? raw.main_image_id,
+    value.other_image_id ?? raw.other_image_id
+  );
 
-  if (!/^[A-Z0-9]{10}$/.test(sourceId) || title.length < 3 || !imageUrl) return null;
+  if (!/^[A-Z0-9]{10}$/.test(sourceId) || title.length < 3 || (!imageUrl && imageIds.length === 0)) return null;
 
   const brand = localizedText(value.brand ?? raw.brand) || "Unbranded";
   const description = localizedText(value.product_description ?? value.description ?? raw.product_description ?? raw.description)
     || [value.bullet_point, raw.bullet_point].map(localizedText).filter(Boolean).join(" · ")
     || title;
-  const domain = localizedText(value.domain_name ?? raw.domain_name).toLowerCase();
-  const sourceUrl = "https://" + (/^amazon\.[a-z.]+$/.test(domain) ? domain : "amazon.com") + "/dp/" + sourceId;
+  // Product pages are intentionally presented as GlobalCart listings. Source
+  // attribution lives in the site-wide data credits, not as outbound product links.
+  const sourceUrl = "";
 
   return {
     id: stableAboProductId(sourceId),
@@ -178,6 +194,7 @@ export function mapAboListing(value: unknown, importedAt = new Date().toISOStrin
     priceAvailable: false,
     ratingAvailable: false,
     stockAvailable: false,
-    imageUrl
+    imageUrl,
+    imageIds
   };
 }

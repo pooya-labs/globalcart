@@ -21,6 +21,7 @@ jobs:
     outputs:
       smoke_product_id: ${{ steps.smoke_product.outputs.product_id }}
       smoke_image_path: ${{ steps.smoke_product.outputs.image_path }}
+      smoke_gallery_image_path: ${{ steps.smoke_product.outputs.gallery_image_path }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -35,6 +36,8 @@ jobs:
             npm install --no-audit --no-fund
             echo "bootstrapped=true" >> "$GITHUB_OUTPUT"
           fi
+      - name: Install pinned server-side image optimizer
+        run: npm install --no-save --package-lock=false --no-audit --no-fund sharp@0.35.5
       - name: Refresh static catalog snapshot
         run: npm run catalog:sync
       - name: Prepare optimized self-hosted site imagery
@@ -51,18 +54,31 @@ jobs:
           const categoryCount = new Set(products.map(item => item.category).filter(Boolean)).size;
           if (localImages.length !== products.length) throw new Error(`Expected a local image for every product; found ${localImages.length}/${products.length}.`);
           if (categoryCount < 8) throw new Error(`Catalog is not category-diverse enough: only ${categoryCount} categories.`);
+          let totalImages = 0;
           for (const product of products) {
-            const relative = product.thumbnail.startsWith("/") ? product.thumbnail.slice(1) : product.thumbnail;
-            const file = require("node:path").join(process.cwd(), "public", relative);
-            if (!fs.existsSync(file) || fs.statSync(file).size < 512) {
-              throw new Error(`Missing or invalid local product image for ${product.sourceId}: ${product.thumbnail}`);
+            const images = [product.thumbnail, ...(Array.isArray(product.images) ? product.images : [])];
+            if (!images.length) throw new Error(`Product has no gallery images: ${product.sourceId}`);
+            for (const image of images) {
+              if (typeof image !== "string" || !image.startsWith("/images/catalog/")) {
+                throw new Error(`Product image is not a self-hosted catalog asset: ${product.sourceId} / ${image}`);
+              }
+              const relative = image.startsWith("/") ? image.slice(1) : image;
+              const file = require("node:path").join(process.cwd(), "public", relative);
+              if (!fs.existsSync(file) || fs.statSync(file).size < 1000) {
+                throw new Error(`Missing or invalid local product image for ${product.sourceId}: ${image}`);
+              }
+              if (!image.endsWith(".webp")) throw new Error(`Catalog image was not optimized to WebP: ${image}`);
+              totalImages += 1;
             }
             if (product.priceAvailable !== false || product.ratingAvailable !== false || product.stockAvailable !== false) {
               throw new Error(`Unavailable commercial fields must remain explicitly marked as unavailable: ${product.sourceId}`);
             }
           }
-          const product = products[0];
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `product_id=${product.id}\nimage_path=${product.thumbnail}\n`);
+          const product = products.find(item => Array.isArray(item.images) && item.images.length > 0);
+          if (!product) throw new Error("No multi-image product gallery was imported.");
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,
+            `product_id=${product.id}\nimage_path=${product.thumbnail}\ngallery_image_path=${product.images[0]}\n`);
+          console.log(`Validated ${products.length} product listings and ${totalImages} local gallery images.`);
           NODE
       - name: Persist refreshed catalog snapshot, site imagery and npm lockfile safely
         shell: bash
@@ -146,6 +162,7 @@ jobs:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
           PRODUCT_ID: ${{ needs.build.outputs.smoke_product_id }}
           PRODUCT_IMAGE_PATH: ${{ needs.build.outputs.smoke_image_path }}
+          GALLERY_IMAGE_PATH: ${{ needs.build.outputs.smoke_gallery_image_path }}
         run: |
           set -euo pipefail
           base_url="${PAGE_URL%/}/"
@@ -154,7 +171,8 @@ jobs:
           case_study_html="$(mktemp)"
           icon_file="$(mktemp)"
           site_image_file="$(mktemp)"
-          trap 'rm -f "$home_html" "$product_html" "$case_study_html" "$icon_file" "$site_image_file"' EXIT
+          gallery_image_file="$(mktemp)"
+          trap 'rm -f "$home_html" "$product_html" "$case_study_html" "$icon_file" "$site_image_file" "$gallery_image_file"' EXIT
 
           case "$base_url" in
             https://*) ;;
@@ -236,6 +254,19 @@ jobs:
           if (!valid || bytes.length < 512) throw new Error(`Published local catalog image is invalid: ${asset}`);
           NODE
 
+          gallery_image_url="${base_url}${GALLERY_IMAGE_PATH#/}"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
+            "$gallery_image_url" --output "$gallery_image_file"
+          node - "$gallery_image_file" "$GALLERY_IMAGE_PATH" <<'NODE'
+          const fs = require("node:fs");
+          const [file, asset] = process.argv.slice(2);
+          const bytes = fs.readFileSync(file);
+          if (!asset.endsWith(".webp") || bytes.length < 1000 ||
+              bytes.toString("ascii", 0, 4) !== "RIFF" || bytes.toString("ascii", 8, 12) !== "WEBP") {
+            throw new Error(`Published additional product image is invalid: ${asset}`);
+          }
+          NODE
+
           product_url="${base_url}product/${PRODUCT_ID}/"
           curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
             "$product_url" --output "$product_html"
@@ -246,6 +277,10 @@ jobs:
           const productID = process.argv[3];
           if (!/<h1\b[^>]*>/.test(html) || !html.includes(productID) || /<title>404[ -]/i.test(html)) {
             throw new Error(`Published product deep link is not the expected product page: ${productID}`);
+          }
+          if (!html.includes("gallery-arrow-next") || !html.includes("gallery-counter") ||
+              /href=["']https?:\/\/(?:www\.)?amazon\./i.test(html)) {
+            throw new Error("Published product detail page is missing its native image gallery or contains an outbound Amazon product link.");
           }
           NODE
 

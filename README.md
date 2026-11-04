@@ -29,11 +29,13 @@ Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
 - Responsive marketplace storefront with Persian RTL and English LTR, category-first navigation and refreshed retail design system.
 - Catalog-driven category mega-menu and quick-category navigation with counts derived from the embedded 1,000-item catalog.
-- Product detail pages are statically generated for the local 1,000-item Amazon Berkeley Objects subset; each selected main image is self-hosted under `public/images/catalog/`.
+- Product detail pages are statically generated for the 1,000-item local catalog and styled as native GlobalCart listings; product cards and titles open the in-store detail page, with no outbound marketplace/product links.
+- Multi-image product galleries retain the main image and every alternate image supplied by the catalog record, with thumbnail selection and previous/next controls.
+- Original catalog photography is downloaded server-side, optimized to responsive WebP assets and self-hosted under `public/images/catalog/`; the browser never calls the upstream image host.
 - Persistent side-by-side comparison for up to four products.
-- Amazon product-link intake demo with domain and ASIN validation; requests are stored locally and do not fetch live Amazon data.
 - Marketplace service shortcuts and a transparent FAQ covering product sourcing, demo limits and support.
-- Offline-first product catalog: a balanced 1,000-item subset of the Amazon Berkeley Objects dataset is stored in the repository with locally hosted 256px-class product images. Search, category filters, product cards and static detail routes work without a runtime Shopify or catalog-provider request.
+- Offline-first product catalog: a balanced 1,000-item subset of the Amazon Berkeley Objects dataset is committed to the repository with locally hosted, high-resolution WebP image galleries. Search, category filters, product cards and static detail routes work without a runtime Shopify or catalog-provider request.
+- Storefront shell, typography, category navigation and product-card geometry render independently of image downloads; product imagery uses reserved aspect-ratio boxes, lazy loading and low fetch priority so slow photos do not block the page.
 - The ABO source provides product metadata and images but not sale prices, ratings or stock for the selected listing fields; GlobalCart marks those values unavailable instead of displaying fabricated zeroes. Dataset attribution and CC BY 4.0 details are documented in [data/CATALOG_SOURCE.md](data/CATALOG_SOURCE.md).
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
@@ -49,7 +51,7 @@ Implemented:
 
 Boundaries and remaining work:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
-- Live Amazon product retrieval still requires an authorized provider integration. Shopify Global Catalog is connected for cross-merchant discovery; anonymous access is rate-limited and results are runtime-only. Additional supplier feeds need separate source and terms review. Automated TGJU page retrieval remains subject to the source site's terms and availability.
+- The storefront does not link customers out to upstream product pages and does not treat the licensed reference catalog as live retailer inventory. Sale prices, ratings and stock are not provided by the selected source fields and are explicitly labelled as unlisted. A future real-seller feed requires a separate authorized integration and terms review. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
 - Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key dialogs. Browser E2E [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312) passed **99 tests** with **4 intentional skips** across Chromium desktop/mobile, iPad 7th-gen tablet, Firefox and WebKit. Tablet portrait/landscape checks (810×1080 and 1080×810) verify storefront/product/case study have no horizontal overflow; compact-phone checks (320 px and 360 px) cover the same routes. The WebKit dual-locale axe test now passes within its 60 s allowance without a retry.
 - Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
@@ -58,16 +60,15 @@ Boundaries and remaining work:
 
 | Area | Current behavior |
 |---|---|
-| Product catalog | A committed local snapshot with exactly 1,000 real product listings selected from the ABO dataset; search and category filtering run entirely in the browser. |
-| Images | Product images are stored and served from the repository under `public/images/catalog/`; the hero/editorial images are also self-hosted. |
-| Pricing / availability | The ABO listings used here do not provide sale prices, ratings or stock values. These are clearly labelled as not provided; no fake prices or stock claims are generated. |
-| Translation | Paused; source text is preserved |
+| Product catalog | A committed local snapshot with 1,000 real listings selected from the ABO dataset; category and search filters run locally. |
+| Product pages | Every product has its own static GlobalCart detail route. Alternate photos are available in a thumbnail/arrow gallery; no outbound product link is presented. |
+| Images | Original source imagery is normalized to responsive WebP and stored under `public/images/catalog/`; card, thumbnail and detail images load lazily after the layout is painted. |
+| Pricing / availability | The selected ABO fields do not provide sale prices, ratings or stock values. GlobalCart labels them as unlisted; no fabricated values are shown. |
+| Translation | Paused; original source text is preserved |
 | Currency | TGJU free-market USD page, Rial converted to Toman; indicative, not an executable quote |
-| Cart / favorites | Local browser state; live product records are not persisted. |
+| Cart / favorites | Local browser state; product records are not sent to a server. |
 | Checkout | Local simulation; never contacts a payment provider or merchant checkout. |
-| Inventory / shipping | Seller availability may be displayed; GlobalCart does not reserve stock, ship or fulfill goods. |
-| Amazon links | Domain/ASIN validation and local demo request storage; no live product retrieval |
-| Amazon catalog | No scraping; future integration only through authorized access and current terms |
+| Inventory / shipping | Not represented as live inventory; GlobalCart does not reserve stock, ship or fulfill goods. |
 
 Amazon's public storefront must not be scraped or bulk-copied. Any future adapter requires verified program/API eligibility and compliance with current content, image, price-refresh, attribution and linking rules. Affiliate product discovery is not an unrestricted catalog feed.
 

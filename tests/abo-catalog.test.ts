@@ -11,7 +11,11 @@ test("maps an ABO record with its original product identity and official image U
     title: [{ language_tag: "de_DE", value: "Deutscher Titel" }, { language_tag: "en_US", value: "Stone & Beam Sofa" }],
     brand: [{ language_tag: "en_US", value: "Stone & Beam" }],
     product_type_readable: "Home Furniture",
-    main_image_url: image
+    main_image_url: image,
+    raw_listing_json: JSON.stringify({
+      main_image_id: "814aS-KaUBL",
+      other_image_id: ["A1t+GZJiPdL", "81E1mOtm97L", "A1zkaozUH2L", "A1TlgpYaSpL"]
+    })
   }, "2026-11-04T00:00:00.000Z");
 
   assert.ok(product);
@@ -21,7 +25,8 @@ test("maps an ABO record with its original product identity and official image U
   assert.equal(product.brand, "Stone & Beam");
   assert.equal(product.category, "furniture");
   assert.equal(product.thumbnail, image);
-  assert.equal(product.sourceUrl, "https://amazon.com/dp/B000000001");
+  assert.equal(product.sourceUrl, "");
+  assert.deepEqual(product.imageIds, ["814aS-KaUBL", "A1t+GZJiPdL", "81E1mOtm97L", "A1zkaozUH2L", "A1TlgpYaSpL"]);
   assert.equal(product.priceAvailable, false);
   assert.equal(product.ratingAvailable, false);
   assert.equal(product.stockAvailable, false);
@@ -71,4 +76,17 @@ test("falls back to an official image identifier when the dataset omits the imag
   });
   assert.ok(product);
   assert.equal(product.thumbnail, "https://amazon-berkeley-objects.s3.amazonaws.com/images/small/B000000005.jpg");
+});
+
+
+test("normalizes a main image plus every additional image id without duplicates", () => {
+  const product = mapAboListing({
+    item_id: "B000000006",
+    title: "Kitchen storage container",
+    main_image_id: "81DQRb7R5UL",
+    other_image_id: ["81R0jqjaExL", "81V0L1SUThL", "81R0jqjaExL"],
+    main_image_url: image
+  });
+  assert.ok(product);
+  assert.deepEqual(product.imageIds, ["81DQRb7R5UL", "81R0jqjaExL", "81V0L1SUThL"]);
 });

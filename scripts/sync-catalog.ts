@@ -1,10 +1,13 @@
+import { createRequire } from "node:module";
 import { mkdir, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { gunzipSync } from "node:zlib";
 import { join } from "node:path";
 import { ABO_SOURCE, mapAboListing, type AboMappedProduct } from "../lib/catalog/abo";
 import { assertCatalogSnapshot, readCatalogSnapshot, writeCatalogSnapshotAtomically, type CatalogSnapshot } from "../lib/catalog/snapshot";
 
 const DATASET = "hyper3labs/amazon-berkeley-objects";
 const ROWS_ENDPOINT = "https://datasets-server.huggingface.co/rows";
+const IMAGE_METADATA_URL = "https://amazon-berkeley-objects.s3.amazonaws.com/images/metadata/images.csv.gz";
 const EXPECTED_ROW_COUNT = 147_702;
 const TARGET_PRODUCTS = 1_000;
 const ROWS_PER_PAGE = 100;
@@ -13,36 +16,61 @@ const MAX_CANDIDATE_ROWS = SAMPLE_PAGE_COUNT * ROWS_PER_PAGE;
 const IMAGE_DIRECTORY = join(process.cwd(), "public", "images", "catalog");
 const OUTPUT_FILE = join(process.cwd(), "data", "catalog.json");
 const IMPORTED_AT = new Date().toISOString();
-const MAX_IMAGE_BYTES = 350 * 1024;
-const MAX_TOTAL_IMAGE_BYTES = 75 * 1024 * 1024;
-const CONCURRENCY = 8;
+const MAX_SOURCE_IMAGE_BYTES = 18 * 1024 * 1024;
+const MAX_OPTIMIZED_IMAGE_BYTES = 850 * 1024;
+const MAX_TOTAL_IMAGE_BYTES = 320 * 1024 * 1024;
+const CONCURRENCY = 6;
+const IMAGE_CONCURRENCY_PER_PRODUCT = 4;
 
 type DatasetRow = { row?: unknown; [key: string]: unknown };
 type RowsPayload = { rows?: DatasetRow[]; num_rows_total?: number; num_rows?: number; error?: string };
-type Candidate = { product: AboMappedProduct; imageUrl: string };
+type ImageMetadata = { path: string; width: number; height: number };
+type Candidate = { product: AboMappedProduct };
+type GalleryAsset = { path: string; bytes: number };
+type SharpPipeline = {
+  rotate(): SharpPipeline;
+  resize(options: { width: number; height: number; fit: "inside"; withoutEnlargement: boolean }): SharpPipeline;
+  webp(options: { quality: number; effort: number; smartSubsample?: boolean }): SharpPipeline;
+  toBuffer(): Promise<Buffer>;
+};
+type SharpFactory = (input: Buffer) => SharpPipeline;
+
+// The deployment workflow installs this pinned, server-only optimizer before import.
+// It is not bundled into the storefront or downloaded by visitors.
+const sharp = createRequire(join(process.cwd(), "package.json"))("sharp") as SharpFactory;
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function fetchJson(url: string, label: string): Promise<RowsPayload> {
+async function fetchBytes(url: string, label: string, timeoutMs = 35_000): Promise<{ bytes: Buffer; contentType: string }> {
   let lastError: unknown;
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
       const response = await fetch(url, {
-        headers: { "user-agent": "GlobalCart catalog importer/1.0 (CC BY 4.0 dataset attribution)" },
-        signal: AbortSignal.timeout(35_000)
+        headers: { "user-agent": "GlobalCart catalog importer/1.0 (ABO CC BY 4.0 attribution)" },
+        signal: AbortSignal.timeout(timeoutMs)
       });
       if (!response.ok) throw new Error(label + " returned HTTP " + response.status);
-      const payload = await response.json() as RowsPayload;
-      if (!Array.isArray(payload.rows)) throw new Error(label + " did not return a rows array: " + (payload.error || "unknown response"));
-      return payload;
+      return {
+        bytes: Buffer.from(await response.arrayBuffer()),
+        contentType: response.headers.get("content-type") || ""
+      };
     } catch (error) {
       lastError = error;
-      if (attempt < 4) await sleep(800 * (attempt + 1) ** 2);
+      if (attempt < 4) await sleep(700 * (attempt + 1) ** 2);
     }
   }
   throw lastError instanceof Error ? lastError : new Error(label + " failed");
+}
+
+async function fetchJson(url: string, label: string): Promise<RowsPayload> {
+  const { bytes } = await fetchBytes(url, label);
+  const payload = JSON.parse(bytes.toString("utf8")) as RowsPayload;
+  if (!Array.isArray(payload.rows)) {
+    throw new Error(label + " did not return a rows array: " + (payload.error || "unknown response"));
+  }
+  return payload;
 }
 
 async function getRows(offset: number): Promise<{ rows: unknown[]; total: number }> {
@@ -62,6 +90,41 @@ async function getRows(offset: number): Promise<{ rows: unknown[]; total: number
       ? Number(payload.num_rows_total)
       : EXPECTED_ROW_COUNT
   };
+}
+
+async function loadImageMetadata(requiredIds: Set<string>): Promise<Map<string, ImageMetadata>> {
+  console.log("Downloading ABO original-image metadata:", requiredIds.size, "image IDs");
+  const { bytes } = await fetchBytes(IMAGE_METADATA_URL, "ABO original-image metadata", 90_000);
+  const csv = gunzipSync(bytes).toString("utf8");
+  const lines = csv.split(/\r?\n/);
+  const header = (lines[0] || "").split(",");
+  const idColumn = header.indexOf("image_id");
+  const widthColumn = header.indexOf("width");
+  const heightColumn = header.indexOf("height");
+  const pathColumn = header.indexOf("path");
+  if ([idColumn, widthColumn, heightColumn, pathColumn].some(index => index < 0)) {
+    throw new Error("ABO image metadata CSV has an unexpected header.");
+  }
+
+  const metadata = new Map<string, ImageMetadata>();
+  for (let index = 1; index < lines.length && metadata.size < requiredIds.size; index += 1) {
+    const fields = lines[index].split(",");
+    const id = fields[idColumn];
+    const path = fields[pathColumn];
+    if (!requiredIds.has(id) || !path || path.startsWith("/") || path.split("/").some(part => part === "..")) continue;
+    const width = Number(fields[widthColumn]);
+    const height = Number(fields[heightColumn]);
+    if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1) continue;
+    if (!/^[a-f0-9]{2}\/[a-f0-9]+\.(?:jpg|jpeg|png)$/i.test(path)) continue;
+    metadata.set(id, { path, width, height });
+  }
+
+  const missing = [...requiredIds].filter(id => !metadata.has(id));
+  if (missing.length > 0) {
+    throw new Error("ABO image metadata is missing " + missing.length + " required image IDs; examples: " + missing.slice(0, 8).join(", "));
+  }
+  console.log("Resolved original-image metadata:", metadata.size, "of", requiredIds.size);
+  return metadata;
 }
 
 async function mapWithConcurrency<T, R>(
@@ -87,7 +150,7 @@ function balancedCandidates(products: AboMappedProduct[]): Candidate[] {
   const buckets = new Map<string, Candidate[]>();
   for (const product of products) {
     const bucket = buckets.get(product.category) ?? [];
-    bucket.push({ product, imageUrl: product.imageUrl });
+    bucket.push({ product });
     buckets.set(product.category, bucket);
   }
   for (const bucket of buckets.values()) {
@@ -96,7 +159,7 @@ function balancedCandidates(products: AboMappedProduct[]): Candidate[] {
 
   const categories = [...buckets.keys()].sort((a, b) => a.localeCompare(b));
   const candidateQueue: Candidate[] = [];
-  const perCategoryCap = Math.max(100, Math.ceil(TARGET_PRODUCTS / Math.max(1, categories.length)) * 2);
+  const perCategoryCap = Math.max(120, Math.ceil(TARGET_PRODUCTS / Math.max(1, categories.length)) * 3);
   const cursors = new Map(categories.map(category => [category, 0]));
   let remaining = true;
   while (remaining && candidateQueue.length < MAX_CANDIDATE_ROWS) {
@@ -113,67 +176,97 @@ function balancedCandidates(products: AboMappedProduct[]): Candidate[] {
   return candidateQueue;
 }
 
-function extensionFor(contentType: string, bytes: Buffer): string | null {
-  const mime = contentType.split(";")[0].trim().toLowerCase();
-  if (mime === "image/jpeg" && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return ".jpg";
-  if (mime === "image/png" && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return ".png";
-  if (mime === "image/webp" && bytes.subarray(0, 4).toString("ascii") === "RIFF" && bytes.subarray(8, 12).toString("ascii") === "WEBP") return ".webp";
-  return null;
+function hasJpegOrPngSignature(bytes: Buffer): boolean {
+  return (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) ||
+    (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47);
 }
 
-async function existingImage(sourceId: string): Promise<string | null> {
-  const prefix = "abo-" + sourceId + ".";
-  let names: string[];
-  try {
-    names = await readdir(IMAGE_DIRECTORY);
-  } catch {
-    return null;
-  }
-  const name = names.find(item => item.startsWith(prefix) && /\.(?:jpg|png|webp)$/i.test(item));
-  if (!name) return null;
+async function existingGalleryImage(sourceId: string, ordinal: number): Promise<GalleryAsset | null> {
+  const name = "abo-" + sourceId + "-" + String(ordinal + 1).padStart(2, "0") + ".webp";
   const path = join(IMAGE_DIRECTORY, name);
   try {
     const metadata = await stat(path);
-    if (metadata.size > 512 && metadata.size <= MAX_IMAGE_BYTES) return "/images/catalog/" + name;
+    if (metadata.size > 1000 && metadata.size <= MAX_OPTIMIZED_IMAGE_BYTES) {
+      return { path: "/images/catalog/" + name, bytes: metadata.size };
+    }
   } catch {
     return null;
   }
   return null;
 }
 
-async function downloadImage(candidate: Candidate): Promise<{ path: string; bytes: number } | null> {
-  const cached = await existingImage(candidate.product.sourceId);
-  if (cached) {
-    const metadata = await stat(join(process.cwd(), "public", cached));
-    return { path: cached, bytes: metadata.size };
-  }
+async function downloadOriginalImage(
+  sourceId: string,
+  imageId: string,
+  metadata: ImageMetadata,
+  ordinal: number
+): Promise<GalleryAsset | null> {
+  const cached = await existingGalleryImage(sourceId, ordinal);
+  if (cached) return cached;
+
+  const originalUrl = "https://amazon-berkeley-objects.s3.amazonaws.com/images/original/" + metadata.path;
+  const extension = metadata.path.slice(metadata.path.lastIndexOf(".") + 1).toLowerCase();
+  const cdnUrl = "https://m.media-amazon.com/image/I/" + encodeURIComponent(imageId) + "." + extension;
+  const urls = [originalUrl, cdnUrl];
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    try {
-      const response = await fetch(candidate.imageUrl, {
-        headers: { "user-agent": "GlobalCart static catalog asset importer/1.0" },
-        signal: AbortSignal.timeout(25_000)
-      });
-      if (!response.ok) throw new Error("image HTTP " + response.status);
-      const bytes = Buffer.from(await response.arrayBuffer());
-      if (bytes.length < 512 || bytes.length > MAX_IMAGE_BYTES) throw new Error("image size outside accepted range");
-      const extension = extensionFor(response.headers.get("content-type") || "", bytes);
-      if (!extension) throw new Error("unrecognized or mismatched image format");
-      const name = "abo-" + candidate.product.sourceId + extension;
-      const finalPath = join(IMAGE_DIRECTORY, name);
-      const temporaryPath = finalPath + "." + process.pid + ".tmp";
-      await mkdir(IMAGE_DIRECTORY, { recursive: true });
-      await writeFile(temporaryPath, bytes, { flag: "wx" });
-      await rename(temporaryPath, finalPath).catch(async error => {
-        await rm(temporaryPath, { force: true });
-        throw error;
-      });
-      return { path: "/images/catalog/" + name, bytes: bytes.length };
-    } catch {
-      if (attempt < 2) await sleep(500 * (attempt + 1));
+    for (const url of urls) {
+      try {
+        const response = await fetch(url, {
+          headers: { "user-agent": "GlobalCart static image importer/1.0" },
+          signal: AbortSignal.timeout(30_000)
+        });
+        if (!response.ok) continue;
+        const input = Buffer.from(await response.arrayBuffer());
+        if (input.length < 512 || input.length > MAX_SOURCE_IMAGE_BYTES || !hasJpegOrPngSignature(input)) continue;
+
+        let output = await sharp(input)
+          .rotate()
+          .resize({ width: 1440, height: 1440, fit: "inside", withoutEnlargement: true })
+          .webp({ quality: 84, effort: 5, smartSubsample: true })
+          .toBuffer();
+
+        if (output.length > MAX_OPTIMIZED_IMAGE_BYTES) {
+          output = await sharp(input)
+            .rotate()
+            .resize({ width: 1280, height: 1280, fit: "inside", withoutEnlargement: true })
+            .webp({ quality: 78, effort: 5, smartSubsample: true })
+            .toBuffer();
+        }
+        if (output.length < 1000 || output.length > MAX_OPTIMIZED_IMAGE_BYTES) continue;
+
+        const name = "abo-" + sourceId + "-" + String(ordinal + 1).padStart(2, "0") + ".webp";
+        const finalPath = join(IMAGE_DIRECTORY, name);
+        const temporaryPath = finalPath + "." + process.pid + ".tmp";
+        await mkdir(IMAGE_DIRECTORY, { recursive: true });
+        await writeFile(temporaryPath, output, { flag: "wx" });
+        await rename(temporaryPath, finalPath).catch(async error => {
+          await rm(temporaryPath, { force: true });
+          throw error;
+        });
+        return { path: "/images/catalog/" + name, bytes: output.length };
+      } catch {
+        // Retry the official S3 original first and the documented Amazon image CDN second.
+      }
     }
+    if (attempt < 2) await sleep(500 * (attempt + 1));
   }
   return null;
+}
+
+async function downloadGallery(
+  candidate: Candidate,
+  metadata: Map<string, ImageMetadata>
+): Promise<GalleryAsset[] | null> {
+  const ids = candidate.product.imageIds;
+  if (ids.length === 0) return null;
+  const assets = await mapWithConcurrency(ids, IMAGE_CONCURRENCY_PER_PRODUCT, async (imageId, index) => {
+    const imageMetadata = metadata.get(imageId);
+    if (!imageMetadata) return null;
+    return await downloadOriginalImage(candidate.product.sourceId, imageId, imageMetadata, index);
+  });
+  if (assets.some(asset => asset === null)) return null;
+  return assets as GalleryAsset[];
 }
 
 async function main(): Promise<void> {
@@ -192,27 +285,33 @@ async function main(): Promise<void> {
     const mappedById = new Map<string, AboMappedProduct>();
     for (const row of rows) {
       const product = mapAboListing(row, IMPORTED_AT);
-      if (product && !mappedById.has(product.sourceId)) mappedById.set(product.sourceId, product);
+      if (product && product.imageIds.length > 0 && !mappedById.has(product.sourceId)) {
+        mappedById.set(product.sourceId, product);
+      }
     }
     const candidates = balancedCandidates([...mappedById.values()]);
-    console.log("ABO sampling:", JSON.stringify({
+    const requiredImageIds = new Set(candidates.flatMap(candidate => candidate.product.imageIds));
+    console.log("ABO candidate set:", JSON.stringify({
       dataset: DATASET,
       totalRows: total,
       pages: offsets.length,
       rowsRead: rows.length,
-      uniqueMappableProducts: mappedById.size,
+      uniqueImageBearingProducts: mappedById.size,
       candidateQueue: candidates.length,
+      requiredImageIds: requiredImageIds.size,
       categories: [...new Set([...mappedById.values()].map(item => item.category))].length
     }));
 
     if (candidates.length < TARGET_PRODUCTS) {
-      throw new Error("ABO sample produced only " + candidates.length + " image-bearing candidate rows; cannot safely publish 1,000 products.");
+      throw new Error("ABO sample produced only " + candidates.length + " multi-image candidate products; cannot publish 1,000 products.");
     }
-
+    const imageMetadata = await loadImageMetadata(requiredImageIds);
     await mkdir(IMAGE_DIRECTORY, { recursive: true });
-    const downloaded = new Map<string, { path: string; bytes: number }>();
+
+    const downloaded = new Map<string, GalleryAsset[]>();
     let nextCandidate = 0;
     let totalImageBytes = 0;
+    let totalImageCount = 0;
     let exhausted = false;
     const worker = async () => {
       while (!exhausted && downloaded.size < TARGET_PRODUCTS) {
@@ -220,32 +319,40 @@ async function main(): Promise<void> {
         nextCandidate += 1;
         if (index >= candidates.length) return;
         const candidate = candidates[index];
-        const image = await downloadImage(candidate);
-        if (!image) continue;
+        const gallery = await downloadGallery(candidate, imageMetadata);
+        if (!gallery) continue;
+        const galleryBytes = gallery.reduce((sum, asset) => sum + asset.bytes, 0);
         if (downloaded.size < TARGET_PRODUCTS) {
-          if (totalImageBytes + image.bytes > MAX_TOTAL_IMAGE_BYTES) {
+          if (totalImageBytes + galleryBytes > MAX_TOTAL_IMAGE_BYTES) {
             exhausted = true;
-            throw new Error("Local product imagery exceeded the 75 MiB safety budget before reaching 1,000 products.");
+            throw new Error("The 320 MiB optimized-image budget was reached before 1,000 complete product galleries could be stored.");
           }
-          totalImageBytes += image.bytes;
-          downloaded.set(candidate.product.sourceId, image);
-        }
-        if (downloaded.size > 0 && downloaded.size % 100 === 0) {
-          console.log("Downloaded verified ABO images:", downloaded.size, "/", TARGET_PRODUCTS);
+          totalImageBytes += galleryBytes;
+          totalImageCount += gallery.length;
+          downloaded.set(candidate.product.sourceId, gallery);
+          if (downloaded.size % 50 === 0) {
+            console.log("Imported complete product galleries:", downloaded.size, "/", TARGET_PRODUCTS,
+              "· optimized images:", totalImageCount,
+              "· image payload MiB:", Number((totalImageBytes / 1024 / 1024).toFixed(1)));
+          }
         }
       }
     };
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
     if (downloaded.size !== TARGET_PRODUCTS) {
-      throw new Error("Only " + downloaded.size + " valid local product images were downloaded; the 1,000-product publication threshold was not met.");
+      throw new Error("Only " + downloaded.size + " complete product galleries were downloaded; 1,000 products are required.");
     }
 
     const selectedProducts: AboMappedProduct[] = [];
     for (const candidate of candidates) {
-      const asset = downloaded.get(candidate.product.sourceId);
-      if (!asset) continue;
-      selectedProducts.push({ ...candidate.product, thumbnail: asset.path, images: [asset.path] });
+      const gallery = downloaded.get(candidate.product.sourceId);
+      if (!gallery) continue;
+      selectedProducts.push({
+        ...candidate.product,
+        thumbnail: gallery[0].path,
+        images: gallery.slice(1).map(asset => asset.path)
+      });
       if (selectedProducts.length === TARGET_PRODUCTS) break;
     }
 
@@ -254,7 +361,7 @@ async function main(): Promise<void> {
       let id = product.id;
       while (usedIds.has(id)) id = id >= 2_147_483_646 ? 1 : id + 1;
       usedIds.add(id);
-      const { imageUrl: _imageUrl, ...catalogProduct } = product;
+      const { imageUrl: _imageUrl, imageIds: _imageIds, ...catalogProduct } = product;
       return catalogProduct;
     });
 
@@ -268,9 +375,10 @@ async function main(): Promise<void> {
     assertCatalogSnapshot(snapshot, OUTPUT_FILE);
     await writeCatalogSnapshotAtomically(snapshot, OUTPUT_FILE);
 
-    const referencedImages = new Set(products.map(product => product.thumbnail.replace(/^\/images\/catalog\//, "")));
+    const referencedImages = new Set(products.flatMap(product => [product.thumbnail, ...product.images])
+      .map(path => path.replace(/^\/images\/catalog\//, "")));
     for (const name of await readdir(IMAGE_DIRECTORY)) {
-      if (/^abo-[A-Z0-9]{10}\.(?:jpg|png|webp)$/i.test(name) && !referencedImages.has(name)) {
+      if (/^abo-[A-Z0-9]{10}(?:-\d{2})?\.(?:jpg|png|webp)$/i.test(name) && !referencedImages.has(name)) {
         await rm(join(IMAGE_DIRECTORY, name), { force: true });
       }
     }
@@ -279,23 +387,25 @@ async function main(): Promise<void> {
       counts[product.category] = (counts[product.category] || 0) + 1;
       return counts;
     }, {})).sort((left, right) => right[1] - left[1]);
-    console.log("ABO catalog snapshot published:", JSON.stringify({
+    const productsWithMultipleImages = products.filter(product => product.images.length > 0).length;
+    console.log("ABO high-resolution catalog published:", JSON.stringify({
       products: products.length,
-      verifiedLocalImages: downloaded.size,
-      localImageMegabytes: Number((totalImageBytes / 1024 / 1024).toFixed(2)),
+      productsWithMultipleImages,
+      optimizedImageFiles: totalImageCount,
+      optimizedImageMegabytes: Number((totalImageBytes / 1024 / 1024).toFixed(2)),
+      averageImagesPerProduct: Number((totalImageCount / products.length).toFixed(2)),
       categories,
       generatedAt: IMPORTED_AT
     }));
   } catch (error) {
     if (previous?.source === ABO_SOURCE && previous.products.length >= 900) {
-      console.warn("ABO refresh failed; keeping the previous complete ABO snapshot:", error);
-      return;
+      console.error("ABO high-resolution refresh failed; the last-known-good snapshot remains on disk:", error);
     }
     throw error;
   }
 }
 
 main().catch(error => {
-  console.error("ABO catalog import failed:", error);
+  console.error("ABO high-resolution catalog import failed:", error);
   process.exitCode = 1;
 });
