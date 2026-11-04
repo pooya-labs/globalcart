@@ -179,7 +179,7 @@ export default function ProductDetailClient({product,related}:Props) {
             {fxStatus!=="fresh"&&<small className="fx-warning">{rtl?"هشدار تازگی نرخ: "+fxStatusLabel:"FX freshness warning: "+fxStatusLabel}</small>}
           </>:<small>{rtl?"نرخ معتبر دلار TGJU فعلاً در دسترس نیست؛ مبلغ اصلی به دلار نمایش داده می‌شود.":"A valid TGJU dollar quote is currently unavailable, so the source USD price is shown."}</small>}
           <small>{rtl?"قیمت‌ها نمایشی‌اند و شامل هزینه ارسال، مالیات، کارمزد پرداخت یا تعهد خرید نیستند.":"Demo prices only; no shipping, tax, payment fees or purchase commitment are included."}</small>
-        </details></>
+        </details></>}
         <div className="buybox-stock"><span/> {product.stockAvailable===false?(rtl?"وضعیت موجودی در منبع ثبت نشده":"Stock status not provided by source"):(rtl?"موجود در کاتالوگ نمونه":"Listed in sample catalog")}</div>
         <div className="buybox-quantity"><span>{rtl?"تعداد":"Quantity"}</span><div><button onClick={()=>setQuantity(q=>Math.max(1,q-1))} aria-label={rtl?"کاهش تعداد":"Decrease quantity"}><Minus size={15}/></button><b>{quantity}</b><button onClick={()=>setQuantity(q=>Math.min(10,q+1))} aria-label={rtl?"افزایش تعداد":"Increase quantity"}><Plus size={15}/></button></div></div>
         <button className="buybox-add" onClick={addToCart}><ShoppingBag size={17}/>{rtl?"افزودن به سبد خرید":"Add to bag"}</button>
