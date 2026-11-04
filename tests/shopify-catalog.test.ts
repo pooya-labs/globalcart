@@ -30,9 +30,7 @@ test("maps a real merchant listing with live price, image and seller attribution
   assert.equal(product.sellerName, "Example Running");
   assert.equal(product.sellerUrl, "https://example-running.myshopify.com/");
   assert.equal(product.sourceUrl, "https://example-running.myshopify.com/products/trail-runner-pro");
-  assert.equal(new URL(product.thumbnail).origin, "https://globalcart-catalog.pooyagame141.workers.dev");
-  assert.equal(new URL(product.thumbnail).pathname, "/image");
-  assert.equal(new URL(product.thumbnail).searchParams.get("url"), "https://cdn.shopify.com/products/trail-runner-pro.jpg");
+  assert.equal(product.thumbnail, "https://cdn.shopify.com/products/trail-runner-pro.jpg");
   assert.equal(product.isLive, true);
   assert.equal(product.discountPercentage, 0);
   assert.match(product.description, /Lightweight trail running shoe/);
@@ -96,7 +94,7 @@ test("classifies live listings when Shopify omits category fields", () => {
   assert.equal(fallback.category, "other-products");
 });
 
-test("routes Shopify CDN images through the catalog Worker", () => {
+test("renders Shopify CDN images directly without re-hosting", () => {
   const product = mapShopifyCatalogProduct(sample);
   assert.ok(product);
   const image = new URL(product.thumbnail);
@@ -111,5 +109,5 @@ test("uses an image preview URL when a media record omits its direct URL", () =>
     media: [{ type: "image", preview: { url: "https://cdn.shopify.com/products/preview.jpg" } }]
   });
   assert.ok(product);
-  assert.equal(new URL(product.thumbnail).searchParams.get("url"), "https://cdn.shopify.com/products/preview.jpg");
+  assert.equal(product.thumbnail, "https://cdn.shopify.com/products/preview.jpg");
 });
