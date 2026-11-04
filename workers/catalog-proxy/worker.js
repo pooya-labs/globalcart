@@ -36,49 +36,6 @@ export default {
     const headers = corsHeaders(origin);
     const url = new URL(request.url);
 
-    if (url.pathname === "/image" && (request.method === "GET" || request.method === "HEAD")) {
-      const rawImageUrl = url.searchParams.get("url") || "";
-      if (!rawImageUrl || rawImageUrl.length > 2048) {
-        return json({ error: "Invalid image URL" }, 400, headers);
-      }
-
-      let imageUrl;
-      try {
-        imageUrl = new URL(rawImageUrl);
-      } catch {
-        return json({ error: "Invalid image URL" }, 400, headers);
-      }
-      if (imageUrl.protocol !== "https:" || imageUrl.hostname !== "cdn.shopify.com" || imageUrl.username || imageUrl.password) {
-        return json({ error: "Image host is not allowed" }, 403, headers);
-      }
-
-      try {
-        const upstream = await fetch(imageUrl.toString(), {
-          method: request.method,
-          headers: { Accept: "image/avif,image/webp,image/*,*/*" },
-          redirect: "follow",
-          cf: { cacheTtl: 86400, cacheEverything: true }
-        });
-        if (!upstream.ok) return json({ error: "Product image is temporarily unavailable" }, 502, headers);
-        const finalUrl = upstream.url ? new URL(upstream.url) : imageUrl;
-        const contentType = upstream.headers.get("Content-Type") || "";
-        if (finalUrl.hostname !== "cdn.shopify.com" || !contentType.toLowerCase().startsWith("image/")) {
-          return json({ error: "Upstream did not return an allowed image" }, 502, headers);
-        }
-        return new Response(request.method === "HEAD" ? null : upstream.body, {
-          status: 200,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": contentType,
-            "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400",
-            "X-Content-Type-Options": "nosniff"
-          }
-        });
-      } catch {
-        return json({ error: "Product image fetch failed" }, 502, headers);
-      }
-    }
-
     if (url.pathname === "/health" && request.method === "GET") {
       return json({
         ok: true,
