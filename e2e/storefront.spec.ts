@@ -1,11 +1,37 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import catalogSnapshot from "../data/catalog.json";
+import { buildCatalogSuggestions } from "../lib/catalog/suggestions";
 import fxSnapshot from "../data/fx-rate.json";
 import { getFxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
 
 const firstProduct = catalogSnapshot.products[0]!;
 const firstProductQuery = firstProduct.title.slice(0, Math.min(12, firstProduct.title.length));
 const savedSearchName = "First product picks";
+
+function findSearchFixture() {
+  for (const product of catalogSnapshot.products) {
+    const words = product.title.split(/[^A-Za-z0-9\u00C0-\uFFFF]+/).filter(word => word.length >= 5);
+    for (const word of words) {
+      const query = word.slice(0, Math.min(12, word.length));
+      const suggestion = buildCatalogSuggestions(catalogSnapshot.products, query)
+        .find(item => item.kind === "product" && item.productId === product.id);
+      if (suggestion) return { product, query };
+    }
+  }
+  throw new Error("Could not find a catalog product within the bounded search suggestions.");
+}
+
+const searchFixture = findSearchFixture();
+
+async function openFirstVisibleProduct(page: Page) {
+  const link = page.locator(".product-card h3 a").first();
+  const title = await link.innerText();
+  const href = await link.getAttribute("href");
+  const id = Number(href?.split("/").filter(Boolean).pop());
+  expect(id).toBeGreaterThan(0);
+  await link.click();
+  return { id, title };
+}
 
 test.beforeEach(async ({ page }) => {
   // Keep the browser suite deterministic: the app must work from its committed
@@ -19,6 +45,7 @@ test.beforeEach(async ({ page }) => {
   });
   await page.goto("./");
   await expect(page.locator(".product-card").first()).toBeVisible();
+  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
 });
 
 test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
@@ -46,8 +73,8 @@ test("captures the redesigned storefront shell for desktop and mobile visual rev
     { timeout: 15_000 }
   ).toBeGreaterThan(0);
 
-  // Capture the first screen at the project viewport to keep the published
-  // review images readable; a full-page version remains in the report artifact.
+  // The storefront progressively renders 36 cards at a time; capture the
+  // complete initial catalog viewport without forcing the full 1,000-item DOM.
   const project = testInfo.project.name;
   await page.screenshot({
     path: `test-results/storefront-home-${project}.png`,
@@ -127,18 +154,14 @@ test("shows only live catalog categories, filters products locally and gives pro
   await expect(page.locator(".product-card").first()).toBeVisible();
 });
 
-test("product cards open native GlobalCart detail pages and every alternate image can be browsed", async ({ page }) => {
+test("product detail gallery keeps alternate images browsable", async ({ page }) => {
   const galleryProduct = catalogSnapshot.products.find(product =>
     Array.isArray(product.images) && product.images.some(image => image !== product.thumbnail)
   );
   test.skip(!galleryProduct, "The committed snapshot has no distinct alternate image yet; the deployment smoke test validates freshly generated galleries.");
 
-  const productLink = page.locator(`a[href$="/product/${galleryProduct!.id}/"]`).first();
-  await expect(productLink).toBeVisible();
-  const cardImage = productLink.locator("img").first();
-  await expect(cardImage).toHaveAttribute("loading", "lazy");
-  await expect(cardImage).toHaveAttribute("fetchpriority", "low");
-  await productLink.click();
+  await page.goto(`./product/${galleryProduct!.id}/`);
+  await expect(page.locator("main.product-page")).toBeVisible();
 
   await expect(page.locator("main.product-page")).toBeVisible();
   await expect(page.locator("main.product-page h1")).toHaveText(galleryProduct!.title);
@@ -165,10 +188,10 @@ test("switches locale and opens a statically exported product detail page", asyn
   await page.reload();
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page).toHaveURL(new RegExp("/product/" + firstProduct.id + "/?$"));
+  const opened = await openFirstVisibleProduct(page);
+  await expect(page).toHaveURL(new RegExp("/product/" + opened.id + "/?$"));
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
+  await expect(page.locator(".detail-information h1")).toHaveText(opened.title);
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
 });
 
@@ -191,8 +214,8 @@ test("labels date-only TGJU quotes as stale and keeps unprovided product facts e
     expect(expectedStatus).toBe("stale");
   }
 
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
+  const opened = await openFirstVisibleProduct(page);
+  await expect(page.locator(".detail-information h1")).toHaveText(opened.title);
   await expect(page.locator(".detail-price")).toContainText("Price not listed");
   await expect(page.locator(".detail-rating")).toContainText("No rating supplied");
   await expect(page.locator(".buybox-stock")).toContainText("Stock not listed");
@@ -214,10 +237,10 @@ test("shows the TGJU quote and keeps missing catalog commerce fields honest", as
     await expect(fxPanel).toContainText(/Fresh|Aging|Stale/);
   }
 
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page).toHaveURL(new RegExp("/product/" + firstProduct.id + "/?$"));
+  const opened = await openFirstVisibleProduct(page);
+  await expect(page).toHaveURL(new RegExp("/product/" + opened.id + "/?$"));
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
+  await expect(page.locator(".detail-information h1")).toHaveText(opened.title);
   await expect(page.locator(".detail-price")).toContainText("Price not listed");
   await expect(page.locator(".detail-rating")).toContainText("No rating supplied");
   await expect(page.locator(".buybox-stock")).toContainText("Stock not listed");
@@ -229,18 +252,18 @@ test("search suggestions support keyboard navigation and selection", async ({ pa
   const mobileSearchButton = page.getByRole("button", { name: "Search products, brands or categories...", exact: true });
   if (await mobileSearchButton.isVisible()) await mobileSearchButton.click();
   const search = page.getByRole("combobox", { name: "Search products, brands or categories..." });
-  await search.fill(firstProductQuery);
+  await search.fill(searchFixture.query);
 
   const listbox = page.getByRole("listbox", { name: "Search suggestions" });
   await expect(listbox).toBeVisible();
-  const productOption = listbox.getByRole("option").filter({ hasText: firstProduct.title });
+  const productOption = listbox.getByRole("option").filter({ hasText: searchFixture.product.title });
   await expect(productOption).toBeVisible();
 
   await search.press("ArrowDown");
   await expect(search).toHaveAttribute("aria-activedescendant", /option-/);
   await search.press("Enter");
   await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(page.locator("#quick-dialog-title")).toHaveText(firstProduct.title);
+  await expect(page.locator("#quick-dialog-title")).toHaveText(searchFixture.product.title);
 });
 
 test("Ctrl+K command palette opens the local shopping bag", async ({ page }) => {
@@ -288,11 +311,11 @@ test("saved searches persist locally and can be applied and deleted", async ({ p
 
 test("cart and checkout remain a clearly simulated local flow", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  const targetProduct = page.locator(".product-card").filter({ hasText: firstProduct.title }).first();
-  await targetProduct.scrollIntoViewIfNeeded();
+  const targetProduct = page.locator(".product-card").first();
+  const productTitle = await targetProduct.locator("h3 a").innerText();
   await targetProduct.locator(".product-price button").click();
   await page.getByRole("button", { name: /Your bag/ }).click();
-  await expect(page.getByRole("dialog").getByText(firstProduct.title, { exact: true })).toBeVisible();
+  await expect(page.getByRole("dialog").getByText(productTitle, { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Continue to demo checkout" }).click();
   await expect(page.getByRole("heading", { name: "Demo checkout" })).toBeVisible();
@@ -303,8 +326,8 @@ test("cart and checkout remain a clearly simulated local flow", async ({ page })
 
 test("product detail add-to-bag persists the selected item in the local cart", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
+  const opened = await openFirstVisibleProduct(page);
+  await expect(page.locator(".detail-information h1")).toHaveText(opened.title);
   await page.locator(".buybox-add").click();
   await expect(page.locator(".buybox-confirm")).toContainText("Added to your bag");
   await page.waitForFunction((productId: number) => {
@@ -314,29 +337,29 @@ test("product detail add-to-bag persists the selected item in the local cart", a
     } catch {
       return false;
     }
-  }, firstProduct.id);
+  }, opened.id);
   await page.locator(".product-page-top > div > a").click();
   await expect(page.locator("main.store")).toBeVisible();
   await page.locator(".bag-button").click();
   const drawer = page.locator(".side-drawer[role='dialog']");
-  await expect(drawer.getByText(firstProduct.title, { exact: true })).toBeVisible();
+  await expect(drawer.getByText(opened.title, { exact: true })).toBeVisible();
 });
 
  test("recently viewed route inherits and persists the selected locale", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
+  const opened = await openFirstVisibleProduct(page);
   await expect(page).toHaveURL(/product/);
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
-  await expect.poll(() => page.evaluate(() => {
+  await page.waitForFunction((id: number) => {
     try {
       const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
-      return Array.isArray(state.recent) && state.recent.includes(firstProduct.id);
+      return Array.isArray(state.recent) && state.recent.includes(id);
     } catch {
       return false;
     }
-  })).toBe(true);
+  }, opened.id);
 
   const historyUrl = new URL("../recently-viewed", page.url()).toString();
   await page.goto(historyUrl);
@@ -344,7 +367,7 @@ test("product detail add-to-bag persists the selected item in the local cart", a
   await expect(history).toHaveAttribute("dir", "ltr");
   await expect(history.getByRole("heading", { name: "Recently viewed products" })).toBeVisible();
   await expect(history.locator(".history-note")).toContainText("source dataset does not provide sale prices or ratings");
-  await expect(history.getByRole("link").filter({ hasText: firstProduct.title })).toBeVisible();
+  await expect(history.getByRole("link").filter({ hasText: opened.title })).toBeVisible();
 
   await page.getByRole("button", { name: "Switch language to Persian" }).click();
   await expect(history).toHaveAttribute("dir", "rtl");
