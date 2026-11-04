@@ -353,3 +353,75 @@ test("site-owned hero and editorial images decode from same-origin assets on eve
   expect(heroSources).toHaveLength(4);
   expect(heroSources.every(source => source.startsWith("images/site/"))).toBe(true);
 });
+
+
+test("redesigned lower sections and footer keep a readable responsive layout", async ({ page }, testInfo) => {
+  const viewports = testInfo.project.name.includes("mobile")
+    ? [{ width: 320, height: 740 }, { width: 390, height: 844 }]
+    : testInfo.project.name.includes("tablet")
+      ? [{ width: 810, height: 1080 }, { width: 1080, height: 810 }]
+      : [{ width: 1440, height: 1000 }];
+
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport);
+    await page.goto("./");
+    await expect(page.locator(".marketplace-services .service-cards")).toBeVisible();
+    await expect(page.locator(".faq-section .faq-list details").first()).toBeVisible();
+    await expect(page.locator(".about-section .about-stats")).toBeVisible();
+    await expect(page.locator("footer.footer .footer-main")).toBeVisible();
+
+    const layout = await page.evaluate(() => {
+      const selectors = [
+        ".marketplace-services",
+        ".faq-section",
+        ".about-section",
+        "footer.footer",
+        ".footer-main",
+        ".footer-bottom"
+      ];
+      const boxes = Object.fromEntries(selectors.map(selector => {
+        const element = document.querySelector(selector);
+        if (!element) return [selector, null];
+        const rect = element.getBoundingClientRect();
+        return [selector, {
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height)
+        }];
+      }));
+      return {
+        viewportWidth: document.documentElement.clientWidth,
+        documentWidth: document.documentElement.scrollWidth,
+        bodyWidth: document.body.scrollWidth,
+        boxes,
+        footerColumns: getComputedStyle(document.querySelector(".footer-main")!).gridTemplateColumns,
+        serviceColumns: getComputedStyle(document.querySelector(".service-cards")!).gridTemplateColumns,
+        faqColumns: getComputedStyle(document.querySelector(".faq-section")!).gridTemplateColumns
+      };
+    });
+
+    expect(
+      Math.max(layout.documentWidth, layout.bodyWidth),
+      `Lower-page horizontal overflow at ${viewport.width}px: ${JSON.stringify(layout)}`
+    ).toBeLessThanOrEqual(layout.viewportWidth);
+
+    for (const [selector, box] of Object.entries(layout.boxes)) {
+      expect(box, `Missing lower-page region: ${selector}`).not.toBeNull();
+      expect(box!.width, `${selector} has no layout width`).toBeGreaterThan(0);
+      expect(box!.height, `${selector} has no layout height`).toBeGreaterThan(0);
+    }
+
+    if (viewport.width <= 760) {
+      expect(layout.footerColumns.trim().split(/\s+/)).toHaveLength(1);
+      expect(layout.serviceColumns.trim().split(/\s+/)).toHaveLength(1);
+      expect(layout.faqColumns.trim().split(/\s+/)).toHaveLength(1);
+    } else if (viewport.width <= 1000) {
+      expect(layout.footerColumns.trim().split(/\s+/)).toHaveLength(2);
+    } else {
+      expect(layout.footerColumns.trim().split(/\s+/)).toHaveLength(3);
+      expect(layout.serviceColumns.trim().split(/\s+/)).toHaveLength(3);
+      expect(layout.faqColumns.trim().split(/\s+/)).toHaveLength(2);
+    }
+  }
+});
