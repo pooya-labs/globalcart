@@ -17,9 +17,9 @@
 ## Latest Shopify Global Catalog discovery checkpoint — 2026-11-04
 
 - Identified Shopify Global Catalog as a broad cross-merchant product discovery candidate, distinct from the previously assessed single-store Storefront API.
-- Official docs describe keyless access using a hosted UCP agent profile, but impose strict no-cache rules for catalog results and product images; image rendering must be real-time and tied to the merchant listing.
+- The catalog overview says an agent profile is sufficient without an API key, but the hands-on authentication tutorial requires Dev Dashboard credentials and a bearer token. Treat credential-free access as unverified. Strict no-cache rules apply to catalog results and product images; image rendering must be real-time and tied to the merchant listing.
 - This cannot be imported into the current static catalog snapshot. A future compliant option is a runtime discovery layer, subject to a proof of concept for transport/CORS, profile hosting, response fields, rate limits and merchant attribution.
-- No Shopify integration or product data changes were made. Continue to keep DummyJSON explicitly labelled as temporary sample data until a real source is safely connected.
+- No Shopify integration or product data changes were made. Before any implementation, resolve the auth-doc discrepancy; any required account/API credential dependency needs owner approval. Continue to keep DummyJSON explicitly labelled as temporary sample data until a real source is safely connected.
 - Source docs and M02.1 roadmap were updated. Do not hide merchant identity or present Shopify sellers' offers as GlobalCart-owned inventory.
 
 ## Product definition
