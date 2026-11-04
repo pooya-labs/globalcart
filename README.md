@@ -53,12 +53,11 @@ Boundaries and remaining work:
 - Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key dialogs. Browser E2E [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312) passed **99 tests** with **4 intentional skips** across Chromium desktop/mobile, iPad 7th-gen tablet, Firefox and WebKit. Tablet portrait/landscape checks (810×1080 and 1080×810) verify storefront/product/case study have no horizontal overflow; compact-phone checks (320 px and 360 px) cover the same routes. The WebKit dual-locale axe test now passes within its 60 s allowance without a retry.
 - Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
 
-
 ## Demo boundaries
 
 | Area | Current behavior |
 |---|---|
-| Product catalog | DummyJSON public sample API; local fixtures if unavailable |
+| Product catalog | DummyJSON public sample API; local fixtures if unavailable. These are not verified live retail offers. |
 | Images | Source-provided remote image URLs |
 | Translation | Paused; source text is preserved |
 | Currency | TGJU free-market USD page, Rial converted to Toman; indicative, not an executable quote |
@@ -69,6 +68,8 @@ Boundaries and remaining work:
 | Amazon catalog | No scraping; future integration only through authorized access and current terms |
 
 Amazon's public storefront must not be scraped or bulk-copied. Any future adapter requires verified program/API eligibility and compliance with current content, image, price-refresh, attribution and linking rules. Affiliate product discovery is not an unrestricted catalog feed.
+
+**Real-product catalog work:** the current sample feed is not being represented as a real retailer catalog. A source assessment and migration gate are documented in [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md). Do not replace the sample feed with scraped listings, fabricated offers or an API tied to a shop we do not control.
 
 ## Technology
 
@@ -110,6 +111,7 @@ npm run build
 - [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md) — public Lighthouse lab baseline, methodology and manual 1.0 release checklist.
 - Latest published Lighthouse [41652966386](https://github.com/pooya-labs/globalcart/actions/runs/41652966386): mobile storefront Performance 91 / LCP 3.3 s / TBT 70 ms; product 94 / 3.1 s / 60 ms; case study 99 / 1.0 s / 100 ms. Desktop Performance is 100 on all routes. Accessibility, Best Practices and SEO are 100 in all six audits; CLS is 0 throughout. All six reports passed the LCP/TBT/CLS/score regression guard. GitHub-hosted lab only, not field Core Web Vitals. Full diagnostics: [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
+- [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md) — requirements and blockers for replacing sample items with real products.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
 - [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) — verification and semantic versioning.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — engineering rules.
