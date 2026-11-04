@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased — M09.6 catalog gallery and product-detail reliability (2026-11-04)
+
+### Fixed
+- Detail-page add-to-bag now persists the merged cart array instead of the previous cart state.
+- Product-detail lead imagery is eager/high priority; gallery extras, related items and catalog cards remain lazy/async.
+- Removed obsolete external image-host preconnect hints.
+
+### Changed
+- Reduced ABO gallery WebP dimensions/quality to fit the complete source galleries inside the existing 320 MiB aggregate limit without dropping alternate image IDs; per-image maximum is 650 KiB.
+- Pages validation rejects duplicate gallery paths and verifies each referenced local WebP image, including an alternate view.
+- Updated E2E product fixtures for ABO and added cart-persistence coverage; refreshed the bilingual case study's data attribution and no-retail-price/rating/stock disclosure.
+
+### Verification
+- Security passed: [run 41874481525](https://github.com/pooya-labs/globalcart/actions/runs/41874481525).
+- TypeScript, unit tests and static build passed within [Browser E2E run 41874481635](https://github.com/pooya-labs/globalcart/actions/runs/41874481635); full desktop/mobile journeys were still running at this checkpoint.
+- Catalog sync and Pages deploy [run 41873827996](https://github.com/pooya-labs/globalcart/actions/runs/41873827996) remained in progress; follow-up [41874481571](https://github.com/pooya-labs/globalcart/actions/runs/41874481571) was queued. No claim that the full gallery catalog was published.
+
+---
+
+
 ## Unreleased — 2026-11-03
 
 ### Verified — compact-phone and tablet-orientation browser coverage
