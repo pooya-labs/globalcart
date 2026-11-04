@@ -361,9 +361,10 @@ test("product detail add-to-bag persists the selected item in the local cart", a
     }
   }, opened.id);
 
-  const historyUrl = new URL("../recently-viewed", page.url()).toString();
+  const historyUrl = new URL("../../recently-viewed/", page.url()).toString();
   await page.goto(historyUrl);
   const history = page.locator("main.history-page");
+  await expect(history).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
   await expect(history).toHaveAttribute("dir", "ltr");
   await expect(history.getByRole("heading", { name: "Recently viewed products" })).toBeVisible();
   await expect(history.locator(".history-note")).toContainText("source dataset does not provide sale prices or ratings");
