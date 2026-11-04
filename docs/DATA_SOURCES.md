@@ -21,6 +21,16 @@
 - Image reuse, redistribution, attribution and display rights are not sufficiently clear from the API docs; do not import until the publisher confirms them.
 - Preserve retailer attribution and outbound links if integrated.
 
+### Shopify Global Catalog (runtime discovery candidate; not connected)
+- Official overview: https://shopify.dev/docs/agents/catalog
+- Searches eligible products across Shopify merchants; distinct from the Storefront API, which is scoped to one known store.
+- Uses the UCP/MCP Global Catalog endpoint and a hosted agent profile; Shopify's docs state that an API key is not required for keyless catalog access.
+- Do not cache search results or product images; images must be rendered in real time and only with the related merchant listing.
+- Keyless requests are rate-limited and do not support rate-limit increases.
+- Results are third-party merchant offers. Preserve seller identity/domain and merchant purchase links; never claim GlobalCart owns or fulfills them.
+- This is not compatible with the existing persisted static catalog snapshot. A possible future design is a separate runtime discovery layer, pending a proof of concept for profile hosting, request transport/CORS, response mapping, seller/price/availability fields and rate limits.
+- No code or catalog records are connected yet.
+
 ### Open Food Facts
 - Official API docs: https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/
 - Real packaged-food products indexed by barcode; read API calls do not require an API key.
