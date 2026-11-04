@@ -60,6 +60,42 @@ test("captures the redesigned storefront shell for desktop and mobile visual rev
   });
 });
 
+test("product cards center the natural image canvas without cropping", async ({ page }) => {
+  const card = page.locator(".product-card").first();
+  const image = card.locator(".product-image-link img");
+  await image.scrollIntoViewIfNeeded();
+  await expect.poll(() => image.evaluate(node => {
+    const img = node as HTMLImageElement;
+    return img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
+  })).toBe(true);
+
+  const geometry = await image.evaluate(node => {
+    const img = node as HTMLImageElement;
+    const imageRect = img.getBoundingClientRect();
+    const frameRect = img.closest(".product-media")!.getBoundingClientRect();
+    const style = getComputedStyle(img);
+    return {
+      imageCenterX: imageRect.left + imageRect.width / 2,
+      imageCenterY: imageRect.top + imageRect.height / 2,
+      frameCenterX: frameRect.left + frameRect.width / 2,
+      frameCenterY: frameRect.top + frameRect.height / 2,
+      objectFit: style.objectFit,
+      objectPosition: style.objectPosition,
+      imageWidth: imageRect.width,
+      imageHeight: imageRect.height,
+      frameWidth: frameRect.width,
+      frameHeight: frameRect.height
+    };
+  });
+
+  expect(Math.abs(geometry.imageCenterX - geometry.frameCenterX)).toBeLessThan(1);
+  expect(Math.abs(geometry.imageCenterY - geometry.frameCenterY)).toBeLessThan(1);
+  expect(geometry.objectFit).toBe("contain");
+  expect(geometry.objectPosition).toBe("50% 50%");
+  expect(geometry.imageWidth).toBeLessThan(geometry.frameWidth);
+  expect(geometry.imageHeight).toBeLessThan(geometry.frameHeight);
+});
+
 test("shows only live catalog categories, filters products locally and gives product images a real layout box", async ({ page }) => {
   const tiles = page.locator(".categories-section .category-tile");
   await expect(tiles.first()).toBeVisible();
