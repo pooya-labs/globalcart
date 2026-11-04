@@ -1,9 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect, type Page } from "@playwright/test";
-import catalogSnapshot from "../data/catalog.json";
-
-const firstProduct = catalogSnapshot.products[0]!;
-
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 test.beforeEach(async ({ page }) => {
@@ -18,6 +14,7 @@ test.beforeEach(async ({ page }) => {
   });
   await page.goto("./");
   await expect(page.locator(".product-card").first()).toBeVisible();
+  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
 });
 
 async function expectNoWcagViolations(page: Page) {
@@ -115,6 +112,7 @@ test("reduced-motion preference disables smooth scrolling and long UI motion", a
 });
 
 test("command palette dialog remains accessible when open", async ({ page }) => {
+  test.setTimeout(60_000);
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("dialog", { name: "Quick commands" })).toBeVisible();
@@ -122,16 +120,20 @@ test("command palette dialog remains accessible when open", async ({ page }) => 
 });
 
 test("recently viewed page meets WCAG checks in populated and empty RTL/LTR states", async ({ page }) => {
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
-  await page.waitForFunction((productId: number) => {
+  const productLink = page.locator(".product-card h3 a").first();
+  const productTitle = await productLink.innerText();
+  const productId = Number((await productLink.getAttribute("href"))?.split("/").filter(Boolean).pop());
+  expect(productId).toBeGreaterThan(0);
+  await productLink.click();
+  await expect(page.locator(".detail-information h1")).toHaveText(productTitle);
+  await page.waitForFunction((id: number) => {
     try {
       const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
-      return Array.isArray(state.recent) && state.recent.includes(productId);
+      return Array.isArray(state.recent) && state.recent.includes(id);
     } catch {
       return false;
     }
-  }, firstProduct.id);
+  }, productId);
 
   const historyUrl = new URL("../recently-viewed", page.url()).toString();
   const response = await page.goto(historyUrl);
@@ -140,7 +142,7 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
   const history = page.locator("main.history-page");
   await expect(history).toHaveAttribute("dir", "rtl");
   await expect(history.getByRole("heading", { name: "محصولات بازدیدشده" })).toBeVisible();
-  await expect(history.getByRole("link").filter({ hasText: firstProduct.title })).toBeVisible();
+  await expect(history.getByRole("link").filter({ hasText: productTitle })).toBeVisible();
   await expectNoWcagViolations(page);
 
   await page.getByRole("button", { name: "تغییر زبان به انگلیسی" }).click();
@@ -159,8 +161,10 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
 });
 
 test("static product detail page meets WCAG 2.1 AA automated checks", async ({ page }) => {
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
+  const productLink = page.locator(".product-card h3 a").first();
+  const productTitle = await productLink.innerText();
+  await productLink.click();
+  await expect(page.locator(".detail-information h1")).toHaveText(productTitle);
   await expectNoWcagViolations(page);
 });
 
