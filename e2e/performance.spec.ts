@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import catalogSnapshot from "../data/catalog.json";
 
-const firstProduct = catalogSnapshot.products[0];
+const firstProduct = catalogSnapshot.products[0]!;
 
 test.beforeEach(async ({ page }) => {
   // The storefront remains testable without remote image, font or API hosts.
