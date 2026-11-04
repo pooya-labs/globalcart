@@ -135,11 +135,12 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
     }
   }, productId);
 
-  const historyUrl = new URL("../recently-viewed", page.url()).toString();
+  const historyUrl = new URL("../../recently-viewed/", page.url()).toString();
   const response = await page.goto(historyUrl);
   expect(response?.status()).toBe(200);
 
   const history = page.locator("main.history-page");
+  await expect(history).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
   await expect(history).toHaveAttribute("dir", "rtl");
   await expect(history.getByRole("heading", { name: "محصولات بازدیدشده" })).toBeVisible();
   await expect(history.getByRole("link").filter({ hasText: productTitle })).toBeVisible();
