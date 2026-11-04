@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import fxSnapshot from "../../data/fx-rate.json";
-import { calculateDemoPrice } from "../../lib/pricing";
-import { readLocalePreference, writeLocalePreference } from "../../lib/locale";
+import fxSnapshot from "../data/fx-rate.json";
+import { calculateDemoPrice } from "../lib/pricing";
+import { readLocalePreference, writeLocalePreference } from "../lib/locale";
 import { ArrowLeft, Clock3, Trash2 } from "lucide-react";
 
 type Product = {
