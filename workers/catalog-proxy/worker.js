@@ -3,7 +3,9 @@ const PROFILE_URL = "https://pooya-labs.github.io/globalcart/ucp/agent-profile.j
 const ALLOWED_ORIGINS = new Set([
   "https://pooya-labs.github.io",
   "http://localhost:3000",
-  "http://127.0.0.1:3000"
+  "http://127.0.0.1:3000",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173"
 ]);
 
 function corsHeaders(origin) {
