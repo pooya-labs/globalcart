@@ -26,7 +26,7 @@
 
 - GlobalCart now targets Shopify Global Catalog MCP for live cross-merchant discovery. This is a runtime search layer, not a static product feed.
 - Cloudflare Worker `globalcart-catalog` is deployed at `https://globalcart-catalog.pooyagame141.workers.dev`; the repo contains the Worker source at `workers/catalog-proxy/worker.js`.
-- Public UCP agent profile: `public/ucp/agent-profile.json`, published at `https://pooya-labs.github.io/globalcart/ucp/agent-profile.json`.
+- Public UCP agent profile: `public/ucp/agent-profile.json`, published at `https://pooya-labs.github.io/globalcart/ucp/agent-profile.json`. It declares the base Shopify catalog capability plus the Global Catalog extension and the UCP search/lookup capabilities, matching Shopify's documented profile structure.
 - The browser uses `lib/catalog/shopify.ts` to map live product records. Images are rendered directly from merchant URLs; results and images are not cached or stored.
 - Merchant names and seller listing links remain visible; Shopify is not presented as the storefront brand.
 - Local cart and checkout remain simulated and do not reserve stock, create merchant carts or process payment.
