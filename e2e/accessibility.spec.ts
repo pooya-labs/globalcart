@@ -1,5 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect, type Page } from "@playwright/test";
+import catalogSnapshot from "../data/catalog.json";
+
+const firstProduct = catalogSnapshot.products[0];
 
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
@@ -119,12 +122,12 @@ test("command palette dialog remains accessible when open", async ({ page }) => 
 });
 
 test("recently viewed page meets WCAG checks in populated and empty RTL/LTR states", async ({ page }) => {
-  await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
-  await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
+  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
+  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
   await page.waitForFunction(() => {
     try {
       const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
-      return Array.isArray(state.recent) && state.recent.includes(1);
+      return Array.isArray(state.recent) && state.recent.includes(firstProduct.id);
     } catch {
       return false;
     }
@@ -137,7 +140,7 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
   const history = page.locator("main.history-page");
   await expect(history).toHaveAttribute("dir", "rtl");
   await expect(history.getByRole("heading", { name: "محصولات بازدیدشده" })).toBeVisible();
-  await expect(history.getByRole("link", { name: /Essence Mascara Lash Princess/ })).toBeVisible();
+  await expect(history.getByRole("link").filter({ hasText: firstProduct.title })).toBeVisible();
   await expectNoWcagViolations(page);
 
   await page.getByRole("button", { name: "تغییر زبان به انگلیسی" }).click();
@@ -156,8 +159,8 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
 });
 
 test("static product detail page meets WCAG 2.1 AA automated checks", async ({ page }) => {
-  await page.locator(".product-card h3 a").filter({ hasText: "Essence Mascara Lash Princess" }).click();
-  await expect(page.locator(".detail-information h1")).toHaveText("Essence Mascara Lash Princess");
+  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
+  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
   await expectNoWcagViolations(page);
 });
 
