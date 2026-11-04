@@ -1,7 +1,4 @@
 import { test, expect, type Page } from "@playwright/test";
-import catalogSnapshot from "../data/catalog.json";
-
-const firstProduct = catalogSnapshot.products[0]!;
 
 test.beforeEach(async ({ page }) => {
   // Keep this regression deterministic and prove that the committed static
@@ -15,6 +12,7 @@ test.beforeEach(async ({ page }) => {
   });
   await page.goto("./");
   await expect(page.locator(".product-card").first()).toBeVisible();
+  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
 });
 
 async function expectNoHorizontalOverflow(page: Page, routeName: string) {
@@ -43,11 +41,12 @@ test("Persian RTL and English LTR persist across public routes without horizonta
   await expectNoHorizontalOverflow(page, "reloaded English storefront");
 
   // Product detail: the route inherits the selected locale and can change it.
-  await page.locator(".product-card h3 a")
-    .filter({ hasText: firstProduct.title })
-    .first()
-    .click();
-  await expect(page).toHaveURL(new RegExp("/product/" + firstProduct.id + "/?$"));
+  const productLink = page.locator(".product-card h3 a").first();
+  const productTitle = await productLink.innerText();
+  const productId = Number((await productLink.getAttribute("href"))?.split("/").filter(Boolean).pop());
+  expect(productId).toBeGreaterThan(0);
+  await productLink.click();
+  await expect(page).toHaveURL(new RegExp("/product/" + productId + "/?$"));
   const product = page.locator("main.product-page");
   await expect(product).toBeVisible();
   await expect(product).toHaveAttribute("dir", "ltr");
