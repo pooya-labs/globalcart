@@ -1,11 +1,8 @@
 name: Shopify Catalog Smoke
 on:
-  pull_request:
-    paths:
-      - "workers/catalog-proxy/**"
-      - "lib/catalog/shopify.ts"
-      - "public/ucp/**"
-      - ".github/workflows/shopify-catalog-smoke.yml"
+  workflow_run:
+    workflows: ["Deploy GlobalCart to GitHub Pages"]
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   live-catalog:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Verify proxy health and anonymous live catalog search
@@ -29,6 +27,12 @@ jobs:
           const healthBody = await health.json();
           if (healthBody.ok !== true || healthBody.persistence !== "disabled") throw new Error("Proxy health contract mismatch");
 
+          const profileUrl = "https://pooya-labs.github.io/globalcart/ucp/agent-profile.json";
+          const profileResponse = await fetch(profileUrl, { cache: "no-store" });
+          if (!profileResponse.ok) throw new Error(`GlobalCart agent profile is unavailable: HTTP ${profileResponse.status}`);
+          const profile = await profileResponse.json();
+          if (!profile.ucp?.capabilities?.["dev.shopify.catalog.global"]) throw new Error("GlobalCart agent profile is missing the Shopify Global Catalog capability");
+
           const response = await fetch(`${base}/api/catalog`, {
             method: "POST",
             headers: { Origin: origin, "Content-Type": "application/json", Accept: "application/json" },
@@ -36,7 +40,7 @@ jobs:
             cache: "no-store"
           });
           const payload = await response.json();
-          if (!response.ok) throw new Error(`Live Shopify search failed: HTTP ${response.status} ${payload.error || ""}`);
+          if (!response.ok) throw new Error(`Live Shopify search failed: HTTP ${response.status} ${payload.error || ""} ${payload.details || ""}`);
           if (!Array.isArray(payload.products) || payload.products.length === 0) throw new Error("Shopify returned no live products");
           const withImage = payload.products.find(product => product.media?.some(media => media.type === "image" && media.url?.startsWith("https://")));
           const withSeller = payload.products.find(product => product.variants?.some(variant => variant.seller?.name && variant.seller?.url));
@@ -44,6 +48,8 @@ jobs:
           if (!withImage || !withSeller || !withPrice) throw new Error("Live results are missing image, seller attribution or price fields");
           console.log(JSON.stringify({
             status: "passed",
+            profileContentType: profileResponse.headers.get("content-type"),
+            profileVersion: profile.ucp.version,
             productCount: payload.products.length,
             sampleTitle: withImage.title,
             seller: withSeller.variants.find(variant => variant.seller?.name)?.seller.name,
