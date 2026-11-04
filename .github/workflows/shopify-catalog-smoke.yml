@@ -1,5 +1,9 @@
 name: Shopify Catalog Smoke
 on:
+  pull_request:
+    paths:
+      - "workers/catalog-proxy/**"
+      - ".github/workflows/shopify-catalog-smoke.yml"
   workflow_run:
     workflows: ["Deploy GlobalCart to GitHub Pages"]
     types: [completed]
