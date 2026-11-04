@@ -29,11 +29,12 @@ Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
 - Responsive marketplace storefront with Persian RTL and English LTR, category-first navigation and refreshed retail design system.
 - Catalog-driven category mega-menu and quick-category navigation with live category counts.
-- Dedicated statically generated product detail pages for imported catalog entries, including image gallery, pricing panel, product facts and related products.
+- Legacy statically generated detail pages remain for imported snapshot entries; live merchant listings open an in-page detail view and link directly to the seller's listing.
 - Persistent side-by-side comparison for up to four products.
 - Amazon product-link intake demo with domain and ASIN validation; requests are stored locally and do not fetch live Amazon data.
 - Marketplace service shortcuts and a transparent FAQ covering product sourcing, demo limits and support.
-- Typed catalog import foundation plus a scheduled/manual snapshot generator with retry and last-known-good fallback (100 products imported; CI, tests, build and deployment passed in run 41295039930).
+- Live cross-merchant product discovery through Shopify Global Catalog MCP (anonymous access, no API key) behind a Cloudflare Worker; real product names, merchant images, seller-reported prices/availability, seller identity and outbound listing links are fetched at runtime. Search results and merchant images are not cached or persisted.
+- The historical DummyJSON snapshot importer remains available for catalog-pipeline tests only; the public storefront no longer displays its synthetic sample items.
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
 - Browser-local cart, quantity changes, removal and simulated checkout.
@@ -42,13 +43,13 @@ Implemented:
 - Source/demo disclosures and visible owner attribution.
 - GitHub Pages deployment workflow, project handoff documentation and a bilingual portfolio case study with architecture/data-flow view and a 27-table PostgreSQL ERD.
 - Real desktop/mobile full-page case-study screenshots are committed in `docs/screenshots/`.
-- Search suggestions, keyboard command palette, explainable sample recommendations and saved-search flows.
-- Backend foundation: Go REST/OpenAPI, PostgreSQL 17 and sqlc are available for local development and CI. Redis is optional; no hosted API or database is deployed.
+- Search suggestions, keyboard command palette, rating-based catalog ranking and saved-search flows.
+- Backend foundation: Go REST/OpenAPI, PostgreSQL 17 and sqlc are available for local development and CI. Redis is optional; no hosted business API or database is deployed. The only hosted Worker is a narrow public-catalog proxy.
 - Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI. The M09.3 screenshot-capture checkpoint passed 40/40 Browser E2E scenarios in [run 41596731945](https://github.com/pooya-labs/globalcart/actions/runs/41596731945).
 
 Boundaries and remaining work:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
-- Live Amazon product retrieval and supplier price/stock synchronization require authorized provider access. Automated TGJU page retrieval remains subject to the source site's terms and availability.
+- Live Amazon product retrieval still requires an authorized provider integration. Shopify Global Catalog is connected for cross-merchant discovery; anonymous access is rate-limited and results are runtime-only. Additional supplier feeds need separate source and terms review. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
 - Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key dialogs. Browser E2E [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312) passed **99 tests** with **4 intentional skips** across Chromium desktop/mobile, iPad 7th-gen tablet, Firefox and WebKit. Tablet portrait/landscape checks (810×1080 and 1080×810) verify storefront/product/case study have no horizontal overflow; compact-phone checks (320 px and 360 px) cover the same routes. The WebKit dual-locale axe test now passes within its 60 s allowance without a retry.
 - Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
@@ -57,27 +58,28 @@ Boundaries and remaining work:
 
 | Area | Current behavior |
 |---|---|
-| Product catalog | DummyJSON public sample API; local fixtures if unavailable. These are not verified live retail offers. |
-| Images | Source-provided remote image URLs |
+| Product catalog | Live Shopify Global Catalog search across eligible merchants; anonymous requests are rate-limited. No synthetic fallback is shown. |
+| Images | Merchant-provided image URLs rendered directly at runtime; not downloaded or re-hosted. |
+| Pricing / availability | Seller-reported values from the live catalog response; can change and are not a purchase guarantee. |
 | Translation | Paused; source text is preserved |
 | Currency | TGJU free-market USD page, Rial converted to Toman; indicative, not an executable quote |
-| Cart / favorites | Local browser state |
-| Checkout | Local simulation; never contacts a payment provider |
-| Inventory / shipping | Not real, not reserved, not fulfilled |
+| Cart / favorites | Local browser state; live product records are not persisted. |
+| Checkout | Local simulation; never contacts a payment provider or merchant checkout. |
+| Inventory / shipping | Seller availability may be displayed; GlobalCart does not reserve stock, ship or fulfill goods. |
 | Amazon links | Domain/ASIN validation and local demo request storage; no live product retrieval |
 | Amazon catalog | No scraping; future integration only through authorized access and current terms |
 
 Amazon's public storefront must not be scraped or bulk-copied. Any future adapter requires verified program/API eligibility and compliance with current content, image, price-refresh, attribution and linking rules. Affiliate product discovery is not an unrestricted catalog feed.
 
-**Real-product catalog work:** the current sample feed is not being represented as a real retailer catalog. A source assessment and migration gate are documented in [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md). Do not replace the sample feed with scraped listings, fabricated offers or an API tied to a shop we do not control.
+**Real-product catalog:** the storefront now discovers real eligible merchant listings through Shopify Global Catalog at runtime. Merchant names and seller listing links remain visible; Shopify is not used as the storefront brand. Search results and images are not cached or stored. The cart and checkout remain simulations and do not create merchant orders. Architecture and constraints are documented in [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md).
 
 ## Technology
 
 - **Languages:** TypeScript, CSS, Go and SQL (with HTML rendered through React).
 - **Framework:** Next.js 15 / React 19.
 - **UI:** custom responsive design system, Lucide icons.
-- **Hosting:** GitHub Actions + Next.js static export on GitHub Pages.
-- **State:** React state and browser localStorage for demo-only preferences.
+- **Hosting:** GitHub Actions + Next.js static export on GitHub Pages; Cloudflare Worker provides a validated, no-cache proxy to the live catalog API.
+- **State:** React state for live catalog results; browser localStorage for demo-only preferences and references (live product records are excluded).
 
 This repository is deliberately independent. It has no runtime, deployment or package dependency on any other portfolio project.
 
