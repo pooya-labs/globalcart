@@ -112,7 +112,7 @@ export default function ProductDetailClient({product,related}:Props) {
       const next=existing
         ?cart.map(line=>line.product.id===product.id?{...line,quantity:line.quantity+quantity}:line)
         :[...cart,{product,quantity}];
-      localStorage.setItem(storageKey,JSON.stringify({...state,cart}));
+      localStorage.setItem(storageKey,JSON.stringify({...state,cart:next}));
       setAdded(true);
     }catch{
       setAdded(false);
