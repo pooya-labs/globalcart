@@ -17,6 +17,8 @@ on:
       - ".github/workflows/e2e.yml"
   pull_request:
     paths:
+      - "public/images/site/**"
+      - "scripts/sync-site-imagery.mjs"
       - "app/**"
       - "data/catalog.json"
       - "lib/catalog/**"
