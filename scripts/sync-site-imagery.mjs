@@ -58,7 +58,11 @@ async function downloadAsset(asset) {
 
   const bytes = Buffer.from(await response.arrayBuffer());
   if (!isValidWebp(bytes)) {
-    throw new Error(`${asset.name}: downloaded response is not a valid WebP image`);
+    const signature = bytes.subarray(0, 16).toString("hex");
+    const preview = bytes.subarray(0, 80).toString("utf8").replace(/\\s+/g, " ").slice(0, 80);
+    throw new Error(
+      `${asset.name}: expected WebP bytes; content-type=${contentType}, bytes=${bytes.length}, signature=${signature}, preview=${JSON.stringify(preview)}`
+    );
   }
   return bytes;
 }
