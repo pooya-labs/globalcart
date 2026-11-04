@@ -14,6 +14,14 @@
 - No catalog adapter or storefront data changed. DummyJSON remains explicitly temporary sample data; do not relabel it as genuine retail inventory.
 - Next gate: inspect each sibling's current endpoint/data quality and terms/image rights; continue searching for approved broad-category feeds. Preserve the shared `CatalogSourceAdapter` architecture and do not scrape retailers.
 
+## Latest Shopify Global Catalog discovery checkpoint — 2026-11-04
+
+- Identified Shopify Global Catalog as a broad cross-merchant product discovery candidate, distinct from the previously assessed single-store Storefront API.
+- Official docs describe keyless access using a hosted UCP agent profile, but impose strict no-cache rules for catalog results and product images; image rendering must be real-time and tied to the merchant listing.
+- This cannot be imported into the current static catalog snapshot. A future compliant option is a runtime discovery layer, subject to a proof of concept for transport/CORS, profile hosting, response fields, rate limits and merchant attribution.
+- No Shopify integration or product data changes were made. Continue to keep DummyJSON explicitly labelled as temporary sample data until a real source is safely connected.
+- Source docs and M02.1 roadmap were updated. Do not hide merchant identity or present Shopify sellers' offers as GlobalCart-owned inventory.
+
 ## Product definition
 GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
 

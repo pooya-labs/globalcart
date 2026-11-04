@@ -12,11 +12,20 @@ The UI may omit a provider's technical platform branding where the source terms 
 
 ## Findings
 
-### Shopify is not a universal public product catalog
+### Shopify Global Catalog: strongest broad-category live candidate
 
-Shopify's Storefront API is scoped to a specific `{shop}.myshopify.com` store. Its tokenless mode can query that shop's products, collections, search and cart, but it does not expose a global directory of products from all Shopify merchants. Token-based access is required for additional features. See the [official Storefront API reference](https://shopify.dev/docs/api/storefront/latest) and [Storefront API guide](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api).
+Shopify now documents two distinct catalog interfaces. The **Global Catalog** searches across eligible products from Shopify merchants; the **Storefront Catalog** remains scoped to one known merchant. The Global Catalog uses Shopify's UCP/MCP endpoint and an agent profile, and the official catalog overview says an API key is not required. It supports search, lookup and product-detail retrieval, including seller information and merchant checkout links. See the [official catalog overview](https://shopify.dev/docs/agents/catalog), [search tutorial](https://shopify.dev/docs/agents/get-started/search-catalog) and [agent-profile documentation](https://shopify.dev/docs/agents/profiles).
 
-Therefore, Shopify cannot currently replace DummyJSON as a universal, no-account catalog for GlobalCart. Do not hard-code a random merchant's shop domain or present its inventory as GlobalCart-owned.
+Important constraints:
+- Shopify says not to cache catalog search results and not to cache, download, or re-host merchant product images. Images must be rendered in real time in connection with the related merchant listing.
+- Keyless requests are rate-limited; the docs say keyless access does not support rate-limit increases.
+- The API is designed for AI-agent/UCP commerce flows. A production web storefront integration still needs a technical proof of concept for browser/server transport, CORS, profile hosting, request limits and stable response mapping.
+- Results represent third-party merchant offers. Keep seller identity/domain, seller price/availability context and merchant outbound/checkout URL visible where appropriate. Do not imply GlobalCart owns or fulfills those goods.
+- This source cannot feed the existing static catalog snapshot or be treated as a persistent local product database. A compliant integration would be a separate **runtime discovery layer** that fetches fresh results and images for each view; the local demo cart must remain clearly simulated and must not reserve merchant inventory or place orders.
+
+This is materially more promising than the Storefront API for broad real-product discovery, but it is not yet integrated. Do not start implementation until a small proof of concept verifies an unauthenticated/keyless Global Catalog request with a hosted public agent profile, real response shape, seller/price/availability fields, image rendering, CORS/server transport and practical rate limits. Do not add a Shopify API key or account dependency unless the owner explicitly approves it.
+
+The Storefront API remains a separate option only when a specific merchant store and permission are known. It is not a global product directory. Do not hard-code a random merchant or present its inventory as GlobalCart-owned.
 
 ### Curated real-product API candidate: Daily Dose Tech
 
