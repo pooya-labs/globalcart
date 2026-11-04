@@ -159,6 +159,12 @@ test("production fonts are self-hosted without Google Fonts requests", async ({ 
   expect(fontState.externalGoogleRequests).toEqual([]);
 });
 
+test("keeps the full catalog out of the initial storefront DOM", async ({ page }) => {
+  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true");
+  await expect(page.locator(".product-card")).toHaveCount(36);
+  await expect(page.getByRole("button", { name: "Load more products", exact: true })).toBeVisible();
+});
+
 test("initial route stays within the static JavaScript and CSS transfer budgets", async ({ page }) => {
   const assets = await page.evaluate(() => {
     const entries = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
