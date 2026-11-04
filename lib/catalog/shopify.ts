@@ -16,6 +16,8 @@ type ShopifyRawProduct = {
   metadata?: Record<string, unknown>;
   price_range?: { min?: ShopifyMoney; max?: ShopifyMoney };
   media?: Array<{ type?: string; url?: string; alt_text?: string; preview?: { url?: string } }>;
+  image?: string | { url?: string; src?: string };
+  images?: Array<string | { url?: string; src?: string }>;
   variants?: ShopifyVariant[];
   rating?: { value?: number };
   brand?: string | { name?: string };
@@ -94,23 +96,27 @@ function plainText(value: ShopifyRawProduct["description"]): string {
 }
 
 const CATEGORY_RULES: Array<{ id: string; pattern: RegExp }> = [
-  { id: "smartphones", pattern: /\b(smartphone|mobile phone|iphone|pixel phone|galaxy (?:s|z|a|note|fold|flip)\s?\d+|android phone)\b/i },
-  { id: "laptops", pattern: /\b(laptop|notebook|macbook|chromebook|thinkpad)\b/i },
-  { id: "mobile-accessories", pattern: /\b(phone case|screen protector|power bank|wall charger|phone charger|wireless charger|usb[- ]c cable|charging cable|phone adapter)\b/i },
-  { id: "mens-watches", pattern: /\b(watch|smartwatch|wristwatch|apple watch|galaxy watch)\b/i },
-  { id: "fragrances", pattern: /\b(perfume|fragrance|eau de parfum|eau de toilette|cologne)\b/i },
-  { id: "beauty", pattern: /\b(skincare|skin care|makeup|cosmetic|moisturizer|serum|shampoo|conditioner|sunscreen)\b/i },
-  { id: "furniture", pattern: /\b(furniture|sofa|couch|armchair|dining table|coffee table|desk|bookshelf|bed frame|nightstand|floor lamp)\b/i },
-  { id: "groceries", pattern: /\b(grocery|coffee beans|tea bags|snack|chocolate|olive oil|protein bar|food|beverage|honey|cereal)\b/i },
-  { id: "electronics", pattern: /\b(headphones?|earbuds?|speakers?|audio|television|\btv\b|camera|monitor|keyboard|computer mouse|router|game console|gaming headset|electronics?|tablet|projector|drone)\b/i },
-  { id: "sports-outdoors", pattern: /\b(sporting goods|athletic|running shoe|trail shoe|hiking|camping|fitness|yoga|bicycle|cycling|outdoor|tennis|basketball)\b/i },
-  { id: "fashion", pattern: /\b(clothing|apparel|shirt|t-shirt|dress|jeans|jacket|coat|sweater|hoodie|handbag|backpack|sneakers?)\b/i },
-  { id: "toys", pattern: /\b(toys?|lego|puzzle|board game|doll|action figure|plush|stuffed animal)\b/i }
+  // Accessory-specific rules must run before general phone rules.
+  { id: "mobile-accessories", pattern: /\b(phone case|mobile case|screen protector|power bank|wall charger|phone charger|wireless charger|usb[- ]c cable|charging cable|phone adapter|phone stand)\b/i },
+  { id: "smartphones", pattern: /\b(smartphones?|mobile phones?|cell phones?|iphone|pixel phones?|galaxy (?:s|z|a|note|fold|flip)\s?\d+|android phones?)\b/i },
+  { id: "laptops", pattern: /\b(laptops?|notebooks?|macbooks?|chromebooks?|thinkpads?|gaming pc)\b/i },
+  { id: "mens-watches", pattern: /\b(watches|watch|smartwatch|wristwatch|apple watch|galaxy watch)\b/i },
+  { id: "fragrances", pattern: /\b(perfumes?|fragrances?|eau de parfum|eau de toilette|colognes?)\b/i },
+  { id: "beauty", pattern: /\b(beauty|personal care|skin ?care|makeup|cosmetics?|moisturizers?|serums?|shampoo|conditioner|sunscreen|hair care|body lotion)\b/i },
+  { id: "furniture", pattern: /\b(furniture|home decor|sofas?|couches|armchairs|dining tables?|coffee tables?|desks|bookshelves|bed frames?|nightstands?|floor lamps?|lighting)\b/i },
+  { id: "groceries", pattern: /\b(groceries|grocery|coffee beans|tea bags|snacks?|chocolate|olive oil|protein bars?|food|beverages?|honey|cereal|drink)\b/i },
+  { id: "electronics", pattern: /\b(headphones?|headsets?|earbuds?|earphones?|speakers?|soundbars?|audio|bluetooth|televisions?|\btv\b|cameras?|monitors?|keyboards?|computer mice|routers?|game consoles?|electronics?|tablets?|projectors?|drones?|vacuum cleaners?|appliances?)\b/i },
+  { id: "sports-outdoors", pattern: /\b(sports?|sporting goods|athletic|running shoes?|trail shoes?|hiking|camping|fitness|yoga|bicycles?|cycling|outdoors?|tennis|basketball|workout)\b/i },
+  { id: "fashion", pattern: /\b(clothing|apparel|fashion|shirts?|t-shirts?|dresses|jeans|jackets?|coats?|sweaters?|hoodies|handbags?|backpacks?|sneakers?|shoes|boots)\b/i },
+  { id: "toys", pattern: /\b(toys?|lego|puzzles?|board games?|dolls?|action figures?|plush|stuffed animals?|kids)\b/i }
 ];
 
 function categoryHints(raw: ShopifyRawProduct): string[] {
   const values: string[] = [];
-  for (const item of raw.categories || []) if (typeof item.value === "string") values.push(item.value);
+  for (const item of raw.categories || []) {
+    if (typeof item.value === "string") values.push(item.value);
+    if (typeof item.taxonomy === "string") values.push(item.taxonomy);
+  }
   if (typeof raw.category === "string") values.push(raw.category);
   else if (raw.category && typeof raw.category === "object") {
     values.push(raw.category.name || "", raw.category.value || "", raw.category.path || "");
@@ -139,10 +145,21 @@ export function mapShopifyCatalogProduct(value: unknown): ShopifyCatalogProduct 
   const raw = value as ShopifyRawProduct;
   if (typeof raw.id !== "string" || !raw.id.startsWith("gid://shopify/") || typeof raw.title !== "string" || !raw.title.trim()) return null;
 
-  const images = [...new Set((raw.media || [])
-    .filter(item => item.type?.toLowerCase() === "image")
-    .map(item => safeHttpsUrl(item.url || item.preview?.url))
-    .filter(Boolean))];
+  const mediaImages = (raw.media || [])
+    .filter(item => {
+      const type = item.type?.toLowerCase();
+      return !type || type === "image" || type === "mediaimage";
+    })
+    .map(item => safeHttpsUrl(item.url || item.preview?.url));
+  const topLevelImages = [
+    raw.image,
+    ...(Array.isArray(raw.images) ? raw.images : [])
+  ].map(image => {
+    if (typeof image === "string") return safeHttpsUrl(image);
+    if (image && typeof image === "object") return safeHttpsUrl(image.url || image.src);
+    return "";
+  });
+  const images = [...new Set([...mediaImages, ...topLevelImages].filter(Boolean))];
   if (images.length === 0) return null;
 
   const minMoney = raw.price_range?.min;

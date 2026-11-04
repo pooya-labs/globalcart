@@ -340,7 +340,10 @@ export default function Home() {
     const trimmed=query.trim();
     if(trimmed.length===1)return;
     const controller=new AbortController();
-    const remoteQuery=[category!=="all"?category.replace(/-/g," "):"",trimmed].filter(Boolean).join(" ")||"popular products";
+    // Fetch by the visitor's text query only. Category is a local facet over
+    // the current live result set; sending a slug to Shopify can return zero
+    // matches even when products in that category are already loaded.
+    const remoteQuery=trimmed||"popular products";
     setCatalogSourceState("loading");
     setCatalogError(false);
     const timeoutHandle=window.setTimeout(()=>{
@@ -364,7 +367,7 @@ export default function Home() {
       window.clearTimeout(timeoutHandle);
       controller.abort();
     };
-  },[query,category]);
+  },[query]);
 
   useEffect(()=>{
     try{
@@ -453,7 +456,17 @@ export default function Home() {
     if(compareIds.length>=4){notify(locale==="fa"?"حداکثر چهار محصول قابل مقایسه است":"You can compare up to four products");return;}
     setCompareIds(old=>[...old,id]);
   };
-  const catalogCategories=useMemo(()=>Array.from(new Set(products.map(p=>p.category).filter(Boolean))).sort((a,b)=>a.localeCompare(b)),[products]);
+  const catalogCategories=useMemo(()=>Array.from(new Set(products.map(p=>p.category.trim()).filter(Boolean))).sort((left,right)=>{
+    const leftOrder=categories.findIndex(item=>item.id===left);
+    const rightOrder=categories.findIndex(item=>item.id===right);
+    if(leftOrder<0&&rightOrder<0)return left.localeCompare(right);
+    if(leftOrder<0)return 1;
+    if(rightOrder<0)return -1;
+    return leftOrder-rightOrder;
+  }),[products]);
+  const catalogCategoryCounts=useMemo(()=>new Map(catalogCategories.map(id=>[
+    id,products.filter(product=>product.category===id).length
+  ])),[catalogCategories,products]);
   const catalogBrands=useMemo(
     ()=>Array.from(new Set(products.map(p=>p.brand?.trim()).filter((brand):brand is string=>Boolean(brand)))).sort((a,b)=>a.localeCompare(b)),
     [products]
@@ -688,7 +701,17 @@ export default function Home() {
       <section className="section categories-section" id="categories">
         <div className="section-heading"><div><span className="section-kicker">01 / FIND YOUR INTEREST</span><h2>{t.categories}</h2><p>{t.categoriesDesc}</p></div><a href="#catalog">{t.all}<ArrowLeft size={15}/></a></div>
         <div className="category-strip">
-          {categories.slice(1,9).map((c,i)=><button key={c.id} className={"category-tile tile-"+i} onClick={()=>{setCategory(c.id);document.getElementById("catalog")?.scrollIntoView({behavior:"smooth"});}}><small className="category-index">{String(i+1).padStart(2,"0")}</small><span className="category-symbol">{c.symbol}</span><span className="category-name">{rtl?c.fa:c.en}</span><ArrowLeft size={14}/></button>)}
+          {catalogCategories.slice(0,8).map((id,i)=>{
+            const meta=categories.find(item=>item.id===id);
+            const count=catalogCategoryCounts.get(id)??0;
+            return <button key={id} data-category={id} data-count={count} className={"category-tile tile-"+i} onClick={()=>selectCategory(id)}>
+              <small className="category-index">{String(i+1).padStart(2,"0")}</small>
+              <span className="category-symbol">{meta?.symbol??"✦"}</span>
+              <span className="category-name">{categoryLabel(id)}</span>
+              <small className="category-count">{money(count,locale)} {t.count}</small>
+              <ArrowLeft size={14}/>
+            </button>;
+          })}
         </div>
       </section>
 
@@ -733,7 +756,15 @@ export default function Home() {
         <div className="catalog-layout">
           <aside className={showFilters?"filter-panel filter-visible":"filter-panel"}>
             <div className="filter-title"><b><SlidersHorizontal size={16}/>{t.filter}</b><div className="filter-title-actions"><button onClick={()=>{setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);setQuery("");}}>{t.clear}</button><button type="button" className="filter-close" onClick={()=>setShowFilters(false)} aria-label={rtl?"بستن فیلترها":"Close filters"}><X size={16}/></button></div></div>
-            <div className="filter-group"><b>{t.category}</b>{categories.map(c=><button key={c.id} className={category===c.id?"filter-option active":"filter-option"} onClick={()=>setCategory(c.id)}>{rtl?c.fa:c.en}<span>{c.id==="all"?products.length:products.filter(p=>p.category===c.id).length}</span></button>)}</div>
+            <div className="filter-group">
+              <b>{t.category}</b>
+              <button className={category==="all"?"filter-option active":"filter-option"} onClick={()=>setCategory("all")}>
+                {rtl?categories[0].fa:categories[0].en}<span>{products.length}</span>
+              </button>
+              {catalogCategories.map(id=><button key={id} data-category={id} className={category===id?"filter-option active":"filter-option"} onClick={()=>setCategory(id)}>
+                {categoryLabel(id)}<span>{catalogCategoryCounts.get(id)??0}</span>
+              </button>)}
+            </div>
             <div className="filter-group price-filter"><b>{rtl?"بازه قیمت (دلار)": "Price range (USD)"}</b><label>{t.min}<input type="number" min="0" value={minPrice} onChange={e=>setMinPrice(Math.max(0,Number(e.target.value)||0))}/></label><label>{t.max}<input type="number" min="0" value={maxPrice} onChange={e=>setMaxPrice(Math.max(0,Number(e.target.value)||0))}/></label></div>
             <div className="filter-group facet-select-group"><b>{t.brand}</b><select aria-label={t.brand} value={brandFilter} onChange={e=>setBrandFilter(e.target.value)}><option value="">{t.allBrands}</option>{catalogBrands.map(brand=><option key={brand} value={brand}>{brand}</option>)}</select></div>
             <div className="filter-group facet-select-group"><b>{t.minRatingLabel}</b><select aria-label={t.minRatingLabel} value={minRating} onChange={e=>setMinRating(Number(e.target.value))}><option value={0}>{t.anyRating}</option><option value={3}>3.0+</option><option value={4}>4.0+</option><option value={4.5}>4.5+</option></select></div>

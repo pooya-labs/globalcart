@@ -118,3 +118,47 @@ test("uses an image preview URL when a media record omits its direct URL", () =>
   assert.ok(product);
   assert.equal(product.thumbnail, "https://cdn.shopify.com/products/preview.jpg");
 });
+
+
+test("recognizes Shopify media variants and top-level image fields", () => {
+  const mediaImage = mapShopifyCatalogProduct({
+    ...sample,
+    media: [{ type: "MediaImage", preview: { url: "https://cdn.shopify.com/products/media-image.jpg" } }]
+  });
+  assert.ok(mediaImage);
+  assert.equal(mediaImage.thumbnail, "https://cdn.shopify.com/products/media-image.jpg");
+
+  const topLevelImage = mapShopifyCatalogProduct({
+    ...sample,
+    media: [],
+    image: { src: "https://cdn.shopify.com/products/featured.jpg" },
+    images: ["https://cdn.shopify.com/products/alternate.jpg"]
+  });
+  assert.ok(topLevelImage);
+  assert.equal(topLevelImage.thumbnail, "https://cdn.shopify.com/products/featured.jpg");
+  assert.deepEqual(topLevelImage.images, [
+    "https://cdn.shopify.com/products/featured.jpg",
+    "https://cdn.shopify.com/products/alternate.jpg"
+  ]);
+});
+
+test("classifies common merchant product descriptions into populated storefront facets", () => {
+  const cases = [
+    { title: "Noise Cancelling Wireless Headset", description: "Bluetooth over-ear audio.", category: "electronics" },
+    { title: "Leather Crossbody Bag", description: "Women's fashion accessory.", category: "fashion" },
+    { title: "Vitamin C Face Serum", description: "Daily skincare and beauty.", category: "beauty" },
+    { title: "MagSafe Phone Case", description: "Protective case for mobile phone.", category: "mobile-accessories" },
+    { title: "Samsung Galaxy S25", description: "Android mobile phone.", category: "smartphones" }
+  ];
+
+  for (const item of cases) {
+    const product = mapShopifyCatalogProduct({
+      ...sample,
+      categories: undefined,
+      title: item.title,
+      description: { plain: item.description }
+    });
+    assert.ok(product, item.title);
+    assert.equal(product.category, item.category, item.title);
+  }
+});

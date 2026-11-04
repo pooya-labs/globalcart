@@ -26,7 +26,7 @@ test("captures the redesigned storefront shell for desktop and mobile visual rev
   await expect(page.locator("main.store")).toHaveClass(/storefront-v2/);
   await expect(page.locator(".hero-editorial-v2")).toBeVisible();
   await expect(page.locator(".hero-proofline")).toBeVisible();
-  await expect(page.locator(".categories-section .category-tile")).toHaveCount(8);
+  await expect(page.locator(".categories-section .category-tile").first()).toBeVisible();
   await expect(page.locator(".merchandising-panel")).toHaveCount(3);
   await expect(page.locator(".catalog-section .product-card").first()).toBeVisible();
 
@@ -56,6 +56,37 @@ test("captures the redesigned storefront shell for desktop and mobile visual rev
     fullPage: true,
     animations: "disabled"
   });
+});
+
+test("shows only live catalog categories, filters products locally and gives product images a real layout box", async ({ page }) => {
+  const tiles = page.locator(".categories-section .category-tile");
+  await expect(tiles.first()).toBeVisible();
+
+  const firstTile = tiles.first();
+  const categoryId = await firstTile.getAttribute("data-category");
+  const categoryCount = Number(await firstTile.getAttribute("data-count"));
+  expect(categoryId).toBeTruthy();
+  expect(categoryCount).toBeGreaterThan(0);
+
+  const imageLink = page.locator(".product-card .product-image-link").first();
+  const imageGeometry = await imageLink.evaluate(element => {
+    const wrapper = element.getBoundingClientRect();
+    const image = element.querySelector("img")?.getBoundingClientRect();
+    return {
+      wrapperWidth: wrapper.width,
+      wrapperHeight: wrapper.height,
+      imageWidth: image?.width ?? 0,
+      imageHeight: image?.height ?? 0
+    };
+  });
+  expect(imageGeometry.wrapperWidth).toBeGreaterThan(0);
+  expect(imageGeometry.wrapperHeight).toBeGreaterThan(0);
+  expect(imageGeometry.imageWidth).toBeGreaterThan(0);
+  expect(imageGeometry.imageHeight).toBeGreaterThan(0);
+
+  await firstTile.click();
+  await expect(page.locator(".filter-option.active[data-category]")).toHaveAttribute("data-category", categoryId!);
+  await expect(page.locator(".product-card").first()).toBeVisible();
 });
 
 test("switches locale and opens a statically exported product detail page", async ({ page }) => {
