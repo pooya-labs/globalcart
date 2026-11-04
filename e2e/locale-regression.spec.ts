@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import catalogSnapshot from "../data/catalog.json";
 
-const firstProduct = catalogSnapshot.products[0];
+const firstProduct = catalogSnapshot.products[0]!;
 
 test.beforeEach(async ({ page }) => {
   // Keep this regression deterministic and prove that the committed static
