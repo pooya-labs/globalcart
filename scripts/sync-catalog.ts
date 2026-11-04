@@ -17,7 +17,7 @@ const IMAGE_DIRECTORY = join(process.cwd(), "public", "images", "catalog");
 const OUTPUT_FILE = join(process.cwd(), "data", "catalog.json");
 const IMPORTED_AT = new Date().toISOString();
 const MAX_SOURCE_IMAGE_BYTES = 18 * 1024 * 1024;
-const MAX_OPTIMIZED_IMAGE_BYTES = 850 * 1024;
+const MAX_OPTIMIZED_IMAGE_BYTES = 650 * 1024;
 const MAX_TOTAL_IMAGE_BYTES = 320 * 1024 * 1024;
 const CONCURRENCY = 6;
 const IMAGE_CONCURRENCY_PER_PRODUCT = 4;
@@ -222,15 +222,15 @@ async function downloadOriginalImage(
 
         let output = await sharp(input)
           .rotate()
-          .resize({ width: 1440, height: 1440, fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 84, effort: 5, smartSubsample: true })
+          .resize({ width: 1100, height: 1100, fit: "inside", withoutEnlargement: true })
+          .webp({ quality: 72, effort: 6, smartSubsample: true })
           .toBuffer();
 
         if (output.length > MAX_OPTIMIZED_IMAGE_BYTES) {
           output = await sharp(input)
             .rotate()
-            .resize({ width: 1280, height: 1280, fit: "inside", withoutEnlargement: true })
-            .webp({ quality: 78, effort: 5, smartSubsample: true })
+            .resize({ width: 960, height: 960, fit: "inside", withoutEnlargement: true })
+            .webp({ quality: 64, effort: 6, smartSubsample: true })
             .toBuffer();
         }
         if (output.length < 1000 || output.length > MAX_OPTIMIZED_IMAGE_BYTES) continue;
