@@ -58,7 +58,7 @@ function minorUnitValue(money: ShopifyMoney | undefined, fallbackCurrency: strin
     : fallbackCurrency;
   let digits = 2;
   try {
-    digits = new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits;
+    digits = new Intl.NumberFormat("en", { style: "currency", currency }).(resolvedOptions().maximumFractionDigits ?? 2);
   } catch {
     digits = 2;
   }
