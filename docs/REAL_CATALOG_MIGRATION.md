@@ -45,6 +45,15 @@ Licensing is unusually clear but has obligations: the database is ODbL, individu
 
 This can provide authentic food/grocery SKUs and real package photos, but it is not a general retailer inventory feed: it does not provide reliable live retailer price, stock, cart or fulfillment. It is a valid **food-only open-data source candidate** if GlobalCart can satisfy the licenses and show source attribution.
 
+
+### Shopify Global Catalog runtime integration — implementation decision
+
+GlobalCart now uses Shopify Global Catalog MCP as a **runtime discovery source**, not as a persisted catalog feed. The public static storefront calls a small Cloudflare Worker proxy that forwards only validated `search_catalog` requests to Shopify. The proxy does not store results, cache responses, download images or expose credentials. Product image URLs are rendered directly from the live response; merchant names and seller listing links are shown in the UI. Search results are held only in React memory. Live product objects are excluded from localStorage persistence; only the demo cart's non-live legacy entries can be retained.
+
+The Worker is restricted to the canonical GitHub Pages origin (plus localhost for development), enforces query/limit validation, and returns no-store headers. Its public endpoint is `https://globalcart-catalog.pooyagame141.workers.dev/api/catalog`. The profile is hosted at `https://pooya-labs.github.io/globalcart/ucp/agent-profile.json`.
+
+The local cart and checkout remain simulated: no merchant inventory is reserved, no Shopify cart/checkout is created, and no payment or fulfillment occurs. The seller listing link is the only route to a merchant's actual listing. Shopify branding is not used as storefront branding, but seller attribution is retained.
+
 ### Open Facts sibling databases: beauty, pet food and other products
 
 The official Product Opener documentation identifies three sibling databases that use related API infrastructure:
