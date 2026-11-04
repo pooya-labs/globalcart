@@ -26,11 +26,13 @@ test("maps a real merchant listing with live price, image and seller attribution
   assert.equal(product.priceMax, 129.99);
   assert.equal(product.currency, "USD");
   assert.equal(product.rating, 4.5);
-  assert.equal(product.category, "sporting-goods-athletics-running-shoes");
+  assert.equal(product.category, "sports-outdoors");
   assert.equal(product.sellerName, "Example Running");
   assert.equal(product.sellerUrl, "https://example-running.myshopify.com/");
   assert.equal(product.sourceUrl, "https://example-running.myshopify.com/products/trail-runner-pro");
-  assert.equal(product.thumbnail, "https://cdn.shopify.com/products/trail-runner-pro.jpg");
+  assert.equal(new URL(product.thumbnail).origin, "https://globalcart-catalog.pooyagame141.workers.dev");
+  assert.equal(new URL(product.thumbnail).pathname, "/image");
+  assert.equal(new URL(product.thumbnail).searchParams.get("url"), "https://cdn.shopify.com/products/trail-runner-pro.jpg");
   assert.equal(product.isLive, true);
   assert.equal(product.discountPercentage, 0);
   assert.match(product.description, /Lightweight trail running shoe/);
