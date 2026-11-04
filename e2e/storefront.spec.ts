@@ -698,14 +698,14 @@ test("recently viewed route inherits and persists the selected locale", async ({
   await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
   await expect(page).toHaveURL(/product/);
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
-  await expect.poll(() => page.evaluate(() => {
+  await page.waitForFunction((productId: number) => {
     try {
       const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
-      return Array.isArray(state.recent) && state.recent.includes(firstProduct.id);
+      return Array.isArray(state.recent) && state.recent.includes(productId);
     } catch {
       return false;
     }
-  })).toBe(true);
+  }, firstProduct.id);
 
   const historyUrl = new URL("../recently-viewed", page.url()).toString();
   await page.goto(historyUrl);
