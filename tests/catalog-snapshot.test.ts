@@ -301,3 +301,32 @@ test("snapshot validation rejects duplicate non-empty variant SKUs", async () =>
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+
+test("snapshot validation rejects non-boolean source availability flags", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-source-availability-"));
+  const outputFile = join(directory, "catalog.json");
+  try {
+    for (const invalid of [
+      { priceAvailable: "false" },
+      { ratingAvailable: 0 },
+      { stockAvailable: null }
+    ]) {
+      await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+        validSnapshotProduct(invalid)
+      ])), "utf8");
+      await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+    }
+    await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+      validSnapshotProduct({
+        priceAvailable: false,
+        ratingAvailable: false,
+        stockAvailable: false
+      })
+    ])), "utf8");
+    assert.ok(await readCatalogSnapshot(outputFile));
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

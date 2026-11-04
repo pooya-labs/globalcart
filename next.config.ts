@@ -5,6 +5,7 @@ const config: NextConfig = {
   output: "export",
   trailingSlash: true,
   basePath: onPages ? "/globalcart" : "",
+  env: { NEXT_PUBLIC_BASE_PATH: onPages ? "/globalcart" : "" },
   images: { unoptimized: true }
 };
 export default config;

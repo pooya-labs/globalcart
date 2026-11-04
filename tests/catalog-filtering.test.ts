@@ -36,3 +36,77 @@ test("empty filters return all products without mutating the catalog", () => {
   assert.deepEqual(products.map(product => product.id), originalIds);
   assert.notEqual(result, products);
 });
+
+
+test("products without source prices remain discoverable through local category and text filters", () => {
+  const unpriced = {
+    id: 5,
+    title: "Oak dining table",
+    description: "Solid wood furniture",
+    category: "furniture",
+    brand: "Oak Studio",
+    price: 0,
+    rating: 0,
+    priceAvailable: false,
+    ratingAvailable: false
+  };
+  const result = filterCatalogProducts([unpriced], {
+    category: "furniture",
+    query: "dining",
+    minPrice: 100,
+    maxPrice: 500,
+    minRating: 0
+  });
+  assert.deepEqual(result.map(product => product.id), [5]);
+});
+
+test("an unavailable rating is not treated as a positive rating match", () => {
+  const unpriced = {
+    id: 6,
+    title: "Desk lamp",
+    description: "Lighting",
+    category: "home-decor",
+    price: 0,
+    rating: 0,
+    priceAvailable: false,
+    ratingAvailable: false
+  };
+  assert.deepEqual(filterCatalogProducts([unpriced], { minRating: 4 }), []);
+});
+
+
+test("products without source prices remain discoverable through category and text filters", () => {
+  const unpriced = {
+    id: 5,
+    title: "Oak dining table",
+    description: "Solid wood furniture",
+    category: "furniture",
+    brand: "Oak Studio",
+    price: 0,
+    rating: 0,
+    priceAvailable: false,
+    ratingAvailable: false
+  };
+  const result = filterCatalogProducts([unpriced], {
+    category: "furniture",
+    query: "dining",
+    minPrice: 100,
+    maxPrice: 500,
+    minRating: 0
+  });
+  assert.deepEqual(result.map(product => product.id), [5]);
+});
+
+test("products with no source rating do not match positive rating filters", () => {
+  const unpriced = {
+    id: 6,
+    title: "Desk lamp",
+    description: "Home lighting",
+    category: "home-decor",
+    price: 0,
+    rating: 0,
+    priceAvailable: false,
+    ratingAvailable: false
+  };
+  assert.deepEqual(filterCatalogProducts([unpriced], { minRating: 4 }), []);
+});

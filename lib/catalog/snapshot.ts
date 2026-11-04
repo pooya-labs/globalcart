@@ -107,6 +107,10 @@ function isCatalogProduct(value: unknown): value is CatalogProduct {
     !value.images.every(image => typeof image === "string")
   ) return false;
 
+  for (const flag of ["priceAvailable", "ratingAvailable", "stockAvailable"] as const) {
+    if (value[flag] !== undefined && typeof value[flag] !== "boolean") return false;
+  }
+
   if (value.variants !== undefined && (
     !Array.isArray(value.variants) || !value.variants.every(variant => {
       if (!isRecord(variant)) return false;

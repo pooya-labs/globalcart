@@ -28,13 +28,13 @@ GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate p
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
 - Responsive marketplace storefront with Persian RTL and English LTR, category-first navigation and refreshed retail design system.
-- Catalog-driven category mega-menu and quick-category navigation with live category counts.
-- Legacy statically generated detail pages remain for imported snapshot entries; live merchant listings open an in-page detail view and link directly to the seller's listing.
+- Catalog-driven category mega-menu and quick-category navigation with counts derived from the embedded 1,000-item catalog.
+- Product detail pages are statically generated for the local 1,000-item Amazon Berkeley Objects subset; each selected main image is self-hosted under `public/images/catalog/`.
 - Persistent side-by-side comparison for up to four products.
 - Amazon product-link intake demo with domain and ASIN validation; requests are stored locally and do not fetch live Amazon data.
 - Marketplace service shortcuts and a transparent FAQ covering product sourcing, demo limits and support.
-- Live cross-merchant product discovery through Shopify Global Catalog MCP (anonymous access, no API key) behind a Cloudflare Worker; real product names, merchant images, seller-reported prices/availability, seller identity and outbound listing links are fetched at runtime. Search results and merchant images are not cached or persisted.
-- The historical DummyJSON snapshot importer and JSON snapshot remain for regression fixtures and legacy statically generated detail/history routes; the live homepage catalog no longer displays those synthetic items.
+- Offline-first product catalog: a balanced 1,000-item subset of the Amazon Berkeley Objects dataset is stored in the repository with locally hosted 256px-class product images. Search, category filters, product cards and static detail routes work without a runtime Shopify or catalog-provider request.
+- The ABO source provides product metadata and images but not sale prices, ratings or stock for the selected listing fields; GlobalCart marks those values unavailable instead of displaying fabricated zeroes. Dataset attribution and CC BY 4.0 details are documented in [data/CATALOG_SOURCE.md](data/CATALOG_SOURCE.md).
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
 - Browser-local cart, quantity changes, removal and simulated checkout.
@@ -58,9 +58,9 @@ Boundaries and remaining work:
 
 | Area | Current behavior |
 |---|---|
-| Product catalog | Main storefront: live Shopify Global Catalog search across eligible merchants; anonymous requests are rate-limited and no synthetic fallback is shown. Legacy direct detail/history routes still reference the old snapshot. |
-| Images | Merchant-provided image URLs rendered directly at runtime; not downloaded or re-hosted. |
-| Pricing / availability | Seller-reported values from the live catalog response; can change and are not a purchase guarantee. |
+| Product catalog | A committed local snapshot with exactly 1,000 real product listings selected from the ABO dataset; search and category filtering run entirely in the browser. |
+| Images | Product images are stored and served from the repository under `public/images/catalog/`; the hero/editorial images are also self-hosted. |
+| Pricing / availability | The ABO listings used here do not provide sale prices, ratings or stock values. These are clearly labelled as not provided; no fake prices or stock claims are generated. |
 | Translation | Paused; source text is preserved |
 | Currency | TGJU free-market USD page, Rial converted to Toman; indicative, not an executable quote |
 | Cart / favorites | Local browser state; live product records are not persisted. |

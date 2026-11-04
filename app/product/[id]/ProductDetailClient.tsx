@@ -18,6 +18,7 @@ type Product = {
   discountPercentage:number; rating:number; stock:number; brand?:string;
   thumbnail:string; images?:string[]; source?:string; sourceId?:string;
   sourceUrl?:string; importedAt?:string; variants?:ProductVariant[];
+  priceAvailable?:boolean; ratingAvailable?:boolean; stockAvailable?:boolean;
 };
 type Props = { product:Product; related:Product[] };
 type CartLine = { product:Product; quantity:number };
@@ -41,7 +42,19 @@ const categoryNames:Record<string,{fa:string;en:string}> = {
   "womens-jewellery":{fa:"زیورآلات",en:"Women's jewellery"},
   "womens-shoes":{fa:"کفش زنانه",en:"Women's shoes"},
   "mens-shirts":{fa:"پیراهن مردانه",en:"Men's shirts"},
-  "mens-shoes":{fa:"کفش مردانه",en:"Men's shoes"}
+  "mens-shoes":{fa:"کفش مردانه",en:"Men's shoes"},
+  "home-decor":{fa:"دکور و خانه",en:"Home decor"},
+  kitchen:{fa:"آشپزخانه",en:"Kitchen"},
+  shoes:{fa:"کفش",en:"Shoes"},
+  bags:{fa:"کیف و چمدان",en:"Bags & luggage"},
+  jewelry:{fa:"زیورآلات",en:"Jewelry"},
+  books:{fa:"کتاب",en:"Books"},
+  automotive:{fa:"خودرو",en:"Automotive"},
+  tools:{fa:"ابزار",en:"Tools"},
+  baby:{fa:"کودک و نوزاد",en:"Baby"},
+  pets:{fa:"حیوانات خانگی",en:"Pets"},
+  office:{fa:"اداری و نوشت‌افزار",en:"Office"},
+  music:{fa:"موسیقی",en:"Musical instruments"}
 };
 
 export default function ProductDetailClient({product,related}:Props) {
@@ -58,10 +71,12 @@ export default function ProductDetailClient({product,related}:Props) {
     setLocale(next);
     writeLocalePreference(next);
   };
+  const catalogImageSrc=(source:string)=>(source.startsWith("/images/catalog/")?(process.env.NEXT_PUBLIC_BASE_PATH||"")+source:source);
+  const storageKey=process.env.NEXT_PUBLIC_E2E_FIXTURE_CATALOG==="1"?"globalcart-state-v1":"globalcart-state-v2";
   const images=useMemo(()=>Array.from(new Set([product.thumbnail,...(product.images||[])].filter(Boolean))),[product]);
   const image=images[Math.min(activeImage,images.length-1)]||product.thumbnail;
   const discounted=product.price*(1-product.discountPercentage/100);
-  const priceBreakdown=rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
+  const priceBreakdown=product.priceAvailable===false||rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
   const fxTimestampLabel=fxQuote.sourceTimeKind==="date_only"&&fxQuote.sourceTimeTehran
     ?(rtl?fxQuote.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxQuote.sourceTimeTehran)
@@ -73,27 +88,29 @@ export default function ProductDetailClient({product,related}:Props) {
   useEffect(()=>{setFxStatus(getFxRateStatus(fxQuote));},[]);
   useEffect(()=>{
     try{
-      const raw=localStorage.getItem("globalcart-state-v1");
+      const raw=localStorage.getItem(storageKey);
       const state=raw?JSON.parse(raw):{};
       if(Array.isArray(state.favorites))setSaved(state.favorites.includes(product.id));
       const recentIds:number[]=Array.isArray(state.recent)?state.recent:[];
-      localStorage.setItem("globalcart-state-v1",JSON.stringify({...state,recent:[product.id,...recentIds.filter(id=>id!==product.id)].slice(0,8)}));
+      localStorage.setItem(storageKey,JSON.stringify({...state,recent:[product.id,...recentIds.filter(id=>id!==product.id)].slice(0,8)}));
     }catch{/* Ignore invalid local demo state. */}
   },[product.id]);
-  const format=(value:number)=>rtl&&rate!==null
-    ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:value,fxRate:rate}).toman)+" تومان"
-    : "$"+value.toFixed(2);
+  const format=(value:number)=>product.priceAvailable===false
+    ? (rtl?"قیمت ثبت نشده":"Price not provided")
+    : rtl&&rate!==null
+      ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:value,fxRate:rate}).toman)+" تومان"
+      : "$"+value.toFixed(2);
   const category=categoryNames[product.category]||{fa:product.category,en:product.category.replaceAll("-"," ")};
   const addToCart=()=>{
     try{
-      const raw=localStorage.getItem("globalcart-state-v1");
+      const raw=localStorage.getItem(storageKey);
       const state=raw?JSON.parse(raw):{};
       const cart:CartLine[]=Array.isArray(state.cart)?state.cart:[];
       const existing=cart.find(line=>line.product.id===product.id);
       const next=existing
         ?cart.map(line=>line.product.id===product.id?{...line,quantity:line.quantity+quantity}:line)
         :[...cart,{product,quantity}];
-      localStorage.setItem("globalcart-state-v1",JSON.stringify({...state,cart}));
+      localStorage.setItem(storageKey,JSON.stringify({...state,cart}));
       setAdded(true);
     }catch{
       setAdded(false);
@@ -101,11 +118,11 @@ export default function ProductDetailClient({product,related}:Props) {
   };
   const toggleSaved=()=>{
     try{
-      const raw=localStorage.getItem("globalcart-state-v1");
+      const raw=localStorage.getItem(storageKey);
       const state=raw?JSON.parse(raw):{};
       const favorites:number[]=Array.isArray(state.favorites)?state.favorites:[];
       const next=favorites.includes(product.id)?favorites.filter(id=>id!==product.id):[...favorites,product.id];
-      localStorage.setItem("globalcart-state-v1",JSON.stringify({...state,favorites:next}));
+      localStorage.setItem(storageKey,JSON.stringify({...state,favorites:next}));
       setSaved(next.includes(product.id));
     }catch{/* Browser storage may be unavailable. */}
   };
@@ -116,16 +133,16 @@ export default function ProductDetailClient({product,related}:Props) {
     <div className="product-breadcrumb"><Link href="/">{rtl?"خانه":"Home"}</Link><ChevronLeft size={13}/><Link href="/#categories">{rtl?"دسته‌بندی‌ها":"Categories"}</Link><ChevronLeft size={13}/><span>{rtl?category.fa:category.en}</span><ChevronLeft size={13}/><b>{product.title}</b></div>
     <section className="product-detail-layout">
       <div className="detail-gallery">
-        <div className="detail-main-image"><img src={image} alt={product.title} loading="eager" fetchPriority="high" decoding="async"/><span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span></div>
-        <div className="detail-thumbnails">{images.map((src,index)=><button key={src} className={activeImage===index?"active":""} onClick={()=>setActiveImage(index)} aria-label={rtl?`تصویر ${index+1}`:`Image ${index+1}`} aria-pressed={activeImage===index}><img src={src} alt="" loading="lazy" decoding="async"/></button>)}</div>
+        <div className="detail-main-image"><img src={catalogImageSrc(image)} alt={product.title} loading="eager" fetchPriority="high" decoding="async"/>{product.priceAvailable!==false&&product.discountPercentage>0&&<span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span>}</div>
+        <div className="detail-thumbnails">{images.map((src,index)=><button key={src} className={activeImage===index?"active":""} onClick={()=>setActiveImage(index)} aria-label={rtl?`تصویر ${index+1}`:`Image ${index+1}`} aria-pressed={activeImage===index}><img src={catalogImageSrc(src)} alt="" loading="lazy" decoding="async"/></button>)}</div>
       </div>
       <div className="detail-information">
         <span className="detail-brand">{product.brand||"GLOBAL SELECT"}</span>
         <h1>{product.title}</h1>
-        <div className="detail-rating"><span><Star size={15} fill="currentColor"/>{product.rating.toFixed(1)}</span><i/> <span>{rtl?"شناسه محصول":"Product ID"}: {product.id}</span><i/><span>{rtl?category.fa:category.en}</span></div>
+        <div className="detail-rating">{product.ratingAvailable===false?<span>{rtl?"امتیاز ثبت نشده":"No rating supplied"}</span>:<span><Star size={15} fill="currentColor"/>{product.rating.toFixed(1)}</span>}<i/> <span>{rtl?"شناسه محصول":"Product ID"}: {product.id}</span><i/><span>{rtl?category.fa:category.en}</span></div>
         <p className="detail-description">{product.description}</p>
-        <div className="detail-highlights"><div><ShieldCheck/><span><b>{rtl?"اطلاعات شفاف":"Clear information"}</b><small>{rtl?"قیمت و منبع داده مشخص است":"Price and data source disclosed"}</small></span></div><div><Truck/><span><b>{rtl?"تجربه خرید نمایشی":"Demo shopping experience"}</b><small>{rtl?"بدون ارسال یا موجودی واقعی":"No real shipping or inventory"}</small></span></div></div>
-        <div className="detail-specs"><div><span>{rtl?"دسته‌بندی":"Category"}</span><b>{rtl?category.fa:category.en}</b></div><div><span>{rtl?"برند":"Brand"}</span><b>{product.brand||"Global Select"}</b></div><div><span>{rtl?"امتیاز نمونه":"Sample rating"}</span><b>{product.rating.toFixed(1)} / 5</b></div><div><span>{rtl?"موجودی در منبع نمونه":"Source stock figure"}</span><b>{product.stock}</b></div></div>
+        <div className="detail-highlights"><div><ShieldCheck/><span><b>{rtl?"اطلاعات شفاف":"Clear information"}</b><small>{rtl?"منبع هر داده مشخص است؛ قیمت در این مجموعه ارائه نشده":"Source is disclosed; this dataset does not provide a sale price"}</small></span></div><div><Truck/><span><b>{rtl?"تجربه خرید نمایشی":"Demo shopping experience"}</b><small>{rtl?"بدون ارسال یا موجودی واقعی":"No real shipping or inventory"}</small></span></div></div>
+        <div className="detail-specs"><div><span>{rtl?"دسته‌بندی":"Category"}</span><b>{rtl?category.fa:category.en}</b></div><div><span>{rtl?"برند":"Brand"}</span><b>{product.brand||"Global Select"}</b></div><div><span>{rtl?"امتیاز نمونه":"Sample rating"}</span><b>{product.ratingAvailable===false?(rtl?"ثبت نشده":"Not provided"):product.rating.toFixed(1)+" / 5"}</b></div><div><span>{rtl?"موجودی در منبع نمونه":"Source stock figure"}</span><b>{product.stockAvailable===false?(rtl?"ثبت نشده":"Not provided"):product.stock}</b></div></div>
         <section className="detail-provenance" aria-label={rtl?"منشأ و ویژگی‌های داده":"Data provenance and attributes"}>
           <div className="detail-provenance-heading"><b>{rtl?"منشأ و ویژگی‌های داده":"Data provenance & attributes"}</b><span>{product.source||"Unknown source"}</span></div>
           <div className="detail-provenance-grid">
@@ -147,9 +164,11 @@ export default function ProductDetailClient({product,related}:Props) {
         </section>
       </div>
       <aside className="detail-buybox">
-        <span className="buybox-kicker">{rtl?"برآورد قیمت با نرخ بازار":"EXCHANGE-BASED ESTIMATE"}</span>
-        <div className="detail-price">{priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
-        <div className="detail-old-price"><s>{format(product.price)}</s><span>{rtl?"قیمت قبل از تخفیف":"Before discount"}</span></div>
+        <span className="buybox-kicker">{rtl?"قیمت ثبت‌شده در منبع":"SOURCE PRICE"}</span>
+        <div className="detail-price">{product.priceAvailable===false?(rtl?"قیمت ارائه نشده":"Price not provided"):priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
+        {product.priceAvailable===false
+          ? <p className="price-breakdown">{rtl?"مجموعه‌دادهٔ اصلی برای این کالا قیمت فروش ارائه نکرده است. برای جلوگیری از نمایش مبلغ ساختگی، قیمت خالی مانده است.":"The source dataset does not provide a sale price for this item, so no synthetic amount is shown."}</p>
+          : <><div className="detail-old-price"><s>{format(product.price)}</s><span>{rtl?"قیمت قبل از تخفیف":"Before discount"}</span></div>
         <details className="price-breakdown"><summary>{rtl?"منبع و جزئیات نرخ تبدیل":"FX source and calculation"}</summary>
           <div><span>{rtl?"قیمت منبع (USD)":"Source catalog price (USD)"}</span><b>${product.price.toFixed(2)}</b></div>
           <div><span>{rtl?"تخفیف نمونه":"Catalog sample discount"}</span><b>{product.discountPercentage.toFixed(2)}%</b></div>
@@ -160,18 +179,18 @@ export default function ProductDetailClient({product,related}:Props) {
             {fxStatus!=="fresh"&&<small className="fx-warning">{rtl?"هشدار تازگی نرخ: "+fxStatusLabel:"FX freshness warning: "+fxStatusLabel}</small>}
           </>:<small>{rtl?"نرخ معتبر دلار TGJU فعلاً در دسترس نیست؛ مبلغ اصلی به دلار نمایش داده می‌شود.":"A valid TGJU dollar quote is currently unavailable, so the source USD price is shown."}</small>}
           <small>{rtl?"قیمت‌ها نمایشی‌اند و شامل هزینه ارسال، مالیات، کارمزد پرداخت یا تعهد خرید نیستند.":"Demo prices only; no shipping, tax, payment fees or purchase commitment are included."}</small>
-        </details>
-        <div className="buybox-stock"><span/> {rtl?"موجود در کاتالوگ نمونه":"Listed in sample catalog"}</div>
+        </details></>
+        <div className="buybox-stock"><span/> {product.stockAvailable===false?(rtl?"وضعیت موجودی در منبع ثبت نشده":"Stock status not provided by source"):(rtl?"موجود در کاتالوگ نمونه":"Listed in sample catalog")}</div>
         <div className="buybox-quantity"><span>{rtl?"تعداد":"Quantity"}</span><div><button onClick={()=>setQuantity(q=>Math.max(1,q-1))} aria-label={rtl?"کاهش تعداد":"Decrease quantity"}><Minus size={15}/></button><b>{quantity}</b><button onClick={()=>setQuantity(q=>Math.min(10,q+1))} aria-label={rtl?"افزایش تعداد":"Increase quantity"}><Plus size={15}/></button></div></div>
         <button className="buybox-add" onClick={addToCart}><ShoppingBag size={17}/>{rtl?"افزودن به سبد خرید":"Add to bag"}</button>
         <button className="buybox-save" onClick={toggleSaved}><Heart size={16} fill={saved?"currentColor":"none"}/>{saved?(rtl?"حذف از علاقه‌مندی‌ها":"Remove from saved"):(rtl?"ذخیره در علاقه‌مندی‌ها":"Save for later")}</button>
         {added&&<div className="buybox-confirm"><Check size={16}/>{rtl?"به سبد خرید اضافه شد":"Added to your bag"}</div>}
         <div className="buybox-disclaimer"><ShieldCheck size={16}/><span>{rtl?"این یک فروشگاه نمایشی است؛ پرداخت و ارسال واقعی انجام نمی‌شود.":"Demo storefront only. No real payment or shipping."}</span></div>
-        <small className="buybox-source">{rtl?"منبع اطلاعات":"Data source"}: {product.source||"DummyJSON public demo API"}</small>
+        <small className="buybox-source">{rtl?"منبع اطلاعات":"Data source"}: {product.source||"Amazon Berkeley Objects dataset · CC BY 4.0"}</small>
       </aside>
     </section>
     <section className="detail-description-panel"><span className="section-kicker">PRODUCT OVERVIEW</span><h2>{rtl?"درباره محصول":"About this product"}</h2><p>{product.description}</p><div><span>{rtl?"شناسه منبع":"Source ID"}</span><b>{product.sourceId||product.id}</b><span>{rtl?"آخرین قیمت نمونه":"Sample price"}</span><b>{format(discounted)}</b></div></section>
-    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={item.thumbnail} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{item.title}</b><strong>{format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
+    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={catalogImageSrc(item.thumbnail)} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{item.title}</b><strong>{item.priceAvailable===false?(rtl?"قیمت ثبت نشده":"Price not provided"):format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
     <footer className="product-page-footer"><Link href="/">globalcart</Link><span>{rtl?"پروژه مستقل نمایشی · توسعه و طراحی پویا گودرزی":"Independent portfolio demo · Designed & built by Pooya Goodarzi"}</span></footer>
   </main>;
 }

@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       smoke_product_id: ${{ steps.smoke_product.outputs.product_id }}
+      smoke_image_path: ${{ steps.smoke_product.outputs.image_path }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -44,11 +45,24 @@ jobs:
           node <<'NODE'
           const fs = require("node:fs");
           const catalog = JSON.parse(fs.readFileSync("data/catalog.json", "utf8"));
-          const product = catalog.products?.find((item) =>
-            Number.isSafeInteger(item.id) && item.id > 0 && typeof item.title === "string" && item.title.trim()
-          );
-          if (!product) throw new Error("Catalog snapshot has no valid product route for the deployment smoke test.");
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `product_id=${product.id}\n`);
+          const products = catalog.products || [];
+          if (products.length !== 1000) throw new Error(`Expected exactly 1,000 embedded catalog products, found ${products.length}.`);
+          const localImages = products.filter(item => typeof item.thumbnail === "string" && item.thumbnail.startsWith("/images/catalog/"));
+          const categoryCount = new Set(products.map(item => item.category).filter(Boolean)).size;
+          if (localImages.length !== products.length) throw new Error(`Expected a local image for every product; found ${localImages.length}/${products.length}.`);
+          if (categoryCount < 8) throw new Error(`Catalog is not category-diverse enough: only ${categoryCount} categories.`);
+          for (const product of products) {
+            const relative = product.thumbnail.startsWith("/") ? product.thumbnail.slice(1) : product.thumbnail;
+            const file = require("node:path").join(process.cwd(), "public", relative);
+            if (!fs.existsSync(file) || fs.statSync(file).size < 512) {
+              throw new Error(`Missing or invalid local product image for ${product.sourceId}: ${product.thumbnail}`);
+            }
+            if (product.priceAvailable !== false || product.ratingAvailable !== false || product.stockAvailable !== false) {
+              throw new Error(`Unavailable commercial fields must remain explicitly marked as unavailable: ${product.sourceId}`);
+            }
+          }
+          const product = products[0];
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `product_id=${product.id}\nimage_path=${product.thumbnail}\n`);
           NODE
       - name: Persist refreshed catalog snapshot, site imagery and npm lockfile safely
         shell: bash
@@ -63,11 +77,13 @@ jobs:
           snapshot="$RUNNER_TEMP/catalog.json"
           package_lock="$RUNNER_TEMP/package-lock.json"
           site_images="$RUNNER_TEMP/site-images"
+          catalog_images="$RUNNER_TEMP/catalog-images"
           cp data/catalog.json "$snapshot"
           test -f package-lock.json
           cp package-lock.json "$package_lock"
-          mkdir -p "$site_images"
+          mkdir -p "$site_images" "$catalog_images"
           cp -R public/images/site/. "$site_images/"
+          cp -R public/images/catalog/. "$catalog_images/"
 
           # Rebuild the snapshot/lockfile commit from the latest main on every attempt.
           # A non-fast-forward push is retried; force-push is never used.
@@ -76,9 +92,10 @@ jobs:
             git reset --hard origin/main
             cp "$snapshot" data/catalog.json
             cp "$package_lock" package-lock.json
-            mkdir -p public/images/site
+            mkdir -p public/images/site public/images/catalog
             cp -R "$site_images/." public/images/site/
-            git add -- data/catalog.json package-lock.json public/images/site/
+            cp -R "$catalog_images/." public/images/catalog/
+            git add -- data/catalog.json package-lock.json public/images/site/ public/images/catalog/
 
             if git diff --cached --quiet; then
               echo "Generated snapshots and site imagery are unchanged."
@@ -128,6 +145,7 @@ jobs:
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
           PRODUCT_ID: ${{ needs.build.outputs.smoke_product_id }}
+          PRODUCT_IMAGE_PATH: ${{ needs.build.outputs.smoke_image_path }}
         run: |
           set -euo pipefail
           base_url="${PAGE_URL%/}/"
@@ -204,6 +222,19 @@ jobs:
           }
           NODE
           done
+
+          product_image_url="${base_url}${PRODUCT_IMAGE_PATH#/}"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \
+            "$product_image_url" --output "$site_image_file"
+          node - "$site_image_file" "$PRODUCT_IMAGE_PATH" <<'NODE'
+          const fs = require("node:fs");
+          const [file, asset] = process.argv.slice(2);
+          const bytes = fs.readFileSync(file);
+          const valid = (asset.endsWith(".jpg") && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) ||
+            (asset.endsWith(".png") && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) ||
+            (asset.endsWith(".webp") && bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP");
+          if (!valid || bytes.length < 512) throw new Error(`Published local catalog image is invalid: ${asset}`);
+          NODE
 
           product_url="${base_url}product/${PRODUCT_ID}/"
           curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors \

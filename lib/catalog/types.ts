@@ -34,6 +34,10 @@ export type CatalogProduct = {
   sourceId: string;
   sourceUrl: string;
   importedAt: string;
+  /** Whether the upstream dataset actually supplied a price, rating or stock value. */
+  priceAvailable?: boolean;
+  ratingAvailable?: boolean;
+  stockAvailable?: boolean;
   localization?: CatalogLocalization;
   variants?: CatalogVariant[];
 };
