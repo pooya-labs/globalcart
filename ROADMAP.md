@@ -96,6 +96,7 @@ These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile 
 - [x] Assess Shopify Storefront API scope; it requires a known shop domain and is not a universal open marketplace catalog.
 - [x] Assess Daily Dose Tech public read-only API as a genuine-product technology discovery candidate; image reuse, redistribution and retailer-price freshness remain unverified.
 - [x] Assess Open Food Facts API v3 as a genuine barcode-based food catalog; document ODbL/DbCL data and CC BY-SA image obligations, User-Agent guidance and rate limits.
+- [x] Discover Open Beauty Facts, Open Pet Food Facts and Open Products Facts as experimental category-specific sibling databases; document that they are not retailer feeds and require independent rights/quality checks.
 - [ ] Obtain source permission/terms confirmation for any product images and content before integration.
 - [ ] Find verified sources for fashion, home and general merchandise, or obtain an approved retailer/affiliate feed.
 - [ ] Replace the sample source only after source rights, attribution, freshness semantics and category coverage are approved and contract-tested.
