@@ -13,9 +13,8 @@ function findSearchFixture() {
     const words = product.title.split(/[^A-Za-z0-9\u00C0-\uFFFF]+/).filter(word => word.length >= 5);
     for (const word of words) {
       const query = word.slice(0, Math.min(12, word.length));
-      const suggestion = buildCatalogSuggestions(catalogSnapshot.products, query)
-        .find(item => item.kind === "product" && item.productId === product.id);
-      if (suggestion) return { product, query };
+      const suggestion = buildCatalogSuggestions(catalogSnapshot.products, query)[0];
+      if (suggestion?.kind === "product" && suggestion.productId === product.id) return { product, query };
     }
   }
   throw new Error("Could not find a catalog product within the bounded search suggestions.");
@@ -85,6 +84,15 @@ test("captures the redesigned storefront shell for desktop and mobile visual rev
     fullPage: true,
     animations: "disabled"
   });
+});
+
+test("renders the first 36 products and reveals the next batch on demand", async ({ page }) => {
+  await expect(page.locator(".product-card")).toHaveCount(36);
+  const loadMore = page.getByRole("button", { name: "Load more products", exact: true });
+  await expect(loadMore).toBeVisible();
+  await loadMore.click();
+  await expect(page.locator(".product-card")).toHaveCount(72);
+  await expect(page.getByText("72 of 1,000 products")).toBeVisible();
 });
 
 test("product cards center the natural image canvas without cropping", async ({ page }) => {
