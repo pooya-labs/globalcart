@@ -84,6 +84,15 @@ test("classifies live listings when Shopify omits category fields", () => {
   assert.ok(runningShoes);
   assert.equal(runningShoes.category, "sports-outdoors");
 
+  const galaxyWatch = mapShopifyCatalogProduct({
+    ...sample,
+    categories: undefined,
+    title: "Samsung Galaxy Watch Ultra",
+    description: { plain: "Premium smartwatch for fitness tracking." }
+  });
+  assert.ok(galaxyWatch);
+  assert.equal(galaxyWatch.category, "mens-watches");
+
   const fallback = mapShopifyCatalogProduct({
     ...sample,
     categories: undefined,
