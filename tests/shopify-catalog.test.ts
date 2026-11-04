@@ -63,3 +63,51 @@ test("handles missing rating and availability without inventing a rating or stoc
   assert.equal(product.availability, false);
   assert.equal(product.stock, 0);
 });
+
+
+test("classifies live listings when Shopify omits category fields", () => {
+  const headphones = mapShopifyCatalogProduct({
+    ...sample,
+    categories: undefined,
+    title: "Crusher Evo",
+    description: { plain: "Wireless Bluetooth headphones with active noise cancellation." }
+  });
+  assert.ok(headphones);
+  assert.equal(headphones.category, "electronics");
+
+  const runningShoes = mapShopifyCatalogProduct({
+    ...sample,
+    categories: undefined,
+    title: "Trail Runner Pro",
+    description: { plain: "Lightweight running shoes for outdoor trails." }
+  });
+  assert.ok(runningShoes);
+  assert.equal(runningShoes.category, "sports-outdoors");
+
+  const fallback = mapShopifyCatalogProduct({
+    ...sample,
+    categories: undefined,
+    title: "A Product With No Category Clues",
+    description: { plain: "A useful everyday item." }
+  });
+  assert.ok(fallback);
+  assert.equal(fallback.category, "other-products");
+});
+
+test("routes Shopify CDN images through the catalog Worker", () => {
+  const product = mapShopifyCatalogProduct(sample);
+  assert.ok(product);
+  const image = new URL(product.thumbnail);
+  assert.equal(image.origin, "https://globalcart-catalog.pooyagame141.workers.dev");
+  assert.equal(image.pathname, "/image");
+  assert.equal(image.searchParams.get("url"), "https://cdn.shopify.com/products/trail-runner-pro.jpg");
+});
+
+test("uses an image preview URL when a media record omits its direct URL", () => {
+  const product = mapShopifyCatalogProduct({
+    ...sample,
+    media: [{ type: "image", preview: { url: "https://cdn.shopify.com/products/preview.jpg" } }]
+  });
+  assert.ok(product);
+  assert.equal(new URL(product.thumbnail).searchParams.get("url"), "https://cdn.shopify.com/products/preview.jpg");
+});
