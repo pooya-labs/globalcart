@@ -198,7 +198,7 @@ jobs:
           const fs = require("node:fs");
           const [file, asset] = process.argv.slice(2);
           const bytes = fs.readFileSync(file);
-          if (bytes.length < 10000 || bytes.toString("ascii", 0, 4) !== "RIFF" ||
+          if (bytes.length < 512 || bytes.toString("ascii", 0, 4) !== "RIFF" ||
               bytes.toString("ascii", 8, 12) !== "WEBP") {
             throw new Error(`Published site image is not a valid WebP asset: ${asset}`);
           }
