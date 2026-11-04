@@ -1,4 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
+import catalogSnapshot from "../data/catalog.json";
+
+const firstProduct = catalogSnapshot.products[0];
 
 test.beforeEach(async ({ page }) => {
   // Keep this regression deterministic and prove that the committed static
@@ -40,10 +43,53 @@ test("Persian RTL and English LTR persist across public routes without horizonta
   await expectNoHorizontalOverflow(page, "reloaded English storefront");
 
   // Product detail: the route inherits the selected locale and can change it.
-  await page.locator(".product-card h3 a")
-    .filter({ hasText: "Essence Mascara Lash Princess" })
-    .click();
-  await expect(page).toHaveURL(/\/product\/1\/?$/);
+  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
+  await expect(page).toHaveURL(new RegExp(`/product/${firstProduct.id}/?import { test, expect, type Page } from "@playwright/test";
+import catalogSnapshot from "../data/catalog.json";
+
+const firstProduct = catalogSnapshot.products[0];
+
+test.beforeEach(async ({ page }) => {
+  // Keep this regression deterministic and prove that the committed static
+  // catalog is sufficient for route and locale behavior.
+  await page.route("**/*", route => {
+    const url = new URL(route.request().url());
+    if (url.hostname === "127.0.0.1" || url.hostname === "localhost") {
+      return route.continue();
+    }
+    return route.abort();
+  });
+  await page.goto("./");
+  await expect(page.locator(".product-card").first()).toBeVisible();
+});
+
+async function expectNoHorizontalOverflow(page: Page, routeName: string) {
+  const dimensions = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    document: document.documentElement.scrollWidth
+  }));
+  expect(
+    dimensions.document,
+    `${routeName} overflows horizontally: ${JSON.stringify(dimensions)}`
+  ).toBeLessThanOrEqual(dimensions.viewport);
+}
+
+test("Persian RTL and English LTR persist across public routes without horizontal overflow", async ({ page }) => {
+  // Storefront: start in Persian, switch to English, and verify persistence.
+  const storefront = page.locator("main.store");
+  await expect(storefront).toHaveAttribute("dir", "rtl");
+  await expectNoHorizontalOverflow(page, "Persian storefront");
+
+  await page.locator(".locale-button").click();
+  await expect(storefront).toHaveAttribute("dir", "ltr");
+  await expectNoHorizontalOverflow(page, "English storefront");
+
+  await page.reload();
+  await expect(storefront).toHaveAttribute("dir", "ltr");
+  await expectNoHorizontalOverflow(page, "reloaded English storefront");
+
+  // Product detail: the route inherits the selected locale and can change it.
+));
   const product = page.locator("main.product-page");
   await expect(product).toBeVisible();
   await expect(product).toHaveAttribute("dir", "ltr");
