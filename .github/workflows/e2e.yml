@@ -66,6 +66,7 @@ jobs:
         run: npm run build
         env:
           GITHUB_ACTIONS: "true"
+          NEXT_PUBLIC_E2E_FIXTURE_CATALOG: "1"
       - name: Run desktop and mobile browser journeys
         run: npm run test:e2e
       - name: Upload Playwright report

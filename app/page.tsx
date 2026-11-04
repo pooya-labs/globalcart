@@ -2,15 +2,15 @@
 
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import Link from "next/link";
-import { fetchDummyJsonCatalog } from "../lib/catalog";
+import { searchShopifyCatalog } from "../lib/catalog/shopify";
 import { filterCatalogProducts } from "../lib/catalog/filtering";
 import { buildCatalogSuggestions, type CatalogSearchSuggestion } from "../lib/catalog/suggestions";
 import { getCatalogRecommendationReason, rankCatalogRecommendations } from "../lib/catalog/recommendations";
 import { hasSameSavedSearchFilters, normalizeSavedCatalogSearches, type SavedCatalogSearch } from "../lib/catalog/saved-searches";
-import { getCatalogSourceStatus, type CatalogSourceStatus } from "../lib/catalog/source-status";
+import type { CatalogSourceStatus } from "../lib/catalog/source-status";
 import { getCatalogFreshness, type CatalogFreshnessStatus } from "../lib/catalog/freshness";
-import catalogSnapshot from "../data/catalog.json";
 import fxSnapshot from "../data/fx-rate.json";
+import catalogSnapshot from "../data/catalog.json";
 const fxQuote = fxSnapshot as unknown as FxRateSnapshot;
 import { calculateDemoPrice } from "../lib/pricing";
 import { getFxRateStatus, type FxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
@@ -26,7 +26,14 @@ type Product = {
   id: number; title: string; description: string; category: string; price: number;
   discountPercentage: number; rating: number; stock: number; brand?: string;
   thumbnail: string; images?: string[]; source?: string;
+  sellerName?: string; sellerUrl?: string; sourceUrl?: string;
+  currency?: string; priceMax?: number; availability?: boolean; isLive?: boolean;
 };
+
+const isE2EFixtureCatalog = process.env.NEXT_PUBLIC_E2E_FIXTURE_CATALOG === "1";
+const snapshotProducts = Array.isArray(catalogSnapshot.products)
+  ? catalogSnapshot.products as unknown as Product[]
+  : [];
 type CartLine = { product: Product; quantity: number };
 
 const copy = {
@@ -42,9 +49,9 @@ const copy = {
     nav1: "فروشگاه", nav2: "دسته‌بندی‌ها", nav3: "پیشنهادهای منتخب", nav4: "درباره پروژه",
     heroEyebrow: "THE ART OF DISCOVERY", heroTitle: "چیزهای خوب،\nدرست همین‌جا پیدا می‌شوند.", heroDesc: "یک تجربه خرید مدرن برای کشف، مقایسه و انتخاب هوشمندانه؛ از محصولات روزمره تا انتخاب‌های خاص.",
     explore: "کشف محصولات", curated: "انتخاب‌های سردبیر", categories: "بر اساس علاقه بگرد", categoriesDesc: "از جایی شروع کن که به تو نزدیک‌تر است.",
-    all: "همه محصولات", catalog: "ویترین جهانی", catalogDesc: "کالکشن نمونه با اطلاعات واردشده از منبع داده نمایشی.",
+    all: "همه محصولات", catalog: "ویترین جهانی", catalogDesc: "کالاهای واقعی از فروشندگان مستقل؛ قیمت و موجودی از فهرست فروشنده دریافت می‌شود.",
     sort: "مرتب‌سازی", popular: "پیشنهاد‌شده", low: "قیمت: کم به زیاد", high: "قیمت: زیاد به کم", rating: "بالاترین امتیاز",
-    recommendationBasis: "رتبه‌بندی نمایشی بر پایه امتیاز و تخفیف نمونه؛ نه شخصی‌سازی بر اساس سابقه کاربر.",
+    recommendationBasis: "مرتب‌سازی بر اساس امتیازهای منتشرشده؛ پیشنهادها شخصی‌سازی نشده‌اند.",
     recommendationBoth: "امتیاز بالا + تخفیف", recommendationRating: "امتیاز بالای کاتالوگ",
     recommendationDiscount: "تخفیف قابل‌توجه", recommendationBalanced: "ترکیب متعادل امتیاز و قیمت",
     filter: "فیلترها", category: "دسته‌بندی", clear: "پاک کردن فیلتر", noResults: "محصولی با این مشخصات پیدا نشد.",
@@ -52,14 +59,14 @@ const copy = {
     subtotal: "جمع جزء", checkout: "ادامه و ثبت سفارش نمایشی", demo: "نسخه نمایشی", noPayment: "پرداخت واقعی غیرفعال است؛ این پروژه فروشگاه واقعی نیست.",
     demoCheckout: "تکمیل سفارش آزمایشی", demoText: "این مرحله فقط برای نمایش تجربه کاربری است. هیچ پرداخت یا سفارش واقعی ثبت نمی‌شود.",
     confirm: "ثبت سفارش آزمایشی", success: "سفارش نمایشی ساخته شد", order: "شناسه سفارش", continue: "بازگشت به فروشگاه",
-    source: "منبع", fxTitle: "نرخ دلار بازار آزاد", fxProvider: "TGJU · دلار آزاد", fxFresh: "به‌روز", fxAging: "در حال کهنه‌شدن", fxStale: "قدیمی", fxUnavailable: "نرخ در دسترس نیست", fxUnknown: "زمان نامشخص", fxCaveat: "قیمت تابلو از ریال به تومان تبدیل شده؛ نرخ قطعی خریدوفروش یا بانکی نیست.", fxUnavailableNote: "تا دریافت نرخ معتبر، قیمت به دلار نمایش داده می‌شود.", inStock: "موجود در کاتالوگ نمونه", off: "تخفیف",
-    searchResults: "نتایج جست‌وجو", loading: "در حال دریافت کاتالوگ...", sourceFallback: "منبع آنلاین در دسترس نیست؛ داده‌های نمونه محلی نمایش داده شده‌اند.", snapshotFallback: "به‌روزرسانی آنلاین در دسترس نیست؛ آخرین کاتالوگ تولیدشده نمایش داده می‌شود.",
-    catalogLastChecked: "آخرین بررسی منبع", snapshotGenerated: "زمان تولید کاتالوگ", freshnessFresh: "تازه", freshnessAging: "در حال کهنه‌شدن", freshnessStale: "قدیمی", freshnessUnknown: "زمان نامشخص",
+    source: "منبع", fxTitle: "نرخ دلار بازار آزاد", fxProvider: "TGJU · دلار آزاد", fxFresh: "به‌روز", fxAging: "در حال کهنه‌شدن", fxStale: "قدیمی", fxUnavailable: "نرخ در دسترس نیست", fxUnknown: "زمان نامشخص", fxCaveat: "قیمت تابلو از ریال به تومان تبدیل شده؛ نرخ قطعی خریدوفروش یا بانکی نیست.", fxUnavailableNote: "تا دریافت نرخ معتبر، قیمت به دلار نمایش داده می‌شود.", inStock: "اعلام موجودی فروشنده", off: "تخفیف",
+    searchResults: "نتایج جست‌وجو", loading: "در حال دریافت کاتالوگ...", sourceFallback: "فهرست زنده فروشندگان موقتاً در دسترس نیست؛ برای جلوگیری از نمایش کالای ساختگی، محصول نمونه نشان داده نمی‌شود.", snapshotFallback: "دریافت اطلاعات تازه ممکن نیست؛ قیمت و موجودی قدیمی نمایش داده نمی‌شود.",
+    catalogLastChecked: "آخرین دریافت", snapshotGenerated: "زمان تولید کاتالوگ", freshnessFresh: "تازه", freshnessAging: "در حال کهنه‌شدن", freshnessStale: "قدیمی", freshnessUnknown: "زمان نامشخص",
     why: "چرا GlobalCart؟", whyText: "یک پروژه مستقل برای نمایش مهندسی محصول، معماری فرانت‌اند، یکپارچه‌سازی داده و طراحی تجربه تجارت الکترونیک.",
     feature1: "کشف هوشمند", feature1d: "جست‌وجو و فیلتر سریع", feature2: "اطلاعات شفاف", feature2d: "نمایش منبع و قیمت", feature3: "تجربه امن", feature3d: "بدون تراکنش واقعی",
     footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "طراحی و توسعه: پویا گودرزی",
     count: "محصول", menu: "منو", compare: "مقایسه", recently: "تازه بازدیدشده", emptyFav: "هنوز محصولی ذخیره نکرده‌ای.",
-    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", brand: "برند", allBrands: "همه برندها", minRatingLabel: "حداقل امتیاز", anyRating: "همه امتیازها",
+    min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", brand: "فروشنده", allBrands: "همه برندها", minRatingLabel: "حداقل امتیاز", anyRating: "همه امتیازها",
     saveSearch: "ذخیره جست‌وجو", savedSearches: "جست‌وجوهای ذخیره‌شده", savedSearchName: "نام جست‌وجو", savedSearchPlaceholder: "مثلاً هدفون اقتصادی",
     save: "ذخیره", savedSearchEmpty: "هنوز جست‌وجویی ذخیره نشده است.", savedSearchDefault: "جست‌وجوی من",
     savedSearchSuccess: "جست‌وجو در همین مرورگر ذخیره شد.", savedSearchDuplicate: "این ترکیب فیلترها قبلاً ذخیره شده است.",
@@ -77,9 +84,9 @@ const copy = {
     nav1: "Shop", nav2: "Categories", nav3: "Editor's picks", nav4: "About",
     heroEyebrow: "THE ART OF DISCOVERY", heroTitle: "Good things,\nright where you need them.", heroDesc: "A modern shopping experience to discover, compare and choose with confidence — from everyday essentials to thoughtful finds.",
     explore: "Explore products", curated: "Editor's selection", categories: "Browse by interest", categoriesDesc: "Start with what speaks to you.",
-    all: "All products", catalog: "The global edit", catalogDesc: "A sample collection imported from a public demo data source.",
+    all: "All products", catalog: "The global edit", catalogDesc: "Real products from independent merchants, with seller-reported pricing and availability.",
     sort: "Sort by", popular: "Recommended", low: "Price: low to high", high: "Price: high to low", rating: "Top rated",
-    recommendationBasis: "Demo ranking uses sample ratings and discounts; it is not personalized from browsing or purchase history.",
+    recommendationBasis: "Sorted using published ratings where available; results are not personalized.",
     recommendationBoth: "High rating + discount", recommendationRating: "Top catalog rating",
     recommendationDiscount: "Strong sample discount", recommendationBalanced: "Balanced rating and price",
     filter: "Filters", category: "Category", clear: "Clear filters", noResults: "No products match your search.",
@@ -87,33 +94,20 @@ const copy = {
     subtotal: "Subtotal", checkout: "Continue to demo checkout", demo: "DEMO", noPayment: "Real payments are disabled. This is not a live store.",
     demoCheckout: "Demo checkout", demoText: "This step demonstrates the user experience only. No real order or payment will be created.",
     confirm: "Place demo order", success: "Demo order created", order: "Order reference", continue: "Back to store",
-    source: "Source", fxTitle: "Free-market USD rate", fxProvider: "TGJU · free market", fxFresh: "Fresh", fxAging: "Aging", fxStale: "Stale", fxUnavailable: "Rate unavailable", fxUnknown: "Timestamp unavailable", fxCaveat: "TGJU quotes Rial; GlobalCart converts it to Toman. This is indicative, not an executable buy/sell or bank rate.", fxUnavailableNote: "Prices remain in USD until a valid TGJU quote is available.", inStock: "Sample catalog item", off: "OFF",
-    searchResults: "Search results", loading: "Loading catalog...", sourceFallback: "Live source is unavailable; showing local demo fixtures.", snapshotFallback: "Live refresh is unavailable; showing the last generated catalog snapshot.",
-    catalogLastChecked: "Last source check", snapshotGenerated: "Snapshot generated", freshnessFresh: "Fresh", freshnessAging: "Aging", freshnessStale: "Stale", freshnessUnknown: "Unknown",
+    source: "Source", fxTitle: "Free-market USD rate", fxProvider: "TGJU · free market", fxFresh: "Fresh", fxAging: "Aging", fxStale: "Stale", fxUnavailable: "Rate unavailable", fxUnknown: "Timestamp unavailable", fxCaveat: "TGJU quotes Rial; GlobalCart converts it to Toman. This is indicative, not an executable buy/sell or bank rate.", fxUnavailableNote: "Prices remain in USD until a valid TGJU quote is available.", inStock: "Seller reports available", off: "OFF",
+    searchResults: "Search results", loading: "Loading catalog...", sourceFallback: "Live seller listings are temporarily unavailable. No synthetic products are shown as a fallback.", snapshotFallback: "Fresh catalog data is unavailable; stale prices and stock are not displayed.",
+    catalogLastChecked: "Fetched", snapshotGenerated: "Snapshot generated", freshnessFresh: "Fresh", freshnessAging: "Aging", freshnessStale: "Stale", freshnessUnknown: "Unknown",
     why: "Why GlobalCart?", whyText: "An independent portfolio project showcasing product engineering, frontend architecture, data integration and commerce experience design.",
     feature1: "Smart discovery", feature1d: "Fast search and filters", feature2: "Clear information", feature2d: "Source and price context", feature3: "Safe experience", feature3d: "No real transactions",
     footer: "An independent commerce experience, built to showcase product engineering.", owner: "Designed & engineered by Pooya Goodarzi",
     count: "products", menu: "Menu", compare: "Compare", recently: "Recently viewed", emptyFav: "You have not saved anything yet.",
-    min: "Min price", max: "Max price", result: "Results", brand: "Brand", allBrands: "All brands", minRatingLabel: "Minimum rating", anyRating: "Any rating",
+    min: "Min price", max: "Max price", result: "Results", brand: "Seller", allBrands: "All brands", minRatingLabel: "Minimum rating", anyRating: "Any rating",
     saveSearch: "Save search", savedSearches: "Saved searches", savedSearchName: "Search name", savedSearchPlaceholder: "e.g. Budget headphones",
     save: "Save", savedSearchEmpty: "No saved searches yet.", savedSearchDefault: "My search",
     savedSearchSuccess: "Saved in this browser.", savedSearchDuplicate: "These filters are already saved.",
     applySavedSearch: "Apply", deleteSavedSearch: "Delete", close: "Close", compareAdd: "Add to compare", compareTitle: "Compare products", compareNeed: "Choose at least two products to compare.", compareClear: "Clear comparison", amazonEyebrow: "AMAZON / PRODUCT SOURCING", amazonTitle: "Found it on Amazon?", amazonDesc: "Paste the product link to save a sourcing request in this demo experience.", amazonPlaceholder: "https://www.amazon.com/dp/...", amazonSubmit: "Validate product link", amazonNote: "Link intake is simulated; live product data and pricing require authorized Amazon API access.", amazonSuccess: "Product link request saved", amazonInvalid: "Enter a valid Amazon product URL containing a 10-character ASIN.", decrease:"Decrease quantity", increase:"Increase quantity", remove:"Remove item", undo:"Undo", searchClose:"Close search"
   }
 } as const;
-
-const snapshotProducts = Array.isArray(catalogSnapshot.products)
-  ? (catalogSnapshot.products as unknown as Product[])
-  : [];
-
-const fallback: Product[] = [
-  {id:101,title:"هدفون بی‌سیم استودیویی",description:"صدای شفاف با حذف نویز فعال، طراحی سبک و شارژدهی طولانی برای استفاده روزمره.",category:"electronics",price:89.99,discountPercentage:18,rating:4.8,stock:24,brand:"SONORA",thumbnail:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900",images:[],source:"Local demo fixture"},
-  {id:102,title:"ساعت هوشمند Active",description:"نمایشگر AMOLED، پایش فعالیت و طراحی مینیمال با بند راحت.",category:"mens-watches",price:129.5,discountPercentage:12,rating:4.7,stock:18,brand:"NORTH",thumbnail:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=900",images:[],source:"Local demo fixture"},
-  {id:103,title:"دوربین بدون‌آینه",description:"ثبت جزئیات دقیق با حسگر پیشرفته و لنز همه‌کاره برای خلاقیت روزانه.",category:"mobile-accessories",price:549,discountPercentage:9,rating:4.9,stock:8,brand:"FRAME",thumbnail:"https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=900",images:[],source:"Local demo fixture"},
-  {id:104,title:"کیبورد مکانیکی بی‌سیم",description:"کلیدهای دقیق، اتصال چندگانه و بدنه جمع‌وجور برای میز کار حرفه‌ای.",category:"keyboards",price:109,discountPercentage:15,rating:4.6,stock:32,brand:"KEYFORM",thumbnail:"https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=900",images:[],source:"Local demo fixture"},
-  {id:105,title:"کوله‌پشتی شهری",description:"فضای محافظ لپ‌تاپ، پارچه مقاوم و فرم ساده برای رفت‌وآمد روزانه.",category:"mens-bags",price:74,discountPercentage:20,rating:4.5,stock:41,brand:"FIELD",thumbnail:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=900",images:[],source:"Local demo fixture"},
-  {id:106,title:"اسپیکر قابل حمل",description:"صدای پرقدرت در بدنه‌ای مقاوم و قابل حمل؛ مناسب خانه و سفر.",category:"mobile-accessories",price:64.9,discountPercentage:11,rating:4.4,stock:15,brand:"SONORA",thumbnail:"https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=900",images:[],source:"Local demo fixture"}
-];
 
 const categories = [
   {id:"all",fa:"همه",en:"Everything",symbol:"✳"},
@@ -162,13 +156,10 @@ export default function Home() {
     setLocale(next);
     writeLocalePreference(next);
   };
-  const [products,setProducts]=useState<Product[]>(snapshotProducts.length ? snapshotProducts : fallback);
-  const [catalogSourceState,setCatalogSourceState]=useState<CatalogSourceStatus>(
-    getCatalogSourceStatus(snapshotProducts.length>0,"pending")
-  );
-  const [catalogTimestamp,setCatalogTimestamp]=useState<string|null>(
-    typeof catalogSnapshot.generatedAt === "string" ? catalogSnapshot.generatedAt : null
-  );
+  const [products,setProducts]=useState<Product[]>(isE2EFixtureCatalog?snapshotProducts:[]);
+  const [catalogSourceState,setCatalogSourceState]=useState<CatalogSourceStatus>(isE2EFixtureCatalog?"live":"loading");
+  const [catalogTimestamp,setCatalogTimestamp]=useState<string|null>(isE2EFixtureCatalog&&typeof catalogSnapshot.generatedAt==="string"?catalogSnapshot.generatedAt:null);
+  const [catalogError,setCatalogError]=useState(false);
   const [query,setQuery]=useState("");
   const [category,setCategory]=useState("all");
   const [sort,setSort]=useState<SavedCatalogSearch["sort"]>("popular");
@@ -341,60 +332,43 @@ export default function Home() {
   useEffect(()=>{setFxStatus(getFxRateStatus(fxQuote));},[]);
 
   useEffect(()=>{
-    let active=true;
-    let timeoutHandle:number|null=null;
-    let idleHandle:number|null=null;
-    const idleWindow=window as Window & {
-      requestIdleCallback?:(callback:()=>void,options?:{timeout:number})=>number;
-      cancelIdleCallback?:(handle:number)=>void;
-    };
-    const refreshCatalog=()=>{
-      if(!active)return;
-      fetchDummyJsonCatalog()
+    if(isE2EFixtureCatalog)return;
+    const trimmed=query.trim();
+    if(trimmed.length===1)return;
+    const controller=new AbortController();
+    const remoteQuery=[category!=="all"?category.replace(/-/g," "):"",trimmed].filter(Boolean).join(" ")||"popular products";
+    setCatalogSourceState("loading");
+    setCatalogError(false);
+    const timeoutHandle=window.setTimeout(()=>{
+      searchShopifyCatalog(remoteQuery,{signal:controller.signal,limit:12})
         .then(records=>{
-          if(!active)return;
-          const nextState=getCatalogSourceStatus(snapshotProducts.length>0,"success",records.length);
-          setCatalogSourceState(nextState);
-          if(nextState!=="live")return;
+          if(controller.signal.aborted)return;
+          setProducts(records);
+          setCatalogSourceState("live");
           setCatalogTimestamp(new Date().toISOString());
-          const mapped:Product[]=records.map(p=>({
-            id:p.id,title:p.title,description:p.description,category:p.category,
-            price:p.price,discountPercentage:p.discountPercentage,rating:p.rating,
-            stock:p.stock,brand:p.brand,thumbnail:p.thumbnail,images:p.images,
-            source:p.source
-          }));
-          setProducts(mapped);
+          setCatalogError(false);
         })
         .catch(()=>{
-          if(active){
-            // Preserve the generated snapshot or fixture and surface its freshness state.
-            setCatalogSourceState(getCatalogSourceStatus(snapshotProducts.length>0,"error"));
-          }
+          if(controller.signal.aborted)return;
+          setProducts([]);
+          setCatalogSourceState("fixture-fallback");
+          setCatalogTimestamp(null);
+          setCatalogError(true);
         });
-    };
-
-    // The committed snapshot renders the storefront immediately. Revalidate the
-    // optional public sample source only when the browser is idle, so its network
-    // response and product-array replacement do not compete with the first paint.
-    if(typeof idleWindow.requestIdleCallback==="function"){
-      idleHandle=idleWindow.requestIdleCallback(refreshCatalog,{timeout:6500});
-    }else{
-      timeoutHandle=window.setTimeout(refreshCatalog,5000);
-    }
-
+    },trimmed.length>=2?650:220);
     return()=>{
-      active=false;
-      if(idleHandle!==null)idleWindow.cancelIdleCallback?.(idleHandle);
-      if(timeoutHandle!==null)window.clearTimeout(timeoutHandle);
+      window.clearTimeout(timeoutHandle);
+      controller.abort();
     };
-  },[]);
+  },[query,category]);
 
   useEffect(()=>{
     try{
-      const raw=localStorage.getItem("globalcart-state-v1");
+      const storageKey=isE2EFixtureCatalog?"globalcart-state-v1":"globalcart-state-v2";
+      const raw=localStorage.getItem(storageKey);
       if(!raw)return;
       const saved=JSON.parse(raw);
-      if(Array.isArray(saved.cart))setCart(saved.cart);
+      if(Array.isArray(saved.cart))setCart(isE2EFixtureCatalog?saved.cart:saved.cart.filter((line:CartLine)=>line?.product?.isLive!==true));
       if(Array.isArray(saved.favorites))setFavorites(saved.favorites);
       if(Array.isArray(saved.compareIds))setCompareIds(saved.compareIds.slice(0,4));
       if(Array.isArray(saved.recent))setRecent(saved.recent);
@@ -404,11 +378,15 @@ export default function Home() {
 
   useEffect(()=>{
     if(!hydrated)return;
-    try{localStorage.setItem("globalcart-state-v1",JSON.stringify({cart,favorites,recent,compareIds}));}catch{/* Storage can be unavailable. */}
+    try{
+      const storageKey=isE2EFixtureCatalog?"globalcart-state-v1":"globalcart-state-v2";
+      const storedCart=isE2EFixtureCatalog?cart:cart.filter(line=>line.product.isLive!==true);
+      localStorage.setItem(storageKey,JSON.stringify({cart:storedCart,favorites,recent,compareIds}));
+    }catch{/* Storage can be unavailable. */}
   },[hydrated,cart,favorites,recent,compareIds]);
 
   const filtered=useMemo(()=>{
-    const list=filterCatalogProducts(products,{category,query,minPrice,maxPrice,brand:brandFilter,minRating});
+    const list=filterCatalogProducts(products,{category:isE2EFixtureCatalog?category:"all",query:isE2EFixtureCatalog?query:"",minPrice,maxPrice,brand:brandFilter,minRating});
     if(sort==="low")list.sort((a,b)=>a.price-b.price);
     else if(sort==="high")list.sort((a,b)=>b.price-a.price);
     else if(sort==="rating")list.sort((a,b)=>b.rating-a.rating);
@@ -420,8 +398,15 @@ export default function Home() {
   const subtotalUsd=cart.reduce((sum,line)=>sum+line.product.price*(1-line.product.discountPercentage/100)*line.quantity,0);
   const subtotalToman=rate===null?null:calculateDemoPrice({sourcePrice:subtotalUsd,fxRate:rate}).toman;
   const formatPrice=(p:Product)=>{
-    const discountedUsd=p.price*(1-p.discountPercentage/100);
-    return rtl&&rate!==null?money(calculateDemoPrice({sourcePrice:p.price,fxRate:rate,discountPercentage:p.discountPercentage}).toman,locale)+" تومان":usd(discountedUsd);
+    const discounted=p.price*(1-p.discountPercentage/100);
+    const currency=p.currency||"USD";
+    const format=(amount:number)=>new Intl.NumberFormat(locale==="fa"?"fa-IR":"en-US",{style:"currency",currency,maximumFractionDigits:2}).format(amount);
+    const low=rtl&&rate!==null&&currency==="USD"?money(calculateDemoPrice({sourcePrice:discounted,fxRate:rate}).toman,locale)+" تومان":format(discounted);
+    if(p.isLive&&typeof p.priceMax==="number"&&p.priceMax>p.price){
+      const high=rtl&&rate!==null&&currency==="USD"?money(calculateDemoPrice({sourcePrice:p.priceMax,fxRate:rate}).toman,locale)+" تومان":format(p.priceMax);
+      return low+" – "+high;
+    }
+    return p.isLive?low:(rtl&&rate!==null?money(calculateDemoPrice({sourcePrice:p.price,fxRate:rate,discountPercentage:p.discountPercentage}).toman,locale)+" تومان":usd(discounted));
   };
   const clearToastTimer=()=>{if(toastTimerRef.current!==null){window.clearTimeout(toastTimerRef.current);toastTimerRef.current=null;}};
   const notify=(message:string)=>{clearToastTimer();setToast(message);toastTimerRef.current=window.setTimeout(()=>{setToast("");toastTimerRef.current=null;},2100);};
@@ -455,7 +440,7 @@ export default function Home() {
   const placeDemoOrder=()=>{setOrder("GC-"+Math.random().toString(36).slice(2,8).toUpperCase());setCart([]);setCheckout(false);};
   const favoriteProducts=products.filter(p=>favorites.includes(p.id));
   const compareProducts=products.filter(p=>compareIds.includes(p.id));
-  const dealPicks=useMemo(()=>[...products].filter(p=>p.discountPercentage>0).sort((a,b)=>b.discountPercentage-a.discountPercentage).slice(0,4),[products]);
+  const dealPicks=useMemo(()=>[...products].sort((a,b)=>a.price-b.price).slice(0,4),[products]);
   const topRatedPicks=useMemo(()=>[...products].sort((a,b)=>b.rating-a.rating).slice(0,4),[products]);
   const discoveryPicks=useMemo(()=>[...products].slice(0,4),[products]);
   const recentProducts=useMemo(()=>recent.map(id=>products.find(p=>p.id===id)).filter((p):p is Product=>Boolean(p)),[recent,products]);
@@ -706,11 +691,11 @@ export default function Home() {
       <section className="merchandising-section">
         <div className="merchandising-intro"><div><span className="section-kicker">02 / THE GLOBAL EDIT</span><h2>{rtl?"انتخاب‌های هوشمندانه، یک‌جا":"A better way to discover"}</h2><p>{rtl?"پیشنهادها و محصولات برتر بر اساس داده‌های کاتالوگ فعلی.":"Curated product rails powered by the current sample catalog."}</p></div><a href="#catalog">{rtl?"دیدن همه محصولات":"Explore all products"} <ArrowLeft size={15}/></a></div>
         <div className="merchandising-grid">
-          {[{id:"deals",title:rtl?"فرصت‌های جذاب":"Deals worth a look",label:rtl?"بیشترین تخفیف":"TOP DISCOUNTS",items:dealPicks},{id:"rated",title:rtl?"محبوب‌ترین‌ها":"Top-rated picks",label:rtl?"امتیازهای برتر":"HIGHLY RATED",items:topRatedPicks},{id:"discover",title:rtl?"تازه‌های ویترین":"Fresh discoveries",label:rtl?"برای کشف بیشتر":"EDITOR'S EDIT",items:discoveryPicks}].map(group=><section className="merchandising-panel" key={group.id}><div className="merchandising-panel-head"><div><small>{group.label}</small><h3>{group.title}</h3></div><span>0{group.id==="deals"?1:group.id==="rated"?2:3}</span></div><div className="merchandising-items">{group.items.map(p=><Link href={`/product/${p.id}`} className="merchandising-item" key={p.id}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><span><b>{p.title}</b><small><Star size={11} fill="currentColor"/>{p.rating.toFixed(1)} · {formatPrice(p)}</small></span></Link>)}</div></section>)}
+          {[{id:"deals",title:rtl?"انتخاب‌های اقتصادی":"Good-value picks",label:rtl?"قیمت‌های پایین‌تر":"LOWER PRICES",items:dealPicks},{id:"rated",title:rtl?"محبوب‌ترین‌ها":"Top-rated picks",label:rtl?"امتیازهای برتر":"HIGHLY RATED",items:topRatedPicks},{id:"discover",title:rtl?"تازه‌های ویترین":"Fresh discoveries",label:rtl?"برای کشف بیشتر":"EDITOR'S EDIT",items:discoveryPicks}].map(group=><section className="merchandising-panel" key={group.id}><div className="merchandising-panel-head"><div><small>{group.label}</small><h3>{group.title}</h3></div><span>0{group.id==="deals"?1:group.id==="rated"?2:3}</span></div><div className="merchandising-items">{group.items.map(p=><button type="button" onClick={()=>openProduct(p)} className="merchandising-item" key={p.id}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><span><b>{p.title}</b><small>{p.rating>0&&<><Star size={11} fill="currentColor"/>{p.rating.toFixed(1)} · </>}{formatPrice(p)}</small></span></button>)}</div></section>)}
         </div>
       </section>
 
-      {recentProducts.length>0&&<section className="recently-viewed-section"><div className="recently-viewed-head"><div><span className="section-kicker">03 / PICK UP WHERE YOU LEFT OFF</span><h2>{rtl?"بازدیدهای اخیر":"Recently viewed"}</h2><p>{rtl?"محصولاتی که اخیراً بررسی کرده‌ای؛ ذخیره‌شده فقط در همین مرورگر.":"Products you opened recently, stored only in this browser."}</p></div><div className="recently-viewed-actions"><Link href="/recently-viewed">{rtl?"مشاهده تاریخچه":"View history"} <ArrowLeft size={14}/></Link><button onClick={()=>setRecent([])}>{rtl?"پاک کردن تاریخچه":"Clear history"}</button></div></div><div className="recently-viewed-grid">{recentProducts.map(p=><Link href={`/product/${p.id}`} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></Link>)}</div></section>}
+      {recentProducts.length>0&&<section className="recently-viewed-section"><div className="recently-viewed-head"><div><span className="section-kicker">03 / PICK UP WHERE YOU LEFT OFF</span><h2>{rtl?"بازدیدهای اخیر":"Recently viewed"}</h2><p>{rtl?"محصولاتی که اخیراً بررسی کرده‌ای؛ ذخیره‌شده فقط در همین مرورگر.":"Products you opened recently, stored only in this browser."}</p></div><div className="recently-viewed-actions"><Link href="/recently-viewed">{rtl?"مشاهده تاریخچه":"View history"} <ArrowLeft size={14}/></Link><button onClick={()=>setRecent([])}>{rtl?"پاک کردن تاریخچه":"Clear history"}</button></div></div><div className="recently-viewed-grid">{recentProducts.map(p=>isE2EFixtureCatalog?<Link href={`/product/${p.id}`} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></Link>:<button type="button" onClick={()=>openProduct(p)} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></button>)}</div></section>}
 
       <section className="section catalog-section" id="catalog">
         <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p>{sort==="popular"&&<small className="recommendation-basis">{t.recommendationBasis}</small>}</div><div className="catalog-tools">
@@ -748,22 +733,21 @@ export default function Home() {
             <div className="filter-group price-filter"><b>{rtl?"بازه قیمت (دلار)": "Price range (USD)"}</b><label>{t.min}<input type="number" min="0" value={minPrice} onChange={e=>setMinPrice(Math.max(0,Number(e.target.value)||0))}/></label><label>{t.max}<input type="number" min="0" value={maxPrice} onChange={e=>setMaxPrice(Math.max(0,Number(e.target.value)||0))}/></label></div>
             <div className="filter-group facet-select-group"><b>{t.brand}</b><select aria-label={t.brand} value={brandFilter} onChange={e=>setBrandFilter(e.target.value)}><option value="">{t.allBrands}</option>{catalogBrands.map(brand=><option key={brand} value={brand}>{brand}</option>)}</select></div>
             <div className="filter-group facet-select-group"><b>{t.minRatingLabel}</b><select aria-label={t.minRatingLabel} value={minRating} onChange={e=>setMinRating(Number(e.target.value))}><option value={0}>{t.anyRating}</option><option value={3}>3.0+</option><option value={4}>4.0+</option><option value={4.5}>4.5+</option></select></div>
-            <div className="filter-note"><InfoIcon/>{rtl?"داده‌ها نمایشی هستند و قیمت‌ها تعهد خرید نیستند.":"Demo data only. Prices are not purchase offers."}</div>
+            <div className="filter-note"><InfoIcon/>{rtl?"قیمت و موجودی از فروشنده دریافت می‌شوند و ممکن است تغییر کنند؛ سبد خرید و پرداخت صرفاً نمایشی‌اند.":"Seller prices and availability may change. The cart and checkout are simulated only."}</div>
           </aside>
           <div className="product-area">
             {catalogSourceState==="loading"&&<div className="catalog-status" role="status" aria-live="polite"><span className="loader"></span>{t.loading}</div>}
-            {catalogSourceState==="snapshot-fallback"&&<div className="catalog-status snapshot-fallback" role="status" aria-live="polite"><InfoIcon/>{t.snapshotFallback}</div>}
-            {catalogSourceState==="fixture-fallback"&&<div className="catalog-status fixture-fallback" role="status" aria-live="polite"><InfoIcon/>{t.sourceFallback}</div>}
+            {catalogError&&<div className="catalog-status fixture-fallback" role="status" aria-live="polite"><InfoIcon/>{t.sourceFallback}</div>}
             {order&&<div className="order-success" role="status"><Check size={17}/>{t.success} · {t.order}: {order}<button onClick={()=>setOrder("")}><X size={15}/></button></div>}
             {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);}}>{t.clear}</button></div>:<div className="product-grid">
               {filtered.map((p,index)=><article className="product-card" key={p.id}>
-                <div className="product-media"><Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/></Link><span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
-                <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating"><span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span><small>{t.inStock}</small></div><div className="recommendation-reason">{(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b><small className={p.discountPercentage>0?"price-original":"price-source"}>{usd(p.price)}</small></div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
+                <div className="product-media">{isE2EFixtureCatalog?<Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/></Link>:<button type="button" className="product-image-link" onClick={()=>openProduct(p)} aria-label={rtl?"مشاهده جزئیات محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/></button>}<span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
+                <div className="product-details"><span className="product-brand">{p.sellerName||p.brand||"INDEPENDENT SELLER"}</span><h3>{isE2EFixtureCatalog?<Link href={`/product/${p.id}`}>{p.title}</Link>:<button type="button" className="product-title-action" onClick={()=>openProduct(p)}>{p.title}</button>}</h3><div className="product-rating">{p.rating>0&&<span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span>}<small>{p.availability===false?(rtl?"ناموجود":"Unavailable"):t.inStock}</small></div><div className="recommendation-reason">{p.isLive?categoryLabel(p.category):(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b>{!p.isLive&&<small className={p.discountPercentage>0?"price-original":"price-source"}>{usd(p.price)}</small>}</div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
               </article>)}
             </div>}
             <div className="catalog-foot">
               <span>{t.result}: {filtered.length} / {products.length}</span>
-              <span>{t.source}: {catalogSourceState==="live"?"DummyJSON public demo API":catalogSourceState==="fixture-fallback"?"Local demo fixture":"Generated catalog snapshot"}</span>
+              <span>{t.source}: {isE2EFixtureCatalog?(rtl?"نمونهٔ تست":"E2E fixture snapshot"):catalogSourceState==="live"?(rtl?"فهرست فروشندگان زنده":"Live merchant listings"):catalogError?(rtl?"فهرست فروشندگان موقتاً در دسترس نیست":"Live merchant catalog unavailable"):(rtl?"در حال دریافت":"Loading seller listings")}</span>
               {(() => {
                 const freshness:CatalogFreshnessStatus=getCatalogFreshness(catalogTimestamp);
                 const freshnessLabel=freshness==="fresh"?t.freshnessFresh:freshness==="aging"?t.freshnessAging:freshness==="stale"?t.freshnessStale:t.freshnessUnknown;
@@ -846,11 +830,11 @@ export default function Home() {
 
       {favoriteOpen&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setFavoriteOpen(false);}}><aside className="side-drawer" role="dialog" aria-modal="true" aria-labelledby="favorites-dialog-title" tabIndex={-1}><div className="drawer-head"><div><span className="section-kicker">YOUR SHORTLIST</span><h3 id="favorites-dialog-title">{t.favorites} <small>({favorites.length})</small></h3></div><button className="icon-button" onClick={()=>setFavoriteOpen(false)} aria-label={t.close}><X/></button></div>{favoriteProducts.length===0?<div className="drawer-empty"><Heart size={38}/><b>{t.emptyFav}</b></div>:<div className="drawer-items">{favoriteProducts.map(p=><div className="drawer-item" key={p.id}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><div className="drawer-item-info"><b>{p.title}</b><strong>{formatPrice(p)}</strong><button className="text-action" onClick={()=>{setFavoriteOpen(false);openProduct(p);}}>{t.quick}</button></div><button className="remove-item" aria-label={t.remove} onClick={()=>toggleFavorite(p.id)}><X size={16}/></button></div>)}</div>}</aside></div>}
 
-      {quick&&<div className="overlay modal-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setQuick(null);}}><div className="quick-modal" role="dialog" aria-modal="true" aria-labelledby="quick-dialog-title" tabIndex={-1}><button className="modal-close icon-button" onClick={()=>setQuick(null)} aria-label={t.close}><X/></button><div className="quick-image"><img src={(quick.images&&quick.images[0])||quick.thumbnail} alt={quick.title} loading="lazy" decoding="async"/></div><div className="quick-content"><span className="section-kicker">{quick.brand||"GLOBAL SELECT"} / PRODUCT DETAIL</span><h2 id="quick-dialog-title">{quick.title}</h2><span className="quick-rating"><Star size={14} fill="currentColor"/>{quick.rating.toFixed(1)} · {quick.stock} {t.inStock}</span><p>{quick.description}</p><div className="quick-price"><b>{formatPrice(quick)}</b><small>{usd(quick.price)}</small></div><small className="source-label">{t.source}: {quick.source||"DummyJSON public demo API"}</small><button className="button-primary full-button" onClick={()=>{addToCart(quick);setQuick(null);}}>{t.add}<Plus size={17}/></button></div></div></div>}
+      {quick&&<div className="overlay modal-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setQuick(null);}}><div className="quick-modal" role="dialog" aria-modal="true" aria-labelledby="quick-dialog-title" tabIndex={-1}><button className="modal-close icon-button" onClick={()=>setQuick(null)} aria-label={t.close}><X/></button><div className="quick-image"><img src={(quick.images&&quick.images[0])||quick.thumbnail} alt={quick.title} loading="lazy" decoding="async"/></div><div className="quick-content">{isE2EFixtureCatalog?<><span className="section-kicker">{quick.brand||"GLOBAL SELECT"} / PRODUCT DETAIL</span><h2 id="quick-dialog-title">{quick.title}</h2><span className="quick-rating"><Star size={14} fill="currentColor"/>{quick.rating.toFixed(1)} · {quick.stock} {t.inStock}</span><p>{quick.description}</p><div className="quick-price"><b>{formatPrice(quick)}</b><small>{usd(quick.price)}</small></div><small className="source-label">{t.source}: {quick.source||"DummyJSON public demo API"}</small><button className="button-primary full-button" onClick={()=>{addToCart(quick);setQuick(null);}}>{t.add}<Plus size={17}/></button></>:<><span className="section-kicker">{quick.sellerName||quick.brand||"INDEPENDENT SELLER"} / PRODUCT DETAIL</span><h2 id="quick-dialog-title">{quick.title}</h2><span className="quick-rating">{quick.rating>0?<><Star size={14} fill="currentColor"/>{quick.rating.toFixed(1)}</>:null} {quick.availability===false?(rtl?"ناموجود":"Unavailable"):(rtl?"اعلام موجودی فروشنده":"Seller reports available")}</span><p>{quick.description}</p><div className="quick-price"><b>{formatPrice(quick)}</b>{!quick.isLive&&<small>{usd(quick.price)}</small>}</div>{quick.sourceUrl&&<a className="source-label seller-listing-link" href={quick.sourceUrl} target="_blank" rel="noreferrer">{rtl?"مشاهده صفحه کالا نزد فروشنده":"View listing at seller"} <ArrowLeft size={13}/></a>}<button className="button-primary full-button" onClick={()=>{addToCart(quick);setQuick(null);}}>{t.add}<Plus size={17}/></button></>}</div></div></div>}
 
       {compareIds.length>0&&<div className="compare-tray"><div><GitCompareArrows size={17}/><b>{rtl?"مقایسه محصولات":"Product comparison"}</b><span>{compareIds.length}/4</span></div><button className="compare-tray-open" disabled={compareIds.length<2} onClick={()=>setCompareOpen(true)}>{rtl?"مقایسه":"Compare"} <ArrowLeft size={15}/></button><button className="compare-tray-clear" onClick={()=>setCompareIds([])}>{rtl?"پاک کردن":"Clear"}</button></div>}
 
-      {compareOpen&&<div className="overlay modal-overlay compare-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setCompareOpen(false);}}><section className="compare-modal" role="dialog" aria-modal="true" aria-labelledby="compare-dialog-title" tabIndex={-1}><div className="compare-modal-head"><div><span className="section-kicker">GLOBALCART / SIDE BY SIDE</span><h2 id="compare-dialog-title">{t.compareTitle}</h2></div><button className="icon-button" onClick={()=>setCompareOpen(false)} aria-label={t.close}><X/></button></div><div className="compare-table-wrap"><table className="compare-table"><thead><tr><th>{rtl?"مشخصات":"Details"}</th>{compareProducts.map(p=><th key={p.id}><img src={p.thumbnail} alt="" loading="lazy" decoding="async"/><b>{p.title}</b><button onClick={()=>toggleCompare(p.id)}>{rtl?"حذف":"Remove"}</button></th>)}</tr></thead><tbody><tr><th>{rtl?"قیمت فعلی":"Current price"}</th>{compareProducts.map(p=><td key={p.id}>{formatPrice(p)}</td>)}</tr><tr><th>{rtl?"قیمت اصلی":"Original price"}</th>{compareProducts.map(p=><td key={p.id}>{rtl&&rate!==null?money(calculateDemoPrice({sourcePrice:p.price,fxRate:rate}).toman,locale)+" تومان":usd(p.price)}</td>)}</tr><tr><th>{rtl?"امتیاز":"Rating"}</th>{compareProducts.map(p=><td key={p.id}><span className="compare-rating"><Star size={13} fill="currentColor"/>{p.rating.toFixed(1)}</span></td>)}</tr><tr><th>{rtl?"تخفیف":"Discount"}</th>{compareProducts.map(p=><td key={p.id}>{Math.round(p.discountPercentage)}%</td>)}</tr><tr><th>{rtl?"برند":"Brand"}</th>{compareProducts.map(p=><td key={p.id}>{p.brand||"—"}</td>)}</tr><tr><th>{rtl?"موجودی منبع نمونه":"Source stock"}</th>{compareProducts.map(p=><td key={p.id}>{p.stock}</td>)}</tr></tbody></table></div><div className="compare-modal-foot"><span>{rtl?"اطلاعات برای مقایسه نمایشی هستند.":"Figures are provided for demo comparison only."}</span><button onClick={()=>{setCompareIds([]);setCompareOpen(false);}}>{t.compareClear}</button></div></section></div>}
+      {compareOpen&&<div className="overlay modal-overlay compare-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setCompareOpen(false);}}><section className="compare-modal" role="dialog" aria-modal="true" aria-labelledby="compare-dialog-title" tabIndex={-1}><div className="compare-modal-head"><div><span className="section-kicker">GLOBALCART / SIDE BY SIDE</span><h2 id="compare-dialog-title">{t.compareTitle}</h2></div><button className="icon-button" onClick={()=>setCompareOpen(false)} aria-label={t.close}><X/></button></div><div className="compare-table-wrap"><table className="compare-table"><thead><tr><th>{rtl?"مشخصات":"Details"}</th>{compareProducts.map(p=><th key={p.id}><img src={p.thumbnail} alt="" loading="lazy" decoding="async"/><b>{p.title}</b><button onClick={()=>toggleCompare(p.id)}>{rtl?"حذف":"Remove"}</button></th>)}</tr></thead><tbody><tr><th>{rtl?"قیمت فعلی":"Current price"}</th>{compareProducts.map(p=><td key={p.id}>{formatPrice(p)}</td>)}</tr><tr><th>{rtl?"قیمت اصلی":"Original price"}</th>{compareProducts.map(p=><td key={p.id}>{rtl&&rate!==null?money(calculateDemoPrice({sourcePrice:p.price,fxRate:rate}).toman,locale)+" تومان":usd(p.price)}</td>)}</tr><tr><th>{rtl?"امتیاز":"Rating"}</th>{compareProducts.map(p=><td key={p.id}><span className="compare-rating"><Star size={13} fill="currentColor"/>{p.rating.toFixed(1)}</span></td>)}</tr><tr><th>{rtl?"تخفیف":"Discount"}</th>{compareProducts.map(p=><td key={p.id}>{Math.round(p.discountPercentage)}%</td>)}</tr><tr><th>{rtl?"برند":"Brand"}</th>{compareProducts.map(p=><td key={p.id}>{p.brand||"—"}</td>)}</tr><tr><th>{rtl?"وضعیت فروشنده":"Seller availability"}</th>{compareProducts.map(p=><td key={p.id}>{p.availability===false?(rtl?"ناموجود":"Unavailable"):(rtl?"موجود":"Available")}</td>)}</tr></tbody></table></div><div className="compare-modal-foot"><span>{rtl?"اطلاعات برای مقایسه نمایشی هستند.":"Figures are provided for demo comparison only."}</span><button onClick={()=>{setCompareIds([]);setCompareOpen(false);}}>{t.compareClear}</button></div></section></div>}
 
             {checkout&&<div className="overlay modal-overlay"><div className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-dialog-title" tabIndex={-1}><button className="modal-close icon-button" onClick={()=>setCheckout(false)} aria-label={t.close}><X/></button><span className="section-kicker">GLOBALCART / DEMO FLOW</span><h2 id="checkout-dialog-title">{t.demoCheckout}</h2><p>{t.demoText}</p><div className="checkout-total"><span>{t.subtotal}</span><b>{rtl&&subtotalToman!==null?money(subtotalToman,locale)+" تومان":usd(subtotalUsd)}</b></div><div className="checkout-warning"><ShieldCheck size={17}/>{t.noPayment}</div><button className="button-primary full-button" onClick={placeDemoOrder}>{t.confirm}<ArrowLeft size={16}/></button></div></div>}
 

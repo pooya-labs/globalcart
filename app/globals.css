@@ -1638,3 +1638,6 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .about-stats>div{min-height:0;display:grid;grid-template-columns:auto 1fr;align-items:center}
   .storefront-v2 .about-stats span{margin:0}
 }
+
+/* Live merchant catalog controls */
+.product-image-link{border:0;padding:0;background:transparent;text-align:initial;cursor:pointer}.product-title-action{display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:start;font:inherit;font-weight:inherit;line-height:inherit;cursor:pointer}.product-title-action:hover{color:var(--green)}.seller-stock-label{font-size:9px;color:#66776b}.seller-listing-link{display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;color:var(--green);font-size:10px}.merchandising-item{font:inherit;text-align:start;cursor:pointer;background:#fff}.recently-viewed-item{font:inherit;text-align:start;cursor:pointer;background:transparent;color:inherit}
