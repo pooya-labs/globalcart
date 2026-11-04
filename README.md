@@ -34,7 +34,7 @@ Implemented:
 - Amazon product-link intake demo with domain and ASIN validation; requests are stored locally and do not fetch live Amazon data.
 - Marketplace service shortcuts and a transparent FAQ covering product sourcing, demo limits and support.
 - Live cross-merchant product discovery through Shopify Global Catalog MCP (anonymous access, no API key) behind a Cloudflare Worker; real product names, merchant images, seller-reported prices/availability, seller identity and outbound listing links are fetched at runtime. Search results and merchant images are not cached or persisted.
-- The historical DummyJSON snapshot importer remains available for catalog-pipeline tests only; the public storefront no longer displays its synthetic sample items.
+- The historical DummyJSON snapshot importer and JSON snapshot remain for regression fixtures and legacy statically generated detail/history routes; the live homepage catalog no longer displays those synthetic items.
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
 - Browser-local cart, quantity changes, removal and simulated checkout.
@@ -58,7 +58,7 @@ Boundaries and remaining work:
 
 | Area | Current behavior |
 |---|---|
-| Product catalog | Live Shopify Global Catalog search across eligible merchants; anonymous requests are rate-limited. No synthetic fallback is shown. |
+| Product catalog | Main storefront: live Shopify Global Catalog search across eligible merchants; anonymous requests are rate-limited and no synthetic fallback is shown. Legacy direct detail/history routes still reference the old snapshot. |
 | Images | Merchant-provided image URLs rendered directly at runtime; not downloaded or re-hosted. |
 | Pricing / availability | Seller-reported values from the live catalog response; can change and are not a purchase guarantee. |
 | Translation | Paused; source text is preserved |
@@ -71,7 +71,7 @@ Boundaries and remaining work:
 
 Amazon's public storefront must not be scraped or bulk-copied. Any future adapter requires verified program/API eligibility and compliance with current content, image, price-refresh, attribution and linking rules. Affiliate product discovery is not an unrestricted catalog feed.
 
-**Real-product catalog:** the storefront now discovers real eligible merchant listings through Shopify Global Catalog at runtime. Merchant names and seller listing links remain visible; Shopify is not used as the storefront brand. Search results and images are not cached or stored. The cart and checkout remain simulations and do not create merchant orders. Architecture and constraints are documented in [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md).
+**Real-product catalog:** the main storefront catalog now discovers real eligible merchant listings through Shopify Global Catalog at runtime. Merchant names and seller listing links remain visible; Shopify is not used as the storefront brand. Search results and images are not cached or stored. The cart and checkout remain simulations and do not create merchant orders. Architecture and constraints are documented in [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md).
 
 ## Technology
 
