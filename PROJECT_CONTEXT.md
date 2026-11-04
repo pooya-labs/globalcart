@@ -22,6 +22,17 @@
 - No Shopify integration or product data changes were made. Before any implementation, resolve the auth-doc discrepancy; any required account/API credential dependency needs owner approval. Continue to keep DummyJSON explicitly labelled as temporary sample data until a real source is safely connected.
 - Source docs and M02.1 roadmap were updated. Do not hide merchant identity or present Shopify sellers' offers as GlobalCart-owned inventory.
 
+## Latest live catalog integration checkpoint — 2026-11-04
+
+- GlobalCart now targets Shopify Global Catalog MCP for live cross-merchant discovery. This is a runtime search layer, not a static product feed.
+- Cloudflare Worker `globalcart-catalog` is deployed at `https://globalcart-catalog.pooyagame141.workers.dev`; the repo contains the Worker source at `workers/catalog-proxy/worker.js`.
+- Public UCP agent profile: `public/ucp/agent-profile.json`, published at `https://pooya-labs.github.io/globalcart/ucp/agent-profile.json`.
+- The browser uses `lib/catalog/shopify.ts` to map live product records. Images are rendered directly from merchant URLs; results and images are not cached or stored.
+- Merchant names and seller listing links remain visible; Shopify is not presented as the storefront brand.
+- Local cart and checkout remain simulated and do not reserve stock, create merchant carts or process payment.
+- If Shopify is unavailable or returns no mappable products, the storefront displays an empty/error state rather than presenting DummyJSON/sample products as real.
+- The anonymous endpoint is rate-limited; no API key or credentials have been added.
+
 ## Product definition
 GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
 
