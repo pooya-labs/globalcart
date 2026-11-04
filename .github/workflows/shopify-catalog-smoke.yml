@@ -51,11 +51,14 @@ jobs:
           const withSeller = payload.products.find(product => product.variants?.some(variant => variant.seller?.name && variant.seller?.url));
           const withPrice = payload.products.find(product => Number.isFinite(product.price_range?.min?.amount) && product.price_range?.min?.currency);
           if (!withImage || !withSeller || !withPrice) throw new Error("Live results are missing image, seller attribution or price fields");
+          const imageUrl = withImage.media.find(media => media.type === "image" && media.url?.startsWith("https://"))?.url;
+          const imageResponse = imageUrl ? await fetch(imageUrl, { method: "HEAD" }) : null;
           console.log(JSON.stringify({
             status: "passed",
+            imageProbe: imageResponse ? { status: imageResponse.status, contentType: imageResponse.headers.get("content-type"), url: imageUrl } : null,
             rawCategorySamples: payload.products.slice(0, 6).map(product => ({
               title: product.title,
-              categories: product.categories
+              keys: Object.keys(product),\n              categories: product.categories,\n              category: product.category,\n              category_name: product.category_name,\n              product_type: product.product_type,\n              tags: product.tags
             })),
             rawMediaSamples: payload.products.slice(0, 3).map(product => ({
               title: product.title,
