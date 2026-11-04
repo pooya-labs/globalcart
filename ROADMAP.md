@@ -91,6 +91,17 @@ These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile 
 - [ ] Add other suppliers only through authorized APIs/feeds.
 **Acceptance:** products import automatically, the storefront survives source outages, and original source text remains intact. Translation is out of scope until explicitly reactivated.
 
+### M02.1 — Real-product source discovery
+- [x] Document that DummyJSON is temporary synthetic/sample catalog data, not live retailer inventory.
+- [x] Assess Shopify Storefront API scope; it requires a known shop domain and is not a universal open marketplace catalog.
+- [x] Assess Daily Dose Tech public read-only API as a genuine-product technology discovery candidate; image reuse, redistribution and retailer-price freshness remain unverified.
+- [x] Assess Open Food Facts API v3 as a genuine barcode-based food catalog; document ODbL/DbCL data and CC BY-SA image obligations, User-Agent guidance and rate limits.
+- [ ] Obtain source permission/terms confirmation for any product images and content before integration.
+- [ ] Find verified sources for fashion, home and general merchandise, or obtain an approved retailer/affiliate feed.
+- [ ] Replace the sample source only after source rights, attribution, freshness semantics and category coverage are approved and contract-tested.
+
+**M02.1 status:** Discovery and documentation complete; no real-product adapter is connected. Keep the current sample adapter explicitly labelled until a qualifying source is approved.
+
 **Freshness semantics:** the public catalog job runs daily. A 36-hour fresh window allows one delayed/missed schedule; 72 hours marks two missed daily cycles as stale. This is snapshot-generation/fetch age only and is not a claim about upstream product modification timestamps.
 
 ## M03 — Pricing and product experience

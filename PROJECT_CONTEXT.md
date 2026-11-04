@@ -5,7 +5,7 @@
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
 **Active stage:** M09.4 release readiness; M08.15–M08.16 automated lab, route-scoped image hints and FX publication wiring, M09.1–M09.3 and M09.4.1 public API surface regression guards are CI-verified. Manual device/screen-reader/full-site RTL/LTR and field-delivery QA remains an external gate; the first genuine changed-quote FX dispatch and Pages deployment have now been verified. M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
-**Last updated:** 2026-11-03
+**Last updated:** 2026-11-04
 
 ## Product definition
 GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
@@ -46,6 +46,7 @@ GlobalCart is an independent marketplace portfolio simulation. Its information a
 - `ROADMAP.md` — authoritative milestone checklist.
 - `backend/` — Go REST API, PostgreSQL migrations 001–015, local Docker Compose, catalog importer, internal demo-commerce/return services, OpenAPI contract, `backend/internal/auth`, `backend/internal/admin` and `backend/internal/commerce`. M06.1 provides an aggregate-only admin overview; M06.2 adds admin-only manual product creation, editorial overrides, archive/restore and revision history; M06.3 adds a bounded admin product listing; M06.4 adds a bounded seller product work queue protected by transaction-time vendor membership checks; M06.5 adds internal seller offer create/edit/archive with optimistic revisions, price/inventory history and append-only audit; M06.6 adds internal vendor profile editing and aggregate-only simulated sales analytics. Admin and seller workspace services remain internal and have no HTTP handlers. Catalog reads apply overrides and hide archived records while supplier-owned rows remain unchanged. The auth package provides Argon2id primitives, digest-only opaque tokens, session lifecycle and transaction-time admin/seller/customer authorization guards; public auth and commerce routes remain disabled.
 - `go.mod` — Go module at repository root.
+- `docs/REAL_CATALOG_MIGRATION.md` — assessed real-product sources, legal/technical gates and migration acceptance criteria.
 - `docs/AI_HANDOFF.md` — continuation contract.
 
 ## Verified behavior
