@@ -135,7 +135,7 @@ export default function ProductDetailClient({product,related}:Props) {
     <section className="product-detail-layout">
       <div className="detail-gallery">
         <div className="detail-main-image">
-          <img src={catalogImageSrc(image)} alt={product.title+" - "+String(activeImage+1)} loading="lazy" fetchPriority="low" decoding="async" width={1440} height={1440}/>
+          <img src={catalogImageSrc(image)} alt={product.title+" - "+String(activeImage+1)} loading="eager" fetchPriority="high" decoding="async" width={1440} height={1440}/>
           {product.priceAvailable!==false&&product.discountPercentage>0&&<span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span>}
           {images.length>1&&<>
             <button type="button" className="gallery-arrow gallery-arrow-prev" onClick={previousImage} aria-label={rtl?"تصویر قبلی":"Previous image"}>{rtl?<ChevronRight size={21}/>:<ChevronLeft size={21}/>}</button>
