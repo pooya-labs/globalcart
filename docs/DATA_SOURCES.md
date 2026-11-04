@@ -21,7 +21,15 @@
 - Image reuse, redistribution, attribution and display rights are not sufficiently clear from the API docs; do not import until the publisher confirms them.
 - Preserve retailer attribution and outbound links if integrated.
 
-### Shopify Global Catalog (runtime discovery candidate; not connected)
+### Shopify Global Catalog MCP (connected runtime source)
+- Endpoint: `https://catalog.shopify.com/api/ucp/mcp` via the Cloudflare Worker proxy `https://globalcart-catalog.pooyagame141.workers.dev/api/catalog`.
+- Searches cross-merchant Shopify listings at query time; no API key is used. Anonymous access has the lowest shared rate limits.
+- Results are not cached or persisted. Merchant product images are rendered directly from response URLs and never downloaded or re-hosted.
+- Merchant identity and seller listing URLs are preserved in product cards/details. Product price and availability are seller-provided and can change.
+- The current GlobalCart cart/checkout is a local simulation and does not interact with merchant carts, inventory reservations, payments or fulfillment.
+- The proxy accepts only a constrained catalog operation, validates input, limits result count and restricts browser CORS to the GlobalCart Pages origin plus localhost development.
+
+### Shopify Global Catalog (runtime discovery candidate; superseded by connected runtime source)
 - Official overview: https://shopify.dev/docs/agents/catalog
 - Searches eligible products across Shopify merchants; distinct from the Storefront API, which is scoped to one known store.
 - Uses the UCP/MCP Global Catalog endpoint and an agent profile. Authentication is ambiguous across official docs: the catalog overview says no API key is needed, while the hands-on auth tutorial requires Dev Dashboard credentials and a bearer token. Do not treat this as a no-account source until credential-free access is proven.
