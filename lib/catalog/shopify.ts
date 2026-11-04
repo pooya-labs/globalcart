@@ -132,21 +132,6 @@ function categorySlug(raw: ShopifyRawProduct): string {
   return CATEGORY_RULES.find(rule => rule.pattern.test(text))?.id || "other-products";
 }
 
-const IMAGE_PROXY_BASE = "https://globalcart-catalog.pooyagame141.workers.dev/image";
-
-function catalogImageUrl(value: unknown): string {
-  const direct = safeHttpsUrl(value);
-  if (!direct) return "";
-  try {
-    const url = new URL(direct);
-    if (url.hostname !== "cdn.shopify.com") return direct;
-    const proxy = new URL(IMAGE_PROXY_BASE);
-    proxy.searchParams.set("url", url.toString());
-    return proxy.toString();
-  } catch {
-    return "";
-  }
-}
 
 /** Map one live Shopify listing without inventing prices, ratings, discounts or imagery. */
 export function mapShopifyCatalogProduct(value: unknown): ShopifyCatalogProduct | null {
@@ -156,7 +141,7 @@ export function mapShopifyCatalogProduct(value: unknown): ShopifyCatalogProduct 
 
   const images = [...new Set((raw.media || [])
     .filter(item => item.type?.toLowerCase() === "image")
-    .map(item => catalogImageUrl(item.url || item.preview?.url))
+    .map(item => safeHttpsUrl(item.url || item.preview?.url))
     .filter(Boolean))];
   if (images.length === 0) return null;
 
