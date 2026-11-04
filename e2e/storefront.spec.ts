@@ -3,7 +3,7 @@ import catalogSnapshot from "../data/catalog.json";
 import fxSnapshot from "../data/fx-rate.json";
 import { getFxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
 
-const firstProduct = catalogSnapshot.products[0];
+const firstProduct = catalogSnapshot.products[0]!;
 const firstProductQuery = firstProduct.title.slice(0, Math.min(12, firstProduct.title.length));
 const savedSearchName = "First product picks";
 
