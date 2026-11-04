@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { test, expect, type Page } from "@playwright/test";
 import catalogSnapshot from "../data/catalog.json";
 
-const firstProduct = catalogSnapshot.products[0];
+const firstProduct = catalogSnapshot.products[0]!;
 
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
