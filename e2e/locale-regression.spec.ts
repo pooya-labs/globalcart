@@ -61,10 +61,11 @@ test("Persian RTL and English LTR persist across public routes without horizonta
   await expectNoHorizontalOverflow(page, "reloaded Persian product detail");
 
   // The product visit should appear in browser-local history, without a server.
-  const historyUrl = new URL("../recently-viewed/", page.url()).toString();
+  const historyUrl = new URL("../../recently-viewed/", page.url()).toString();
   const historyResponse = await page.goto(historyUrl);
   expect(historyResponse?.status()).toBe(200);
   const history = page.locator("main.history-page");
+  await expect(history).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
   await expect(history).toHaveAttribute("dir", "rtl");
   await expect(history.locator(".history-card").first()).toBeVisible();
   await expectNoHorizontalOverflow(page, "Persian recently viewed");
