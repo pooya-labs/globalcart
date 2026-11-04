@@ -7,6 +7,13 @@
 **Active stage:** M09.4 release readiness; M08.15–M08.16 automated lab, route-scoped image hints and FX publication wiring, M09.1–M09.3 and M09.4.1 public API surface regression guards are CI-verified. Manual device/screen-reader/full-site RTL/LTR and field-delivery QA remains an external gate; the first genuine changed-quote FX dispatch and Pages deployment have now been verified. M06.1–M06.6 internal services are CI-verified and public workspace UI/routes remain gated  
 **Last updated:** 2026-11-04
 
+## Latest catalog-source discovery checkpoint — 2026-11-04
+
+- Reviewed the Open Facts sibling databases: Open Beauty Facts (cosmetics), Open Pet Food Facts (pet food) and Open Products Facts (other product types). The upstream project describes these as experimental/specific APIs; they are not retailer feeds and do not prove live seller pricing or stock.
+- Updated `docs/REAL_CATALOG_MIGRATION.md`, `docs/DATA_SOURCES.md` and the M02.1 roadmap to record this discovery and its integration gates.
+- No catalog adapter or storefront data changed. DummyJSON remains explicitly temporary sample data; do not relabel it as genuine retail inventory.
+- Next gate: inspect each sibling's current endpoint/data quality and terms/image rights; continue searching for approved broad-category feeds. Preserve the shared `CatalogSourceAdapter` architecture and do not scrape retailers.
+
 ## Product definition
 GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
 
