@@ -1,5 +1,12 @@
 const SHOPIFY_ENDPOINT = "https://catalog.shopify.com/api/ucp/mcp";
 const PROFILE_URL = "https://shopify.dev/ucp/agent-profiles/2026-04-08/valid-with-capabilities.json";
+const ALLOWED_ORIGINS = new Set([
+  "https://pooya-labs.github.io",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173"
+]);
 
 function corsHeaders(origin) {
   return {
