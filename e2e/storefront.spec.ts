@@ -22,7 +22,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
-  // All catalog and editorial imagery is now self-hosted with the static export.
+  // All catalog and editorial imagery is self-hosted with the static export.
   await page.reload();
 
   await expect(page.locator("main.store")).toHaveClass(/storefront-v2/);
@@ -130,131 +130,7 @@ test("switches locale and opens a statically exported product detail page", asyn
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
   await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page).toHaveURL(new RegExp(`/product/${firstProduct.id}/?import { test, expect } from "@playwright/test";
-import catalogSnapshot from "../data/catalog.json";
-import fxSnapshot from "../data/fx-rate.json";
-import { getFxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
-
-const firstProduct = catalogSnapshot.products[0];
-const firstProductQuery = firstProduct.title.slice(0, Math.min(12, firstProduct.title.length));
-const savedSearchName = "First product picks";
-
-test.beforeEach(async ({ page }) => {
-  // Keep the browser suite deterministic: the app must work from its committed
-  // static catalog even when remote demo APIs, images or fonts are unavailable.
-  await page.route("**/*", route => {
-    const url = new URL(route.request().url());
-    if (url.hostname === "127.0.0.1" || url.hostname === "localhost") {
-      return route.continue();
-    }
-    return route.abort();
-  });
-  await page.goto("./");
-  await expect(page.locator(".product-card").first()).toBeVisible();
-});
-
-test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
-  // All catalog and editorial imagery is now self-hosted with the static export.
-  await page.reload();
-
-  await expect(page.locator("main.store")).toHaveClass(/storefront-v2/);
-  await expect(page.locator(".hero-editorial-v2")).toBeVisible();
-  await expect(page.locator(".hero-proofline")).toBeVisible();
-  await expect(page.locator(".categories-section .category-tile").first()).toBeVisible();
-  await expect(page.locator(".merchandising-panel")).toHaveCount(3);
-  await expect(page.locator(".catalog-section .product-card").first()).toBeVisible();
-
-  // Trigger image loading only for the hero and a curated sample so the
-  // visual capture does not download the entire 1,000-item catalog.
-  await page.locator(".merchandising-item img, .product-card img").evaluateAll(images => {
-    images.slice(0, 8).forEach(image => { (image as HTMLImageElement).loading = "eager"; });
-  });
-  await expect.poll(
-    () => page.locator(".hero-visual > img").evaluate(image => (image as HTMLImageElement).naturalWidth),
-    { timeout: 15_000 }
-  ).toBeGreaterThan(0);
-  await expect.poll(
-    () => page.locator(".merchandising-item img").first().evaluate(image => (image as HTMLImageElement).naturalWidth),
-    { timeout: 15_000 }
-  ).toBeGreaterThan(0);
-
-  // Capture the first screen at the project viewport to keep the published
-  // review images readable; a full-page version remains in the report artifact.
-  const project = testInfo.project.name;
-  await page.screenshot({
-    path: `test-results/storefront-home-${project}.png`,
-    animations: "disabled"
-  });
-  await page.screenshot({
-    path: `test-results/storefront-home-full-${project}.png`,
-    fullPage: true,
-    animations: "disabled"
-  });
-});
-
-test("shows only live catalog categories, filters products locally and gives product images a real layout box", async ({ page }) => {
-  const tiles = page.locator(".categories-section .category-tile");
-  await expect(tiles.first()).toBeVisible();
-
-  const firstTile = tiles.first();
-  const categoryId = await firstTile.getAttribute("data-category");
-  const categoryCount = Number(await firstTile.getAttribute("data-count"));
-  expect(categoryId).toBeTruthy();
-  expect(categoryCount).toBeGreaterThan(0);
-
-  const imageLink = page.locator(".product-card .product-image-link").first();
-  const imageGeometry = await imageLink.evaluate(element => {
-    const wrapper = element.getBoundingClientRect();
-    const image = element.querySelector("img")?.getBoundingClientRect();
-    return {
-      wrapperWidth: wrapper.width,
-      wrapperHeight: wrapper.height,
-      imageWidth: image?.width ?? 0,
-      imageHeight: image?.height ?? 0
-    };
-  });
-  expect(imageGeometry.wrapperWidth).toBeGreaterThan(0);
-  expect(imageGeometry.wrapperHeight).toBeGreaterThan(0);
-  expect(imageGeometry.imageWidth).toBeGreaterThan(0);
-  expect(imageGeometry.imageHeight).toBeGreaterThan(0);
-
-  await firstTile.click();
-  await expect(page.locator(".filter-option.active[data-category]")).toHaveAttribute("data-category", categoryId!);
-  await expect(page.locator(".product-card").first()).toBeVisible();
-});
-
-test("product cards open native GlobalCart detail pages and every alternate image can be browsed", async ({ page }) => {
-  const galleryProduct = catalogSnapshot.products.find(product =>
-    Array.isArray(product.images) && product.images.some(image => image !== product.thumbnail)
-  );
-  test.skip(!galleryProduct, "The committed snapshot has no distinct alternate image yet; the deployment smoke test validates freshly generated galleries.");
-
-  const productLink = page.locator(`a[href$="/product/${galleryProduct!.id}/"]`).first();
-  await expect(productLink).toBeVisible();
-  const cardImage = productLink.locator("img").first();
-  await expect(cardImage).toHaveAttribute("loading", "lazy");
-  await expect(cardImage).toHaveAttribute("fetchpriority", "low");
-  await productLink.click();
-
-  await expect(page.locator("main.product-page")).toBeVisible();
-  await expect(page.locator("main.product-page h1")).toHaveText(galleryProduct!.title);
-  const mainImage = page.locator(".detail-main-image img");
-  await expect(mainImage).toHaveAttribute("loading", "eager");
-  await expect(mainImage).toHaveAttribute("fetchpriority", "high");
-  await expect(page.locator(".detail-provenance")).toHaveCount(0);
-  await expect(page.locator('a[href*="amazon."]')).toHaveCount(0);
-
-  const galleryItems = page.locator(".detail-thumbnails button");
-  await expect(galleryItems).toHaveCount(galleryProduct!.images.length + 1);
-  const firstImage = await mainImage.getAttribute("src");
-  await page.locator(".gallery-arrow-next").click();
-  await expect(mainImage).not.toHaveAttribute("src", firstImage || "");
-  await expect(page.locator(".gallery-counter")).toContainText("2 /");
-  await galleryItems.first().click();
-  await expect(mainImage).toHaveAttribute("src", firstImage || "");
-});
-
-));
+  await expect(page).toHaveURL(new RegExp("/product/" + firstProduct.id + "/?$"));
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
   await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
   await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
@@ -303,296 +179,7 @@ test("shows the TGJU quote and keeps missing catalog commerce fields honest", as
   }
 
   await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page).toHaveURL(new RegExp(`/product/${firstProduct.id}/?import { test, expect } from "@playwright/test";
-import catalogSnapshot from "../data/catalog.json";
-import fxSnapshot from "../data/fx-rate.json";
-import { getFxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
-
-const firstProduct = catalogSnapshot.products[0];
-const firstProductQuery = firstProduct.title.slice(0, Math.min(12, firstProduct.title.length));
-const savedSearchName = "First product picks";
-
-test.beforeEach(async ({ page }) => {
-  // Keep the browser suite deterministic: the app must work from its committed
-  // static catalog even when remote demo APIs, images or fonts are unavailable.
-  await page.route("**/*", route => {
-    const url = new URL(route.request().url());
-    if (url.hostname === "127.0.0.1" || url.hostname === "localhost") {
-      return route.continue();
-    }
-    return route.abort();
-  });
-  await page.goto("./");
-  await expect(page.locator(".product-card").first()).toBeVisible();
-});
-
-test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
-  // All catalog and editorial imagery is now self-hosted with the static export.
-  await page.reload();
-
-  await expect(page.locator("main.store")).toHaveClass(/storefront-v2/);
-  await expect(page.locator(".hero-editorial-v2")).toBeVisible();
-  await expect(page.locator(".hero-proofline")).toBeVisible();
-  await expect(page.locator(".categories-section .category-tile").first()).toBeVisible();
-  await expect(page.locator(".merchandising-panel")).toHaveCount(3);
-  await expect(page.locator(".catalog-section .product-card").first()).toBeVisible();
-
-  // Trigger image loading only for the hero and a curated sample so the
-  // visual capture does not download the entire 1,000-item catalog.
-  await page.locator(".merchandising-item img, .product-card img").evaluateAll(images => {
-    images.slice(0, 8).forEach(image => { (image as HTMLImageElement).loading = "eager"; });
-  });
-  await expect.poll(
-    () => page.locator(".hero-visual > img").evaluate(image => (image as HTMLImageElement).naturalWidth),
-    { timeout: 15_000 }
-  ).toBeGreaterThan(0);
-  await expect.poll(
-    () => page.locator(".merchandising-item img").first().evaluate(image => (image as HTMLImageElement).naturalWidth),
-    { timeout: 15_000 }
-  ).toBeGreaterThan(0);
-
-  // Capture the first screen at the project viewport to keep the published
-  // review images readable; a full-page version remains in the report artifact.
-  const project = testInfo.project.name;
-  await page.screenshot({
-    path: `test-results/storefront-home-${project}.png`,
-    animations: "disabled"
-  });
-  await page.screenshot({
-    path: `test-results/storefront-home-full-${project}.png`,
-    fullPage: true,
-    animations: "disabled"
-  });
-});
-
-test("shows only live catalog categories, filters products locally and gives product images a real layout box", async ({ page }) => {
-  const tiles = page.locator(".categories-section .category-tile");
-  await expect(tiles.first()).toBeVisible();
-
-  const firstTile = tiles.first();
-  const categoryId = await firstTile.getAttribute("data-category");
-  const categoryCount = Number(await firstTile.getAttribute("data-count"));
-  expect(categoryId).toBeTruthy();
-  expect(categoryCount).toBeGreaterThan(0);
-
-  const imageLink = page.locator(".product-card .product-image-link").first();
-  const imageGeometry = await imageLink.evaluate(element => {
-    const wrapper = element.getBoundingClientRect();
-    const image = element.querySelector("img")?.getBoundingClientRect();
-    return {
-      wrapperWidth: wrapper.width,
-      wrapperHeight: wrapper.height,
-      imageWidth: image?.width ?? 0,
-      imageHeight: image?.height ?? 0
-    };
-  });
-  expect(imageGeometry.wrapperWidth).toBeGreaterThan(0);
-  expect(imageGeometry.wrapperHeight).toBeGreaterThan(0);
-  expect(imageGeometry.imageWidth).toBeGreaterThan(0);
-  expect(imageGeometry.imageHeight).toBeGreaterThan(0);
-
-  await firstTile.click();
-  await expect(page.locator(".filter-option.active[data-category]")).toHaveAttribute("data-category", categoryId!);
-  await expect(page.locator(".product-card").first()).toBeVisible();
-});
-
-test("product cards open native GlobalCart detail pages and every alternate image can be browsed", async ({ page }) => {
-  const galleryProduct = catalogSnapshot.products.find(product =>
-    Array.isArray(product.images) && product.images.some(image => image !== product.thumbnail)
-  );
-  test.skip(!galleryProduct, "The committed snapshot has no distinct alternate image yet; the deployment smoke test validates freshly generated galleries.");
-
-  const productLink = page.locator(`a[href$="/product/${galleryProduct!.id}/"]`).first();
-  await expect(productLink).toBeVisible();
-  const cardImage = productLink.locator("img").first();
-  await expect(cardImage).toHaveAttribute("loading", "lazy");
-  await expect(cardImage).toHaveAttribute("fetchpriority", "low");
-  await productLink.click();
-
-  await expect(page.locator("main.product-page")).toBeVisible();
-  await expect(page.locator("main.product-page h1")).toHaveText(galleryProduct!.title);
-  const mainImage = page.locator(".detail-main-image img");
-  await expect(mainImage).toHaveAttribute("loading", "eager");
-  await expect(mainImage).toHaveAttribute("fetchpriority", "high");
-  await expect(page.locator(".detail-provenance")).toHaveCount(0);
-  await expect(page.locator('a[href*="amazon."]')).toHaveCount(0);
-
-  const galleryItems = page.locator(".detail-thumbnails button");
-  await expect(galleryItems).toHaveCount(galleryProduct!.images.length + 1);
-  const firstImage = await mainImage.getAttribute("src");
-  await page.locator(".gallery-arrow-next").click();
-  await expect(mainImage).not.toHaveAttribute("src", firstImage || "");
-  await expect(page.locator(".gallery-counter")).toContainText("2 /");
-  await galleryItems.first().click();
-  await expect(mainImage).toHaveAttribute("src", firstImage || "");
-});
-
-test("switches locale and opens a statically exported product detail page", async ({ page }) => {
-  await expect(page.locator("main.store")).toHaveAttribute("dir", "rtl");
-  await page.getByRole("button", { name: "EN", exact: true }).click();
-  await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
-  await page.reload();
-  await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
-
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page).toHaveURL(new RegExp(`/product/${firstProduct.id}/?import { test, expect } from "@playwright/test";
-import catalogSnapshot from "../data/catalog.json";
-import fxSnapshot from "../data/fx-rate.json";
-import { getFxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
-
-const firstProduct = catalogSnapshot.products[0];
-const firstProductQuery = firstProduct.title.slice(0, Math.min(12, firstProduct.title.length));
-const savedSearchName = "First product picks";
-
-test.beforeEach(async ({ page }) => {
-  // Keep the browser suite deterministic: the app must work from its committed
-  // static catalog even when remote demo APIs, images or fonts are unavailable.
-  await page.route("**/*", route => {
-    const url = new URL(route.request().url());
-    if (url.hostname === "127.0.0.1" || url.hostname === "localhost") {
-      return route.continue();
-    }
-    return route.abort();
-  });
-  await page.goto("./");
-  await expect(page.locator(".product-card").first()).toBeVisible();
-});
-
-test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
-  // All catalog and editorial imagery is now self-hosted with the static export.
-  await page.reload();
-
-  await expect(page.locator("main.store")).toHaveClass(/storefront-v2/);
-  await expect(page.locator(".hero-editorial-v2")).toBeVisible();
-  await expect(page.locator(".hero-proofline")).toBeVisible();
-  await expect(page.locator(".categories-section .category-tile").first()).toBeVisible();
-  await expect(page.locator(".merchandising-panel")).toHaveCount(3);
-  await expect(page.locator(".catalog-section .product-card").first()).toBeVisible();
-
-  // Trigger image loading only for the hero and a curated sample so the
-  // visual capture does not download the entire 1,000-item catalog.
-  await page.locator(".merchandising-item img, .product-card img").evaluateAll(images => {
-    images.slice(0, 8).forEach(image => { (image as HTMLImageElement).loading = "eager"; });
-  });
-  await expect.poll(
-    () => page.locator(".hero-visual > img").evaluate(image => (image as HTMLImageElement).naturalWidth),
-    { timeout: 15_000 }
-  ).toBeGreaterThan(0);
-  await expect.poll(
-    () => page.locator(".merchandising-item img").first().evaluate(image => (image as HTMLImageElement).naturalWidth),
-    { timeout: 15_000 }
-  ).toBeGreaterThan(0);
-
-  // Capture the first screen at the project viewport to keep the published
-  // review images readable; a full-page version remains in the report artifact.
-  const project = testInfo.project.name;
-  await page.screenshot({
-    path: `test-results/storefront-home-${project}.png`,
-    animations: "disabled"
-  });
-  await page.screenshot({
-    path: `test-results/storefront-home-full-${project}.png`,
-    fullPage: true,
-    animations: "disabled"
-  });
-});
-
-test("shows only live catalog categories, filters products locally and gives product images a real layout box", async ({ page }) => {
-  const tiles = page.locator(".categories-section .category-tile");
-  await expect(tiles.first()).toBeVisible();
-
-  const firstTile = tiles.first();
-  const categoryId = await firstTile.getAttribute("data-category");
-  const categoryCount = Number(await firstTile.getAttribute("data-count"));
-  expect(categoryId).toBeTruthy();
-  expect(categoryCount).toBeGreaterThan(0);
-
-  const imageLink = page.locator(".product-card .product-image-link").first();
-  const imageGeometry = await imageLink.evaluate(element => {
-    const wrapper = element.getBoundingClientRect();
-    const image = element.querySelector("img")?.getBoundingClientRect();
-    return {
-      wrapperWidth: wrapper.width,
-      wrapperHeight: wrapper.height,
-      imageWidth: image?.width ?? 0,
-      imageHeight: image?.height ?? 0
-    };
-  });
-  expect(imageGeometry.wrapperWidth).toBeGreaterThan(0);
-  expect(imageGeometry.wrapperHeight).toBeGreaterThan(0);
-  expect(imageGeometry.imageWidth).toBeGreaterThan(0);
-  expect(imageGeometry.imageHeight).toBeGreaterThan(0);
-
-  await firstTile.click();
-  await expect(page.locator(".filter-option.active[data-category]")).toHaveAttribute("data-category", categoryId!);
-  await expect(page.locator(".product-card").first()).toBeVisible();
-});
-
-test("product cards open native GlobalCart detail pages and every alternate image can be browsed", async ({ page }) => {
-  const galleryProduct = catalogSnapshot.products.find(product =>
-    Array.isArray(product.images) && product.images.some(image => image !== product.thumbnail)
-  );
-  test.skip(!galleryProduct, "The committed snapshot has no distinct alternate image yet; the deployment smoke test validates freshly generated galleries.");
-
-  const productLink = page.locator(`a[href$="/product/${galleryProduct!.id}/"]`).first();
-  await expect(productLink).toBeVisible();
-  const cardImage = productLink.locator("img").first();
-  await expect(cardImage).toHaveAttribute("loading", "lazy");
-  await expect(cardImage).toHaveAttribute("fetchpriority", "low");
-  await productLink.click();
-
-  await expect(page.locator("main.product-page")).toBeVisible();
-  await expect(page.locator("main.product-page h1")).toHaveText(galleryProduct!.title);
-  const mainImage = page.locator(".detail-main-image img");
-  await expect(mainImage).toHaveAttribute("loading", "eager");
-  await expect(mainImage).toHaveAttribute("fetchpriority", "high");
-  await expect(page.locator(".detail-provenance")).toHaveCount(0);
-  await expect(page.locator('a[href*="amazon."]')).toHaveCount(0);
-
-  const galleryItems = page.locator(".detail-thumbnails button");
-  await expect(galleryItems).toHaveCount(galleryProduct!.images.length + 1);
-  const firstImage = await mainImage.getAttribute("src");
-  await page.locator(".gallery-arrow-next").click();
-  await expect(mainImage).not.toHaveAttribute("src", firstImage || "");
-  await expect(page.locator(".gallery-counter")).toContainText("2 /");
-  await galleryItems.first().click();
-  await expect(mainImage).toHaveAttribute("src", firstImage || "");
-});
-
-));
-  await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
-  await expect(page.getByText("PRODUCT OVERVIEW")).toBeVisible();
-});
-
-test("labels date-only TGJU quotes as stale and keeps unprovided product facts explicit", async ({ page }) => {
-  await page.getByRole("button", { name: "EN", exact: true }).click();
-
-  const expectedStatus = getFxRateStatus(fxSnapshot as unknown as FxRateSnapshot);
-  const statusLabels = {
-    fresh: "Fresh",
-    aging: "Aging",
-    stale: "Stale",
-    unavailable: "Rate unavailable"
-  } as const;
-
-  const fxPanel = page.locator(".fx-control");
-  await expect(fxPanel).toHaveAttribute("data-status", expectedStatus);
-  await expect(fxPanel).toContainText(statusLabels[expectedStatus]);
-  if (fxSnapshot.sourceTimeKind === "date_only" && fxSnapshot.sourceTimeTehran) {
-    await expect(fxPanel).toContainText(fxSnapshot.sourceTimeTehran);
-    expect(expectedStatus).toBe("stale");
-  }
-
-  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
-  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
-  await expect(page.locator(".detail-price")).toContainText("Price not listed");
-  await expect(page.locator(".detail-rating")).toContainText("No rating supplied");
-  await expect(page.locator(".buybox-stock")).toContainText("Stock not listed");
-  await expect(page.locator(".detail-buybox details.price-breakdown")).toHaveCount(0);
-});
-
-));
+  await expect(page).toHaveURL(new RegExp("/product/" + firstProduct.id + "/?$"));
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
   await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
   await expect(page.locator(".detail-price")).toContainText("Price not listed");
@@ -659,7 +246,7 @@ test("saved searches persist locally and can be applied and deleted", async ({ p
   await expect(page.getByRole("combobox", { name: "Search products, brands or categories..." })).toHaveValue(firstProductQuery);
 
   await page.getByRole("button", { name: /Saved searches/ }).click();
-  await page.getByRole("button", { name: `Delete ${savedSearchName}` }).click();
+  await page.getByRole("button", { name: "Delete " + savedSearchName }).click();
   await expect(page.getByText(savedSearchName)).toHaveCount(0);
 });
 
@@ -684,6 +271,14 @@ test("product detail add-to-bag persists the selected item in the local cart", a
   await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
   await page.locator(".buybox-add").click();
   await expect(page.locator(".buybox-confirm")).toContainText("Added to your bag");
+  await page.waitForFunction((productId: number) => {
+    try {
+      const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
+      return Array.isArray(state.cart) && state.cart.some((line: { product?: { id?: number } }) => line.product?.id === productId);
+    } catch {
+      return false;
+    }
+  }, firstProduct.id);
   await page.locator(".product-page-top > div > a").click();
   await expect(page.locator("main.store")).toBeVisible();
   await page.locator(".bag-button").click();
@@ -691,21 +286,21 @@ test("product detail add-to-bag persists the selected item in the local cart", a
   await expect(drawer.getByText(firstProduct.title, { exact: true })).toBeVisible();
 });
 
-test("recently viewed route inherits and persists the selected locale", async ({ page }) => {
+ test("recently viewed route inherits and persists the selected locale", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 
   await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
   await expect(page).toHaveURL(/product/);
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
-  await page.waitForFunction((productId: number) => {
+  await expect.poll(() => page.evaluate(() => {
     try {
       const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
-      return Array.isArray(state.recent) && state.recent.includes(productId);
+      return Array.isArray(state.recent) && state.recent.includes(firstProduct.id);
     } catch {
       return false;
     }
-  }, firstProduct.id);
+  })).toBe(true);
 
   const historyUrl = new URL("../recently-viewed", page.url()).toString();
   await page.goto(historyUrl);
