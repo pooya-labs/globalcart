@@ -131,8 +131,7 @@ export function mapShopifyCatalogProduct(value: unknown): ShopifyCatalogProduct 
     ? Math.min(5, Math.max(0, raw.rating.value))
     : 0;
   const available = variants.length === 0 || availableVariants.length > 0;
-  const rawBrand = typeof raw.brand === "string" ? raw.brand : raw.brand?.name;
-  const brand = rawBrand?.trim() || sellerName;
+  const brand = sellerName;
 
   return {
     id: stableNumericId(raw.id),
