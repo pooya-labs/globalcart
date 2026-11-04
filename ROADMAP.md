@@ -79,6 +79,8 @@ These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile 
 - [x] Add a Cloudflare Worker proxy with strict operation/input validation, CORS origin restriction and no-store/no-cache response headers.
 - [x] Use Shopify's published reference UCP profile for keyless catalog capability negotiation; verify the profile fetch and anonymous search without adding a Shopify account or API key.
 - [x] Map real merchant listings, product images, seller-reported prices, availability, ratings and outbound seller listing URLs into the storefront view model.
+- [x] Normalize live categories when Shopify omits taxonomy fields: classify from product title/description/available metadata into stable storefront groups, with an explicit “Other products” fallback; keep local category and query filters active for live results.
+- [x] Render product images directly from Shopify CDN `media.url` (falling back to `media.preview.url`) with no image caching, download or re-hosting; verify the public CDN image returns real image bytes.
 - [x] Keep search results in runtime memory only; do not persist product records or images in snapshots/localStorage.
 - [x] Preserve merchant attribution while keeping the storefront brand independent.
 - [x] Keep cart/checkout explicitly local and simulated; no real merchant checkout, payment or fulfillment.

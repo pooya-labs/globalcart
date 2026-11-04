@@ -11,8 +11,11 @@ type ShopifyRawProduct = {
   title?: string;
   description?: { html?: string; plain?: string } | string;
   categories?: Array<{ value?: string; taxonomy?: string }>;
+  category?: string | { name?: string; value?: string; path?: string };
+  product_type?: string;
+  metadata?: Record<string, unknown>;
   price_range?: { min?: ShopifyMoney; max?: ShopifyMoney };
-  media?: Array<{ type?: string; url?: string; alt_text?: string }>;
+  media?: Array<{ type?: string; url?: string; alt_text?: string; preview?: { url?: string } }>;
   variants?: ShopifyVariant[];
   rating?: { value?: number };
   brand?: string | { name?: string };
@@ -90,14 +93,45 @@ function plainText(value: ShopifyRawProduct["description"]): string {
     .trim();
 }
 
-function categorySlug(raw: ShopifyRawProduct): string {
-  const value = raw.categories?.find(item => item.taxonomy === "merchant")?.value
-    || raw.categories?.find(item => item.value)?.value
-    || "other products";
-  const slug = value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  return slug || "other-products";
+const CATEGORY_RULES: Array<{ id: string; pattern: RegExp }> = [
+  { id: "smartphones", pattern: /\b(smartphone|mobile phone|iphone|pixel phone|galaxy (?:s|z|a|note|fold|flip)\s?\d+|android phone)\b/i },
+  { id: "laptops", pattern: /\b(laptop|notebook|macbook|chromebook|thinkpad)\b/i },
+  { id: "mobile-accessories", pattern: /\b(phone case|screen protector|power bank|wall charger|phone charger|wireless charger|usb[- ]c cable|charging cable|phone adapter)\b/i },
+  { id: "mens-watches", pattern: /\b(watch|smartwatch|wristwatch|apple watch|galaxy watch)\b/i },
+  { id: "fragrances", pattern: /\b(perfume|fragrance|eau de parfum|eau de toilette|cologne)\b/i },
+  { id: "beauty", pattern: /\b(skincare|skin care|makeup|cosmetic|moisturizer|serum|shampoo|conditioner|sunscreen)\b/i },
+  { id: "furniture", pattern: /\b(furniture|sofa|couch|armchair|dining table|coffee table|desk|bookshelf|bed frame|nightstand|floor lamp)\b/i },
+  { id: "groceries", pattern: /\b(grocery|coffee beans|tea bags|snack|chocolate|olive oil|protein bar|food|beverage|honey|cereal)\b/i },
+  { id: "electronics", pattern: /\b(headphones?|earbuds?|speakers?|audio|television|\btv\b|camera|monitor|keyboard|computer mouse|router|game console|gaming headset|electronics?|tablet|projector|drone)\b/i },
+  { id: "sports-outdoors", pattern: /\b(sporting goods|athletic|running shoe|trail shoe|hiking|camping|fitness|yoga|bicycle|cycling|outdoor|tennis|basketball)\b/i },
+  { id: "fashion", pattern: /\b(clothing|apparel|shirt|t-shirt|dress|jeans|jacket|coat|sweater|hoodie|handbag|backpack|sneakers?)\b/i },
+  { id: "toys", pattern: /\b(toys?|lego|puzzle|board game|doll|action figure|plush|stuffed animal)\b/i }
+];
+
+function categoryHints(raw: ShopifyRawProduct): string[] {
+  const values: string[] = [];
+  for (const item of raw.categories || []) if (typeof item.value === "string") values.push(item.value);
+  if (typeof raw.category === "string") values.push(raw.category);
+  else if (raw.category && typeof raw.category === "object") {
+    values.push(raw.category.name || "", raw.category.value || "", raw.category.path || "");
+  }
+  if (typeof raw.product_type === "string") values.push(raw.product_type);
+  if (raw.metadata && typeof raw.metadata === "object") {
+    for (const [key, value] of Object.entries(raw.metadata)) {
+      if (/(categor|product.?type|department|tag)/i.test(key) && typeof value === "string") values.push(value);
+      if (/(categor|product.?type|department|tag)/i.test(key) && Array.isArray(value)) {
+        values.push(...value.filter((item): item is string => typeof item === "string"));
+      }
+    }
+  }
+  return values.filter(Boolean);
 }
+
+function categorySlug(raw: ShopifyRawProduct): string {
+  const text = [raw.title || "", plainText(raw.description), ...categoryHints(raw)].join(" ");
+  return CATEGORY_RULES.find(rule => rule.pattern.test(text))?.id || "other-products";
+}
+
 
 /** Map one live Shopify listing without inventing prices, ratings, discounts or imagery. */
 export function mapShopifyCatalogProduct(value: unknown): ShopifyCatalogProduct | null {
@@ -105,10 +139,10 @@ export function mapShopifyCatalogProduct(value: unknown): ShopifyCatalogProduct 
   const raw = value as ShopifyRawProduct;
   if (typeof raw.id !== "string" || !raw.id.startsWith("gid://shopify/") || typeof raw.title !== "string" || !raw.title.trim()) return null;
 
-  const images = (raw.media || [])
-    .filter(item => item.type === "image")
-    .map(item => safeHttpsUrl(item.url))
-    .filter(Boolean);
+  const images = [...new Set((raw.media || [])
+    .filter(item => item.type?.toLowerCase() === "image")
+    .map(item => safeHttpsUrl(item.url || item.preview?.url))
+    .filter(Boolean))];
   if (images.length === 0) return null;
 
   const minMoney = raw.price_range?.min;

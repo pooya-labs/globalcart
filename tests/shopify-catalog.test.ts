@@ -26,7 +26,7 @@ test("maps a real merchant listing with live price, image and seller attribution
   assert.equal(product.priceMax, 129.99);
   assert.equal(product.currency, "USD");
   assert.equal(product.rating, 4.5);
-  assert.equal(product.category, "sporting-goods-athletics-running-shoes");
+  assert.equal(product.category, "sports-outdoors");
   assert.equal(product.sellerName, "Example Running");
   assert.equal(product.sellerUrl, "https://example-running.myshopify.com/");
   assert.equal(product.sourceUrl, "https://example-running.myshopify.com/products/trail-runner-pro");
@@ -62,4 +62,59 @@ test("handles missing rating and availability without inventing a rating or stoc
   assert.equal(product.rating, 0);
   assert.equal(product.availability, false);
   assert.equal(product.stock, 0);
+});
+
+
+test("classifies live listings when Shopify omits category fields", () => {
+  const headphones = mapShopifyCatalogProduct({
+    ...sample,
+    categories: undefined,
+    title: "Crusher Evo",
+    description: { plain: "Wireless Bluetooth headphones with active noise cancellation." }
+  });
+  assert.ok(headphones);
+  assert.equal(headphones.category, "electronics");
+
+  const runningShoes = mapShopifyCatalogProduct({
+    ...sample,
+    categories: undefined,
+    title: "Trail Runner Pro",
+    description: { plain: "Lightweight running shoes for outdoor trails." }
+  });
+  assert.ok(runningShoes);
+  assert.equal(runningShoes.category, "sports-outdoors");
+
+  const galaxyWatch = mapShopifyCatalogProduct({
+    ...sample,
+    categories: undefined,
+    title: "Samsung Galaxy Watch Ultra",
+    description: { plain: "Premium smartwatch for fitness tracking." }
+  });
+  assert.ok(galaxyWatch);
+  assert.equal(galaxyWatch.category, "mens-watches");
+
+  const fallback = mapShopifyCatalogProduct({
+    ...sample,
+    categories: undefined,
+    title: "A Product With No Category Clues",
+    description: { plain: "A useful everyday item." }
+  });
+  assert.ok(fallback);
+  assert.equal(fallback.category, "other-products");
+});
+
+test("renders Shopify CDN images directly without re-hosting", () => {
+  const product = mapShopifyCatalogProduct(sample);
+  assert.ok(product);
+  assert.equal(product.thumbnail, "https://cdn.shopify.com/products/trail-runner-pro.jpg");
+  assert.deepEqual(product.images, ["https://cdn.shopify.com/products/trail-runner-pro.jpg"]);
+});
+
+test("uses an image preview URL when a media record omits its direct URL", () => {
+  const product = mapShopifyCatalogProduct({
+    ...sample,
+    media: [{ type: "image", preview: { url: "https://cdn.shopify.com/products/preview.jpg" } }]
+  });
+  assert.ok(product);
+  assert.equal(product.thumbnail, "https://cdn.shopify.com/products/preview.jpg");
 });
