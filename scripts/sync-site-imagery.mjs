@@ -25,7 +25,7 @@ const assets = [
 ];
 
 function isValidWebp(bytes) {
-  return bytes.length >= 10_000 &&
+  return bytes.length >= 512 &&
     bytes.toString("ascii", 0, 4) === "RIFF" &&
     bytes.toString("ascii", 8, 12) === "WEBP";
 }
