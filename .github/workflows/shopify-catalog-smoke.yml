@@ -53,6 +53,14 @@ jobs:
           if (!withImage || !withSeller || !withPrice) throw new Error("Live results are missing image, seller attribution or price fields");
           console.log(JSON.stringify({
             status: "passed",
+            rawCategorySamples: payload.products.slice(0, 6).map(product => ({
+              title: product.title,
+              categories: product.categories
+            })),
+            rawMediaSamples: payload.products.slice(0, 3).map(product => ({
+              title: product.title,
+              media: product.media
+            })),
             profileContentType: profileResponse.headers.get("content-type"),
             profileVersion: profile.ucp.version,
             productCount: payload.products.length,
