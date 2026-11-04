@@ -323,3 +323,33 @@ test("compact phone widths fit all public routes without horizontal overflow", a
     await assertFits("Case study");
   }
 });
+
+
+test("site-owned hero and editorial images decode from same-origin assets on every viewport", async ({ page }) => {
+  const images = [
+    page.locator(".hero-visual > img"),
+    page.locator(".editorial-image > img")
+  ];
+
+  for (const image of images) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate(node => {
+      const element = node as HTMLImageElement;
+      return element.complete && element.naturalWidth > 0 && element.naturalHeight > 0;
+    })).toBe(true);
+
+    const currentSrc = await image.evaluate(node => (node as HTMLImageElement).currentSrc);
+    const resolved = new URL(currentSrc);
+    expect(resolved.origin).toBe(new URL(page.url()).origin);
+    expect(resolved.pathname).toContain("/images/site/");
+  }
+
+  const heroSources = await page.locator(".hero-visual > img").evaluate(node => {
+    const element = node as HTMLImageElement;
+    return [element.getAttribute("src") ?? "", ...((element.getAttribute("srcset") ?? "")
+      .split(",")
+      .map(candidate => candidate.trim().split(/\\s+/)[0]))];
+  });
+  expect(heroSources).toHaveLength(4);
+  expect(heroSources.every(source => source.startsWith("images/site/"))).toBe(true);
+});
