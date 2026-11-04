@@ -4,8 +4,20 @@
 **Repository:** https://github.com/pooya-labs/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
 **Package version:** 0.2.3-dev  
-**Active stage:** M09.5 — the editorial marketplace storefront redesign is deployed. The active storefront uses a committed, offline-first 1,000-product ABO subset with self-hosted high-resolution WebP galleries and statically generated GlobalCart product pages; Shopify runtime discovery is not wired into the storefront. Automated code-side checks and public page/image smoke tests are required for each catalog refresh. The 1.0.0 release remains gated by owner visual approval, physical-device checks, actual screen-reader review and comprehensive human RTL/LTR review. M06.1–M06.6 internal admin/seller services remain CI-verified; public workspace UI/routes remain gated  
+**Active stage:** M09.6 — full-gallery catalog publication and product-detail reliability are in implementation/verification. The current published snapshot remains last-known-good until all 1,000 product galleries pass import, validation, build and public deployment smoke. M09.5 redesign remains the owner-preview stage; 1.0.0 remains blocked by manual approval gates.
 **Last updated:** 2026-11-04
+
+## Latest continuation checkpoint — catalog galleries and detail-cart reliability (2026-11-04)
+
+- The previous Pages import failed on commit `d831d709381035361bf732ea1d3bb1aeb2fb78ab` after 550/1,000 complete galleries because the aggregate optimized-image budget reached 320 MiB. The importer retained the last-known-good snapshot; do not claim the new full gallery set is published until the current import and public smoke pass.
+- Updated `scripts/sync-catalog.ts`: primary WebP output 1,100 px / quality 72, fallback 960 px / quality 64, 650 KiB maximum per asset. The 320 MiB total budget stays enforced and no alternate-image IDs are truncated.
+- Deployment smoke now rejects duplicate image paths, verifies every referenced local WebP exists and is nontrivial, requires 1,000 local product thumbnails and at least one distinct alternate-image gallery, and retains explicit unavailable price/rating/stock checks.
+- Fixed detail-page cart persistence: the local storage write now saves the merged `next` cart. The hero image on product detail is eager/high priority; secondary gallery, related and catalog images remain lazy/async. Removed obsolete external image-host preconnects.
+- Updated storefront/accessibility/locale/performance E2E fixtures from the retired fixed DummyJSON item to the committed ABO catalog. Added detail-page cart-persistence coverage; the gallery interaction test now searches for a true alternate image and can skip against the old last-known-good snapshot until the new catalog is committed.
+- Bilingual case study now identifies the 1,000-item Amazon Berkeley Objects catalog under CC BY 4.0 and clearly states sale prices, ratings and stock are not provided.
+- Code head: [`ccbb48a`](https://github.com/pooya-labs/globalcart/commit/ccbb48a6538ddd10db4ba118d1fc06adbcc2b039). Security [run 41874481525](https://github.com/pooya-labs/globalcart/actions/runs/41874481525) passed. On the same head, TypeScript, unit tests and static build passed in Browser E2E [run 41874481635](https://github.com/pooya-labs/globalcart/actions/runs/41874481635); desktop/mobile browser journeys were still running at this checkpoint. Pages import [run 41873827996](https://github.com/pooya-labs/globalcart/actions/runs/41873827996) was still in the catalog-sync step, with a second Pages run [41874481571](https://github.com/pooya-labs/globalcart/actions/runs/41874481571) queued behind it.
+- Next: inspect the full Playwright report and the catalog import totals; then verify that all 1,000 products and all distinct local WebP gallery files are persisted and the public product/gallery smoke passes. Only then close M09.6. Keep version 0.2.3-dev and do not tag 1.0.0. Physical-device, real screen-reader, comprehensive human RTL/LTR and normal-network/eligible field checks remain manual release gates.
+
 
 ## Latest storefront/catalog checkpoint — 2026-11-04
 
