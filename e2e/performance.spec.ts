@@ -348,7 +348,7 @@ test("site-owned hero and editorial images decode from same-origin assets on eve
     const element = node as HTMLImageElement;
     return [element.getAttribute("src") ?? "", ...((element.getAttribute("srcset") ?? "")
       .split(",")
-      .map(candidate => candidate.trim().split(/\\s+/)[0]))];
+      .map(candidate => candidate.trim().split(" ")[0]))];
   });
   expect(heroSources).toHaveLength(4);
   expect(heroSources.every(source => source.startsWith("images/site/"))).toBe(true);
