@@ -51,8 +51,9 @@ jobs:
           const withSeller = payload.products.find(product => product.variants?.some(variant => variant.seller?.name && variant.seller?.url));
           const withPrice = payload.products.find(product => Number.isFinite(product.price_range?.min?.amount) && product.price_range?.min?.currency);
           const imageUrl = withImage.media.find(media => media.type === "image" && media.url?.startsWith("https://"))?.url;
-          const proxiedImage = await fetch(`${base}/image?url=${encodeURIComponent(imageUrl)}`, { method: "HEAD", headers: { Origin: origin } });
-          if (!proxiedImage.ok || !proxiedImage.headers.get("content-type")?.startsWith("image/")) throw new Error(`Shopify image proxy failed: HTTP ${proxiedImage.status}`);
+          const proxiedImage = await fetch(`${base}/image?url=${encodeURIComponent(imageUrl)}`, { headers: { Origin: origin } });
+          const imageBytes = await proxiedImage.arrayBuffer();
+          if (!proxiedImage.ok || !proxiedImage.headers.get("content-type")?.startsWith("image/") || imageBytes.byteLength === 0) throw new Error(`Shopify image proxy failed: HTTP ${proxiedImage.status}`);
           if (!withImage || !withSeller || !withPrice) throw new Error("Live results are missing image, seller attribution or price fields");
           console.log(JSON.stringify({
             status: "passed",
@@ -62,7 +63,7 @@ jobs:
             sampleTitle: withImage.title,
             seller: withSeller.variants.find(variant => variant.seller?.name)?.seller.name,
             priceCurrency: withPrice.price_range.min.currency,
-            imageProxy: proxiedImage.status + " " + proxiedImage.headers.get("content-type"),
+            imageProxy: proxiedImage.status + " " + proxiedImage.headers.get("content-type") + " · " + imageBytes.byteLength + " bytes",
             cacheControl: response.headers.get("cache-control")
           }, null, 2));
           NODE
