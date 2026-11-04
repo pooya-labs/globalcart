@@ -1,51 +1,5 @@
 const SHOPIFY_ENDPOINT = "https://catalog.shopify.com/api/ucp/mcp";
-const AGENT_PROFILE = {
-  ucp: {
-    version: "2026-04-08",
-    services: {
-      "dev.ucp.shopping": [{
-        version: "2026-04-08",
-        spec: "https://ucp.dev/2026-04-08/specification/overview",
-        transport: "mcp",
-        schema: "https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json"
-      }]
-    },
-    capabilities: {
-      "dev.ucp.shopping.catalog.search": [{
-        version: "2026-04-08",
-        spec: "https://ucp.dev/2026-04-08/specification/catalog/search",
-        schema: "https://ucp.dev/2026-04-08/schemas/shopping/catalog_search.json"
-      }],
-      "dev.ucp.shopping.catalog.lookup": [{
-        version: "2026-04-08",
-        spec: "https://ucp.dev/2026-04-08/specification/catalog/lookup",
-        schema: "https://ucp.dev/2026-04-08/schemas/shopping/catalog_lookup.json"
-      }],
-      "dev.shopify.catalog": [{
-        version: "2026-04-08",
-        spec: "https://shopify.dev/docs/agents/catalog/storefront-catalog",
-        schema: "https://shopify.dev/ucp/schemas/2026-04-08/shopify_catalog.json",
-        extends: ["dev.ucp.shopping.catalog.lookup", "dev.ucp.shopping.catalog.search"]
-      }],
-      "dev.shopify.catalog.global": [{
-        version: "2026-04-08",
-        spec: "https://shopify.dev/docs/agents/catalog/global-catalog",
-        schema: "https://shopify.dev/ucp/schemas/2026-04-08/shopify_catalog_global.json",
-        extends: ["dev.ucp.shopping.catalog.lookup", "dev.ucp.shopping.catalog.search"]
-      }]
-    },
-    payment_handlers: {}
-  }
-};
-
-const PROFILE_URL = "https://globalcart-catalog.pooyagame141.workers.dev/agent-profile.json";
-const ALLOWED_ORIGINS = new Set([
-  "https://pooya-labs.github.io",
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-  "http://localhost:4173",
-  "http://127.0.0.1:4173"
-]);
+const PROFILE_URL = "https://shopify.dev/ucp/agent-profiles/2026-04-08/valid-with-capabilities.json";
 
 function corsHeaders(origin) {
   return {
@@ -74,10 +28,6 @@ export default {
     const origin = request.headers.get("Origin") || "";
     const headers = corsHeaders(origin);
     const url = new URL(request.url);
-
-    if (url.pathname === "/agent-profile.json" && request.method === "GET") {
-      return json(AGENT_PROFILE, 200, { "Access-Control-Allow-Origin": "*" });
-    }
 
     if (url.pathname === "/health" && request.method === "GET") {
       return json({
