@@ -12,14 +12,14 @@ const content = {
     title: "یک بازار جهانی؛ از تجربه کاربری تا زیرساخت داده",
     intro: "GlobalCart یک شبیه‌سازی مستقل از تجربه بازارگاه‌های مدرن است؛ پروژه‌ای برای نمایش مهندسی محصول، طراحی رابط دوزبانه، خط لوله داده و معماری بک‌اند قابل توسعه.",
     explore: "مشاهده فروشگاه", github: "مشاهده کد در GitHub", language: "English",
-    stats: [["100", "محصول نمونه"], ["40", "تست مرورگر موفق"], ["2", "زبان و جهت نوشتار"], ["0", "تراکنش واقعی"]],
+    stats: [["1,000", "محصول نمونه"], ["24", "دسته‌بندی کالا"], ["2", "زبان و جهت نوشتار"], ["0", "تراکنش واقعی"]],
     storyTitle: "از یک ویترین ساده تا یک سیستم چندلایه",
     story: "هدف فقط ساختن چند کارت محصول نبود. پروژه مرحله‌به‌مرحله از ویترین واکنش‌گرا به کاتالوگ واردشونده، تجربه کشف و مقایسه، قیمت‌گذاری شفاف و هسته بک‌اند محلی گسترش پیدا کرد؛ در حالی که مرزهای نسخه نمایشی روشن باقی ماند.",
     featuresTitle: "تور قابلیت‌ها",
     features: [
       ["01", "کشف و جست‌وجو", "پیشنهادهای جست‌وجو، فیلترهای ترکیبی، مرتب‌سازی، جست‌وجوی ذخیره‌شده و فرمان‌پالت صفحه‌کلید.", "رفتن به ویترین", "/#catalog"],
-      ["02", "تجربه محصول", "صفحه مستقل محصول، گالری تصاویر، اطلاعات منبع، محصولات مرتبط و مقایسه هم‌زمان تا چهار محصول.", "دیدن محصولات", "/#catalog"],
-      ["03", "داده و قیمت", "کاتالوگ نمونه با آخرین نسخه سالم؛ نرخ دلار TGJU با تبدیل صریح ریال به تومان و برچسب تازگی.", "روش کار داده", "#architecture"],
+      ["02", "تجربه محصول", "صفحه مستقل محصول، گالری قابل پیمایش تصاویر، محصولات مرتبط و مقایسه هم‌زمان تا چهار محصول.", "دیدن محصولات", "/#catalog"],
+      ["03", "داده و قیمت", "کاتالوگ ۱۰۰۰ محصولی از مجموعه‌دادهٔ Amazon Berkeley Objects با مجوز CC BY 4.0 و آخرین نسخهٔ معتبر؛ نرخ TGJU فقط برای نمایش تبدیل ارز، بدون ساختن قیمت کالا.", "روش کار داده", "#architecture"],
       ["04", "مسیر خرید نمایشی", "سبد خرید، علاقه‌مندی‌ها، بازدیدهای اخیر و ثبت سفارش آزمایشی؛ بدون پرداخت یا ارسال واقعی.", "بازدیدهای اخیر", "/recently-viewed/"]
     ],
     architectureTitle: "معماری امروز، نه معماری خیالی",
@@ -38,7 +38,7 @@ const content = {
     ci: "GitHub Actions", ciNote: "تست، اسکن امنیتی، ساخت و انتشار Pages",
     boundaryTitle: "مرزهای محصول و تصمیم‌های مهندسی",
     boundaries: [
-      ["داده نمونه", "کاتالوگ عمومی DummyJSON است؛ نبود منبع آنلاین با آخرین snapshot معتبر یا fixture محلی مدیریت می‌شود."],
+      ["داده نمونه", "کاتالوگ ۱۰۰۰ محصولی از Amazon Berkeley Objects با مجوز CC BY 4.0 ساخته شده است؛ این مجموعه‌داده قیمت فروش، امتیاز و موجودی واقعی نمی‌دهد و این فیلدها عمداً ثبت نشده‌اند."],
       ["نرخ ارز", "منبع نرخ دلار آزاد TGJU است. مقدار خام ریال حفظ و برای نمایش به تومان بر ده تقسیم می‌شود؛ نرخ نمایشی، قیمت اجرایی معامله نیست."],
       ["خرید", "سبد، پرداخت، سفارش، مرجوعی و بازپرداخت صرفاً شبیه‌سازی هستند؛ هیچ پول یا کالایی جابه‌جا نمی‌شود."],
       ["تأمین‌کننده", "اتصال زنده به آمازون یا فروشندگان بدون دسترسی رسمی و مجوز داده انجام نمی‌شود؛ scraping در برنامه نیست."],
@@ -56,14 +56,14 @@ const content = {
     title: "A global marketplace, from product experience to data infrastructure",
     intro: "GlobalCart is an independent simulation of a modern marketplace: a portfolio project showcasing product engineering, bilingual interface design, data pipelines and an extensible backend architecture.",
     explore: "Explore the storefront", github: "View source on GitHub", language: "فارسی",
-    stats: [["100", "sample products"], ["40", "browser tests passed"], ["2", "languages & directions"], ["0", "real transactions"]],
+    stats: [["1,000", "sample products"], ["24", "product categories"], ["2", "languages & directions"], ["0", "real transactions"]],
     storyTitle: "From a storefront to a layered system",
     story: "The goal was never just to render product cards. The project evolved into a responsive storefront, catalog ingestion pipeline, discovery and comparison experience, transparent pricing and a local backend foundation—while keeping the demo boundary explicit.",
     featuresTitle: "Feature tour",
     features: [
       ["01", "Discovery & search", "Search suggestions, combined facets, sorting, saved searches and a keyboard command palette.", "Explore the catalog", "/#catalog"],
-      ["02", "Product experience", "Dedicated product pages, image galleries, source details, related products and side-by-side comparison for up to four items.", "Browse products", "/#catalog"],
-      ["03", "Data & pricing", "A generated sample catalog with last-known-good protection; TGJU USD pricing with explicit Rial-to-Toman normalization.", "How data flows", "#architecture"],
+      ["02", "Product experience", "Dedicated product pages, browsable multi-image galleries, related products and side-by-side comparison for up to four items.", "Browse products", "/#catalog"],
+      ["03", "Data & pricing", "A 1,000-product catalog built from the CC BY 4.0 Amazon Berkeley Objects dataset with last-known-good protection; TGJU is used for indicative FX display, never to invent product prices.", "How data flows", "#architecture"],
       ["04", "Demo commerce journey", "Cart, favorites, recently viewed and simulated order completion—with no real payment or fulfillment.", "Recently viewed", "/recently-viewed/"]
     ],
     architectureTitle: "The architecture that exists—not an imaginary one",
@@ -82,7 +82,7 @@ const content = {
     ci: "GitHub Actions", ciNote: "Tests, security scans, build and Pages deployment",
     boundaryTitle: "Product boundaries & engineering decisions",
     boundaries: [
-      ["Sample data", "The public sample catalog comes from DummyJSON. If the source is unavailable, the last valid snapshot or local fixtures keep the storefront usable."],
+      ["Sample data", "The 1,000-product sample catalog is built from Amazon Berkeley Objects under CC BY 4.0. The dataset does not supply retail sale prices, ratings or stock, so those fields remain explicitly unavailable."],
       ["Foreign exchange", "TGJU is the USD free-market source. Its raw Rial quote is retained and divided by ten for Toman display; this is not an executable quote."],
       ["Commerce", "Cart, payment, orders, returns and refunds are simulations. No money or goods move."],
       ["Suppliers", "Amazon or seller integrations require authorized access and data rights. Scraping is not part of the plan."],
@@ -165,7 +165,7 @@ export default function CaseStudyPage() {
         <div className="cs-section-heading"><span className="cs-kicker">03 / SYSTEM DESIGN</span><h2>{t.architectureTitle}</h2><p>{t.architectureIntro}</p></div>
         <div className="cs-flow" role="group" aria-label={rtl ? "نمودار جریان داده و معماری" : "Data flow and architecture diagram"}>
           <div className="cs-flow-row">
-            <div className="cs-flow-node"><span><Database size={18}/></span><b>{t.source}</b><small>DummyJSON · TGJU</small></div>
+            <div className="cs-flow-node"><span><Database size={18}/></span><b>{t.source}</b><small>ABO dataset · TGJU</small></div>
             <div className="cs-flow-arrow">{rtl ? <ArrowDownLeft/> : <ArrowRight/>}</div>
             <div className="cs-flow-node"><span><Workflow size={18}/></span><b>{t.normalize}</b><small>Typed contracts · validation</small></div>
             <div className="cs-flow-arrow">{rtl ? <ArrowDownLeft/> : <ArrowRight/>}</div>
