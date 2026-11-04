@@ -1,5 +1,5 @@
 const SHOPIFY_ENDPOINT = "https://catalog.shopify.com/api/ucp/mcp";
-const PROFILE_URL = "https://pooya-labs.github.io/globalcart/ucp/agent-profile.json";
+const PROFILE_URL = "https://shopify.dev/ucp/agent-profiles/2026-04-08/valid-with-capabilities.json";
 const ALLOWED_ORIGINS = new Set([
   "https://pooya-labs.github.io",
   "http://localhost:3000",
@@ -41,7 +41,8 @@ export default {
         ok: true,
         service: "globalcart-live-catalog",
         upstream: "Shopify Global Catalog MCP",
-        persistence: "disabled"
+        persistence: "disabled",
+        agentProfile: PROFILE_URL
       }, 200, headers);
     }
 
