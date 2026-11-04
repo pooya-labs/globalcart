@@ -97,10 +97,8 @@ test("classifies live listings when Shopify omits category fields", () => {
 test("renders Shopify CDN images directly without re-hosting", () => {
   const product = mapShopifyCatalogProduct(sample);
   assert.ok(product);
-  const image = new URL(product.thumbnail);
-  assert.equal(image.origin, "https://globalcart-catalog.pooyagame141.workers.dev");
-  assert.equal(image.pathname, "/image");
-  assert.equal(image.searchParams.get("url"), "https://cdn.shopify.com/products/trail-runner-pro.jpg");
+  assert.equal(product.thumbnail, "https://cdn.shopify.com/products/trail-runner-pro.jpg");
+  assert.deepEqual(product.images, ["https://cdn.shopify.com/products/trail-runner-pro.jpg"]);
 });
 
 test("uses an image preview URL when a media record omits its direct URL", () => {
