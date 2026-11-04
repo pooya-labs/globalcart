@@ -50,11 +50,11 @@ jobs:
           const withImage = payload.products.find(product => product.media?.some(media => media.type === "image" && media.url?.startsWith("https://")));
           const withSeller = payload.products.find(product => product.variants?.some(variant => variant.seller?.name && variant.seller?.url));
           const withPrice = payload.products.find(product => Number.isFinite(product.price_range?.min?.amount) && product.price_range?.min?.currency);
+          if (!withImage || !withSeller || !withPrice) throw new Error("Live results are missing image, seller attribution or price fields");
           const imageUrl = withImage.media.find(media => media.type === "image" && media.url?.startsWith("https://"))?.url;
           const directImage = await fetch(imageUrl, { headers: { Accept: "image/*" } });
           const imageBytes = await directImage.arrayBuffer();
           if (!directImage.ok || !directImage.headers.get("content-type")?.startsWith("image/") || imageBytes.byteLength === 0) throw new Error(`Direct Shopify image fetch failed: HTTP ${directImage.status}`);
-          if (!withImage || !withSeller || !withPrice) throw new Error("Live results are missing image, seller attribution or price fields");
           console.log(JSON.stringify({
             status: "passed",
             profileContentType: profileResponse.headers.get("content-type"),
