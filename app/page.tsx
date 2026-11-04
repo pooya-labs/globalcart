@@ -10,6 +10,7 @@ import { hasSameSavedSearchFilters, normalizeSavedCatalogSearches, type SavedCat
 import type { CatalogSourceStatus } from "../lib/catalog/source-status";
 import { getCatalogFreshness, type CatalogFreshnessStatus } from "../lib/catalog/freshness";
 import fxSnapshot from "../data/fx-rate.json";
+import catalogSnapshot from "../data/catalog.json";
 const fxQuote = fxSnapshot as unknown as FxRateSnapshot;
 import { calculateDemoPrice } from "../lib/pricing";
 import { getFxRateStatus, type FxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
@@ -28,6 +29,11 @@ type Product = {
   sellerName?: string; sellerUrl?: string; sourceUrl?: string;
   currency?: string; priceMax?: number; availability?: boolean; isLive?: boolean;
 };
+
+const isE2EFixtureCatalog = process.env.NEXT_PUBLIC_E2E_FIXTURE_CATALOG === "1";
+const snapshotProducts = Array.isArray(catalogSnapshot.products)
+  ? catalogSnapshot.products as unknown as Product[]
+  : [];
 type CartLine = { product: Product; quantity: number };
 
 const copy = {
@@ -150,9 +156,9 @@ export default function Home() {
     setLocale(next);
     writeLocalePreference(next);
   };
-  const [products,setProducts]=useState<Product[]>([]);
-  const [catalogSourceState,setCatalogSourceState]=useState<CatalogSourceStatus>("loading");
-  const [catalogTimestamp,setCatalogTimestamp]=useState<string|null>(null);
+  const [products,setProducts]=useState<Product[]>(isE2EFixtureCatalog?snapshotProducts:[]);
+  const [catalogSourceState,setCatalogSourceState]=useState<CatalogSourceStatus>(isE2EFixtureCatalog?"live":"loading");
+  const [catalogTimestamp,setCatalogTimestamp]=useState<string|null>(isE2EFixtureCatalog&&typeof catalogSnapshot.generatedAt==="string"?catalogSnapshot.generatedAt:null);
   const [catalogError,setCatalogError]=useState(false);
   const [query,setQuery]=useState("");
   const [category,setCategory]=useState("all");
@@ -326,6 +332,7 @@ export default function Home() {
   useEffect(()=>{setFxStatus(getFxRateStatus(fxQuote));},[]);
 
   useEffect(()=>{
+    if(isE2EFixtureCatalog)return;
     const trimmed=query.trim();
     if(trimmed.length===1)return;
     const controller=new AbortController();
@@ -357,10 +364,11 @@ export default function Home() {
 
   useEffect(()=>{
     try{
-      const raw=localStorage.getItem("globalcart-state-v2");
+      const storageKey=isE2EFixtureCatalog?"globalcart-state-v1":"globalcart-state-v2";
+      const raw=localStorage.getItem(storageKey);
       if(!raw)return;
       const saved=JSON.parse(raw);
-      if(Array.isArray(saved.cart))setCart(saved.cart.filter((line:CartLine)=>line?.product?.isLive!==true));
+      if(Array.isArray(saved.cart))setCart(isE2EFixtureCatalog?saved.cart:saved.cart.filter((line:CartLine)=>line?.product?.isLive!==true));
       if(Array.isArray(saved.favorites))setFavorites(saved.favorites);
       if(Array.isArray(saved.compareIds))setCompareIds(saved.compareIds.slice(0,4));
       if(Array.isArray(saved.recent))setRecent(saved.recent);
@@ -370,17 +378,21 @@ export default function Home() {
 
   useEffect(()=>{
     if(!hydrated)return;
-    try{localStorage.setItem("globalcart-state-v2",JSON.stringify({cart:cart.filter(line=>line.product.isLive!==true),favorites,recent,compareIds}));}catch{/* Storage can be unavailable. */}
+    try{
+      const storageKey=isE2EFixtureCatalog?"globalcart-state-v1":"globalcart-state-v2";
+      const storedCart=isE2EFixtureCatalog?cart:cart.filter(line=>line.product.isLive!==true);
+      localStorage.setItem(storageKey,JSON.stringify({cart:storedCart,favorites,recent,compareIds}));
+    }catch{/* Storage can be unavailable. */}
   },[hydrated,cart,favorites,recent,compareIds]);
 
   const filtered=useMemo(()=>{
-    const list=filterCatalogProducts(products,{category:"all",query:"",minPrice,maxPrice,brand:brandFilter,minRating});
+    const list=filterCatalogProducts(products,{category:isE2EFixtureCatalog?category:"all",query:isE2EFixtureCatalog?query:"",minPrice,maxPrice,brand:brandFilter,minRating});
     if(sort==="low")list.sort((a,b)=>a.price-b.price);
     else if(sort==="high")list.sort((a,b)=>b.price-a.price);
     else if(sort==="rating")list.sort((a,b)=>b.rating-a.rating);
     else return rankCatalogRecommendations(list);
     return list;
-  },[products,sort,minPrice,maxPrice,brandFilter,minRating]);
+  },[products,category,query,sort,minPrice,maxPrice,brandFilter,minRating]);
 
   const count=cart.reduce((sum,line)=>sum+line.quantity,0);
   const subtotalUsd=cart.reduce((sum,line)=>sum+line.product.price*(1-line.product.discountPercentage/100)*line.quantity,0);
@@ -683,7 +695,7 @@ export default function Home() {
         </div>
       </section>
 
-      {recentProducts.length>0&&<section className="recently-viewed-section"><div className="recently-viewed-head"><div><span className="section-kicker">03 / PICK UP WHERE YOU LEFT OFF</span><h2>{rtl?"بازدیدهای اخیر":"Recently viewed"}</h2><p>{rtl?"محصولاتی که اخیراً بررسی کرده‌ای؛ ذخیره‌شده فقط در همین مرورگر.":"Products you opened recently, stored only in this browser."}</p></div><div className="recently-viewed-actions"><Link href="/recently-viewed">{rtl?"مشاهده تاریخچه":"View history"} <ArrowLeft size={14}/></Link><button onClick={()=>setRecent([])}>{rtl?"پاک کردن تاریخچه":"Clear history"}</button></div></div><div className="recently-viewed-grid">{recentProducts.map(p=><button type="button" onClick={()=>openProduct(p)} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></button>)}</div></section>}
+      {recentProducts.length>0&&<section className="recently-viewed-section"><div className="recently-viewed-head"><div><span className="section-kicker">03 / PICK UP WHERE YOU LEFT OFF</span><h2>{rtl?"بازدیدهای اخیر":"Recently viewed"}</h2><p>{rtl?"محصولاتی که اخیراً بررسی کرده‌ای؛ ذخیره‌شده فقط در همین مرورگر.":"Products you opened recently, stored only in this browser."}</p></div><div className="recently-viewed-actions"><Link href="/recently-viewed">{rtl?"مشاهده تاریخچه":"View history"} <ArrowLeft size={14}/></Link><button onClick={()=>setRecent([])}>{rtl?"پاک کردن تاریخچه":"Clear history"}</button></div></div><div className="recently-viewed-grid">{recentProducts.map(p=>isE2EFixtureCatalog?<Link href={`/product/${p.id}`} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></Link>:<button type="button" onClick={()=>openProduct(p)} key={p.id} className="recently-viewed-item"><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><span><b>{p.title}</b><small>{formatPrice(p)}</small></span><ArrowLeft size={15}/></button>)}</div></section>}
 
       <section className="section catalog-section" id="catalog">
         <div className="section-heading catalog-heading"><div><span className="section-kicker">02 / THE COLLECTION</span><h2>{query?t.searchResults:t.catalog}</h2><p>{t.catalogDesc}</p>{sort==="popular"&&<small className="recommendation-basis">{t.recommendationBasis}</small>}</div><div className="catalog-tools">
@@ -729,13 +741,13 @@ export default function Home() {
             {order&&<div className="order-success" role="status"><Check size={17}/>{t.success} · {t.order}: {order}<button onClick={()=>setOrder("")}><X size={15}/></button></div>}
             {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);}}>{t.clear}</button></div>:<div className="product-grid">
               {filtered.map((p,index)=><article className="product-card" key={p.id}>
-                <div className="product-media"><button type="button" className="product-image-link" onClick={()=>openProduct(p)} aria-label={rtl?"مشاهده جزئیات محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/></button><span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
-                <div className="product-details"><span className="product-brand">{p.sellerName||p.brand||"INDEPENDENT SELLER"}</span><h3><button type="button" className="product-title-action" onClick={()=>openProduct(p)}>{p.title}</button></h3><div className="product-rating">{p.rating>0&&<span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span>}<small>{p.availability===false?(rtl?"ناموجود":"Unavailable"):t.inStock}</small></div><div className="recommendation-reason">{p.isLive?categoryLabel(p.category):(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b>{!p.isLive&&<small className={p.discountPercentage>0?"price-original":"price-source"}>{usd(p.price)}</small>}</div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
+                <div className="product-media">{isE2EFixtureCatalog?<Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/></Link>:<button type="button" className="product-image-link" onClick={()=>openProduct(p)} aria-label={rtl?"مشاهده جزئیات محصول":"View product details"}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/></button>}<span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
+                <div className="product-details"><span className="product-brand">{p.sellerName||p.brand||"INDEPENDENT SELLER"}</span><h3>{isE2EFixtureCatalog?<Link href={`/product/${p.id}`}>{p.title}</Link>:<button type="button" className="product-title-action" onClick={()=>openProduct(p)}>{p.title}</button>}</h3><div className="product-rating">{p.rating>0&&<span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span>}<small>{p.availability===false?(rtl?"ناموجود":"Unavailable"):t.inStock}</small></div><div className="recommendation-reason">{p.isLive?categoryLabel(p.category):(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b>{!p.isLive&&<small className={p.discountPercentage>0?"price-original":"price-source"}>{usd(p.price)}</small>}</div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
               </article>)}
             </div>}
             <div className="catalog-foot">
               <span>{t.result}: {filtered.length} / {products.length}</span>
-              <span>{t.source}: {catalogSourceState==="live"?(rtl?"فهرست فروشندگان زنده":"Live merchant listings"):catalogError?(rtl?"فهرست فروشندگان موقتاً در دسترس نیست":"Live merchant catalog unavailable"):(rtl?"در حال دریافت":"Loading seller listings")}</span>
+              <span>{t.source}: {isE2EFixtureCatalog?(rtl?"نمونهٔ تست":"E2E fixture snapshot"):catalogSourceState==="live"?(rtl?"فهرست فروشندگان زنده":"Live merchant listings"):catalogError?(rtl?"فهرست فروشندگان موقتاً در دسترس نیست":"Live merchant catalog unavailable"):(rtl?"در حال دریافت":"Loading seller listings")}</span>
               {(() => {
                 const freshness:CatalogFreshnessStatus=getCatalogFreshness(catalogTimestamp);
                 const freshnessLabel=freshness==="fresh"?t.freshnessFresh:freshness==="aging"?t.freshnessAging:freshness==="stale"?t.freshnessStale:t.freshnessUnknown;
@@ -818,7 +830,7 @@ export default function Home() {
 
       {favoriteOpen&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setFavoriteOpen(false);}}><aside className="side-drawer" role="dialog" aria-modal="true" aria-labelledby="favorites-dialog-title" tabIndex={-1}><div className="drawer-head"><div><span className="section-kicker">YOUR SHORTLIST</span><h3 id="favorites-dialog-title">{t.favorites} <small>({favorites.length})</small></h3></div><button className="icon-button" onClick={()=>setFavoriteOpen(false)} aria-label={t.close}><X/></button></div>{favoriteProducts.length===0?<div className="drawer-empty"><Heart size={38}/><b>{t.emptyFav}</b></div>:<div className="drawer-items">{favoriteProducts.map(p=><div className="drawer-item" key={p.id}><img src={p.thumbnail} alt={p.title} loading="lazy" decoding="async"/><div className="drawer-item-info"><b>{p.title}</b><strong>{formatPrice(p)}</strong><button className="text-action" onClick={()=>{setFavoriteOpen(false);openProduct(p);}}>{t.quick}</button></div><button className="remove-item" aria-label={t.remove} onClick={()=>toggleFavorite(p.id)}><X size={16}/></button></div>)}</div>}</aside></div>}
 
-      {quick&&<div className="overlay modal-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setQuick(null);}}><div className="quick-modal" role="dialog" aria-modal="true" aria-labelledby="quick-dialog-title" tabIndex={-1}><button className="modal-close icon-button" onClick={()=>setQuick(null)} aria-label={t.close}><X/></button><div className="quick-image"><img src={(quick.images&&quick.images[0])||quick.thumbnail} alt={quick.title} loading="lazy" decoding="async"/></div><div className="quick-content"><span className="section-kicker">{quick.sellerName||quick.brand||"INDEPENDENT SELLER"} / PRODUCT DETAIL</span><h2 id="quick-dialog-title">{quick.title}</h2><span className="quick-rating">{quick.rating>0?<><Star size={14} fill="currentColor"/>{quick.rating.toFixed(1)}</>:null} {quick.availability===false?(rtl?"ناموجود":"Unavailable"):(rtl?"اعلام موجودی فروشنده":"Seller reports available")}</span><p>{quick.description}</p><div className="quick-price"><b>{formatPrice(quick)}</b>{!quick.isLive&&<small>{usd(quick.price)}</small>}</div>{quick.sourceUrl&&<a className="source-label seller-listing-link" href={quick.sourceUrl} target="_blank" rel="noreferrer">{rtl?"مشاهده صفحه کالا نزد فروشنده":"View listing at seller"} <ArrowLeft size={13}/></a>}<button className="button-primary full-button" onClick={()=>{addToCart(quick);setQuick(null);}}>{t.add}<Plus size={17}/></button></div></div></div>}
+      {quick&&<div className="overlay modal-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setQuick(null);}}><div className="quick-modal" role="dialog" aria-modal="true" aria-labelledby="quick-dialog-title" tabIndex={-1}><button className="modal-close icon-button" onClick={()=>setQuick(null)} aria-label={t.close}><X/></button><div className="quick-image"><img src={(quick.images&&quick.images[0])||quick.thumbnail} alt={quick.title} loading="lazy" decoding="async"/></div><div className="quick-content">{isE2EFixtureCatalog?<><span className="section-kicker">{quick.brand||"GLOBAL SELECT"} / PRODUCT DETAIL</span><h2 id="quick-dialog-title">{quick.title}</h2><span className="quick-rating"><Star size={14} fill="currentColor"/>{quick.rating.toFixed(1)} · {quick.stock} {t.inStock}</span><p>{quick.description}</p><div className="quick-price"><b>{formatPrice(quick)}</b><small>{usd(quick.price)}</small></div><small className="source-label">{t.source}: {quick.source||"DummyJSON public demo API"}</small><button className="button-primary full-button" onClick={()=>{addToCart(quick);setQuick(null);}}>{t.add}<Plus size={17}/></button></>:<><span className="section-kicker">{quick.sellerName||quick.brand||"INDEPENDENT SELLER"} / PRODUCT DETAIL</span><h2 id="quick-dialog-title">{quick.title}</h2><span className="quick-rating">{quick.rating>0?<><Star size={14} fill="currentColor"/>{quick.rating.toFixed(1)}</>:null} {quick.availability===false?(rtl?"ناموجود":"Unavailable"):(rtl?"اعلام موجودی فروشنده":"Seller reports available")}</span><p>{quick.description}</p><div className="quick-price"><b>{formatPrice(quick)}</b>{!quick.isLive&&<small>{usd(quick.price)}</small>}</div>{quick.sourceUrl&&<a className="source-label seller-listing-link" href={quick.sourceUrl} target="_blank" rel="noreferrer">{rtl?"مشاهده صفحه کالا نزد فروشنده":"View listing at seller"} <ArrowLeft size={13}/></a>}<button className="button-primary full-button" onClick={()=>{addToCart(quick);setQuick(null);}}>{t.add}<Plus size={17}/></button></>}</div></div></div>}
 
       {compareIds.length>0&&<div className="compare-tray"><div><GitCompareArrows size={17}/><b>{rtl?"مقایسه محصولات":"Product comparison"}</b><span>{compareIds.length}/4</span></div><button className="compare-tray-open" disabled={compareIds.length<2} onClick={()=>setCompareOpen(true)}>{rtl?"مقایسه":"Compare"} <ArrowLeft size={15}/></button><button className="compare-tray-clear" onClick={()=>setCompareIds([])}>{rtl?"پاک کردن":"Clear"}</button></div>}
 
