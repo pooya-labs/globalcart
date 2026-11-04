@@ -12,7 +12,9 @@
     "test": "tsx --test tests/*.test.ts",
     "catalog:sync": "tsx scripts/sync-catalog.ts",
     "test:e2e": "playwright test",
-    "assets:sync": "node scripts/sync-site-imagery.mjs"
+    "assets:sync": "node scripts/sync-site-imagery.mjs",
+    "predev": "node scripts/sync-public-catalog.mjs",
+    "prebuild": "node scripts/sync-public-catalog.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
