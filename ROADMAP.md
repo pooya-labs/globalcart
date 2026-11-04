@@ -77,7 +77,7 @@ These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile 
 ### M02.2 — Live real-product discovery via Shopify Global Catalog MCP
 - [x] Connect cross-merchant product search through an anonymous, keyless Shopify Global Catalog MCP request.
 - [x] Add a Cloudflare Worker proxy with strict operation/input validation, CORS origin restriction and no-store/no-cache response headers.
-- [x] Host a minimal UCP agent profile on the GlobalCart Pages origin.
+- [x] Use Shopify's published reference UCP profile for keyless catalog capability negotiation; verify the profile fetch and anonymous search without adding a Shopify account or API key.
 - [x] Map real merchant listings, product images, seller-reported prices, availability, ratings and outbound seller listing URLs into the storefront view model.
 - [x] Keep search results in runtime memory only; do not persist product records or images in snapshots/localStorage.
 - [x] Preserve merchant attribution while keeping the storefront brand independent.

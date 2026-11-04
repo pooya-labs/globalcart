@@ -14,24 +14,14 @@
 - No catalog adapter or storefront data changed. DummyJSON remains explicitly temporary sample data; do not relabel it as genuine retail inventory.
 - Next gate: inspect each sibling's current endpoint/data quality and terms/image rights; continue searching for approved broad-category feeds. Preserve the shared `CatalogSourceAdapter` architecture and do not scrape retailers.
 
-## Latest Shopify Global Catalog discovery checkpoint — 2026-11-04
+## Latest Shopify Global Catalog integration checkpoint — 2026-11-04
 
-- Identified Shopify Global Catalog as a broad cross-merchant product discovery candidate, distinct from the previously assessed single-store Storefront API.
-- The catalog overview says an agent profile is sufficient without an API key, but the hands-on authentication tutorial requires Dev Dashboard credentials and a bearer token. Treat credential-free access as unverified. Strict no-cache rules apply to catalog results and product images; image rendering must be real-time and tied to the merchant listing.
-- This cannot be imported into the current static catalog snapshot. A future compliant option is a runtime discovery layer, subject to a proof of concept for transport/CORS, profile hosting, response fields, rate limits and merchant attribution.
-- No Shopify integration or product data changes were made. Before any implementation, resolve the auth-doc discrepancy; any required account/API credential dependency needs owner approval. Continue to keep DummyJSON explicitly labelled as temporary sample data until a real source is safely connected.
-- Source docs and M02.1 roadmap were updated. Do not hide merchant identity or present Shopify sellers' offers as GlobalCart-owned inventory.
-
-## Latest live catalog integration checkpoint — 2026-11-04
-
-- GlobalCart now targets Shopify Global Catalog MCP for live cross-merchant discovery. This is a runtime search layer, not a static product feed.
-- Cloudflare Worker `globalcart-catalog` is deployed at `https://globalcart-catalog.pooyagame141.workers.dev`; the repo contains the Worker source at `workers/catalog-proxy/worker.js`.
-- Public UCP agent profile is served by the Cloudflare Worker at `https://globalcart-catalog.pooyagame141.workers.dev/agent-profile.json`; the matching source JSON remains at `public/ucp/agent-profile.json`. It declares the base Shopify catalog capability plus the Global Catalog extension and UCP search/lookup capabilities.
-- The browser uses `lib/catalog/shopify.ts` to map live product records. Images are rendered directly from merchant URLs; results and images are not cached or stored.
-- Merchant names and seller listing links remain visible; Shopify is not presented as the storefront brand.
-- Local cart and checkout remain simulated and do not reserve stock, create merchant carts or process payment.
-- If Shopify is unavailable or returns no mappable products, the storefront displays an empty/error state rather than presenting DummyJSON/sample products as real.
-- The anonymous endpoint is rate-limited; no API key or credentials have been added.
+- Shopify Global Catalog MCP is connected through the deployed Cloudflare Worker: `https://globalcart-catalog.pooyagame141.workers.dev/api/catalog`.
+- Anonymous catalog search without an API key or Shopify account was verified. The Worker uses Shopify's published reference UCP profile for capability negotiation; this is only a protocol reference for this non-transactional demo, not a claim that GlobalCart supports Shopify checkout.
+- The post-deploy smoke test passed: 6 products returned, including `Crusher® Evo` from seller `Skullcandy`; verified HTTPS product image, seller identity, USD price, `application/json` profile and `Cache-Control: no-store`.
+- Search results and image URLs are runtime-only; they are not persisted to localStorage, static snapshots or a server cache. Merchant attribution and seller listing links remain visible.
+- Anonymous requests have shared rate limits. If the source returns no mappable products or is rate-limited, the storefront shows an empty/error state rather than synthetic sample listings.
+- The homepage uses the live source. Legacy static product/history routes still reference the old snapshot and are documented as legacy; they are not used by the main catalog.
 
 ## Product definition
 GlobalCart is an independent marketplace portfolio simulation. Its information architecture is inspired by large retail marketplaces and the Amazon-link sourcing flow of kiyandaria.com, while its brand, UI and implementation remain original. It is not a live retailer. No real payments, order fulfillment, inventory reservations, seller payouts or money refunds occur; return/refund outcomes are internal demo-only state transitions.
