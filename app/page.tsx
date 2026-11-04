@@ -123,10 +123,6 @@ const categories = [
   {id:"sports-outdoors",fa:"ورزش و فضای باز",en:"Sports & Outdoors",symbol:"◉"},
   {id:"fashion",fa:"مد و پوشاک",en:"Fashion",symbol:"◇"},
   {id:"toys",fa:"اسباب‌بازی",en:"Toys",symbol:"✧"},
-  {id:"other-products",fa:"سایر کالاها",en:"Other products",symbol:"＋"},
-  {id:"sports-outdoors",fa:"ورزش و فضای باز",en:"Sports & Outdoors",symbol:"◉"},
-  {id:"fashion",fa:"مد و پوشاک",en:"Fashion",symbol:"◇"},
-  {id:"toys",fa:"اسباب‌بازی",en:"Toys",symbol:"✧"},
   {id:"other-products",fa:"سایر کالاها",en:"Other products",symbol:"＋"}
 ];
 
