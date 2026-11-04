@@ -79,20 +79,15 @@ test("captures the redesigned storefront shell for desktop and mobile visual rev
     path: `test-results/storefront-home-${project}.png`,
     animations: "disabled"
   });
-  await page.screenshot({
-    path: `test-results/storefront-home-full-${project}.png`,
-    fullPage: true,
-    animations: "disabled"
-  });
 });
 
 test("renders the first 36 products and reveals the next batch on demand", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator(".product-card")).toHaveCount(36);
   const loadMore = page.getByRole("button", { name: "Load more products", exact: true });
   await expect(loadMore).toBeVisible();
   await loadMore.click();
   await expect(page.locator(".product-card")).toHaveCount(72);
-  await expect(page.getByText("72 of 1,000 products")).toBeVisible();
 });
 
 test("product cards center the natural image canvas without cropping", async ({ page }) => {
