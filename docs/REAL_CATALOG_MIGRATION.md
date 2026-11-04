@@ -20,28 +20,37 @@ Therefore, Shopify cannot currently replace DummyJSON as a universal, no-account
 
 ### Curated real-product API candidate: Daily Dose Tech
 
-[Daily Dose Tech's public API](https://dailydose.tech/docs) advertises read-only JSON endpoints with no authentication or API key. Its documented catalog contains actual named technology products (examples include LG OLED M5, Sony WH-1000XM6, Anker Prime and Keychron Q1 Pro), plus curated product descriptions, retailer links, price history and deal data. The API supports pagination, category and text search, and asks consumers to cache for at least one hour.
+[Daily Dose Tech's public API](https://dailydose.tech/docs) advertises read-only JSON endpoints with no authentication or API key. Its documented catalog contains actual named technology products (examples include LG OLED M5, Sony WH-1000XM6 and Anker Prime), plus curated product descriptions, retailer names/links, price history and deal data. The API supports pagination, category and text search, and asks consumers to cache for at least one hour. Its about page discloses affiliate commissions.
 
-This is a materially better lead than a synthetic product generator for a **technology-only collection**, but it is not a general retail catalog. The public API documentation does not clearly establish reusable product-image URLs or image licensing, and the price/availability freshness and redistribution terms need confirmation. It also states that the publisher may earn affiliate commissions. Therefore:
-- Do not yet use it as a full catalog or copy its content/images into GlobalCart.
-- Do not remove retailer/source links or imply that GlobalCart is the seller.
-- Treat it as a candidate for a curated electronics/technology section only after image rights, permitted caching/display, attribution and commercial-data semantics are confirmed with the publisher.
+This is a strong candidate for a **technology-only discovery collection**, not a general retail catalog. Its public API documentation does not clearly establish reusable product-image URLs or image licensing, and does not prove that listed retailer prices or stock are live at the time GlobalCart displays them. Therefore:
+- Do not yet import it or copy its content/images into GlobalCart.
+- Preserve retailer names and outbound links if the source is eventually used.
+- Treat its prices as publisher-reported editorial data with a source timestamp, not guaranteed current retailer prices.
+- Ask the publisher to confirm image rights, permitted caching/display, attribution and redistribution terms before integration.
+
+### Open Food Facts: genuine barcode products, but food-only
+
+[Open Food Facts API v3](https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/) exposes real packaged-food products by barcode and product search. Read requests do not require an API key, but the project asks API consumers to use a descriptive User-Agent and complete its API usage form. The published limits include 15 product reads/minute/IP and 10 search requests/minute/IP; it specifically discourages search-as-you-type. API v3 is current, while v2 structured search remains available but is deprecated for new integrations.
+
+Licensing is unusually clear but has obligations: the database is ODbL, individual contents use DbCL, and product images are CC BY-SA. Attribution/share-alike requirements and possible third-party graphical rights must be reviewed. The project also warns that community-contributed data can be incomplete or inaccurate.
+
+This can provide authentic food/grocery SKUs and real package photos, but it is not a general retailer inventory feed: it does not provide reliable live retailer price, stock, cart or fulfillment. It is a valid **food-only open-data source candidate** if GlobalCart can satisfy the licenses and show source attribution.
+
+### Category coverage is still incomplete
+
+A technology editorial feed and an open food database do not provide a balanced general merchandise catalog. No verified no-account source has yet been found that simultaneously provides broad retail categories, authentic product images, clear reuse rights, seller attribution, current prices and stock, and stable API access.
+
+Do not fill fashion, home, toys or general electronics gaps with invented records or by scraping retailer sites. A true retailer catalog may require an approved affiliate/partner API, seller account, or a permissioned feed.
 
 ### Amazon and large retailer feeds
 
-Amazon is not connected. Do not scrape product pages or copy product images/prices. A future adapter is gated on the owner's eligibility for the relevant official program/API, credentials, permitted display/storage duration, image handling, price/availability refresh, attribution and linking rules. Affiliate discovery is not wholesale inventory access.
-
-Other major retailer and marketplace APIs commonly require a developer/partner account, app credentials, an approved affiliate relationship, or a seller/store identifier. A source must be evaluated from its official documentation and actual access response before it is described as public or integrated.
-
-### Public open-data alternatives are narrower
-
-Open Food Facts provides genuine packaged-food product records and product images through a public API, but it is a food-product database, not a general merchandise retailer catalog. It could support a dedicated grocery/food category or a separately labelled open-data demo, subject to its current API usage and image/database licenses. It is not a credible replacement for electronics, fashion, home goods and general retail all at once.
+Amazon is not connected. Do not scrape product pages or copy the catalog. A future integration is gated on the owner's eligibility for the relevant official program/API, credentials, permitted display/storage duration, image handling, price/availability refresh, attribution and linking rules. Affiliate discovery is not wholesale inventory access.
 
 ## Integration acceptance criteria
 
 A source may replace the current sample adapter only after all of these are confirmed:
 
-1. **Real identity:** recognizable commercial products with manufacturer/model identifiers where available; no generated product names, brands, prices or stock.
+1. **Real identity:** recognizable commercial products with manufacturer/model identifiers or barcode where available; no generated product names, brands, prices or stock.
 2. **Rights:** documented permission for every field used, including image hotlinking, caching, transformations and display.
 3. **Access:** stable, documented API/feed access that works from GitHub Actions or an approved server-side runtime without scraping or bypassing controls.
 4. **Freshness semantics:** clearly documented update cadence and source timestamps; never label a fetch timestamp as the merchant's last modification time.
@@ -56,9 +65,11 @@ A source may replace the current sample adapter only after all of these are conf
 - Do not silently promote sample products to real products or merely rename their provenance.
 - Keep the shared `CatalogSourceAdapter` as the only ingestion extension point; do not create a parallel catalog pipeline.
 - Do not integrate Shopify's Storefront API until a specific store domain and permission to use its catalog are supplied.
-- Do not replace the broad marketplace catalog with a food-only source without an explicit product-scope decision.
+- Daily Dose Tech is a technology discovery candidate only; image and redistribution rights must be confirmed before implementation.
+- Open Food Facts is a food-only candidate; its attribution/share-alike terms and usage guidance must be followed.
+- Do not present either source as a live retailer inventory or claim current retailer stock without an authoritative seller feed.
 - Once a qualifying source is selected, implement it behind the existing adapter, add source-specific contract tests and update `docs/DATA_SOURCES.md`, `ROADMAP.md` and `PROJECT_CONTEXT.md`.
 
 ## Next technical action
 
-Verify whether Daily Dose Tech can explicitly permit the product images and data fields needed for a demo integration. In parallel, continue source discovery against official documentation, prioritizing a genuinely public, broad-category product dataset with explicit commercial-product identity and image-use terms. If no such source meets the criteria without credentials, report that constraint rather than shipping a fake "live retailer" integration. A real retailer catalog may require the owner to authorize a developer/affiliate account or provide a store/feed endpoint.
+Prioritize a permission-confirmed technology source and a licensed barcode-food source as separate category adapters. Continue discovery for fashion, home and general merchandise. If no source meets the requirements without credentials, report that constraint rather than shipping a fake "live retailer" integration. A real retailer catalog may require the owner to authorize a developer/affiliate account or provide a store/feed endpoint.
