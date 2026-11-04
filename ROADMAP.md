@@ -1177,3 +1177,20 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Implementation PR:** [#2 — editorial marketplace redesign](https://github.com/pooya-labs/globalcart/pull/2) (merged).
 **Canonical preview:** https://pooya-labs.github.io/globalcart/
 **Version remains:** 0.2.3-dev; no release tag or production commerce behavior is changed.
+
+
+## M09.6 — full catalog gallery publication and product-detail reliability (in progress; 2026-11-04)
+
+- [x] Diagnose prior refresh failure: original-image import reached the 320 MiB image budget after 550/1,000 complete galleries; preserve the prior last-known-good snapshot on failure.
+- [x] Reduce optimized WebP dimensions/quality and retain per-image and aggregate limits without truncating alternate-image lists.
+- [x] Strengthen Pages validation for duplicate-free, existing, self-hosted WebP files and at least one true alternate-image gallery.
+- [x] Fix detail-page add-to-bag persistence to save the merged cart state.
+- [x] Prioritize the detail lead image; keep secondary/catalog/related imagery lazy and remove stale external-image preconnects.
+- [x] Replace legacy fixed-product E2E assumptions with a dynamic ABO catalog fixture; add detail-page cart-persistence coverage.
+- [x] Correct the bilingual case study's ABO / CC BY 4.0 attribution and its missing retail price/rating/stock disclosure.
+- [x] Pass TypeScript validation, unit tests and static production build on implementation head [ccbb48a](https://github.com/pooya-labs/globalcart/commit/ccbb48a6538ddd10db4ba118d1fc06adbcc2b039).
+- [ ] Pass the full desktop/mobile Browser E2E journeys on the same mainline head; run [41874481635](https://github.com/pooya-labs/globalcart/actions/runs/41874481635) was still executing at the last check.
+- [ ] Complete all 1,000 catalog galleries within the 320 MiB budget; record product/gallery/image totals and aggregate bytes.
+- [ ] Pass the Pages homepage, JS base-path, product-detail and distinct alternate-image public smoke tests; verify the updated public storefront.
+
+**Pages checks:** [current import run 41873827996](https://github.com/pooya-labs/globalcart/actions/runs/41873827996); [queued follow-up 41874481571](https://github.com/pooya-labs/globalcart/actions/runs/41874481571). **Version remains:** 0.2.3-dev.
