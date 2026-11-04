@@ -413,15 +413,15 @@ test("redesigned lower sections and footer keep a readable responsive layout", a
     }
 
     if (viewport.width <= 760) {
-      expect(layout.footerColumns.trim().split(/\\s+/)).toHaveLength(1);
-      expect(layout.serviceColumns.trim().split(/\\s+/)).toHaveLength(1);
-      expect(layout.faqColumns.trim().split(/\\s+/)).toHaveLength(1);
+      expect(layout.footerColumns.trim().split(/\s+/)).toHaveLength(1);
+      expect(layout.serviceColumns.trim().split(/\s+/)).toHaveLength(1);
+      expect(layout.faqColumns.trim().split(/\s+/)).toHaveLength(1);
     } else if (viewport.width <= 1000) {
-      expect(layout.footerColumns.trim().split(/\\s+/)).toHaveLength(2);
+      expect(layout.footerColumns.trim().split(/\s+/)).toHaveLength(2);
     } else {
-      expect(layout.footerColumns.trim().split(/\\s+/)).toHaveLength(3);
-      expect(layout.serviceColumns.trim().split(/\\s+/)).toHaveLength(3);
-      expect(layout.faqColumns.trim().split(/\\s+/)).toHaveLength(2);
+      expect(layout.footerColumns.trim().split(/\s+/)).toHaveLength(3);
+      expect(layout.serviceColumns.trim().split(/\s+/)).toHaveLength(3);
+      expect(layout.faqColumns.trim().split(/\s+/)).toHaveLength(2);
     }
   }
 });
