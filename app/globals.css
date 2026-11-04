@@ -1793,3 +1793,30 @@ body{background:#f7f8f5;color:var(--ink)}
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* Keep each real product photograph centered inside its storefront card canvas. */
+.storefront-v2 .product-media {
+  display: grid;
+  place-items: center;
+}
+.storefront-v2 .product-image-link {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+}
+.storefront-v2 .product-image-link img {
+  position: static;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: calc(100% - 28px);
+  max-height: calc(100% - 28px);
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: 50% 50%;
+  padding: 0;
+  margin: auto;
+  transform-origin: center center;
+}
+
