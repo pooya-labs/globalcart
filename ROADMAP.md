@@ -74,6 +74,16 @@ These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile 
 - [x] Add clear demo disclosures for Amazon link intake, seller tools and support paths.
 - [ ] Confirm all controls remain functional across the full site.
 
+### M02.2 — Live real-product discovery via Shopify Global Catalog MCP
+- [x] Connect cross-merchant product search through an anonymous, keyless Shopify Global Catalog MCP request.
+- [x] Add a Cloudflare Worker proxy with strict operation/input validation, CORS origin restriction and no-store/no-cache response headers.
+- [x] Host a minimal UCP agent profile on the GlobalCart Pages origin.
+- [x] Map real merchant listings, product images, seller-reported prices, availability, ratings and outbound seller listing URLs into the storefront view model.
+- [x] Keep search results in runtime memory only; do not persist product records or images in snapshots/localStorage.
+- [x] Preserve merchant attribution while keeping the storefront brand independent.
+- [x] Keep cart/checkout explicitly local and simulated; no real merchant checkout, payment or fulfillment.
+- [ ] Monitor anonymous rate limits and real-network availability; consider an authenticated tier only if owner-approved and genuinely needed.
+
 ## M02 — Automated catalog pipeline (active)
 - [x] Typed catalog contracts and normalization.
 - [x] Invalid-record rejection, source identity and duplicate suppression.
