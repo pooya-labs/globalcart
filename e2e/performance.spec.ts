@@ -1,4 +1,7 @@
 import { test, expect } from "@playwright/test";
+import catalogSnapshot from "../data/catalog.json";
+
+const firstProduct = catalogSnapshot.products[0];
 
 test.beforeEach(async ({ page }) => {
   // The storefront remains testable without remote image, font or API hosts.
@@ -35,35 +38,29 @@ test("mobile hero stacks the copy and image and uses a responsive source", async
   }
 });
 
-test("preconnects the product image CDN using the normal image request mode", async ({ page }) => {
-  const cdnHint = page.locator('link[rel="preconnect"][href="https://cdn.dummyjson.com"]');
-  await expect(cdnHint).toHaveCount(1);
-  // The product gallery uses regular img requests, not CORS-enabled images.
-  // A crossorigin hint would open a separate CORS connection and waste the preconnect.
-  expect(await cdnHint.getAttribute("crossorigin")).toBeNull();
-});
-
-test("scopes image preconnects to routes that use them", async ({ page }) => {
-  const origins = async () => page.locator('head link[rel="preconnect"]').evaluateAll(nodes =>
+test("catalog and product detail images are self-hosted without obsolete external preconnects", async ({ page }) => {
+  const externalHints = async () => page.locator('head link[rel="preconnect"]').evaluateAll(nodes =>
     nodes.map(node => new URL((node as HTMLLinkElement).href).origin)
+      .filter(origin => origin !== location.origin)
   );
 
-  expect(await origins()).toEqual(expect.arrayContaining([
-    "https://images.unsplash.com",
-    "https://cdn.dummyjson.com"
-  ]));
+  expect(await externalHints()).toEqual([]);
+  const cardImage = page.locator(".product-card .product-image-link img").first();
+  const cardSource = await cardImage.getAttribute("src");
+  expect(cardSource).toBeTruthy();
+  expect(new URL(cardSource!, page.url()).origin).toBe(new URL(page.url()).origin);
+  expect(new URL(cardSource!, page.url()).pathname).toContain("/images/catalog/");
 
-  await page.goto("./product/1/");
-  await expect(page.locator(".detail-information h1")).toBeVisible();
-  const productOrigins = await origins();
-  expect(productOrigins).toContain("https://cdn.dummyjson.com");
-  expect(productOrigins).not.toContain("https://images.unsplash.com");
+  await page.goto(`./product/${firstProduct.id}/`);
+  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
+  const detailImage = await page.locator(".detail-main-image > img").getAttribute("src");
+  expect(detailImage).toBeTruthy();
+  expect(new URL(detailImage!, page.url()).origin).toBe(new URL(page.url()).origin);
+  expect(new URL(detailImage!, page.url()).pathname).toContain("/images/catalog/");
 
   await page.goto("./case-study/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  const caseStudyOrigins = await origins();
-  expect(caseStudyOrigins).not.toContain("https://images.unsplash.com");
-  expect(caseStudyOrigins).not.toContain("https://cdn.dummyjson.com");
+  expect(await externalHints()).toEqual([]);
 });
 
 test("homepage prioritizes its hero and defers non-critical images", async ({ page }) => {
@@ -101,11 +98,8 @@ test("homepage prioritizes its hero and defers non-critical images", async ({ pa
 
 test("product detail prioritizes the main image and defers gallery extras", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.locator(".product-card h3 a")
-    .filter({ hasText: "Essence Mascara Lash Princess" })
-    .click();
-  await expect(page.locator(".detail-information h1"))
-    .toHaveText("Essence Mascara Lash Princess");
+  await page.locator(".product-card h3 a").filter({ hasText: firstProduct.title }).first().click();
+  await expect(page.locator(".detail-information h1")).toHaveText(firstProduct.title);
 
   const mainImage = page.locator(".detail-main-image > img");
   await expect(mainImage).toHaveAttribute("loading", "eager");
@@ -271,7 +265,7 @@ test("tablet viewport fits the storefront, product and case-study routes without
     await expect(page.locator("main.store")).toBeVisible();
     await assertNoHorizontalOverflow("Storefront", orientation.name);
 
-    const productResponse = await page.goto("./product/1/");
+    const productResponse = await page.goto(`./product/${firstProduct.id}/`);
     expect(productResponse?.status()).toBe(200);
     await expect(page.locator("main.product-page")).toBeVisible();
     await expect(page.locator(".detail-information h1")).toBeVisible();
@@ -312,7 +306,7 @@ test("compact phone widths fit all public routes without horizontal overflow", a
     await expect(page.locator("main.store")).toBeVisible();
     await assertFits("Storefront");
 
-    const product = await page.goto("./product/1/");
+    const product = await page.goto(`./product/${firstProduct.id}/`);
     expect(product?.status()).toBe(200);
     await expect(page.locator("main.product-page")).toBeVisible();
     await assertFits("Product detail");
