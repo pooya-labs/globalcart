@@ -116,9 +116,10 @@ export default {
         return json({ error: "Shopify anonymous catalog rate limit reached" }, 429, headers);
       }
       if (!upstream.ok) {
+        const details = payload?.error?.message || payload?.errors?.[0]?.message || "Upstream error";
         return json({
-          error: "Shopify catalog request failed",
-          details: payload?.error?.message || payload?.errors?.[0]?.message || "Upstream error"
+          error: `Shopify catalog request failed: ${details}`,
+          details
         }, 502, headers);
       }
       if (payload?.error) {
