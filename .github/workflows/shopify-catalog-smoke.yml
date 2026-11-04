@@ -1,0 +1,53 @@
+name: Shopify Catalog Smoke
+on:
+  pull_request:
+    paths:
+      - "workers/catalog-proxy/**"
+      - "lib/catalog/shopify.ts"
+      - "public/ucp/**"
+      - ".github/workflows/shopify-catalog-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: shopify-catalog-smoke-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  live-catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify proxy health and anonymous live catalog search
+        env:
+          CATALOG_PROXY: https://globalcart-catalog.pooyagame141.workers.dev
+          ALLOWED_ORIGIN: https://pooya-labs.github.io
+        run: |
+          node --input-type=module <<'NODE'
+          const base = process.env.CATALOG_PROXY;
+          const origin = process.env.ALLOWED_ORIGIN;
+          const health = await fetch(`${base}/health`, { headers: { Origin: origin }, cache: "no-store" });
+          if (!health.ok) throw new Error(`Proxy health failed: HTTP ${health.status}`);
+          const healthBody = await health.json();
+          if (healthBody.ok !== true || healthBody.persistence !== "disabled") throw new Error("Proxy health contract mismatch");
+
+          const response = await fetch(`${base}/api/catalog`, {
+            method: "POST",
+            headers: { Origin: origin, "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ tool: "search_catalog", catalog: { query: "wireless headphones", limit: 6 } }),
+            cache: "no-store"
+          });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(`Live Shopify search failed: HTTP ${response.status} ${payload.error || ""}`);
+          if (!Array.isArray(payload.products) || payload.products.length === 0) throw new Error("Shopify returned no live products");
+          const withImage = payload.products.find(product => product.media?.some(media => media.type === "image" && media.url?.startsWith("https://")));
+          const withSeller = payload.products.find(product => product.variants?.some(variant => variant.seller?.name && variant.seller?.url));
+          const withPrice = payload.products.find(product => Number.isFinite(product.price_range?.min?.amount) && product.price_range?.min?.currency);
+          if (!withImage || !withSeller || !withPrice) throw new Error("Live results are missing image, seller attribution or price fields");
+          console.log(JSON.stringify({
+            status: "passed",
+            productCount: payload.products.length,
+            sampleTitle: withImage.title,
+            seller: withSeller.variants.find(variant => variant.seller?.name)?.seller.name,
+            priceCurrency: withPrice.price_range.min.currency,
+            cacheControl: response.headers.get("cache-control")
+          }, null, 2));
+          NODE
