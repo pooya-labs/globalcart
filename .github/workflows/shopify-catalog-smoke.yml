@@ -1,11 +1,8 @@
 name: Shopify Catalog Smoke
 on:
-  pull_request:
-    paths:
-      - "workers/catalog-proxy/**"
-      - "lib/catalog/shopify.ts"
-      - "public/ucp/**"
-      - ".github/workflows/shopify-catalog-smoke.yml"
+  workflow_run:
+    workflows: ["Deploy GlobalCart to GitHub Pages"]
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   live-catalog:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Verify proxy health and anonymous live catalog search
