@@ -119,7 +119,11 @@ const categories = [
   {id:"smartphones",fa:"موبایل",en:"Phones",symbol:"▯"},
   {id:"mens-watches",fa:"ساعت",en:"Watches",symbol:"◷"},
   {id:"electronics",fa:"الکترونیک",en:"Electronics",symbol:"⌘"},
-  {id:"mobile-accessories",fa:"لوازم جانبی",en:"Accessories",symbol:"⌁"}
+  {id:"mobile-accessories",fa:"لوازم جانبی",en:"Accessories",symbol:"⌁"},
+  {id:"sports-outdoors",fa:"ورزش و فضای باز",en:"Sports & Outdoors",symbol:"◉"},
+  {id:"fashion",fa:"مد و پوشاک",en:"Fashion",symbol:"◇"},
+  {id:"toys",fa:"اسباب‌بازی",en:"Toys",symbol:"✧"},
+  {id:"other-products",fa:"سایر کالاها",en:"Other products",symbol:"＋"}
 ];
 
 const money = (value:number, locale:Locale) => new Intl.NumberFormat(locale==="fa"?"fa-IR":"en-US",{maximumFractionDigits:0}).format(value);
@@ -386,7 +390,7 @@ export default function Home() {
   },[hydrated,cart,favorites,recent,compareIds]);
 
   const filtered=useMemo(()=>{
-    const list=filterCatalogProducts(products,{category:isE2EFixtureCatalog?category:"all",query:isE2EFixtureCatalog?query:"",minPrice,maxPrice,brand:brandFilter,minRating});
+    const list=filterCatalogProducts(products,{category,query,minPrice,maxPrice,brand:brandFilter,minRating});
     if(sort==="low")list.sort((a,b)=>a.price-b.price);
     else if(sort==="high")list.sort((a,b)=>b.price-a.price);
     else if(sort==="rating")list.sort((a,b)=>b.rating-a.rating);
