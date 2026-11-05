@@ -11,45 +11,63 @@ export type LighthouseReport = {
 
 type Mode = "mobile" | "desktop";
 
-const EXPECTED_REPORTS = [
+const STATIC_EXPECTED_REPORTS = [
   "home-mobile.json",
   "home-desktop.json",
-  "product-1-mobile.json",
-  "product-1-desktop.json",
   "case-study-mobile.json",
   "case-study-desktop.json"
 ];
+const PRODUCT_REPORT_PATTERN = /^product-([1-9]\d*)-(mobile|desktop)\.json$/;
 
 const CATEGORY_MINIMUM = 0.95;
 const LIMITS: Record<Mode, { lcpMs: number; tbtMs: number }> = {
   mobile: { lcpMs: 4_000, tbtMs: 300 },
-  desktop: { lcpMs: 2_500, tbtMs: 200 }
-};
-
-export function validateLighthouseReportSet(reportPaths: string[]): string[] {
+  desktop: { lexport function validateLighthouseReportSet(reportPaths: string[]): string[] {
   const errors: string[] = [];
-  const expected = new Set(EXPECTED_REPORTS);
+  const staticExpected = new Set(STATIC_EXPECTED_REPORTS);
   const seen = new Set<string>();
+  const productIds = new Set<string>();
 
   for (const reportPath of reportPaths) {
     const name = path.basename(reportPath);
-    if (!expected.has(name)) {
+    const productMatch = PRODUCT_REPORT_PATTERN.exec(name);
+    if (!staticExpected.has(name) && !productMatch) {
       errors.push(`Unexpected Lighthouse report: ${name}`);
       continue;
     }
     if (seen.has(name)) errors.push(`Duplicate Lighthouse report: ${name}`);
     seen.add(name);
+    if (productMatch) productIds.add(productMatch[1]!);
   }
 
-  for (const name of EXPECTED_REPORTS) {
+  for (const name of STATIC_EXPECTED_REPORTS) {
     if (!seen.has(name)) errors.push(`Missing Lighthouse report: ${name}`);
+  }
+
+  if (productIds.size === 0) {
+    errors.push("Missing Lighthouse product reports for one numeric product ID (mobile and desktop).");
+  } else {
+    if (productIds.size > 1) {
+      errors.push(`Inconsistent Lighthouse product route IDs: ${[...productIds].sort().join(", ")}`);
+    }
+    for (const productId of productIds) {
+      for (const mode of ["mobile", "desktop"] as const) {
+        const name = `product-${productId}-${mode}.json`;
+        if (!seen.has(name)) errors.push(`Missing Lighthouse report: ${name}`);
+      }
+    }
+  }
+
+  return errors;
+}
+me}`);
   }
   return errors;
 }
 
 export function evaluateLighthouseReport(report: LighthouseReport, reportPath: string): string[] {
   const name = path.basename(reportPath);
-  const match = /^(home|product-1|case-study)-(mobile|desktop)\.json$/.exec(name);
+  const match = /^(home|product-[1-9]\d*|case-study)-(mobile|desktop)\.json$/.exec(name);
   if (!match) return [`Unsupported Lighthouse report name: ${name}`];
 
   const mode = match[2] as Mode;
