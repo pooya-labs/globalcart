@@ -57,6 +57,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/lighthouse
+          product_id="$(node -e 'const products = require("./data/catalog.json").products; if (!Array.isArray(products) || !products[0]?.id) process.exit(1); process.stdout.write(String(products[0].id));')"
 
           while IFS='|' read -r page url; do
             for mode in mobile desktop; do
@@ -78,7 +79,7 @@ jobs:
             done
           done <<EOF
           home|${SITE_BASE}/
-          product-1|${SITE_BASE}/product/1/
+          product-${product_id}|${SITE_BASE}/product/${product_id}/
           case-study|${SITE_BASE}/case-study/
           EOF
 
