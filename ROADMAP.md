@@ -1179,18 +1179,22 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 **Version remains:** 0.2.3-dev; no release tag or production commerce behavior is changed.
 
 
-## M09.6 — full catalog gallery publication and product-detail reliability (in progress; 2026-11-04)
+## M09.6 — full catalog gallery publication and product-detail reliability (complete; 2026-11-05)
 
-- [x] Diagnose prior refresh failure: original-image import reached the 320 MiB image budget after 550/1,000 complete galleries; preserve the prior last-known-good snapshot on failure.
-- [x] Reduce optimized WebP dimensions/quality and retain per-image and aggregate limits without truncating alternate-image lists.
-- [x] Strengthen Pages validation for duplicate-free, existing, self-hosted WebP files and at least one true alternate-image gallery.
-- [x] Fix detail-page add-to-bag persistence to save the merged cart state.
-- [x] Prioritize the detail lead image; keep secondary/catalog/related imagery lazy and remove stale external-image preconnects.
-- [x] Replace legacy fixed-product E2E assumptions with a dynamic ABO catalog fixture; add detail-page cart-persistence coverage.
-- [x] Correct the bilingual case study's ABO / CC BY 4.0 attribution and its missing retail price/rating/stock disclosure.
-- [x] Pass TypeScript validation, unit tests and static production build on implementation head [ccbb48a](https://github.com/pooya-labs/globalcart/commit/ccbb48a6538ddd10db4ba118d1fc06adbcc2b039).
-- [ ] Pass the full desktop/mobile Browser E2E journeys on the same mainline head; run [41874481635](https://github.com/pooya-labs/globalcart/actions/runs/41874481635) was still executing at the last check.
-- [ ] Complete all 1,000 catalog galleries within the 320 MiB budget; record product/gallery/image totals and aggregate bytes.
-- [ ] Pass the Pages homepage, JS base-path, product-detail and distinct alternate-image public smoke tests; verify the updated public storefront.
+- [x] Diagnose the previous refresh failure at 550/1,000 galleries and preserve the last-known-good snapshot on failed or incomplete publication.
+- [x] Tune WebP dimensions/quality and retain all available alternate images within the 320 MiB aggregate budget.
+- [x] Validate unique product/image references, existing self-hosted WebP assets, and the presence of real alternate-image galleries.
+- [x] Publish the complete 1,000-product snapshot: 1,000 unique product IDs, 914 products with alternate images, 4,890 unique referenced images, 4,895 WebP files / 258.38 MiB, and zero missing catalog references. Five unreferenced import leftovers remain on disk but are not loaded by the catalog.
+- [x] Fix detail-page add-to-bag persistence and preserve the merged cart state.
+- [x] Prioritize the product-detail lead image; keep secondary/catalog/related imagery lazy and remove stale external-image preconnects.
+- [x] Replace fixed-product E2E assumptions with a dynamic catalog fixture and cover gallery/detail-cart persistence.
+- [x] Correct bilingual case-study ABO / CC BY 4.0 attribution and retail price/rating/stock disclosures.
+- [x] Resolve product-card touch-target overlap: retain 44×44 px purchase controls, align card content/actions, clamp titles to two lines, and provide separation from the purchase row.
+- [x] Pass TypeScript validation, all 108 unit tests, and static production build.
+- [x] Pass full Browser E2E: [run 42057166843](https://github.com/pooya-labs/globalcart/actions/runs/42057166843) — 124 passed / 7 intentional project-scoped skips / 0 failures.
+- [x] Pass Security [run 42057166811](https://github.com/pooya-labs/globalcart/actions/runs/42057166811) and Pages deployment/public smoke [run 42057166890](https://github.com/pooya-labs/globalcart/actions/runs/42057166890). Public checks covered homepage, base-path JavaScript, product detail, and bilingual case study.
+- [x] Pass refreshed Shopify catalog smoke [run 42057531442](https://github.com/pooya-labs/globalcart/actions/runs/42057531442).
+- [x] Pass all six public Lighthouse 13.6.0 audits and regression budgets [run 42057531211](https://github.com/pooya-labs/globalcart/actions/runs/42057531211). Mobile Performance 90 / 97 / 99 and desktop 100 / 100 / 100 (home / product / case study); all six Accessibility, Best Practices, and SEO scores 100; mobile LCP 3.3 s / 2.4 s / 1.1 s; TBT 180 ms / 130 ms / 100 ms; CLS 0 / 0 / 0.009. GitHub-hosted lab data only, not field Core Web Vitals.
+- [x] Publish updated storefront and case-study screenshots for desktop and mobile [run 42058141302](https://github.com/pooya-labs/globalcart/actions/runs/42058141302).
 
-**Pages checks:** [current import run 41873827996](https://github.com/pooya-labs/globalcart/actions/runs/41873827996); [queued follow-up 41874481571](https://github.com/pooya-labs/globalcart/actions/runs/41874481571). **Version remains:** 0.2.3-dev.
+**Result:** M09.6 automated implementation and verification are complete. The M09.5 owner-preview approval and manual 1.0.0 release gates remain open. Keep version `0.2.3-dev`; do not tag or declare 1.0.0 until owner approval, physical-device review, actual screen-reader review, human RTL/LTR review, and normal-network/CDN plus eligible field evidence are complete.
