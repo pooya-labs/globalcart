@@ -51,10 +51,10 @@ for (const viewport of ["chromium-desktop", "chromium-mobile"]) {
 
     console.log("LIVE_PAGES_PRODUCT_IMAGE_METRICS", JSON.stringify(metrics));
 
-    const cards = page.locator(".product-card").first(8);
+    const cards = page.locator(".product-card");
     await cards.first().scrollIntoViewIfNeeded();
-    const first = await cards.first().boundingBox();
-    const last = await cards.last().boundingBox();
+    const first = await cards.nth(0).boundingBox();
+    const last = await cards.nth(7).boundingBox();
     if (!first || !last) throw new Error("Could not measure the first eight live product cards.");
     const x = Math.max(0, first.x);
     const y = Math.max(0, first.y);
