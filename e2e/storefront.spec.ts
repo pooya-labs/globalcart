@@ -386,7 +386,35 @@ test("product detail add-to-bag persists the selected item in the local cart", a
   await expect(drawer.getByText(opened.title, { exact: true })).toBeVisible();
 });
 
- test("recently viewed route inherits and persists the selected locale", async ({ page }) => {
+ test("homepage clear history action matches its neighboring history link", async ({ page }) => {
+  await openFirstVisibleProduct(page);
+  await page.locator(".product-page-top > div > a").click();
+
+  const section = page.locator(".recently-viewed-section");
+  await expect(section).toBeVisible();
+  const clear = section.locator(".recently-viewed-actions > button");
+  const viewHistory = section.locator(".recently-viewed-actions > a");
+  await expect(clear).toBeVisible();
+  await expect(viewHistory).toBeVisible();
+
+  const styles = await page.evaluate(() => {
+    const button = document.querySelector(".recently-viewed-actions > button");
+    const link = document.querySelector(".recently-viewed-actions > a");
+    if (!button || !link) throw new Error("Recently viewed actions are missing.");
+    const properties = ["display", "align-items", "gap", "color", "font-family", "font-size", "font-weight", "line-height", "text-decoration-line"];
+    const read = (element: Element) => {
+      const style = getComputedStyle(element);
+      return Object.fromEntries(properties.map(property => [property, style.getPropertyValue(property)]));
+    };
+    return { button: read(button), link: read(link) };
+  });
+  expect(styles.button).toEqual(styles.link);
+
+  await clear.click();
+  await expect(section).toHaveCount(0);
+});
+
+test("recently viewed route inherits and persists the selected locale", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("main.store")).toHaveAttribute("dir", "ltr");
 

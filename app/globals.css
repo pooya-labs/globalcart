@@ -275,7 +275,22 @@ button:disabled{cursor:not-allowed;opacity:.55}
 
 /* Dedicated browser-local recently viewed history */
 .recently-viewed-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.recently-viewed-actions>a{display:flex;align-items:center;gap:5px;color:#176b55;text-decoration:none;font-size:10px;font-weight:800}
+.recently-viewed-actions>a,.recently-viewed-actions>button{
+  display:flex;align-items:center;gap:5px;
+  color:#176b55;text-decoration:none;
+  font-family:inherit;font-size:10px;font-weight:800;line-height:inherit;
+}
+.recently-viewed-actions>button{
+  appearance:none;-webkit-appearance:none;
+  border:0;border-radius:0;background:transparent;
+  padding:0;margin:0;cursor:pointer;
+}
+.recently-viewed-actions>a:hover,.recently-viewed-actions>button:hover{
+  text-decoration:underline;text-underline-offset:3px;
+}
+.recently-viewed-actions>button:focus-visible{
+  outline:2px solid #176b55;outline-offset:3px;border-radius:3px;
+}
 .history-page{min-height:100vh;background:#f5f7f9;color:#1b2b40}
 .history-topbar{height:70px;padding:0 clamp(18px,5vw,78px);display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #e8edf1}
 .history-topbar>a,.history-topbar>div,.history-topbar>div>a{display:flex;align-items:center;gap:10px;text-decoration:none;color:#27374b}
