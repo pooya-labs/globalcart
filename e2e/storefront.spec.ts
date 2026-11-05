@@ -383,7 +383,11 @@ test("product detail add-to-bag persists the selected item in the local cart", a
     }
   }, opened.id);
 
-  const historyUrl = new URL("../../recently-viewed/", page.url()).toString();
+  const productUrl = new URL(page.url());
+  const productPath = productUrl.pathname.replace(/\/$/, "");
+  const productDirectory = productPath.slice(0, productPath.lastIndexOf("/"));
+  const basePath = productDirectory.slice(0, productDirectory.lastIndexOf("/"));
+  const historyUrl = new URL(`${basePath}/recently-viewed/`, productUrl.origin).toString();
   await page.goto(historyUrl);
   const history = page.locator("main.history-page");
   await expect(history).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
