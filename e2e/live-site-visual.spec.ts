@@ -51,18 +51,22 @@ for (const viewport of ["chromium-desktop", "chromium-mobile"]) {
 
     console.log("LIVE_PAGES_PRODUCT_IMAGE_METRICS", JSON.stringify(metrics));
 
-    const cards = page.locator(".product-card");
-    await cards.first().scrollIntoViewIfNeeded();
-    const first = await cards.nth(0).boundingBox();
-    const last = await cards.nth(7).boundingBox();
-    if (!first || !last) throw new Error("Could not measure the first eight live product cards.");
-    const x = Math.max(0, first.x);
-    const y = Math.max(0, first.y);
-    const right = Math.min(page.viewportSize()!.width, Math.max(first.x + first.width, last.x + last.width));
-    const bottom = Math.min(page.viewportSize()!.height + last.y, last.y + last.height);
-    await page.screenshot({
+    for (const metric of metrics) {
+      expect(Math.abs(metric.centerDelta[0])).toBeLessThan(1);
+      expect(Math.abs(metric.centerDelta[1])).toBeLessThan(1);
+      expect(metric.imageRect[2]).toBeLessThanOrEqual(metric.frameRect[2] + 1);
+      expect(metric.imageRect[3]).toBeLessThanOrEqual(metric.frameRect[3] + 1);
+    }
+
+    // Keep the visual artifact focused on the eight loaded images, not the
+    // remaining lazy-loaded cards farther down the long catalog.
+    await page.locator(".product-card").evaluateAll(cards => {
+      cards.slice(8).forEach(card => {
+        (card as HTMLElement).style.display = "none";
+      });
+    });
+    await page.locator(".product-grid").screenshot({
       path: `test-results/live-product-grid-${viewport}.png`,
-      clip: { x, y, width: right - x, height: bottom - y },
       animations: "disabled"
     });
   });
