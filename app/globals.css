@@ -756,6 +756,7 @@ body{background:#f7f8f5;color:var(--ink)}
 .compare-card-button{inset-inline-start:auto}
 .price-original{text-decoration:line-through;text-decoration-thickness:1px;color:#59665e!important}
 .price-source{text-decoration:none;color:#59665e!important}
+.price-estimate-note{font-size:9px;color:#8a7251!important;font-weight:700;letter-spacing:.1px}
 
 /* M09.5 cart drawer undo affordance */
 .toast-undo{margin-inline-start:8px;padding:5px 10px;border:1px solid rgba(255,255,255,.45);border-radius:999px;background:rgba(255,255,255,.12);color:inherit;font-size:10px;font-weight:800}
