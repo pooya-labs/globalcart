@@ -1030,8 +1030,15 @@ body{background:#f7f8f5;color:var(--ink)}
   padding:18px;border:1px solid #e6ede5;border-radius:16px;
   background:#f9fbf8;
 }
+/* The sidebar itself stays sticky; its title must scroll with the category
+   options instead of sticking over and obscuring their labels. */
 .storefront-v2 .filter-title{
-  padding-bottom:14px;border-bottom:1px solid #e6ede5;
+  position:static;
+  top:auto;
+  z-index:auto;
+  background:transparent;
+  padding:0 0 14px;
+  border-bottom:1px solid #e6ede5;
 }
 .storefront-v2 .filter-title>b{color:#243c2c;font-size:12px}
 .storefront-v2 .filter-title button{font-size:9px}

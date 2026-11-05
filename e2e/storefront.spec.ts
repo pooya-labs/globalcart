@@ -100,6 +100,25 @@ test("captures the redesigned storefront shell for desktop and mobile visual rev
   });
 });
 
+test("keeps the filter heading in normal flow above the category options", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  const panel = page.locator(".filter-panel");
+  const title = panel.locator(".filter-title");
+  await expect(panel).toBeVisible();
+
+  const layout = await Promise.all([
+    title.evaluate(element => getComputedStyle(element).position),
+    panel.evaluate(element => getComputedStyle(element).position)
+  ]);
+  expect(layout).toEqual(["static", "sticky"]);
+
+  const titleBottom = await title.evaluate(element => element.getBoundingClientRect().bottom);
+  const categoryHeadingTop = await panel.locator(".filter-group").first()
+    .locator("b").evaluate(element => element.getBoundingClientRect().top);
+  expect(titleBottom).toBeLessThanOrEqual(categoryHeadingTop);
+});
+
 test("renders the first 36 products and reveals the next batch on demand", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator(".product-card")).toHaveCount(36);
