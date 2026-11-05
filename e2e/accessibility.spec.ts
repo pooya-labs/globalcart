@@ -135,7 +135,11 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
     }
   }, productId);
 
-  const historyUrl = new URL("../../recently-viewed/", page.url()).toString();
+  const productUrl = new URL(page.url());
+  const productPath = productUrl.pathname.replace(/\/$/, "");
+  const productDirectory = productPath.slice(0, productPath.lastIndexOf("/"));
+  const basePath = productDirectory.slice(0, productDirectory.lastIndexOf("/"));
+  const historyUrl = new URL(`${basePath}/recently-viewed/`, productUrl.origin).toString();
   const response = await page.goto(historyUrl);
   expect(response?.status()).toBe(200);
 
