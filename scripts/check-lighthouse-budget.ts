@@ -22,7 +22,10 @@ const PRODUCT_REPORT_PATTERN = /^product-([1-9]\d*)-(mobile|desktop)\.json$/;
 const CATEGORY_MINIMUM = 0.95;
 const LIMITS: Record<Mode, { lcpMs: number; tbtMs: number }> = {
   mobile: { lcpMs: 4_000, tbtMs: 300 },
-  desktop: { lexport function validateLighthouseReportSet(reportPaths: string[]): string[] {
+  desktop: { lcpMs: 2_500, tbtMs: 200 }
+};
+
+export function validateLighthouseReportSet(reportPaths: string[]): string[] {
   const errors: string[] = [];
   const staticExpected = new Set(STATIC_EXPECTED_REPORTS);
   const seen = new Set<string>();
@@ -58,10 +61,6 @@ const LIMITS: Record<Mode, { lcpMs: number; tbtMs: number }> = {
     }
   }
 
-  return errors;
-}
-me}`);
-  }
   return errors;
 }
 
