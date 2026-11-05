@@ -79,6 +79,25 @@ test("captures the redesigned storefront shell for desktop and mobile visual rev
     path: `test-results/storefront-home-${project}.png`,
     animations: "disabled"
   });
+
+  // Capture real product cards as well as the hero. The previous visual
+  // artifact stopped above the catalog and could not reveal image alignment.
+  await page.locator(".catalog-section").scrollIntoViewIfNeeded();
+  await page.locator(".product-card img").evaluateAll(images => {
+    images.slice(0, 36).forEach(image => {
+      (image as HTMLImageElement).loading = "eager";
+    });
+  });
+  await expect.poll(
+    () => page.locator(".product-card img").evaluateAll(images =>
+      images.slice(0, 8).filter(image => (image as HTMLImageElement).naturalWidth > 0).length
+    ),
+    { timeout: 20_000 }
+  ).toBeGreaterThanOrEqual(4);
+  await page.locator(".product-grid").screenshot({
+    path: `test-results/product-grid-${project}.png`,
+    animations: "disabled"
+  });
 });
 
 test("renders the first 36 products and reveals the next batch on demand", async ({ page }) => {
