@@ -430,7 +430,7 @@ test("product detail add-to-bag persists the selected item in the local cart", a
 test("recently viewed clear action matches shared history controls and clears local entries", async ({ page }) => {
   const opened = await openFirstVisibleProduct(page);
   const productUrl = new URL(page.url());
-  const productPath = productUrl.pathname.replace(/\\/$/, "");
+  const productPath = productUrl.pathname.replace(/\/$/, "");
   const productDirectory = productPath.slice(0, productPath.lastIndexOf("/"));
   const basePath = productDirectory.slice(0, productDirectory.lastIndexOf("/"));
   await page.goto(new URL(`${basePath}/recently-viewed/`, productUrl.origin).toString());
