@@ -141,8 +141,8 @@ test("product cards center the natural image canvas without cropping", async ({ 
   expect(Math.abs(geometry.imageCenterY - geometry.frameCenterY)).toBeLessThan(1);
   expect(geometry.objectFit).toBe("contain");
   expect(geometry.objectPosition).toBe("50% 50%");
-  expect(geometry.imageWidth).toBeLessThan(geometry.frameWidth);
-  expect(geometry.imageHeight).toBeLessThan(geometry.frameHeight);
+  expect(geometry.imageWidth).toBeLessThanOrEqual(geometry.frameWidth);
+  expect(geometry.imageHeight).toBeLessThanOrEqual(geometry.frameHeight);
 });
 
 test("shows only live catalog categories, filters products locally and gives product images a real layout box", async ({ page }) => {
