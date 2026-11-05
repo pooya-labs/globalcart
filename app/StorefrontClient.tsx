@@ -23,7 +23,7 @@ export type Product = {
   discountPercentage: number; rating: number; stock: number; brand?: string;
   thumbnail: string; images?: string[]; source?: string;
   currency?: string; priceMax?: number; availability?: boolean; isLive?: boolean;
-  priceAvailable?: boolean; ratingAvailable?: boolean; stockAvailable?: boolean;
+  priceAvailable?: boolean; priceKind?: "estimated" | "verified"; ratingAvailable?: boolean; stockAvailable?: boolean;
 };
 
 const isE2EFixtureCatalog = process.env.NEXT_PUBLIC_E2E_FIXTURE_CATALOG === "1";
@@ -48,7 +48,7 @@ const copy = {
     nav1: "فروشگاه", nav2: "دسته‌بندی‌ها", nav3: "پیشنهادهای منتخب", nav4: "درباره پروژه",
     heroEyebrow: "THE ART OF DISCOVERY", heroTitle: "چیزهای خوب،\nدرست همین‌جا پیدا می‌شوند.", heroDesc: "یک تجربه خرید مدرن برای کشف، مقایسه و انتخاب هوشمندانه؛ از محصولات روزمره تا انتخاب‌های خاص.",
     explore: "کشف محصولات", curated: "انتخاب‌های سردبیر", categories: "بر اساس علاقه بگرد", categoriesDesc: "از جایی شروع کن که به تو نزدیک‌تر است.",
-    all: "همه محصولات", catalog: "ویترین جهانی", catalogDesc: "مجموعه‌ای از ۱۰۰۰ کالای واقعی در دسته‌های مختلف؛ اطلاعات و تصاویر داخل خود سایت ذخیره شده‌اند. قیمت و موجودی در منبع داده ارائه نشده است.",
+    all: "همه محصولات", catalog: "ویترین جهانی", catalogDesc: "مجموعه‌ای از ۱۰۰۰ کالا با اطلاعات و تصاویر ذخیره‌شده در خود پروژه. قیمت‌ها تخمینی و صرفاً نمایشی‌اند؛ موجودی واقعی ارائه نمی‌شود.",
     sort: "مرتب‌سازی", popular: "پیشنهاد‌شده", low: "قیمت: کم به زیاد", high: "قیمت: زیاد به کم", rating: "بالاترین امتیاز",
     recommendationBasis: "مرتب‌سازی بر اساس امتیازهای منتشرشده؛ پیشنهادها شخصی‌سازی نشده‌اند.",
     recommendationBoth: "امتیاز بالا + تخفیف", recommendationRating: "امتیاز بالای کاتالوگ",
@@ -83,7 +83,7 @@ const copy = {
     nav1: "Shop", nav2: "Categories", nav3: "Editor's picks", nav4: "About",
     heroEyebrow: "THE ART OF DISCOVERY", heroTitle: "Good things,\nright where you need them.", heroDesc: "A modern shopping experience to discover, compare and choose with confidence — from everyday essentials to thoughtful finds.",
     explore: "Explore products", curated: "Editor's selection", categories: "Browse by interest", categoriesDesc: "Start with what speaks to you.",
-    all: "All products", catalog: "The global edit", catalogDesc: "A locally stored selection of 1,000 real products across multiple categories. The source dataset does not provide prices, ratings or stock figures.",
+    all: "All products", catalog: "The global edit", catalogDesc: "A locally stored selection of 1,000 products. Prices are illustrative estimates generated for this demo, not verified retailer offers; real stock is not provided.",
     sort: "Sort by", popular: "Recommended", low: "Price: low to high", high: "Price: high to low", rating: "Top rated",
     recommendationBasis: "Sorted using published ratings where available; results are not personalized.",
     recommendationBoth: "High rating + discount", recommendationRating: "Top catalog rating",
@@ -766,7 +766,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
             {filtered.length===0?<div className="no-results"><Search size={30}/><b>{t.noResults}</b><button onClick={()=>{setQuery("");setCategory("all");setMinPrice(0);setMaxPrice(1000);setBrandFilter("");setMinRating(0);}}>{t.clear}</button></div>:<div className="product-grid">
               {visibleProducts.map((p,index)=><article className="product-card" key={p.id}>
                 <div className="product-media"><Link className="product-image-link" href={`/product/${p.id}`} aria-label={rtl?"مشاهده صفحه محصول":"View product details"}><img src={catalogImageSrc(p.thumbnail)} alt={p.title} loading="lazy" decoding="async" fetchPriority="low" width={1440} height={1440}/></Link><span className="product-number">GC / {String(index+1).padStart(2,"0")}</span>{p.discountPercentage>0&&<span className="discount-tag">{Math.round(p.discountPercentage)}% {t.off}</span>}<button className={favorites.includes(p.id)?"save-button saved":"save-button"} aria-label={t.favorites} onClick={e=>{e.stopPropagation();toggleFavorite(p.id);}}><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button><button className={compareIds.includes(p.id)?"compare-card-button selected":"compare-card-button"} aria-label={t.compareAdd} title={t.compareAdd} onClick={e=>{e.stopPropagation();toggleCompare(p.id);}}><GitCompareArrows size={15}/></button><button className="quick-view" onClick={e=>{e.stopPropagation();openProduct(p);}}>{t.quick}<ArrowUpLeftIcon/></button></div>
-                <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating">{p.rating>0&&<span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span>}<small>{p.stockAvailable===false?(rtl?"موجودی ثبت نشده":"Stock not provided"):p.availability===false?(rtl?"ناموجود":"Unavailable"):t.inStock}</small></div><div className="recommendation-reason">{p.priceAvailable===false?categoryLabel(p.category):p.isLive?categoryLabel(p.category):(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b>{!p.isLive&&p.priceAvailable!==false&&<small className={p.discountPercentage>0?"price-original":"price-source"}>{usd(p.price)}</small>}</div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
+                <div className="product-details"><span className="product-brand">{p.brand||"GLOBAL SELECT"}</span><h3><Link href={`/product/${p.id}`}>{p.title}</Link></h3><div className="product-rating">{p.rating>0&&<span><Star size={12} fill="currentColor"/>{p.rating.toFixed(1)}</span>}<small>{p.stockAvailable===false?(rtl?"موجودی ثبت نشده":"Stock not provided"):p.availability===false?(rtl?"ناموجود":"Unavailable"):t.inStock}</small></div><div className="recommendation-reason">{p.priceAvailable===false?categoryLabel(p.category):p.isLive?categoryLabel(p.category):(()=>{const reason=getCatalogRecommendationReason(p);return reason==="rating-and-discount"?t.recommendationBoth:reason==="rating"?t.recommendationRating:reason==="discount"?t.recommendationDiscount:t.recommendationBalanced;})()}</div><div className="product-price"><div><b>{formatPrice(p)}</b>{!p.isLive&&p.priceAvailable!==false&&<small className="price-estimate-note">{rtl?"قیمت تخمینی":"Estimated price"}</small>}</div><button onClick={()=>addToCart(p)} aria-label={t.add}><Plus size={19}/></button></div></div>
               </article>)}
             </div>}
             {visibleProducts.length<filtered.length&&<div className="catalog-load-more">
