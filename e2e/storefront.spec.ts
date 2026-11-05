@@ -427,6 +427,41 @@ test("product detail add-to-bag persists the selected item in the local cart", a
 });
 
 
+test("recently viewed clear action matches shared history controls and clears local entries", async ({ page }) => {
+  const opened = await openFirstVisibleProduct(page);
+  const productUrl = new URL(page.url());
+  const productPath = productUrl.pathname.replace(/\\/$/, "");
+  const productDirectory = productPath.slice(0, productPath.lastIndexOf("/"));
+  const basePath = productDirectory.slice(0, productDirectory.lastIndexOf("/"));
+  await page.goto(new URL(`${basePath}/recently-viewed/`, productUrl.origin).toString());
+
+  const history = page.locator("main.history-page");
+  await expect(history).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
+  const clear = history.getByRole("button", { name: "Clear history" });
+  await expect(clear).toBeVisible();
+
+  const styles = await page.evaluate(() => {
+    const clearButton = document.querySelector(".history-clear");
+    const sharedButton = document.querySelector(".history-topbar button");
+    if (!clearButton || !sharedButton) throw new Error("History controls are missing.");
+    const properties = ["backgroundColor", "borderTopColor", "borderTopStyle", "borderTopWidth", "borderRadius", "color", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft"];
+    const read = (element: Element) => {
+      const style = getComputedStyle(element);
+      return Object.fromEntries(properties.map(property => [property, style.getPropertyValue(property.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`))]));
+    };
+    return { clear: read(clearButton), shared: read(sharedButton) };
+  });
+  expect(styles.clear).toEqual(styles.shared);
+
+  await clear.click();
+  await expect(history.locator(".history-clear")).toHaveCount(0);
+  await expect(history.getByText("No recently viewed products yet")).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
+    return Array.isArray(state.recent) && state.recent.length === 0;
+  })).toBe(true);
+});
+
 test("active catalog filter chips remove one facet or clear the complete filter set", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   const isMobile = await page.evaluate(() => window.matchMedia("(max-width: 760px)").matches);

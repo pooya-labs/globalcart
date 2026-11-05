@@ -285,7 +285,15 @@ button:disabled{cursor:not-allowed;opacity:.55}
 .history-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px}
 .history-heading h1{font-size:clamp(25px,3vw,36px);margin:8px 0;color:#172238}
 .history-heading p{max-width:680px;margin:0;color:#788596;font-size:12px;line-height:2}
-.history-clear{display:flex;align-items:center;gap:7px;border:1px solid #e0e7ed;border-radius:8px;background:#fff;color:#7c5860;padding:10px 13px;font-size:10px;font-weight:750;white-space:nowrap}
+.history-clear{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:36px;border:1px solid #e1e7ed;border-radius:7px;
+  background:#fff;color:#42536a;padding:7px 10px;
+  font:inherit;font-size:10px;font-weight:750;white-space:nowrap;
+  cursor:pointer;transition:background .18s,border-color .18s,color .18s;
+}
+.history-clear:hover{background:#f6faf6;border-color:#bfd5ca;color:#176b55}
+.history-clear:focus-visible{outline:2px solid #176b55;outline-offset:2px}
 .history-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .history-card{display:flex;align-items:center;gap:14px;min-width:0;padding:13px;background:#fff;border:1px solid #e5ebef;border-radius:13px;text-decoration:none;color:#26364b;transition:border-color .18s,transform .18s}
 .history-card:hover{border-color:#bfd5ca;transform:translateY(-2px)}
