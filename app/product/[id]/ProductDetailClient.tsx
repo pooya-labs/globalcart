@@ -150,22 +150,22 @@ export default function ProductDetailClient({product,related}:Props) {
         <h1>{product.title}</h1>
         <div className="detail-rating">{product.ratingAvailable===false?<span>{rtl?"امتیاز ثبت نشده":"No rating supplied"}</span>:<span><Star size={15} fill="currentColor"/>{product.rating.toFixed(1)}</span>}<i/> <span>{rtl?"شناسه محصول":"Product ID"}: {product.id}</span><i/><span>{rtl?category.fa:category.en}</span></div>
         <p className="detail-description">{product.description}</p>
-        <div className="detail-highlights"><div><ShieldCheck/><span><b>{rtl?"اطلاعات شفاف":"Clear information"}</b><small>{rtl?"اطلاعات محصول در کاتالوگ GlobalCart ثبت شده است.":"Product information is listed in the GlobalCart catalog."}</small></span></div><div><Truck/><span><b>{rtl?"تجربه خرید نمایشی":"Demo shopping experience"}</b><small>{rtl?"بدون ارسال یا موجودی واقعی":"No real shipping or inventory"}</small></span></div></div>
+        <div className="detail-highlights"><div><ShieldCheck/><span><b>{rtl?"اطلاعات شفاف":"Clear information"}</b><small>{rtl?"قیمت این محصول تخمینی است و قیمت فروشنده نیست.":"This product price is estimated, not a retailer quote."}</small></span></div><div><Truck/><span><b>{rtl?"تجربه خرید نمایشی":"Demo shopping experience"}</b><small>{rtl?"بدون ارسال یا موجودی واقعی":"No real shipping or inventory"}</small></span></div></div>
         <div className="detail-specs"><div><span>{rtl?"دسته‌بندی":"Category"}</span><b>{rtl?category.fa:category.en}</b></div><div><span>{rtl?"برند":"Brand"}</span><b>{product.brand||"Global Select"}</b></div><div><span>{rtl?"امتیاز نمونه":"Sample rating"}</span><b>{product.ratingAvailable===false?(rtl?"ثبت نشده":"Not provided"):product.rating.toFixed(1)+" / 5"}</b></div><div><span>{rtl?"وضعیت موجودی":"Availability"}</span><b>{product.stockAvailable===false?(rtl?"ثبت نشده":"Not provided"):product.stock}</b></div></div>
       </div>
       <aside className="detail-buybox">
-        <span className="buybox-kicker">{rtl?"قیمت محصول":"PRODUCT PRICE"}</span>
+        <span className="buybox-kicker">{rtl?"قیمت تخمینی · نمایشی":"ESTIMATED · DEMO PRICE"}</span>
         <div className="detail-price">{product.priceAvailable===false?(rtl?"قیمت ثبت نشده":"Price not listed"):priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
         {product.priceAvailable===false
           ? <p className="price-breakdown">{rtl?"قیمت این کالا هنوز در کاتالوگ ثبت نشده است.":"A price has not been listed for this product yet."}</p>
           : <><div className="detail-old-price"><s>{format(product.price)}</s><span>{rtl?"قیمت قبل از تخفیف":"Before discount"}</span></div>
         <details className="price-breakdown"><summary>{rtl?"منبع و جزئیات نرخ تبدیل":"FX source and calculation"}</summary>
-          <div><span>{rtl?"قیمت منبع (USD)":"Source catalog price (USD)"}</span><b>${product.price.toFixed(2)}</b></div>
-          <div><span>{rtl?"تخفیف نمونه":"Catalog sample discount"}</span><b>{product.discountPercentage.toFixed(2)}%</b></div>
+          <div><span>{rtl?"مبنای تخمینی (USD)":"Estimated base price (USD)"}</span><b>${product.price.toFixed(2)}</b></div>
+          <div><span>{rtl?"تخفیف":"Discount"}</span><b>{product.discountPercentage.toFixed(2)}%</b></div>
           {priceBreakdown?<>
             <div><span>{rtl?"نرخ دلار آزاد TGJU (ریال به تومان)":"TGJU free-market USD rate (Rial to Toman)"}</span><b>{new Intl.NumberFormat(rtl?"fa-IR":"en-US",{maximumFractionDigits:0}).format(priceBreakdown.fxRate)} {rtl?"تومان / دلار":"Toman / USD"}</b></div>
             <div><span>{rtl?"نشانگر به‌روزرسانی TGJU":"TGJU source update marker"}</span><b>{fxTimestampLabel??fxStatusLabel}</b></div>
-            <small>{rtl?"مبنای تبدیل، قیمت ثبت‌شدهٔ دلار بازار آزاد در صفحهٔ TGJU است که از ریال به تومان تبدیل شده. این عدد نرخ بانکی یا پیشنهاد قطعی خریدوفروش نیست.":"Conversion uses the free-market USD price displayed by TGJU, normalized from Rial to Toman. It is indicative, not a bank rate or executable buy/sell offer."}</small>
+            <small>{rtl?"نرخ تبدیل دلار از دادهٔ TGJU گرفته می‌شود؛ خود قیمت کالا تخمینی و غیرقابل استناد برای خرید واقعی است.":"The USD conversion rate comes from TGJU; the product price itself is an estimate and is not a real purchase quote."}</small>
             {fxStatus!=="fresh"&&<small className="fx-warning">{rtl?"هشدار تازگی نرخ: "+fxStatusLabel:"FX freshness warning: "+fxStatusLabel}</small>}
           </>:<small>{rtl?"نرخ معتبر دلار TGJU فعلاً در دسترس نیست؛ مبلغ اصلی به دلار نمایش داده می‌شود.":"A valid TGJU dollar quote is currently unavailable, so the source USD price is shown."}</small>}
           <small>{rtl?"قیمت‌ها نمایشی‌اند و شامل هزینه ارسال، مالیات، کارمزد پرداخت یا تعهد خرید نیستند.":"Demo prices only; no shipping, tax, payment fees or purchase commitment are included."}</small>
