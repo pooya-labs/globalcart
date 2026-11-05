@@ -1871,3 +1871,19 @@ body{background:#f7f8f5;color:var(--ink)}
   align-self:center;
   padding:0;
 }
+
+
+/* Keep long product-title links from crowding card purchase controls. */
+.storefront-v2 .product-details h3{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+  min-height:3.8em;
+  max-height:3.8em;
+  margin-block:7px 20px;
+  line-height:1.7;
+}
+.storefront-v2 .product-details h3 a{
+  display:inline;
+}
