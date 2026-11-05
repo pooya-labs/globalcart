@@ -27,6 +27,11 @@ for (const viewport of ["chromium-desktop", "chromium-mobile"]) {
       }).length
     ), { timeout: 30_000 }).toBe(8);
 
+    // naturalWidth can be available before the decoded pixels are painted.
+    await images.evaluateAll(nodes => Promise.all(
+      nodes.slice(0, 8).map(node => (node as HTMLImageElement).decode())
+    ));
+
     const metrics = await images.evaluateAll(nodes => nodes.slice(0, 8).map((node, index) => {
       const image = node as HTMLImageElement;
       const media = image.closest(".product-media")!;
