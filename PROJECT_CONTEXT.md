@@ -1,5 +1,26 @@
 # GlobalCart — Project Context / Single Source of Truth
 
+**Owner:** Pooya Goodarzi
+**Repository:** https://github.com/pooya-labs/globalcart
+**Canonical branch:** `main` only
+**Canonical preview:** https://pooya-labs.github.io/globalcart/
+**Package version:** `0.2.3-dev`
+**Last updated:** 2026-11-05
+
+## Latest continuation checkpoint — M09.6 gallery publication and card-accessibility QA complete (2026-11-05)
+
+- Current main at checkpoint: [`4ac4d39`](https://github.com/pooya-labs/globalcart/commit/4ac4d39c18268a4a2b1bbce32c4c90e531e15526). The newest commit only publishes updated desktop/mobile portfolio screenshots; the tested application code remains the same.
+- M09.6 full catalog publication is complete. The committed snapshot contains **1,000 unique products**, **914 products with alternate images**, **4,890 unique referenced product images**, and **4,895 self-hosted WebP files** (258.38 MiB total, below the 320 MiB budget). Every catalog image reference resolves to a committed file; no missing references. Five unreferenced WebP files remain as small import leftovers and are not loaded by the catalog.
+- Browser E2E [run 42057166843](https://github.com/pooya-labs/globalcart/actions/runs/42057166843) passed **124 tests / 7 intentional project-scoped skips / 0 failures**. TypeScript validation, all 108 unit tests, static GitHub Pages build, and the full desktop/mobile browser journeys passed in the same job. The touch-target regression was resolved by keeping product-card purchase controls at 44×44 px, aligning card details/actions, and clamping titles to two lines with clear separation from the purchase row.
+- Security [run 42057166811](https://github.com/pooya-labs/globalcart/actions/runs/42057166811) passed. Pages deployment [run 42057166890](https://github.com/pooya-labs/globalcart/actions/runs/42057166890) passed its public homepage, base-path asset, product-detail, and case-study smoke tests.
+- Shopify catalog smoke [run 42057531442](https://github.com/pooya-labs/globalcart/actions/runs/42057531442) passed on the refreshed catalog snapshot. Public Lighthouse 13.6.0 [run 42057531211](https://github.com/pooya-labs/globalcart/actions/runs/42057531211) passed all six mobile/desktop route reports and all regression budgets. Performance scores: mobile home/product/case-study **90/97/99**, desktop **100/100/100**; Accessibility, Best Practices, and SEO were **100 in all six reports**. Mobile LCP: 3.3 s / 2.4 s / 1.1 s; TBT: 180 ms / 130 ms / 100 ms; CLS: 0 / 0 / 0.009. These are GitHub-hosted lab measurements, not field Core Web Vitals or physical-device results.
+- Updated portfolio screenshots (storefront home and bilingual case study, desktop/mobile) were published successfully in [run 42058141302](https://github.com/pooya-labs/globalcart/actions/runs/42058141302), then committed to `docs/screenshots/` at the current main head.
+- Do not repeat the old CSS/test fixes or re-import the completed gallery set without a concrete regression. Continue on `main` only; no extra feature branch or duplicate PR.
+- Remaining release gates are owner visual approval of the M09.5 storefront redesign, physical-device verification, actual platform screen-reader review, human RTL/LTR inspection, and normal-network/CDN plus eligible field evidence. Keep `0.2.3-dev`; do not create/tag `1.0.0` until those gates are approved and resolved.
+
+---
+
+
 **Owner:** Pooya Goodarzi  
 **Repository:** https://github.com/pooya-labs/globalcart  
 **Branch:** main (M04 backend foundation merged; PR #1 closed 2026-11-02)  
