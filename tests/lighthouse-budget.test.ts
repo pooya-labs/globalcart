@@ -33,7 +33,7 @@ test("rejects LCP, TBT and CLS values above their respective mode budgets", () =
       "cumulative-layout-shift": { numericValue: 0.101 }
     }
   });
-  const errors = evaluateLighthouseReport(result, "product-1-mobile.json");
+  const errors = evaluateLighthouseReport(result, "product-1554130194-mobile.json");
   assert.equal(errors.length, 3);
   assert.match(errors.join("\n"), /LCP 4001 ms exceeds 4000 ms mobile budget/);
   assert.match(errors.join("\n"), /TBT 301 ms exceeds 300 ms mobile budget/);
@@ -79,13 +79,26 @@ test("fails closed when an essential metric or category is missing", () => {
 test("requires the complete six-route desktop/mobile report matrix", () => {
   const all = [
     "home-mobile.json", "home-desktop.json",
-    "product-1-mobile.json", "product-1-desktop.json",
+    "product-1554130194-mobile.json", "product-1554130194-desktop.json",
     "case-study-mobile.json", "case-study-desktop.json"
   ];
   assert.deepEqual(validateLighthouseReportSet(all), []);
   assert.match(validateLighthouseReportSet(all.slice(0, 5)).join("\n"), /Missing Lighthouse report: case-study-desktop.json/);
   assert.match(validateLighthouseReportSet([...all, all[0]]).join("\n"), /Duplicate Lighthouse report: home-mobile.json/);
   assert.match(validateLighthouseReportSet(["unknown-mobile.json"]).join("\n"), /Unexpected Lighthouse report: unknown-mobile.json/);
+});
+
+test("requires one consistent numeric product ID across mobile and desktop reports", () => {
+  const all = [
+    "home-mobile.json", "home-desktop.json",
+    "product-1554130194-mobile.json", "product-1554130194-desktop.json",
+    "case-study-mobile.json", "case-study-desktop.json"
+  ];
+  assert.deepEqual(validateLighthouseReportSet(all), []);
+  const mixed = all.map(name => name === "product-1554130194-desktop.json"
+    ? "product-719281743-desktop.json"
+    : name);
+  assert.match(validateLighthouseReportSet(mixed).join("\n"), /Inconsistent Lighthouse product route IDs/);
 });
 
 test("rejects unrecognized report filenames", () => {
