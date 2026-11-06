@@ -47,6 +47,33 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
 });
 
+test("home merchandising is category-balanced and product cards keep Persian context beside the source title", async ({ page }) => {
+  await expect(page.locator(".hero-product-collage .hero-product-tile")).toHaveCount(3);
+  await expect(page.locator(".category-tile svg")).toHaveCount(8);
+  await expect(page.locator(".product-title-fa").first()).toBeVisible();
+  await expect(page.locator(".product-title-original").first()).toBeVisible();
+  const categories = await page.locator(".product-card").evaluateAll(cards =>
+    cards.map(card => card.getAttribute("data-category")).filter((value): value is string => Boolean(value))
+  );
+  expect(new Set(categories).size).toBeGreaterThanOrEqual(8);
+  const titles = await page.locator(".product-title-original").allTextContents();
+  expect(titles).toHaveLength(36);
+  expect(titles.join(" ")).not.toMatch(/medicine|cold\\s*(?:and|&)\\s*flu|saline|hand sanitizer|baby wipes|peroxide cleaner|ice cream|printer ink|ipod/i);
+});
+
+test("mobile product filters open as a contained bottom sheet and close on demand", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator(".filter-toggle").click();
+  const panel = page.locator(".filter-panel");
+  await expect(page.locator(".filter-backdrop")).toBeVisible();
+  await expect(panel).toHaveAttribute("role", "dialog");
+  await expect(panel).toHaveAttribute("aria-modal", "true");
+  expect(await panel.evaluate(element => getComputedStyle(element).position)).toBe("fixed");
+  await panel.locator(".filter-close").click();
+  await expect(panel).not.toHaveClass(/filter-visible/);
+  await expect(page.locator(".filter-backdrop")).toHaveCount(0);
+});
+
 test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
   // All catalog and editorial imagery is self-hosted with the static export.
   await page.reload();
