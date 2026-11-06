@@ -73,8 +73,8 @@ jobs:
               if (!image.endsWith(".webp")) throw new Error(`Catalog image was not optimized to WebP: ${image}`);
               totalImages += 1;
             }
-            if (product.priceAvailable !== false || product.ratingAvailable !== false || product.stockAvailable !== false) {
-              throw new Error(`Unavailable commercial fields must remain explicitly marked as unavailable: ${product.sourceId}`);
+            if (product.priceAvailable !== false || product.priceKind !== "estimated" || !Number.isFinite(product.price) || product.price <= 0 || product.ratingAvailable !== false || product.stockAvailable !== false) {
+              throw new Error(`Expected a positive local estimate while source price, rating and stock remain unverified: ${product.sourceId}`);
             }
           }
           const galleryProducts = products.filter(item => Array.isArray(item.images) && item.images.length > 0);
@@ -82,7 +82,7 @@ jobs:
           const product = galleryProducts[0];
           fs.appendFileSync(process.env.GITHUB_OUTPUT,
             `product_id=${product.id}\nimage_path=${product.thumbnail}\ngallery_image_path=${product.images[0]}\n`);
-          console.log(`Validated ${products.length} product listings, ${galleryProducts.length} multi-image galleries and ${totalImages} distinct local gallery images.`);
+          console.log(`Validated ${products.length} listings with stable local price estimates, ${galleryProducts.length} multi-image galleries and ${totalImages} distinct local gallery images; source prices, ratings and stock remain unverified.`);
           NODE
       - name: Persist refreshed catalog snapshot, site imagery and npm lockfile safely
         shell: bash
