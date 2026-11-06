@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect, type Page } from "@playwright/test";
+import { getPersianProductCopy } from "../lib/catalog/editorial";
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 test.beforeEach(async ({ page }) => {
@@ -129,7 +130,9 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
   const productId = Number((await productLink.getAttribute("href"))?.split("/").filter(Boolean).pop());
   expect(productId).toBeGreaterThan(0);
   await productLink.click();
-  await expect(page.locator(".detail-information h1")).toHaveText(productTitle);
+  const localizedCopy=getPersianProductCopy(productId);
+  await expect(page.locator(".detail-information h1")).toHaveText(localizedCopy?.title??productTitle);
+  if(localizedCopy) await expect(page.locator(".product-source-title")).toHaveText(productTitle);
   await page.waitForFunction((id: number) => {
     try {
       const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
@@ -172,8 +175,11 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
 test("static product detail page meets WCAG 2.1 AA automated checks", async ({ page }) => {
   const productLink = page.locator(".product-card h3 a").first();
   const productTitle = await productLink.innerText();
+  const productId = Number((await productLink.getAttribute("href"))?.split("/").filter(Boolean).pop());
   await productLink.click();
-  await expect(page.locator(".detail-information h1")).toHaveText(productTitle);
+  const localizedCopy=getPersianProductCopy(productId);
+  await expect(page.locator(".detail-information h1")).toHaveText(localizedCopy?.title??productTitle);
+  if(localizedCopy) await expect(page.locator(".product-source-title")).toHaveText(productTitle);
   await expectNoWcagViolations(page);
 });
 
