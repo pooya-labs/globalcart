@@ -1,5 +1,18 @@
 # GlobalCart — Project Context / Single Source of Truth
 
+## Latest continuation checkpoint — 2026-11-06 (M09.8 portfolio polish in progress)
+
+- Canonical repository/branch: `pooya-labs/globalcart`, `main` only. Keep `0.2.3-dev`; no production commerce scope is being added.
+- The homepage now has three catalog-backed editorial rails (workspace, audio/connectivity, everyday carry) with 12 selected products, reviewed Persian titles and short Persian descriptions. Original source titles remain visible on product detail for provenance.
+- Persian editorial copy is applied to repeated surfaces including PDP, quick view, cards/rails, comparison, favorites, cart and browsing history where an approved translation exists. Other catalog entries retain their original source language.
+- Empty cart, favorites and search states keep guided copy. The cart and checkout repeat the no-real-payment disclosure. TGJU freshness is also shown beside the cart subtotal.
+- PDP-only CSS is loaded through the product route layout instead of the global storefront stylesheet. Live Pages image alignment checks now run after a successful deployment rather than during the deploy's own E2E job.
+- Last pre-fix Browser E2E baseline [42229086262](https://github.com/pooya-labs/globalcart/actions/runs/42229086262): 104 passed / 32 failed. The failures identified accessible-name/contrast issues, test assertions that assumed every PDP heading stayed English, the 125 KB initial CSS budget, duplicate mobile filter names, and a live Pages/deploy race.
+- M09.8 implementation fixes have been committed, but a fresh E2E, axe, stylesheet-budget and Lighthouse pass is still required. Do not call CI green until new evidence is available.
+- Physical-device, actual screen-reader and comprehensive human RTL/LTR QA remain manual 1.0.0 gates.
+
+---
+
 ## Latest continuation checkpoint — 2026-11-06 (M09.7 in progress)
 
 - Canonical repository and branch: `pooya-labs/globalcart`, `main` only. Keep package version `0.2.3-dev`.
