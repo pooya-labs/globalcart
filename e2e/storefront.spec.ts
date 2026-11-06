@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import catalogSnapshot from "../data/catalog.json";
 import { buildCatalogSuggestions } from "../lib/catalog/suggestions";
+import { getPersianProductCopy } from "../lib/catalog/editorial";
 import fxSnapshot from "../data/fx-rate.json";
 import { getFxRateStatus, type FxRateSnapshot } from "../lib/fx/tgju";
 
@@ -47,9 +48,13 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
 });
 
-test("home merchandising is category-balanced and product cards keep Persian context beside the source title", async ({ page }) => {
+test("home merchandising is curated, category-balanced and bilingual", async ({ page }) => {
   await expect(page.locator(".hero-product-collage .hero-product-tile")).toHaveCount(3);
-  await expect(page.locator(".category-tile svg")).toHaveCount(8);
+  await expect(page.locator('.hero-product-tile[href*="/product/601270869"]')).toHaveCount(1);
+  await expect(page.locator('.hero-product-tile[href*="/product/344744539"]')).toHaveCount(1);
+  await expect(page.locator('.hero-product-tile[href*="/product/2039335072"]')).toHaveCount(1);
+  const categoryTiles=page.locator(".category-strip .category-tile");
+  await expect(categoryTiles.locator(".category-symbol svg")).toHaveCount(await categoryTiles.count());
   await expect(page.locator(".product-title-fa").first()).toBeVisible();
   await expect(page.locator(".product-title-original").first()).toBeVisible();
   const categories = await page.locator(".product-card").evaluateAll(cards =>
@@ -72,6 +77,16 @@ test("mobile product filters open as a contained bottom sheet and close on deman
   await panel.locator(".filter-close").click();
   await expect(panel).not.toHaveClass(/filter-visible/);
   await expect(page.locator(".filter-backdrop")).toHaveCount(0);
+});
+
+test("curated Persian product detail shows a localized title, concise copy and original source title", async ({ page }) => {
+  const response=await page.goto("./product/601270869/");
+  expect(response?.status()).toBe(200);
+  await expect(page.locator("main.product-page")).toHaveAttribute("dir","rtl");
+  await expect(page.locator(".detail-information h1")).toHaveText("پایه نگهدارنده لپ‌تاپ");
+  await expect(page.locator(".product-source-title")).toContainText("Laptop Stand");
+  await expect(page.locator(".detail-description-panel p")).toContainText("پایه‌ای جمع‌وجور");
+  await expect(page.locator(".detail-source-note")).toContainText("Amazon Berkeley Objects");
 });
 
 test("captures the redesigned storefront shell for desktop and mobile visual review", async ({ page }, testInfo) => {
@@ -289,7 +304,7 @@ test("labels date-only TGJU quotes as stale and keeps unprovided product facts e
   await expect(page.locator(".detail-buybox details.price-breakdown")).toContainText("Estimated base price (USD)");
   await expect(page.locator(".detail-rating")).toContainText("No rating supplied");
   await expect(page.locator(".buybox-stock")).toContainText("Stock not listed");
-  await expect(page.locator(".detail-buybox details.price-breakdown")).toHaveCount(0);
+  await expect(page.locator(".detail-buybox details.price-breakdown")).toHaveCount(1);
 });
 
 test("shows the TGJU quote and keeps missing catalog commerce fields honest", async ({ page }) => {
@@ -311,7 +326,10 @@ test("shows the TGJU quote and keeps missing catalog commerce fields honest", as
   await expect(page).toHaveURL(new RegExp("/product/" + opened.id + "/?$"));
   await expect(page.locator("main.product-page")).toHaveAttribute("dir", "ltr");
   await expect(page.locator(".detail-information h1")).toHaveText(opened.title);
-  await expect(page.locator(".detail-price")).toContainText("Price not listed");
+  await expect(page.locator(".detail-price")).toBeVisible();
+  await expect(page.locator(".buybox-kicker")).toContainText("ESTIMATED · DEMO PRICE");
+  await expect(page.locator(".detail-buybox details.price-breakdown")).toBeVisible();
+  await expect(page.locator(".detail-source-note")).toContainText("Amazon Berkeley Objects");
   await expect(page.locator(".detail-rating")).toContainText("No rating supplied");
   await expect(page.locator(".buybox-stock")).toContainText("Stock not listed");
   await expect(page.locator('a[href*="amazon."]')).toHaveCount(0);
@@ -389,7 +407,7 @@ test("cart and checkout remain a clearly simulated local flow", async ({ page })
 
   await page.getByRole("button", { name: "Continue to demo checkout" }).click();
   await expect(page.getByRole("heading", { name: "Demo checkout" })).toBeVisible();
-  await expect(page.locator(".checkout-warning")).toContainText("Real payments are disabled");
+  await expect(page.locator(".checkout-warning")).toContainText("No real payment is processed");
   await page.getByRole("button", { name: "Place demo order" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Demo order created" })).toBeVisible();
 });
@@ -503,7 +521,7 @@ test("recently viewed clear action matches shared history controls and clears lo
 
   const history = page.locator("main.history-page");
   await expect(history).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
-  const clear = history.getByRole("button", { name: "Clear history" });
+  const clear = history.locator(".history-clear");
   await expect(clear).toBeVisible();
 
   const styles = await page.evaluate(() => {
@@ -535,7 +553,7 @@ test("active catalog filter chips remove one facet or clear the complete filter 
 
   const brand = page.locator(".facet-select-group select").first();
   await brand.selectOption({ index: 1 });
-  if (isMobile) await page.getByRole("button", { name: "Close filters" }).click();
+  if (isMobile) await page.locator(".filter-panel .filter-close").click();
   await expect(page.locator(".active-filter-bar")).toBeVisible();
   await expect(page.locator(".active-filter-chip")).toContainText(await brand.locator("option:checked").textContent() ?? "");
 
@@ -544,7 +562,7 @@ test("active catalog filter chips remove one facet or clear the complete filter 
   if (isMobile) await page.getByRole("button", { name: "Filters" }).click();
   await brand.selectOption({ index: 1 });
   await page.locator(".facet-select-group select").nth(1).selectOption("4");
-  if (isMobile) await page.getByRole("button", { name: "Close filters" }).click();
+  if (isMobile) await page.locator(".filter-panel .filter-close").click();
   await expect(page.locator(".active-filter-chip")).toHaveCount(2);
   await page.getByRole("button", { name: "Clear all" }).click();
   await expect(page.locator(".active-filter-bar")).toBeHidden();
@@ -562,7 +580,7 @@ test("mobile filter sheet has a clear close action", async ({ page }) => {
   await page.getByRole("button", { name: "Filters" }).click();
   const panel = page.locator(".filter-panel.filter-visible");
   await expect(panel).toBeVisible();
-  await page.getByRole("button", { name: "Close filters" }).click();
+  await page.locator(".filter-panel .filter-close").click();
   await expect(page.locator(".filter-panel.filter-visible")).toHaveCount(0);
 });
 
