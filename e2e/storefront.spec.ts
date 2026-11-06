@@ -578,7 +578,8 @@ test("recently viewed clear action matches shared history controls and clears lo
 
   await clear.click();
   await expect(history.locator(".history-clear")).toHaveCount(0);
-  await expect(history.getByText("No recently viewed products yet")).toBeVisible();
+  await expect(history).toHaveAttribute("dir", "rtl");
+  await expect(history.getByText("هنوز محصولی بازدید نکرده‌ای")).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
     return Array.isArray(state.recent) && state.recent.length === 0;

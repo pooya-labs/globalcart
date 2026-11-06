@@ -748,7 +748,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
           <div className="hero-image-stamp"><span>01</span><b>{rtl?"کشف کن":"DISCOVER"}</b><i></i><b>{rtl?"مقایسه کن":"COMPARE"}</b><i></i><b>{rtl?"انتخاب کن":"CHOOSE"}</b></div>
           <span className="hero-image-coordinate">36° 17′ N / 59° 36′ E</span>
           <div className="hero-product-collage" role="group" aria-label={rtl?"سه انتخاب هماهنگ برای فضای کار":"Three curated workspace picks"}>
-            {heroProducts.map(product=><Link href={`/product/${product.id}`} className="hero-product-tile" key={product.id} aria-label={rtl?"مشاهدهٔ "+(getPersianProductCopy(product.id)?.title??product.title):"View "+product.title}>
+            {heroProducts.map(product=><Link href={`/product/${product.id}`} className="hero-product-tile" key={product.id} aria-label={rtl?(getPersianProductCopy(product.id)?.title??product.title):product.title}>
               <span className="hero-product-image"><img src={catalogImageSrc(product.thumbnail)} alt="" width={96} height={96} loading="lazy" decoding="async"/></span>
               <span className="hero-product-meta"><small>{rtl?"تجهیزات فضای کار":"WORKSPACE EDIT"}</small><b dir="auto">{rtl?(getPersianProductCopy(product.id)?.title??product.title):product.title}</b></span>
             </Link>)}
