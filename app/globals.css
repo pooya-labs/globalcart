@@ -2003,7 +2003,7 @@ body{background:#f7f8f5;color:var(--ink)}
 .product-source-title{margin:-3px 0 12px;color:#829087;font-size:10px;line-height:1.7;overflow-wrap:anywhere}
 .detail-source-note{display:block;margin-top:14px;color:#7d897f;font-size:10px;line-height:1.8}
 .detail-source-note a{color:#28624b;text-decoration:underline;text-underline-offset:3px}
-.storefront-v2 .merchandising-item img{aspect-ratio:1/1;object-fit:contain;background:#f5f7f3}
+.storefront-v2 .merchandising-item img{height:auto;aspect-ratio:1/1;object-fit:contain;background:#f5f7f3}
 .storefront-v2 .merchandising-item b{font-size:10px;line-height:1.65}
 @media(hover:none){.storefront-v2 .quick-view{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.storefront-v2 .product-card,.storefront-v2 .save-button,.storefront-v2 .product-price button{transition:none}}
