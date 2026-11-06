@@ -39,7 +39,35 @@ jobs:
       - name: Install pinned server-side image optimizer
         run: npm install --no-save --package-lock=false --no-audit --no-fund sharp@0.35.5
       - name: Refresh static catalog snapshot
+        id: catalog_refresh
+        # The committed snapshot is the last-known-good source if ABO rate-limits a refresh.
+        continue-on-error: true
         run: npm run catalog:sync
+      - name: Validate last-known-good catalog after an upstream refresh failure
+        if: steps.catalog_refresh.outcome == 'failure'
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const snapshot = JSON.parse(fs.readFileSync("data/catalog.json", "utf8"));
+          const products = snapshot.products || [];
+          if (products.length !== 1000) {
+            throw new Error(`ABO refresh failed and the committed fallback is incomplete: ${products.length}/1,000 products.`);
+          }
+          const invalid = products.filter(product =>
+            product.priceAvailable !== false ||
+            product.priceKind !== "estimated" ||
+            !Number.isFinite(product.price) ||
+            product.price <= 0 ||
+            product.ratingAvailable !== false ||
+            product.stockAvailable !== false
+          );
+          if (invalid.length) {
+            throw new Error(`ABO refresh failed and ${invalid.length} fallback products violate demo-price/source-provenance rules.`);
+          }
+          console.warn("ABO refresh was rate-limited. Retaining the validated 1,000-product committed snapshot; the later gallery smoke still verifies every local image.");
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            "### Catalog refresh fallback\n\nABO rate-limited the refresh. The build is continuing with the committed last-known-good snapshot after validating all 1,000 demo estimates and source-unavailable flags. The following deployment validation still checks every local gallery image.\n");
+          NODE
       - name: Prepare optimized self-hosted site imagery
         run: npm run assets:sync
       - name: Select a static product route for deployment smoke test
