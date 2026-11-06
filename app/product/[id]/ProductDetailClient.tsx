@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
-import { calculateDemoPrice } from "../../../lib/pricing";
+import { calculateDemoPrice, hasDisplayPrice } from "../../../lib/pricing";
 import fxSnapshot from "../../../data/fx-rate.json";
 const fxQuote = fxSnapshot as unknown as FxRateSnapshot;
 import { getFxRateStatus, type FxRateStatus, type FxRateSnapshot } from "../../../lib/fx/tgju";
@@ -79,8 +79,8 @@ export default function ProductDetailClient({product,related}:Props) {
   const previousImage=()=>setActiveImage(index=>(index+images.length-1)%images.length);
   const nextImage=()=>setActiveImage(index=>(index+1)%images.length);
   const discounted=product.price*(1-product.discountPercentage/100);
-  const hasDisplayPrice=product.priceKind==="estimated"||product.priceAvailable!==false;
-  const priceBreakdown=!hasDisplayPrice||rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
+  const productHasDisplayPrice=hasDisplayPrice(product);
+  const priceBreakdown=!productHasDisplayPrice||rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
   const fxTimestampLabel=fxQuote.sourceTimeKind==="date_only"&&fxQuote.sourceTimeTehran
     ?(rtl?fxQuote.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxQuote.sourceTimeTehran)
@@ -139,7 +139,7 @@ export default function ProductDetailClient({product,related}:Props) {
       <div className="detail-gallery">
         <div className="detail-main-image">
           <img src={catalogImageSrc(image)} alt={product.title+" - "+String(activeImage+1)} loading="eager" fetchPriority="high" decoding="async" width={1440} height={1440}/>
-          {hasDisplayPrice&&product.discountPercentage>0&&<span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span>}
+          {productHasDisplayPrice&&product.discountPercentage>0&&<span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span>}
           {images.length>1&&<>
             <button type="button" className="gallery-arrow gallery-arrow-prev" onClick={previousImage} aria-label={rtl?"تصویر قبلی":"Previous image"}>{rtl?<ChevronRight size={21}/>:<ChevronLeft size={21}/>}</button>
             <button type="button" className="gallery-arrow gallery-arrow-next" onClick={nextImage} aria-label={rtl?"تصویر بعدی":"Next image"}>{rtl?<ChevronLeft size={21}/>:<ChevronRight size={21}/>}</button>
@@ -158,7 +158,7 @@ export default function ProductDetailClient({product,related}:Props) {
       </div>
       <aside className="detail-buybox">
         <span className="buybox-kicker">{rtl?"قیمت تخمینی · نمایشی":"ESTIMATED · DEMO PRICE"}</span>
-        <div className="detail-price">{!hasDisplayPrice?(rtl?"قیمت ثبت نشده":"Price not listed"):priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
+        <div className="detail-price">{!productHasDisplayPrice?(rtl?"قیمت ثبت نشده":"Price not listed"):priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
         {(rate===null||fxStatus!=="fresh")&&<small className={`detail-fx-status ${fxStatus}`} role="status">{rtl?"وضعیت نرخ TGJU: "+fxStatusLabel:"TGJU rate: "+fxStatusLabel}</small>}
         {!hasDisplayPrice
           ? <p className="price-breakdown">{rtl?"قیمت این کالا هنوز در کاتالوگ ثبت نشده است.":"A price has not been listed for this product yet."}</p>
@@ -183,7 +183,7 @@ export default function ProductDetailClient({product,related}:Props) {
       </aside>
     </section>
     <section className="detail-description-panel"><span className="section-kicker">PRODUCT OVERVIEW</span><h2>{rtl?"درباره محصول":"About this product"}</h2><p>{rtl&&localizedCopy?localizedCopy.description:product.description}</p><small className="detail-source-note">{rtl?"منبع اطلاعات و تصاویر: Amazon Berkeley Objects · مجوز CC BY 4.0":"Product metadata and imagery: Amazon Berkeley Objects · CC BY 4.0"} · <a href="https://github.com/pooya-labs/globalcart/blob/main/data/CATALOG_SOURCE.md" target="_blank" rel="noreferrer">{rtl?"جزئیات منبع":"Source details"}</a></small><div><span>{rtl?"شناسه محصول":"Product ID"}</span><b>GC-{product.id}</b><span>{rtl?"قیمت":"Price"}</span><b>{format(discounted)}</b></div></section>
-    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={catalogImageSrc(item.thumbnail)} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{rtl?(getPersianProductCopy(item.id)?.title??item.title):item.title}</b><strong>{!(item.priceKind==="estimated"||item.priceAvailable!==false)?(rtl?"قیمت ثبت نشده":"Price not listed"):format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
+    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={catalogImageSrc(item.thumbnail)} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{rtl?(getPersianProductCopy(item.id)?.title??item.title):item.title}</b><strong>{!hasDisplayPrice(item)?(rtl?"قیمت ثبت نشده":"Price not listed"):format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
     <footer className="product-page-footer"><Link href="/">globalcart</Link><span>{rtl?"پروژه مستقل نمایشی · توسعه و طراحی پویا گودرزی":"Independent portfolio demo · Designed & built by Pooya Goodarzi"}</span></footer>
   </main>;
 }

@@ -1,3 +1,25 @@
+export type DisplayablePrice = {
+  price: number;
+  priceAvailable?: boolean;
+  priceKind?: "estimated" | "verified";
+};
+
+/**
+ * A positive local estimate is displayable even when the source did not
+ * provide a verified seller price. Legacy snapshots may omit priceKind,
+ * so priceAvailable=false alone must not hide an existing estimate.
+ */
+export function hasDisplayPrice(product: DisplayablePrice): boolean {
+  if (!Number.isFinite(product.price) || product.price <= 0) return false;
+  if (product.priceKind === "verified") return product.priceAvailable !== false;
+  return true;
+}
+
+/** True whenever the amount is illustrative rather than source-verified. */
+export function isEstimatedPrice(product: DisplayablePrice): boolean {
+  return product.priceKind === "estimated" || product.priceAvailable === false;
+}
+
 export type PricingInput = {
   sourcePrice: number;
   fxRate: number;

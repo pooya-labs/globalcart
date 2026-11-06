@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateDemoPrice } from "../lib/pricing";
+import { calculateDemoPrice, hasDisplayPrice, isEstimatedPrice } from "../lib/pricing";
 
 test("applies discount before converting to Toman", () => {
   assert.deepEqual(calculateDemoPrice({ sourcePrice: 100, fxRate: 70000, discountPercentage: 10 }), {
@@ -25,4 +25,21 @@ test("rejects invalid, non-finite and out-of-range inputs", () => {
   assert.throws(() => calculateDemoPrice({ sourcePrice: 1, fxRate: 0 }), RangeError);
   assert.throws(() => calculateDemoPrice({ sourcePrice: 1, fxRate: 1000, discountPercentage: Number.NaN }), RangeError);
   assert.throws(() => calculateDemoPrice({ sourcePrice: Number.MAX_VALUE, fxRate: 1000 }), RangeError);
+});
+
+
+test("keeps positive legacy demo estimates visible even when source price is unavailable", () => {
+  const legacyEstimate = { price: 42.5, priceAvailable: false };
+  assert.equal(hasDisplayPrice(legacyEstimate), true);
+  assert.equal(isEstimatedPrice(legacyEstimate), true);
+});
+
+test("does not show missing or invalid prices as estimates", () => {
+  assert.equal(hasDisplayPrice({ price: 0, priceAvailable: false }), false);
+  assert.equal(hasDisplayPrice({ price: Number.NaN, priceAvailable: false }), false);
+  assert.equal(hasDisplayPrice({ price: Number.POSITIVE_INFINITY, priceAvailable: false }), false);
+});
+
+test("does not show a conflicting verified price when its source flag is false", () => {
+  assert.equal(hasDisplayPrice({ price: 42.5, priceKind: "verified", priceAvailable: false }), false);
 });
