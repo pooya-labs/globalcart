@@ -35,7 +35,7 @@ async function openFirstVisibleProduct(page: Page) {
 
 async function loadCatalogForTest(page: Page) {
   await page.locator(".catalog-section").scrollIntoViewIfNeeded();
-  await loadCatalogForTest(page);
+  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
   await page.evaluate(() => {
     const root = document.documentElement;
     const previousBehavior = root.style.scrollBehavior;
@@ -57,7 +57,7 @@ test.beforeEach(async ({ page }) => {
   });
   await page.goto("./");
   await expect(page.locator(".product-card").first()).toBeVisible();
-  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
+  await loadCatalogForTest(page);
 });
 
 test("home merchandising is curated, category-balanced and bilingual", async ({ page }) => {
