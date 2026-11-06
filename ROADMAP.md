@@ -3,7 +3,7 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.7 — catalog estimate provenance and CI stabilization. The estimate implementation, TypeScript, unit tests, static build and security scan have passed; the corrected Browser E2E rerun and mobile Lighthouse budget remain open.  
+**Active stage:** M09.8 — portfolio polish and editorial storefront; implementation is underway and full verification remains pending. The estimate implementation, TypeScript, unit tests, static build and security scan have passed; the corrected Browser E2E rerun and mobile Lighthouse budget remain open.  
 - Latest mainline catalog: 1,000 products, each with a positive, deterministic GlobalCart demo estimate; all 1,000 still have `priceAvailable: false` because ABO does not provide verified seller prices. Ratings and stock remain unlisted. The estimate must never be described as a retailer quote.
 - The previous GitHub Pages build/deploy [42210911755](https://github.com/pooya-labs/globalcart/actions/runs/42210911755) passed its public homepage, base-path asset, product and case-study smoke. Security [42210911735](https://github.com/pooya-labs/globalcart/actions/runs/42210911735) and Shopify Worker smoke on the persisted catalog [42212082588](https://github.com/pooya-labs/globalcart/actions/runs/42212082588) passed.
 - Browser E2E [42210911874](https://github.com/pooya-labs/globalcart/actions/runs/42210911874) exposed outdated assertions and a test navigation race; fixes are committed in [082cf77](https://github.com/pooya-labs/globalcart/commit/082cf77b1104909a6b66160de5116416c637b870), and a clean rerun is required.
@@ -1201,6 +1201,27 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 
 **Result:** M09.6 automated implementation and verification are complete. The M09.5 owner-preview approval and manual 1.0.0 release gates remain open. Keep version `0.2.3-dev`; do not tag or declare 1.0.0 until owner approval, physical-device review, actual screen-reader review, human RTL/LTR review, and normal-network/CDN plus eligible field evidence are complete.
 
+
+## M09.8 — portfolio polish and editorial storefront (implementation in progress; 2026-11-06)
+
+Scope: raise the public demo's retail credibility without adding live payments, inventory, shipping or production seller operations.
+
+- [x] Create three hand-curated, coherent homepage rails (workspace, audio/connectivity and everyday carry) with 12 catalog-backed products.
+- [x] Add reviewed Persian titles and concise Persian product descriptions for the 12 featured items; preserve and disclose each original source title.
+- [x] Localize those editorial titles in product detail, quick view, homepage recently-viewed, comparison, and recently-viewed history where the same product appears.
+- [x] Keep non-translated catalog titles in their original source language rather than inventing translations.
+- [x] Keep guided empty states for the bag, favorites and zero-search-results states.
+- [x] Repeat the no-real-payment notice in the bag and checkout; expose TGJU freshness beside product prices and cart subtotal.
+- [x] Add small card/save/CTA interaction feedback and normalize editorial image presentation.
+- [x] Move product-detail-only CSS to its route layout to protect the initial storefront stylesheet budget.
+- [x] Give the filter backdrop a distinct accessible name and remove generic image-link names that conflicted with product text.
+- [x] Move live Pages image alignment QA to a post-deploy workflow so it cannot race the Pages publication.
+- [ ] Pass the complete Browser E2E + axe suite after the localized-title and command-palette contrast fixes.
+- [ ] Confirm JavaScript/CSS budgets and all six public Lighthouse route/mode audits.
+- [ ] Complete post-deploy live Pages image alignment checks on desktop and mobile Chromium.
+- [ ] Review the updated desktop/mobile storefront and PDP on real devices; manual screen-reader and full human RTL/LTR QA remain release gates.
+
+**Latest pre-fix baseline:** Browser E2E [42229086262](https://github.com/pooya-labs/globalcart/actions/runs/42229086262) completed with 104 passed / 32 failed. Failures were concentrated in WCAG accessible-name/contrast checks, stale English-only assertions after Persian copy was introduced, the 125 KB stylesheet budget, duplicate mobile filter names, and live-site image checks racing deployment. Do not report M09.8 green until a fresh run proves it.
 
 ## M09.7 — deterministic catalog estimates and CI stabilization (in progress; 2026-11-06)
 
