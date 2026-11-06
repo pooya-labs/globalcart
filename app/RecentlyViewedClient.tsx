@@ -17,6 +17,7 @@ type Product = {
   thumbnail:string;
   priceAvailable?:boolean;
   ratingAvailable?:boolean;
+  priceKind?:"estimated"|"verified";
 };
 
 export default function RecentlyViewedClient() {
@@ -24,6 +25,7 @@ export default function RecentlyViewedClient() {
   const [ids,setIds]=useState<number[]>([]);
   const [catalog,setCatalog]=useState<Product[]>([]);
   const [catalogLoadState,setCatalogLoadState]=useState<"idle"|"loading"|"loaded"|"failed">("idle");
+  const [storageReady,setStorageReady]=useState(false);
   const rate = typeof fxSnapshot.tomanPerUsd === "number" && Number.isFinite(fxSnapshot.tomanPerUsd) && fxSnapshot.tomanPerUsd > 0 ? fxSnapshot.tomanPerUsd : null;
   const rtl=locale==="fa";
   const storageKey=process.env.NEXT_PUBLIC_E2E_FIXTURE_CATALOG==="1"?"globalcart-state-v1":"globalcart-state-v2";
@@ -67,10 +69,11 @@ export default function RecentlyViewedClient() {
       const state=raw?JSON.parse(raw):{};
       if(Array.isArray(state.recent))setIds(state.recent.filter((id:number)=>Number.isInteger(id)).slice(0,8));
     }catch{/* Ignore invalid browser-local demo state. */}
+    finally{setStorageReady(true);}
   },[]);
 
   const products=useMemo(()=>ids.map(id=>catalog.find(p=>p.id===id)).filter((p):p is Product=>Boolean(p)),[ids,catalog]);
-  const format=(p:Product)=>p.priceAvailable===false
+  const format=(p:Product)=>(p.priceAvailable===false&&p.priceKind!=="estimated")
     ?(rtl?"قیمت ثبت نشده":"Price not provided")
     :rtl&&rate!==null
       ?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:p.price,fxRate:rate,discountPercentage:p.discountPercentage}).toman)+" تومان"
@@ -91,7 +94,7 @@ export default function RecentlyViewedClient() {
     }catch{/* Browser storage may be unavailable. */}
   };
 
-  return <main className={rtl?"history-page rtl":"history-page ltr"} dir={rtl?"rtl":"ltr"} data-catalog-loaded={catalogLoadState==="loaded"||ids.length===0?"true":"false"}>
+  return <main className={rtl?"history-page rtl":"history-page ltr"} dir={rtl?"rtl":"ltr"} data-catalog-loaded={storageReady&&(catalogLoadState==="loaded"||ids.length===0)?"true":"false"}>
     <header className="history-topbar">
       <Link href="/"><span className="brand-mark">g<span>.</span></span><b>globalcart</b></Link>
       <div><button onClick={toggleLocale} aria-label={rtl?"EN — تغییر زبان به انگلیسی":"فا — Switch language to Persian"}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div>
@@ -99,7 +102,7 @@ export default function RecentlyViewedClient() {
     <section className="history-content">
       <div className="history-heading"><div><span className="section-kicker">GLOBALCART / BROWSING HISTORY</span><h1>{rtl?"محصولات بازدیدشده":"Recently viewed products"}</h1><p>{rtl?"محصولاتی که در همین مرورگر بررسی کرده‌ای؛ تاریخچه به حساب کاربری یا سرور ارسال نمی‌شود.":"Products you opened in this browser. This history is stored locally and is not sent to an account or server."}</p></div>{products.length>0&&<button className="history-clear" onClick={clearHistory}><Trash2 size={15}/>{rtl?"پاک کردن تاریخچه":"Clear history"}</button>}</div>
       {ids.length>0&&catalogLoadState==="loading"?<div className="history-empty"><Clock3 size={34}/><b>{rtl?"در حال بارگذاری تاریخچه...":"Loading your browsing history..."}</b></div>:catalogLoadState==="failed"?<div className="history-empty"><Clock3 size={34}/><b>{rtl?"دریافت تاریخچه ناموفق بود. دوباره صفحه را بارگذاری کن.":"Could not load your history. Reload the page to retry."}</b></div>:products.length===0?<div className="history-empty"><Clock3 size={34}/><b>{rtl?"هنوز محصولی بازدید نکرده‌ای":"No recently viewed products yet"}</b><p>{rtl?"با مشاهده جزئیات محصولات، آن‌ها اینجا نمایش داده می‌شوند.":"Open a product’s detail page and it will appear here."}</p><Link href="/#catalog">{rtl?"رفتن به فروشگاه":"Explore the catalog"} <ArrowLeft size={15}/></Link></div>:<div className="history-grid">{products.map(p=><Link href={`/product/${p.id}`} key={p.id} className="history-card"><img src={catalogImageSrc(p.thumbnail)} alt={p.title} loading="lazy" decoding="async" fetchPriority="low" width={1440} height={1440}/><div><small>{p.brand||"GLOBAL SELECT"}</small><b>{p.title}</b><span>{p.ratingAvailable===false?(rtl?"امتیاز ثبت نشده":"No rating supplied"):"★ "+p.rating.toFixed(1)}</span><strong>{format(p)}</strong></div><ArrowLeft size={16}/></Link>)}</div>}
-      <p className="history-note">{rtl?"تاریخچه فقط در همین مرورگر ذخیره می‌شود. این مجموعه‌داده قیمت و امتیاز کالا را ارائه نکرده است.":"History is stored only in this browser. The source dataset does not provide sale prices or ratings."}</p>
+      <p className="history-note">{rtl?"تاریخچه فقط در همین مرورگر ذخیره می‌شود. قیمت‌ها برآورد نمایشی GlobalCart هستند، نه قیمت فروشنده؛ منبع امتیاز و موجودی ارائه نمی‌کند.":"History is stored only in this browser. Prices are local demo estimates, not seller quotes; the source does not provide ratings or stock."}</p>
     </section>
   </main>;
 }
