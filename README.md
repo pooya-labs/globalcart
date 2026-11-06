@@ -79,8 +79,8 @@ Amazon's public storefront must not be scraped or bulk-copied. Any future adapte
 - **Languages:** TypeScript, CSS, Go and SQL (with HTML rendered through React).
 - **Framework:** Next.js 15 / React 19.
 - **UI:** custom responsive design system, Lucide icons.
-- **Hosting:** GitHub Actions + Next.js static export on GitHub Pages; Cloudflare Worker provides a validated, no-cache proxy to the live catalog API.
-- **State:** React state for live catalog results; browser localStorage for demo-only preferences and references (live product records are excluded).
+- **Hosting:** GitHub Actions + Next.js static export on GitHub Pages. A separate Cloudflare Worker exposes a validated, no-cache Shopify Global Catalog integration path for smoke testing; it is not used as the active storefront feed.
+- **State:** React state for the local ABO snapshot and storefront interactions; the full snapshot is loaded on demand near the catalog or when users interact. Browser localStorage holds demo-only cart, favorites, locale, search and recently-viewed references.
 
 This repository is deliberately independent. It has no runtime, deployment or package dependency on any other portfolio project.
 
