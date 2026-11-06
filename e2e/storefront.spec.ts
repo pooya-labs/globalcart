@@ -66,6 +66,23 @@ test("home merchandising is curated, category-balanced and bilingual", async ({ 
   expect(titles.join(" ")).not.toMatch(/medicine|cold\\s*(?:and|&)\\s*flu|saline|hand sanitizer|baby wipes|peroxide cleaner|ice cream|printer ink|ipod/i);
 });
 
+
+test("home catalog uses the current snapshot version and keeps estimated prices visible", async ({ page }) => {
+  const catalogRequestPromise = page.waitForRequest(request => {
+    const url = new URL(request.url());
+    return url.pathname.endsWith("/data/catalog.json");
+  });
+  await page.reload();
+  const catalogRequest = await catalogRequestPromise;
+  expect(new URL(catalogRequest.url()).searchParams.get("v")).toBe(catalogSnapshot.generatedAt);
+  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
+
+  const unavailablePriceLabels = await page.locator(
+    ".product-card .product-price b, .merchandising-item span > small:last-child"
+  ).evaluateAll(nodes => nodes.filter(node => node.textContent?.includes("قیمت در منبع درج نشده")).length);
+  expect(unavailablePriceLabels).toBe(0);
+});
+
 test("mobile product filters open as a contained bottom sheet and close on demand", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator(".filter-toggle").click();

@@ -237,7 +237,8 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
     if(!catalogRequested)return;
     let active=true;
     const basePath=process.env.NEXT_PUBLIC_BASE_PATH||"";
-    fetch(basePath+"/data/catalog.json",{cache:"force-cache"})
+    const snapshotVersion=encodeURIComponent(catalogTimestamp??"current");
+    fetch(basePath+"/data/catalog.json?v="+snapshotVersion,{cache:"force-cache"})
       .then(response=>{
         if(!response.ok)throw new Error("Catalog snapshot request failed: "+response.status);
         return response.json() as Promise<{products?:unknown}>;
