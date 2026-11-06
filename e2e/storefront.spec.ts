@@ -257,7 +257,9 @@ test("labels date-only TGJU quotes as stale and keeps unprovided product facts e
 
   const opened = await openFirstVisibleProduct(page);
   await expect(page.locator(".detail-information h1")).toHaveText(opened.title);
-  await expect(page.locator(".detail-price")).toContainText("Price not listed");
+  await expect(page.locator(".detail-price")).toBeVisible();
+  await expect(page.locator(".buybox-kicker")).toContainText("ESTIMATED · DEMO PRICE");
+  await expect(page.locator(".detail-buybox details.price-breakdown")).toContainText("Estimated base price (USD)");
   await expect(page.locator(".detail-rating")).toContainText("No rating supplied");
   await expect(page.locator(".buybox-stock")).toContainText("Stock not listed");
   await expect(page.locator(".detail-buybox details.price-breakdown")).toHaveCount(0);
@@ -440,7 +442,7 @@ test("recently viewed route inherits and persists the selected locale", async ({
   await expect(history).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
   await expect(history).toHaveAttribute("dir", "ltr");
   await expect(history.getByRole("heading", { name: "Recently viewed products" })).toBeVisible();
-  await expect(history.locator(".history-note")).toContainText("source dataset does not provide sale prices or ratings");
+  await expect(history.locator(".history-note")).toContainText("Prices are local demo estimates, not seller quotes");
   await expect(history.getByRole("link").filter({ hasText: opened.title })).toBeVisible();
 
   await page.getByRole("button", { name: "Switch language to Persian" }).click();
@@ -457,6 +459,15 @@ test("recently viewed route inherits and persists the selected locale", async ({
 
 test("recently viewed clear action matches shared history controls and clears local entries", async ({ page }) => {
   const opened = await openFirstVisibleProduct(page);
+  await expect(page).toHaveURL(new RegExp("/product/" + opened.id + "/?$"));
+  await page.waitForFunction((id: number) => {
+    try {
+      const state = JSON.parse(localStorage.getItem("globalcart-state-v1") ?? "{}");
+      return Array.isArray(state.recent) && state.recent.includes(id);
+    } catch {
+      return false;
+    }
+  }, opened.id);
   const productUrl = new URL(page.url());
   const productPath = productUrl.pathname.replace(/\/$/, "");
   const productDirectory = productPath.slice(0, productPath.lastIndexOf("/"));
