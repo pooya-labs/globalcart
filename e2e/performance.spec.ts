@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import catalogSnapshot from "../data/catalog.json";
 
 const firstProduct = catalogSnapshot.products[0]!;
