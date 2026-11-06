@@ -29,7 +29,7 @@ export function selectEditorialProducts<T extends { id: number }>(
   products: readonly T[],
   ids: readonly number[],
 ): T[] {
-  const byId = new Map(products.map(product => [product.id, product]));
+  const byId = new Map<number, T>(products.map(product => [product.id, product] as const));
   return ids.flatMap(id => {
     const product = byId.get(id);
     return product ? [product] : [];
