@@ -11,6 +11,7 @@ type Product = {
   discountPercentage:number; rating:number; stock:number; brand?:string;
   thumbnail:string; images?:string[]; source?:string; sourceId?:string;
   importedAt?:string; variants?:ProductVariant[];
+  priceAvailable?:boolean; priceKind?:"estimated"|"verified"; ratingAvailable?:boolean; stockAvailable?:boolean;
 };
 
 const products = catalogSnapshot.products as unknown as Product[];
