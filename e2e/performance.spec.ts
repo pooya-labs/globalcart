@@ -3,6 +3,18 @@ import catalogSnapshot from "../data/catalog.json";
 
 const firstProduct = catalogSnapshot.products[0]!;
 
+async function loadCatalogForTest(page: Page) {
+  await page.locator(".catalog-section").scrollIntoViewIfNeeded();
+  await loadCatalogForTest(page);
+  await page.evaluate(() => {
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+    root.style.scrollBehavior = previousBehavior;
+  });
+}
+
 test.beforeEach(async ({ page }) => {
   // The storefront remains testable without remote image, font or API hosts.
   await page.route("**/*", route => {

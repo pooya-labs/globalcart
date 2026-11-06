@@ -3,6 +3,18 @@ import { test, expect, type Page } from "@playwright/test";
 import { getPersianProductCopy } from "../lib/catalog/editorial";
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
+async function loadCatalogForTest(page: Page) {
+  await page.locator(".catalog-section").scrollIntoViewIfNeeded();
+  await loadCatalogForTest(page);
+  await page.evaluate(() => {
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+    root.style.scrollBehavior = previousBehavior;
+  });
+}
+
 test.beforeEach(async ({ page }) => {
   // Audit only the app itself. The committed static catalog must work without
   // remote APIs, fonts or product image hosts.

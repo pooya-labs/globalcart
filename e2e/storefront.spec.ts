@@ -33,6 +33,18 @@ async function openFirstVisibleProduct(page: Page) {
   return { id, title };
 }
 
+async function loadCatalogForTest(page: Page) {
+  await page.locator(".catalog-section").scrollIntoViewIfNeeded();
+  await loadCatalogForTest(page);
+  await page.evaluate(() => {
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+    root.style.scrollBehavior = previousBehavior;
+  });
+}
+
 test.beforeEach(async ({ page }) => {
   // Keep the browser suite deterministic: the app must work from its committed
   // static catalog even when remote demo APIs, images or fonts are unavailable.
@@ -73,6 +85,7 @@ test("home catalog uses the current snapshot version and keeps estimated prices 
     return url.pathname.endsWith("/data/catalog.json");
   });
   await page.reload();
+  await page.locator(".catalog-section").scrollIntoViewIfNeeded();
   const catalogRequest = await catalogRequestPromise;
   expect(new URL(catalogRequest.url()).searchParams.get("v")).toBe(catalogSnapshot.generatedAt);
   await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
@@ -99,7 +112,7 @@ test("legacy catalog rows without priceKind still show their positive amount as 
   });
 
   await page.reload();
-  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
+  await loadCatalogForTest(page);
   const firstPrice = page.locator(".product-card").first().locator(".product-price");
   await expect(firstPrice.locator("b")).not.toContainText("قیمت در منبع درج نشده");
   await expect(firstPrice.locator(".price-estimate-note")).toContainText("قیمت تخمینی");

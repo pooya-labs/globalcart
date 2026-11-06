@@ -224,7 +224,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
         observer.disconnect();
         setCatalogRequested(true);
       }
-    },{rootMargin:"1800px 0px"});
+    },{rootMargin:"600px 0px"});
     observer.observe(target);
     return()=>observer.disconnect();
   },[catalogRequested]);
