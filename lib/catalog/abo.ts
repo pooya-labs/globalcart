@@ -141,6 +141,36 @@ export function stableAboProductId(sourceId: string): number {
   return ((hash >>> 0) & 0x7fffffff) || 1;
 }
 
+
+
+const ESTIMATED_USD_PRICE_BANDS: Record<string, readonly [number, number]> = {
+  automotive: [8, 420], baby: [6, 150], bags: [12, 280], beauty: [5, 110],
+  books: [4, 45], electronics: [12, 780], fashion: [9, 240], fragrances: [14, 190],
+  furniture: [55, 890], groceries: [3, 48], "home-decor": [9, 230], jewelry: [9, 340],
+  kitchen: [7, 260], laptops: [260, 999], "mens-watches": [18, 460], music: [18, 999],
+  office: [4, 145], pets: [5, 125], shoes: [16, 225], smartphones: [110, 999],
+  "sports-outdoors": [10, 360], tools: [8, 360], toys: [6, 185],
+  "mobile-accessories": [5, 125], "other-products": [8, 250]
+};
+
+/**
+ * Produce a repeatable, clearly non-retailer USD estimate for the portfolio demo.
+ * The source dataset does not supply sale prices; sourceId + category keep the
+ * illustrative amount stable across scheduled catalog refreshes.
+ */
+export function estimateAboPrice(sourceId: string, category: string): number {
+  const [minimum, maximum] = ESTIMATED_USD_PRICE_BANDS[category] ?? [8, 250];
+  const seed = "globalcart-demo-price-v1:" + category + ":" + sourceId.trim().toUpperCase();
+  let hash = 2166136261;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash ^= seed.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  const normalized = (hash >>> 0) / 0xffffffff;
+  const weighted = Math.pow(normalized, 1.2);
+  return Math.round((minimum + weighted * (maximum - minimum)) * 100) / 100;
+}
+
 export type AboMappedProduct = CatalogProduct & { imageUrl: string; imageIds: string[] };
 
 function normalizeImageIds(primary: unknown, additional: unknown): string[] {
@@ -174,13 +204,15 @@ export function mapAboListing(value: unknown, importedAt = new Date().toISOStrin
   // Product pages are intentionally presented as GlobalCart listings. Source
   // attribution lives in the site-wide data credits, not as outbound product links.
   const sourceUrl = "";
+  const category = classifyAboCategory(value);
+  const estimatedPrice = estimateAboPrice(sourceId, category);
 
   return {
     id: stableAboProductId(sourceId),
     title,
     description: description.slice(0, 2400),
-    category: classifyAboCategory(value),
-    price: 0,
+    category,
+    price: estimatedPrice,
     discountPercentage: 0,
     rating: 0,
     stock: 0,
@@ -191,6 +223,8 @@ export function mapAboListing(value: unknown, importedAt = new Date().toISOStrin
     sourceId,
     sourceUrl,
     importedAt,
+    priceKind: "estimated",
+    // The value above is a GlobalCart estimate, not a price supplied by ABO.
     priceAvailable: false,
     ratingAvailable: false,
     stockAvailable: false,
