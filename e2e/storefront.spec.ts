@@ -540,3 +540,13 @@ test("cart drawer supports undo after removing an item", async ({ page }) => {
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(drawer.locator(".drawer-item")).toHaveCount(1);
 });
+
+
+test("recently viewed empty state waits for browser storage hydration", async ({ page }) => {
+  await page.goto("./recently-viewed/");
+  const history = page.locator("main.history-page");
+  await expect(history).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
+  await expect(history.locator(".history-empty b")).toBeVisible();
+  await expect(history.locator(".history-grid")).toHaveCount(0);
+  await expect(history.locator(".history-clear")).toHaveCount(0);
+});
