@@ -4,6 +4,7 @@ const LIVE_URL = "https://pooya-labs.github.io/globalcart/";
 
 for (const viewport of ["chromium-desktop", "chromium-mobile"]) {
   test(`live Pages product images load and are visually centered (${viewport})`, async ({ page }, testInfo) => {
+    test.skip(process.env.RUN_LIVE_VISUAL !== "1", "Run only after the GitHub Pages deployment completes.");
     test.skip(testInfo.project.name !== viewport, "Run the live visual check only in desktop and mobile Chromium.");
 
     await page.goto(LIVE_URL, { waitUntil: "domcontentloaded", timeout: 45_000 });
