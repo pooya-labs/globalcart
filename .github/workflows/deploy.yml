@@ -160,6 +160,11 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          # The 1,000-product catalog publishes ~4,900 local gallery files.
+          # Pages can spend more than ten minutes in syncing_files; keep the
+          # image set intact and give the provider a 20-minute deployment window.
+          timeout: 1200000
 
       - name: Smoke test published Pages homepage, assets, product and case study routes
         env:
