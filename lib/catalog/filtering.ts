@@ -1,3 +1,5 @@
+import { hasDisplayPrice } from "../pricing";
+
 export type CatalogFacetValues = {
   query?: string;
   category?: string;
@@ -46,7 +48,7 @@ export function filterCatalogProducts<T extends CatalogFacetProduct>(
     return (!category || category === "all" || product.category === category) &&
       (!query || searchableText.includes(query)) &&
       (!brand || productBrand === brand) &&
-      ((product.priceAvailable === false && product.priceKind !== "estimated") || (product.price >= minPrice && product.price <= maxPrice)) &&
+      (!hasDisplayPrice(product) || (product.price >= minPrice && product.price <= maxPrice)) &&
       (product.ratingAvailable === false ? minRating <= 0 : product.rating >= minRating);
   });
 }

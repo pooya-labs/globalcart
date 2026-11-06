@@ -127,3 +127,22 @@ test("estimated local demo prices participate in numeric price filters", () => {
   assert.deepEqual(filterCatalogProducts([estimated], { minPrice: 20, maxPrice: 30 }).map(product => product.id), [7]);
   assert.deepEqual(filterCatalogProducts([estimated], { minPrice: 30, maxPrice: 40 }), []);
 });
+
+
+test("legacy positive estimates without priceKind participate in numeric price filters", () => {
+  const legacyEstimated = {
+    id: 8,
+    title: "Legacy catalog headphones",
+    description: "Positive local estimate with older metadata",
+    category: "Audio",
+    price: 42.5,
+    rating: 0,
+    priceAvailable: false,
+    ratingAvailable: false
+  };
+  assert.deepEqual(
+    filterCatalogProducts([legacyEstimated], { minPrice: 40, maxPrice: 50 }).map(product => product.id),
+    [8]
+  );
+  assert.deepEqual(filterCatalogProducts([legacyEstimated], { minPrice: 50, maxPrice: 60 }), []);
+});
