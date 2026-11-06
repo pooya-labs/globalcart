@@ -9,8 +9,8 @@ for (const viewport of ["chromium-desktop", "chromium-mobile"]) {
 
     await page.goto(LIVE_URL, { waitUntil: "domcontentloaded", timeout: 45_000 });
     await expect(page.locator("main.store")).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 30_000 });
     await page.locator(".catalog-section").scrollIntoViewIfNeeded();
+    await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 30_000 });
 
     const visiblePrices = page.locator(".product-card .product-price b");
     await expect(visiblePrices.first()).toBeVisible();
