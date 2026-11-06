@@ -21,9 +21,9 @@
 
 </details>
 
-GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. The pre-release storefront shell redesign is tracked in [PR #2](https://github.com/pooya-labs/globalcart/pull/2). It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
+GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. The editorial storefront shell redesign in [PR #2](https://github.com/pooya-labs/globalcart/pull/2) is merged; the current M09.8 polish pass is tracked in [ROADMAP.md](ROADMAP.md). It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
 
-## Current status — v0.2.3-dev · automated release guards complete; v1.0 gated by manual QA
+## Current status — v0.2.3-dev · M09.8 editorial polish in progress; v1.0 remains gated by automated and manual QA
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -33,6 +33,8 @@ Implemented:
 - Multi-image product galleries retain the main image and every alternate image supplied by the catalog record, with thumbnail selection and previous/next controls.
 - Original catalog photography is downloaded server-side, optimized to responsive WebP assets and self-hosted under `public/images/catalog/`; the browser never calls the upstream image host.
 - Persistent side-by-side comparison for up to four products.
+- Three deliberately curated homepage collections (workspace, audio/connectivity and everyday carry) with 12 selected catalog items and reviewed Persian names/short descriptions; original source titles remain available for transparency.
+- Guided empty states for the bag, favorites and search, repeated no-real-payment notices, and TGJU freshness beside converted product and cart prices.
 - Marketplace service shortcuts and a transparent FAQ covering product sourcing, demo limits and support.
 - Offline-first product catalog: a balanced 1,000-item subset of the Amazon Berkeley Objects dataset is committed to the repository with locally hosted, high-resolution WebP image galleries. Search, category filters, product cards and static detail routes work without a runtime Shopify or catalog-provider request.
 - Storefront shell, typography, category navigation and product-card geometry render independently of image downloads; product imagery uses reserved aspect-ratio boxes, lazy loading and low fetch priority so slow photos do not block the page.
