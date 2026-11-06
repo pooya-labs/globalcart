@@ -34,8 +34,10 @@ export type CatalogProduct = {
   sourceId: string;
   sourceUrl: string;
   importedAt: string;
-  /** Whether the upstream dataset actually supplied a price, rating or stock value. */
+  /** Whether the upstream dataset supplied a verified seller price. */
   priceAvailable?: boolean;
+  /** Local illustrative estimate or source-verified price; never infer this from priceAvailable. */
+  priceKind?: "estimated" | "verified";
   ratingAvailable?: boolean;
   stockAvailable?: boolean;
   localization?: CatalogLocalization;
