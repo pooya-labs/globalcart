@@ -110,3 +110,20 @@ test("products with no source rating do not match positive rating filters", () =
   };
   assert.deepEqual(filterCatalogProducts([unpriced], { minRating: 4 }), []);
 });
+
+
+test("estimated local demo prices participate in numeric price filters", () => {
+  const estimated = {
+    id: 7,
+    title: "Illustrative book",
+    description: "Locally estimated demo amount",
+    category: "books",
+    price: 24.5,
+    rating: 0,
+    priceAvailable: false,
+    priceKind: "estimated" as const,
+    ratingAvailable: false
+  };
+  assert.deepEqual(filterCatalogProducts([estimated], { minPrice: 20, maxPrice: 30 }).map(product => product.id), [7]);
+  assert.deepEqual(filterCatalogProducts([estimated], { minPrice: 30, maxPrice: 40 }), []);
+});
