@@ -18,7 +18,7 @@ type Product = {
   discountPercentage:number; rating:number; stock:number; brand?:string;
   thumbnail:string; images?:string[]; source?:string; sourceId?:string;
   importedAt?:string; variants?:ProductVariant[];
-  priceAvailable?:boolean; ratingAvailable?:boolean; stockAvailable?:boolean;
+  priceAvailable?:boolean; priceKind?:"estimated"|"verified"; ratingAvailable?:boolean; stockAvailable?:boolean;
 };
 type Props = { product:Product; related:Product[] };
 type CartLine = { product:Product; quantity:number };
@@ -78,7 +78,8 @@ export default function ProductDetailClient({product,related}:Props) {
   const previousImage=()=>setActiveImage(index=>(index+images.length-1)%images.length);
   const nextImage=()=>setActiveImage(index=>(index+1)%images.length);
   const discounted=product.price*(1-product.discountPercentage/100);
-  const priceBreakdown=product.priceAvailable===false||rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
+  const hasDisplayPrice=product.priceKind==="estimated"||product.priceAvailable!==false;
+  const priceBreakdown=!hasDisplayPrice||rate===null?null:calculateDemoPrice({sourcePrice:product.price,fxRate:rate,discountPercentage:product.discountPercentage});
   const fxStatusLabel=fxStatus==="fresh"?(rtl?"به‌روز":"Fresh"):fxStatus==="aging"?(rtl?"در حال کهنه‌شدن":"Aging"):fxStatus==="stale"?(rtl?"قدیمی":"Stale"):(rtl?"در دسترس نیست":"Unavailable");
   const fxTimestampLabel=fxQuote.sourceTimeKind==="date_only"&&fxQuote.sourceTimeTehran
     ?(rtl?fxQuote.sourceTimeTehran.replace(/\d+/g,n=>new Intl.NumberFormat("fa-IR").format(Number(n))):fxQuote.sourceTimeTehran)
@@ -97,7 +98,7 @@ export default function ProductDetailClient({product,related}:Props) {
       localStorage.setItem(storageKey,JSON.stringify({...state,recent:[product.id,...recentIds.filter(id=>id!==product.id)].slice(0,8)}));
     }catch{/* Ignore invalid local demo state. */}
   },[product.id]);
-  const format=(value:number)=>product.priceAvailable===false
+  const format=(value:number)=>!hasDisplayPrice
     ? (rtl?"قیمت ثبت نشده":"Price not listed")
     : rtl&&rate!==null
       ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:value,fxRate:rate}).toman)+" تومان"
@@ -136,7 +137,7 @@ export default function ProductDetailClient({product,related}:Props) {
       <div className="detail-gallery">
         <div className="detail-main-image">
           <img src={catalogImageSrc(image)} alt={product.title+" - "+String(activeImage+1)} loading="eager" fetchPriority="high" decoding="async" width={1440} height={1440}/>
-          {product.priceAvailable!==false&&product.discountPercentage>0&&<span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span>}
+          {hasDisplayPrice&&product.discountPercentage>0&&<span className="detail-discount">{Math.round(product.discountPercentage)}% {rtl?"تخفیف":"OFF"}</span>}
           {images.length>1&&<>
             <button type="button" className="gallery-arrow gallery-arrow-prev" onClick={previousImage} aria-label={rtl?"تصویر قبلی":"Previous image"}>{rtl?<ChevronRight size={21}/>:<ChevronLeft size={21}/>}</button>
             <button type="button" className="gallery-arrow gallery-arrow-next" onClick={nextImage} aria-label={rtl?"تصویر بعدی":"Next image"}>{rtl?<ChevronLeft size={21}/>:<ChevronRight size={21}/>}</button>
@@ -155,8 +156,8 @@ export default function ProductDetailClient({product,related}:Props) {
       </div>
       <aside className="detail-buybox">
         <span className="buybox-kicker">{rtl?"قیمت تخمینی · نمایشی":"ESTIMATED · DEMO PRICE"}</span>
-        <div className="detail-price">{product.priceAvailable===false?(rtl?"قیمت ثبت نشده":"Price not listed"):priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
-        {product.priceAvailable===false
+        <div className="detail-price">{!hasDisplayPrice?(rtl?"قیمت ثبت نشده":"Price not listed"):priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
+        {!hasDisplayPrice
           ? <p className="price-breakdown">{rtl?"قیمت این کالا هنوز در کاتالوگ ثبت نشده است.":"A price has not been listed for this product yet."}</p>
           : <><div className="detail-old-price"><s>{format(product.price)}</s><span>{rtl?"قیمت قبل از تخفیف":"Before discount"}</span></div>
         <details className="price-breakdown"><summary>{rtl?"منبع و جزئیات نرخ تبدیل":"FX source and calculation"}</summary>
@@ -179,7 +180,7 @@ export default function ProductDetailClient({product,related}:Props) {
       </aside>
     </section>
     <section className="detail-description-panel"><span className="section-kicker">PRODUCT OVERVIEW</span><h2>{rtl?"درباره محصول":"About this product"}</h2><p>{product.description}</p><div><span>{rtl?"شناسه محصول":"Product ID"}</span><b>GC-{product.id}</b><span>{rtl?"قیمت":"Price"}</span><b>{format(discounted)}</b></div></section>
-    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={catalogImageSrc(item.thumbnail)} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{item.title}</b><strong>{item.priceAvailable===false?(rtl?"قیمت ثبت نشده":"Price not listed"):format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
+    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={catalogImageSrc(item.thumbnail)} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{item.title}</b><strong>{!(item.priceKind==="estimated"||item.priceAvailable!==false)?(rtl?"قیمت ثبت نشده":"Price not listed"):format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
     <footer className="product-page-footer"><Link href="/">globalcart</Link><span>{rtl?"پروژه مستقل نمایشی · توسعه و طراحی پویا گودرزی":"Independent portfolio demo · Designed & built by Pooya Goodarzi"}</span></footer>
   </main>;
 }
