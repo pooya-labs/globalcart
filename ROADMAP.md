@@ -3,10 +3,12 @@
 > The single source of truth. A stage is complete only after implementation and verification.
 
 **Current release:** 0.2.3-dev  
-**Active stage:** M09.5 — GlobalCart editorial marketplace redesign (implementation, automated verification and public Pages deployment complete; awaiting owner visual approval).  
-Mainline Browser E2E [41666976817](https://github.com/pooya-labs/globalcart/actions/runs/41666976817) passed **104 tests / 5 project-scoped skips** across Chromium desktop/mobile/tablet, Firefox and WebKit accessibility projects. TypeScript, unit tests and static production build passed; Security [41666976768](https://github.com/pooya-labs/globalcart/actions/runs/41666976768) passed.  
-Pages deploy and public smoke [41666976546](https://github.com/pooya-labs/globalcart/actions/runs/41666976546) verified the homepage, base-path JavaScript asset, product route and bilingual case study. Six-route public Lighthouse [41667277368](https://github.com/pooya-labs/globalcart/actions/runs/41667277368) passed all budgets: mobile Performance 88 / 91 / 99 and desktop 100 / 100 / 100 (home / product / case study); Accessibility, Best Practices and SEO 100 in all six; CLS 0. Mobile LCP/TBT: home 3.3 s / 170 ms, product 3.2 s / 70 ms, case study 0.9 s / 100 ms.  
-These are GitHub-hosted lab readings, not field Core Web Vitals. Desktop/mobile case-study screenshots were published by [run 41667550279](https://github.com/pooya-labs/globalcart/actions/runs/41667550279). Remaining before final release: owner visual approval, physical-device validation, actual screen-reader review, comprehensive human RTL/LTR inspection and normal-network/eligible field evidence. **Do not create a 1.0.0 release/tag until the owner has reviewed and approved the redesigned storefront.** Keep version 0.2.3-dev.  
+**Active stage:** M09.7 — catalog estimate provenance and CI stabilization. The estimate implementation, TypeScript, unit tests, static build and security scan have passed; the corrected Browser E2E rerun and mobile Lighthouse budget remain open.  
+- Latest mainline catalog: 1,000 products, each with a positive, deterministic GlobalCart demo estimate; all 1,000 still have `priceAvailable: false` because ABO does not provide verified seller prices. Ratings and stock remain unlisted. The estimate must never be described as a retailer quote.
+- The previous GitHub Pages build/deploy [42210911755](https://github.com/pooya-labs/globalcart/actions/runs/42210911755) passed its public homepage, base-path asset, product and case-study smoke. Security [42210911735](https://github.com/pooya-labs/globalcart/actions/runs/42210911735) and Shopify Worker smoke on the persisted catalog [42212082588](https://github.com/pooya-labs/globalcart/actions/runs/42212082588) passed.
+- Browser E2E [42210911874](https://github.com/pooya-labs/globalcart/actions/runs/42210911874) exposed outdated assertions and a test navigation race; fixes are committed in [082cf77](https://github.com/pooya-labs/globalcart/commit/082cf77b1104909a6b66160de5116416c637b870), and a clean rerun is required.
+- Public Lighthouse [42212082469](https://github.com/pooya-labs/globalcart/actions/runs/42212082469) measured home-mobile TBT 321 ms against the existing 300 ms budget. Keep the budget intact; performance verification is still open.
+- These are GitHub-hosted lab readings, not field Core Web Vitals. Remaining 1.0.0 gates: owner visual approval, physical-device validation, actual screen-reader review, comprehensive human RTL/LTR inspection, normal-network/CDN and eligible field evidence. **Do not create a 1.0.0 release/tag until the owner has reviewed and approved the redesigned storefront.** Keep version 0.2.3-dev.  
 | Frontend | Next.js App Router, React, TypeScript | Storefront, product pages, admin/seller UX | Current |
 | Backend | Go REST API + OpenAPI | Domain services, auth, catalog and orders | M04 |
 | Primary database | PostgreSQL | Relational data and transactional consistency | M04 |
@@ -1198,3 +1200,19 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [x] Publish updated storefront and case-study screenshots for desktop and mobile [run 42058141302](https://github.com/pooya-labs/globalcart/actions/runs/42058141302).
 
 **Result:** M09.6 automated implementation and verification are complete. The M09.5 owner-preview approval and manual 1.0.0 release gates remain open. Keep version `0.2.3-dev`; do not tag or declare 1.0.0 until owner approval, physical-device review, actual screen-reader review, human RTL/LTR review, and normal-network/CDN plus eligible field evidence are complete.
+
+
+## M09.7 — deterministic catalog estimates and CI stabilization (in progress; 2026-11-06)
+
+- [x] Add a stable category-bounded USD estimate for every ABO product using a versioned deterministic seed and product source ID.
+- [x] Keep source provenance honest: `priceKind: estimated`, `priceAvailable: false`, rating unavailable and stock unavailable. Estimates are GlobalCart demo values, not seller quotes or live retail offers.
+- [x] Display estimates consistently in storefront cards, product detail, comparison, cart totals and recently-viewed history; keep TGJU limited to currency conversion.
+- [x] Extend snapshot validation and unit tests for estimate provenance, deterministic values and numeric filtering. Update deployment smoke to reject zero/missing estimates without promoting them to verified source prices.
+- [x] Fix the AxeBuilder type boundary and add a hydration-ready marker to recently-viewed history.
+- [x] Pass TypeScript, unit tests and static production build in Pages build [42210911755](https://github.com/pooya-labs/globalcart/actions/runs/42210911755); Security [42210911735](https://github.com/pooya-labs/globalcart/actions/runs/42210911735) passed.
+- [x] Verify the persisted local catalog has 1,000/1,000 positive estimates, 0 zero values, and 1,000/1,000 `priceAvailable: false` flags.
+- [ ] Pass the corrected full Browser E2E run after [082cf77](https://github.com/pooya-labs/globalcart/commit/082cf77b1104909a6b66160de5116416c637b870), including recently-viewed empty/filled/clear behavior and estimate disclosures.
+- [ ] Reduce home-mobile TBT below the existing 300 ms Lighthouse budget without weakening the budget; last measured 321 ms in [42212082469](https://github.com/pooya-labs/globalcart/actions/runs/42212082469).
+- [ ] Refresh final screenshots, verify the current published Pages commit after the latest test fixes, and reconcile all top-level docs once CI is green.
+
+**Release boundary:** keep `0.2.3-dev`; do not mark M09.7 complete or tag 1.0.0 until automated checks and the separate manual release gates pass.
