@@ -1116,3 +1116,13 @@ https://github.com/pooya-labs/globalcart/actions/runs/41299677941
 - Latest public Lighthouse [41828494938](https://github.com/pooya-labs/globalcart/actions/runs/41828494938) and Shopify smoke [41828494685](https://github.com/pooya-labs/globalcart/actions/runs/41828494685) passed on the immediately preceding application-code head; the later FX update changed only the rate snapshot. Re-run post-deployment audits after the next ordinary mainline validation push if needed.
 - No open PRs or issues were present at this checkpoint. Do not merge the remaining old redesign/catalog branches without a fresh comparison against `main`; their completed work has already been merged.
 - Keep package version `0.2.3-dev`. The next release action is owner review/approval of the deployed M09.5 storefront plus the manual M08/M09 release gates above; do not create a `1.0.0` tag or claim physical-device/screen-reader/field QA from browser emulation.
+
+
+## Latest continuation checkpoint — M09.8 portfolio polish implementation (2026-11-06)
+
+- Canonical repository/site: `pooya-labs/globalcart` / https://pooya-labs.github.io/globalcart/; continue on `main` only.
+- Implemented a fixed 12-product editorial assortment from the committed ABO catalog, grouped into workspace, audio/connectivity and everyday-carry themes. Persian short titles and descriptions are maintained in `lib/catalog/editorial.ts`; original source titles remain visible on product detail pages.
+- Improved cart/favorites/search empty states, made the no-real-payment disclosure persistent inside the cart drawer, surfaced TGJU freshness beside converted product prices, and added product-level ABO / CC BY 4.0 attribution.
+- Added restrained hover/focus feedback and unified editorial image framing. The showcase remains a portfolio demo; no production payment, stock, shipping or seller operation was introduced.
+- Automated validation and public deployment are pending for this checkpoint. Do not mark M09.8 complete or tag 1.0.0 until typecheck, unit tests, production build, Browser E2E, security, Pages smoke, Lighthouse and owner/manual QA are verified.
+- Keep package version `0.2.3-dev`.

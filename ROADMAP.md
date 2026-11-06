@@ -1216,3 +1216,19 @@ Catalog pagination CI verification: pull-request run 41303108214 passed sqlc gen
 - [ ] Refresh final screenshots, verify the current published Pages commit after the latest test fixes, and reconcile all top-level docs once CI is green.
 
 **Release boundary:** keep `0.2.3-dev`; do not mark M09.7 complete or tag 1.0.0 until automated checks and the separate manual release gates pass.
+
+
+## M09.8 — portfolio content and retail polish (in progress; 2026-11-06)
+
+- [x] Replace algorithmically mixed first-page merchandising with a deterministic 12-product editorial selection across coherent workspace / audio-connectivity / everyday-carry groups.
+- [x] Add reviewed Persian display titles and concise Persian descriptions for all 12 selected products while preserving original source titles on product detail pages.
+- [x] Improve cart, favorites and search empty states with contextual guidance and a return-to-store action.
+- [x] Keep a single, persistent no-real-payment disclosure visible inside the cart drawer and checkout flow.
+- [x] Surface TGJU freshness status next to converted prices in product cards and product detail, using the same freshness classification as the rate panel.
+- [x] Add concise Amazon Berkeley Objects / CC BY 4.0 source attribution to product detail pages.
+- [x] Refine product-card hover/focus feedback, empty-state visual hierarchy and merchandising image ratios.
+- [ ] Run unit tests, TypeScript, static build and full cross-browser E2E; fix regressions without weakening existing assertions or budgets.
+- [ ] Re-run public Lighthouse and deployment smoke; confirm updated Pages commit and mobile behavior.
+- [ ] Perform owner review of selected catalog items, Persian naming and product-detail presentation.
+
+**Scope:** portfolio/demo polish only. Real payment, inventory, shipping, seller production operations and real account services remain out of scope. Keep `0.2.3-dev`; no 1.0.0 tag until automated checks and manual release gates pass.

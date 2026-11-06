@@ -1977,3 +1977,33 @@ body{background:#f7f8f5;color:var(--ink)}
 @media(prefers-reduced-motion:reduce){
  .storefront-v2 .hero-product-tile,.storefront-v2 .product-card,.storefront-v2 .product-image-link img,.storefront-v2 .merchandising-item{transition:none!important}
 }
+
+
+/* M09.8 — editorial polish: consistent interaction and guided empty states */
+.storefront-v2 .product-card{border:1px solid rgba(224,232,224,.85);border-radius:14px;overflow:hidden;background:#fff;transition:transform .2s cubic-bezier(.2,.7,.2,1),box-shadow .2s,border-color .2s}
+.storefront-v2 .product-card:hover{transform:translateY(-4px);border-color:#c9d9cb;box-shadow:0 16px 34px rgba(24,55,39,.10)}
+.storefront-v2 .save-button{width:38px;height:38px;box-shadow:0 4px 14px rgba(22,40,28,.12);transition:transform .16s,background .16s,color .16s}
+.storefront-v2 .save-button:hover,.storefront-v2 .save-button:focus-visible{transform:scale(1.08);background:#fff;color:#c75f58}
+.storefront-v2 .product-price button{transition:transform .16s,background .16s,box-shadow .16s}
+.storefront-v2 .product-price button:hover,.storefront-v2 .product-price button:focus-visible{transform:translateY(-2px);box-shadow:0 7px 15px rgba(23,75,60,.18)}
+.drawer-empty{padding:30px 20px;text-align:center;min-height:260px}
+.drawer-empty p,.no-results p{max-width:310px;margin:0;color:#77847b;font-size:11px;line-height:1.9}
+.empty-state-icon{width:58px;height:58px;border-radius:19px;display:grid;place-items:center;color:#28624b;background:linear-gradient(145deg,#edf4e9,#f8faf5);border:1px solid #e3ecdf}
+.no-results{padding:28px 18px;text-align:center}
+.no-results .empty-state-icon{margin-bottom:4px}
+.no-results button{margin-top:5px;padding:9px 15px;border:1px solid #dce7dc;border-radius:999px;background:#fff}
+.drawer-demo-note{margin:0 0 10px;padding:10px 12px;border:1px solid #e8eadc;border-radius:10px;background:#fbfaf2;color:#786a42;font-size:10px;line-height:1.7}
+.price-fx-note{display:block;margin-top:3px;font-size:8px!important;font-weight:750;line-height:1.45}
+.price-fx-note[data-status="fresh"]{color:#34724f!important}
+.price-fx-note[data-status="aging"]{color:#916c2b!important}
+.price-fx-note[data-status="stale"],.price-fx-note[data-status="unavailable"]{color:#a64d48!important}
+.detail-fx-status{display:block;margin-top:8px;font-size:10px;font-weight:800}
+.detail-fx-status.aging{color:#916c2b}
+.detail-fx-status.stale,.detail-fx-status.unavailable{color:#a64d48}
+.product-source-title{margin:-3px 0 12px;color:#829087;font-size:10px;line-height:1.7;overflow-wrap:anywhere}
+.detail-source-note{display:block;margin-top:14px;color:#7d897f;font-size:10px;line-height:1.8}
+.detail-source-note a{color:#28624b;text-decoration:underline;text-underline-offset:3px}
+.storefront-v2 .merchandising-item img{aspect-ratio:1/1;object-fit:contain;background:#f5f7f3}
+.storefront-v2 .merchandising-item b{font-size:10px;line-height:1.65}
+@media(hover:none){.storefront-v2 .quick-view{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.storefront-v2 .product-card,.storefront-v2 .save-button,.storefront-v2 .product-price button{transition:none}}

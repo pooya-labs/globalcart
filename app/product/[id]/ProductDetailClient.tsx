@@ -8,6 +8,7 @@ import fxSnapshot from "../../../data/fx-rate.json";
 const fxQuote = fxSnapshot as unknown as FxRateSnapshot;
 import { getFxRateStatus, type FxRateStatus, type FxRateSnapshot } from "../../../lib/fx/tgju";
 import { readLocalePreference, writeLocalePreference, type Locale } from "../../../lib/locale";
+import { getPersianProductCopy } from "../../../lib/catalog/editorial";
 
 type ProductVariant = {
   sku:string; title:string; price:number; stock:number;
@@ -104,6 +105,7 @@ export default function ProductDetailClient({product,related}:Props) {
       ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:value,fxRate:rate}).toman)+" تومان"
       : "$"+value.toFixed(2);
   const category=categoryNames[product.category]||{fa:product.category,en:product.category.replaceAll("-"," ")};
+  const localizedCopy=getPersianProductCopy(product.id);
   const addToCart=()=>{
     try{
       const raw=localStorage.getItem(storageKey);
@@ -148,15 +150,16 @@ export default function ProductDetailClient({product,related}:Props) {
       </div>
       <div className="detail-information">
         <span className="detail-brand">{product.brand||"GLOBALCART"}</span>
-        <h1>{product.title}</h1>
+        <h1>{rtl&&localizedCopy?localizedCopy.title:product.title}</h1>{rtl&&localizedCopy&&<p className="product-source-title" dir="auto">{product.title}</p>}
         <div className="detail-rating">{product.ratingAvailable===false?<span>{rtl?"امتیاز ثبت نشده":"No rating supplied"}</span>:<span><Star size={15} fill="currentColor"/>{product.rating.toFixed(1)}</span>}<i/> <span>{rtl?"شناسه محصول":"Product ID"}: {product.id}</span><i/><span>{rtl?category.fa:category.en}</span></div>
-        <p className="detail-description">{product.description}</p>
+        <p className="detail-description">{rtl&&localizedCopy?localizedCopy.description:product.description}</p>
         <div className="detail-highlights"><div><ShieldCheck/><span><b>{rtl?"اطلاعات شفاف":"Clear information"}</b><small>{rtl?"قیمت این محصول تخمینی است و قیمت فروشنده نیست.":"This product price is estimated, not a retailer quote."}</small></span></div><div><Truck/><span><b>{rtl?"تجربه خرید نمایشی":"Demo shopping experience"}</b><small>{rtl?"بدون ارسال یا موجودی واقعی":"No real shipping or inventory"}</small></span></div></div>
         <div className="detail-specs"><div><span>{rtl?"دسته‌بندی":"Category"}</span><b>{rtl?category.fa:category.en}</b></div><div><span>{rtl?"برند":"Brand"}</span><b>{product.brand||"Global Select"}</b></div><div><span>{rtl?"امتیاز نمونه":"Sample rating"}</span><b>{product.ratingAvailable===false?(rtl?"ثبت نشده":"Not provided"):product.rating.toFixed(1)+" / 5"}</b></div><div><span>{rtl?"وضعیت موجودی":"Availability"}</span><b>{product.stockAvailable===false?(rtl?"ثبت نشده":"Not provided"):product.stock}</b></div></div>
       </div>
       <aside className="detail-buybox">
         <span className="buybox-kicker">{rtl?"قیمت تخمینی · نمایشی":"ESTIMATED · DEMO PRICE"}</span>
         <div className="detail-price">{!hasDisplayPrice?(rtl?"قیمت ثبت نشده":"Price not listed"):priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
+        {(rate===null||fxStatus!=="fresh")&&<small className={`detail-fx-status ${fxStatus}`} role="status">{rtl?"وضعیت نرخ TGJU: "+fxStatusLabel:"TGJU rate: "+fxStatusLabel}</small>}
         {!hasDisplayPrice
           ? <p className="price-breakdown">{rtl?"قیمت این کالا هنوز در کاتالوگ ثبت نشده است.":"A price has not been listed for this product yet."}</p>
           : <><div className="detail-old-price"><s>{format(product.price)}</s><span>{rtl?"قیمت قبل از تخفیف":"Before discount"}</span></div>
@@ -179,8 +182,8 @@ export default function ProductDetailClient({product,related}:Props) {
         <div className="buybox-disclaimer"><ShieldCheck size={16}/><span>{rtl?"این یک فروشگاه نمایشی است؛ پرداخت و ارسال واقعی انجام نمی‌شود.":"Demo storefront only. No real payment or shipping."}</span></div>
       </aside>
     </section>
-    <section className="detail-description-panel"><span className="section-kicker">PRODUCT OVERVIEW</span><h2>{rtl?"درباره محصول":"About this product"}</h2><p>{product.description}</p><div><span>{rtl?"شناسه محصول":"Product ID"}</span><b>GC-{product.id}</b><span>{rtl?"قیمت":"Price"}</span><b>{format(discounted)}</b></div></section>
-    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={catalogImageSrc(item.thumbnail)} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{item.title}</b><strong>{!(item.priceKind==="estimated"||item.priceAvailable!==false)?(rtl?"قیمت ثبت نشده":"Price not listed"):format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
+    <section className="detail-description-panel"><span className="section-kicker">PRODUCT OVERVIEW</span><h2>{rtl?"درباره محصول":"About this product"}</h2><p>{rtl&&localizedCopy?localizedCopy.description:product.description}</p><small className="detail-source-note">{rtl?"منبع اطلاعات و تصاویر: Amazon Berkeley Objects · مجوز CC BY 4.0":"Product metadata and imagery: Amazon Berkeley Objects · CC BY 4.0"} · <a href="https://github.com/pooya-labs/globalcart/blob/main/data/CATALOG_SOURCE.md" target="_blank" rel="noreferrer">{rtl?"جزئیات منبع":"Source details"}</a></small><div><span>{rtl?"شناسه محصول":"Product ID"}</span><b>GC-{product.id}</b><span>{rtl?"قیمت":"Price"}</span><b>{format(discounted)}</b></div></section>
+    {related.length>0&&<section className="detail-related"><div><span className="section-kicker">YOU MAY ALSO LIKE</span><h2>{rtl?"محصولات مشابه":"Related products"}</h2></div><div className="related-grid">{related.map(item=><Link href={`/product/${item.id}`} key={item.id}><img src={catalogImageSrc(item.thumbnail)} alt={item.title} loading="lazy" decoding="async"/><span>{item.brand||"GLOBAL SELECT"}</span><b>{rtl?(getPersianProductCopy(item.id)?.title??item.title):item.title}</b><strong>{!(item.priceKind==="estimated"||item.priceAvailable!==false)?(rtl?"قیمت ثبت نشده":"Price not listed"):format(item.price*(1-item.discountPercentage/100))}</strong></Link>)}</div></section>}
     <footer className="product-page-footer"><Link href="/">globalcart</Link><span>{rtl?"پروژه مستقل نمایشی · توسعه و طراحی پویا گودرزی":"Independent portfolio demo · Designed & built by Pooya Goodarzi"}</span></footer>
   </main>;
 }
