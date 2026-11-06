@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased — M09.7 catalog estimate provenance and CI stabilization (2026-11-06)
+
+### Changed
+- Added deterministic, category-bounded USD demo estimates for the 1,000 ABO catalog products. The estimate is derived from a versioned seed plus stable product source ID and category, so a scheduled refresh preserves the same amount for the same product.
+- Added explicit `priceKind: "estimated"` provenance while retaining `priceAvailable: false` because the ABO dataset does not provide a verified seller price. Rating and stock remain unavailable. Storefront, detail, comparison, cart and recently-viewed UI identify these as demo estimates rather than retailer quotes; TGJU only converts the estimate to Toman.
+- Corrected README source descriptions so the active storefront is accurately described as the local ABO catalog; Shopify Global Catalog remains an isolated Worker integration/smoke path.
+- Fixed the AxeBuilder/Playwright declaration boundary without changing the runtime page object. Recently-viewed readiness now waits for localStorage hydration.
+
+### Verification
+- The GitHub Pages build on the previous verified app head passed TypeScript, unit tests and production build: [run 42210911755](https://github.com/pooya-labs/globalcart/actions/runs/42210911755). Security passed [run 42210911735](https://github.com/pooya-labs/globalcart/actions/runs/42210911735); Shopify Worker smoke passed on the persisted catalog [run 42212082588](https://github.com/pooya-labs/globalcart/actions/runs/42212082588).
+- The persisted catalog was checked at 1,000/1,000 positive estimated prices, 0 zero prices, and 1,000/1,000 source-price-unavailable flags. These are estimates, not verified market prices.
+- Browser E2E [run 42210911874](https://github.com/pooya-labs/globalcart/actions/runs/42210911874) exposed outdated price/disclosure expectations and a navigation race in the history test (124 passed, 7 intentional skips, 8 failed). Those test expectations and the navigation synchronization have been corrected in [commit 082cf77](https://github.com/pooya-labs/globalcart/commit/082cf77b1104909a6b66160de5116416c637b870); rerun is the current verification gate.
+- Public Lighthouse [run 42212082469](https://github.com/pooya-labs/globalcart/actions/runs/42212082469) remained below the mobile TBT budget: 321 ms vs 300 ms. Do not relax the budget; diagnose and reduce main-thread work before marking M09.7 performance verification complete.
+
+### Release boundary
+- Keep package version `0.2.3-dev`. This work does not create live seller prices, inventory, payment, orders or fulfillment. Manual 1.0.0 review gates remain unchanged.
+
+---
+
 ## Unreleased — M09.6 catalog gallery and product-detail reliability (2026-11-04)
 
 ### Fixed
