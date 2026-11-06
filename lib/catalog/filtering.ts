@@ -15,6 +15,7 @@ export type CatalogFacetProduct = {
   price: number;
   rating: number;
   priceAvailable?: boolean;
+  priceKind?: "estimated" | "verified";
   ratingAvailable?: boolean;
 };
 
@@ -45,7 +46,7 @@ export function filterCatalogProducts<T extends CatalogFacetProduct>(
     return (!category || category === "all" || product.category === category) &&
       (!query || searchableText.includes(query)) &&
       (!brand || productBrand === brand) &&
-      (product.priceAvailable === false || (product.price >= minPrice && product.price <= maxPrice)) &&
+      ((product.priceAvailable === false && product.priceKind !== "estimated") || (product.price >= minPrice && product.price <= maxPrice)) &&
       (product.ratingAvailable === false ? minRating <= 0 : product.rating >= minRating);
   });
 }
