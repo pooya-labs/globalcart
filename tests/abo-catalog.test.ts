@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ABO_SOURCE, classifyAboCategory, mapAboListing, stableAboProductId } from "../lib/catalog/abo";
+import { ABO_SOURCE, classifyAboCategory, estimateAboPrice, mapAboListing, stableAboProductId } from "../lib/catalog/abo";
 
 const image = "https://amazon-berkeley-objects.s3.amazonaws.com/images/small/B000000001.jpg";
 
@@ -27,10 +27,12 @@ test("maps an ABO record with its original product identity and official image U
   assert.equal(product.thumbnail, image);
   assert.equal(product.sourceUrl, "");
   assert.deepEqual(product.imageIds, ["814aS-KaUBL", "A1t+GZJiPdL", "81E1mOtm97L", "A1zkaozUH2L", "A1TlgpYaSpL"]);
-  assert.equal(product.priceAvailable, false);
+  assert.equal(product.priceAvailable, false, "the source itself still does not provide a verified price");
+  assert.equal(product.priceKind, "estimated");
+  assert.equal(product.price, estimateAboPrice("B000000001", "furniture"));
+  assert.ok(product.price > 0);
   assert.equal(product.ratingAvailable, false);
   assert.equal(product.stockAvailable, false);
-  assert.equal(product.price, 0);
 });
 
 test("supports the official small-image path when a full URL is absent", () => {
@@ -58,6 +60,14 @@ test("classifies product families with accessory and category precedence", () =>
   assert.equal(classifyAboCategory({ title: "Sports Running Shoe", product_type_readable: "Footwear" }), "sports-outdoors");
   assert.equal(classifyAboCategory({ title: "Leather Tote", product_type_readable: "Handbags" }), "bags");
   assert.equal(classifyAboCategory({ title: "Unknown item" }), "other-products");
+});
+
+test("local demo price estimates are stable, positive and bounded by category", () => {
+  const first = estimateAboPrice("B000000009", "books");
+  assert.equal(first, estimateAboPrice("B000000009", "books"));
+  assert.ok(first >= 4 && first <= 45);
+  assert.notEqual(first, estimateAboPrice("B000000010", "books"));
+  assert.ok(estimateAboPrice("B000000009", "smartphones") >= 110);
 });
 
 test("stable product identifiers are deterministic, positive and fit signed database integers", () => {
