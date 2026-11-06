@@ -12,6 +12,15 @@ for (const viewport of ["chromium-desktop", "chromium-mobile"]) {
     await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 30_000 });
     await page.locator(".catalog-section").scrollIntoViewIfNeeded();
 
+    const visiblePrices = page.locator(".product-card .product-price b");
+    await expect(visiblePrices.first()).toBeVisible();
+    const missingPriceLabels = await visiblePrices.evaluateAll(nodes =>
+      nodes.filter(node => node.textContent?.includes("قیمت در منبع درج نشده")).length
+    );
+    expect(missingPriceLabels).toBe(0);
+    await expect(page.locator(".product-card .price-estimate-note").first())
+      .toContainText("قیمت تخمینی");
+
     const images = page.locator(".product-card .product-image-link img");
     await expect(images).toHaveCount(36);
     await images.evaluateAll(nodes => {
