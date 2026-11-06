@@ -88,6 +88,8 @@ export default function RecentlyViewedClient() {
 
   const clearHistory=()=>{
     setIds([]);
+    setCatalog([]);
+    setCatalogLoadState("idle");
     try{
       const raw=localStorage.getItem(storageKey);
       const state=raw?JSON.parse(raw):{};
