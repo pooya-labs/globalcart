@@ -1,0 +1,47 @@
+name: Post-deploy live visual QA
+
+on:
+  workflow_run:
+    workflows: ["Deploy GlobalCart to GitHub Pages"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  live-visual:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install committed dependencies
+        run: npm ci --no-audit
+      - name: Prepare optimized self-hosted imagery
+        run: npm run assets:sync
+      - name: Build the local test server
+        run: npm run build
+        env:
+          GITHUB_ACTIONS: "true"
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify published desktop and mobile product imagery
+        run: npx playwright test e2e/live-site-visual.spec.ts --project=chromium-desktop --project=chromium-mobile
+        env:
+          RUN_LIVE_VISUAL: "1"
+      - name: Upload live visual evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: globalcart-live-pages-visual
+          path: |
+            test-results/live-product-grid-*.png
+            test-results/*.png
+          if-no-files-found: ignore
+          retention-days: 7
