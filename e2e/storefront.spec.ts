@@ -83,6 +83,28 @@ test("home catalog uses the current snapshot version and keeps estimated prices 
   expect(unavailablePriceLabels).toBe(0);
 });
 
+
+test("legacy catalog rows without priceKind still show their positive amount as an estimate", async ({ page }) => {
+  await page.route("**/data/catalog.json*", async route => {
+    const legacySnapshot = JSON.parse(JSON.stringify(catalogSnapshot)) as {
+      products: Array<Record<string, unknown>>;
+      [key: string]: unknown;
+    };
+    for (const product of legacySnapshot.products) delete product.priceKind;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(legacySnapshot)
+    });
+  });
+
+  await page.reload();
+  await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true", { timeout: 15_000 });
+  const firstPrice = page.locator(".product-card").first().locator(".product-price");
+  await expect(firstPrice.locator("b")).not.toContainText("قیمت در منبع درج نشده");
+  await expect(firstPrice.locator(".price-estimate-note")).toContainText("قیمت تخمینی");
+});
+
 test("mobile product filters open as a contained bottom sheet and close on demand", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator(".filter-toggle").click();
