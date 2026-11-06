@@ -330,3 +330,31 @@ test("snapshot validation rejects non-boolean source availability flags", async 
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+
+test("snapshot validates estimated prices separately from source-provided prices", async () => {
+  const { readCatalogSnapshot } = await import("../lib/catalog/snapshot");
+  const directory = await mkdtemp(join(tmpdir(), "globalcart-estimated-price-"));
+  const outputFile = join(directory, "catalog.json");
+  try {
+    await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+      validSnapshotProduct({ price: 24.5, priceAvailable: false, priceKind: "estimated" })
+    ])), "utf8");
+    const snapshot = await readCatalogSnapshot(outputFile);
+    assert.equal(snapshot?.products[0].priceKind, "estimated");
+    assert.equal(snapshot?.products[0].priceAvailable, false);
+
+    for (const invalid of [
+      { priceKind: "synthetic" },
+      { priceKind: "estimated", priceAvailable: true },
+      { priceKind: "verified", priceAvailable: false }
+    ]) {
+      await writeFile(outputFile, JSON.stringify(wrapSnapshot([
+        validSnapshotProduct(invalid)
+      ])), "utf8");
+      await assert.rejects(() => readCatalogSnapshot(outputFile), /schema validation/);
+    }
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
