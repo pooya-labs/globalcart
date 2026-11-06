@@ -18,7 +18,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function expectNoWcagViolations(page: Page) {
-  const results = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
+  // AxeBuilder resolves Page through its playwright-core peer while the test fixture
+  // can resolve a nested copy. The runtime page is the same Playwright API; cast only
+  // at this library boundary so duplicate declaration files do not block typecheck.
+  type AxePage = ConstructorParameters<typeof AxeBuilder>[0]["page"];
+  const results = await new AxeBuilder({ page: page as unknown as AxePage }).withTags(wcagTags).analyze();
   const violations = results.violations.flatMap(violation =>
     violation.nodes.map(node => ({
       rule: violation.id,
