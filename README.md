@@ -36,7 +36,7 @@ Implemented:
 - Marketplace service shortcuts and a transparent FAQ covering product sourcing, demo limits and support.
 - Offline-first product catalog: a balanced 1,000-item subset of the Amazon Berkeley Objects dataset is committed to the repository with locally hosted, high-resolution WebP image galleries. Search, category filters, product cards and static detail routes work without a runtime Shopify or catalog-provider request.
 - Storefront shell, typography, category navigation and product-card geometry render independently of image downloads; product imagery uses reserved aspect-ratio boxes, lazy loading and low fetch priority so slow photos do not block the page.
-- The ABO source provides product metadata and images but not sale prices, ratings or stock for the selected listing fields; GlobalCart marks those values unavailable instead of displaying fabricated zeroes. Dataset attribution and CC BY 4.0 details are documented in [data/CATALOG_SOURCE.md](data/CATALOG_SOURCE.md).
+- The ABO source provides product metadata and images, but no seller sale prices, ratings or stock in the selected fields. GlobalCart generates stable, category-bounded USD demo estimates (`priceKind: estimated`) while keeping `priceAvailable: false`; estimates are never represented as retailer quotes. Ratings and stock remain unlisted. Dataset attribution and CC BY 4.0 details are documented in [data/CATALOG_SOURCE.md](data/CATALOG_SOURCE.md).
 - Typed catalog normalization, validation, source identity, timestamps and deduplication foundation.
 - Search, category filtering, price range, sorting, quick view, favorites and recently viewed.
 - Browser-local cart, quantity changes, removal and simulated checkout.
@@ -51,7 +51,7 @@ Implemented:
 
 Boundaries and remaining work:
 - Translation is intentionally paused and excluded from CI; original source product text is displayed.
-- The storefront does not link customers out to upstream product pages and does not treat the licensed reference catalog as live retailer inventory. Sale prices, ratings and stock are not provided by the selected source fields and are explicitly labelled as unlisted. A future real-seller feed requires a separate authorized integration and terms review. Automated TGJU page retrieval remains subject to the source site's terms and availability.
+- The storefront does not link customers out to upstream product pages and does not treat the licensed reference catalog as live retailer inventory. Displayed amounts are deterministic GlobalCart estimates, not seller prices; source price, ratings and stock remain unverified or unlisted. A future real-seller feed requires a separate authorized integration and terms review. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
 - Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key dialogs. Browser E2E [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312) passed **99 tests** with **4 intentional skips** across Chromium desktop/mobile, iPad 7th-gen tablet, Firefox and WebKit. Tablet portrait/landscape checks (810×1080 and 1080×810) verify storefront/product/case study have no horizontal overflow; compact-phone checks (320 px and 360 px) cover the same routes. The WebKit dual-locale axe test now passes within its 60 s allowance without a retry.
 - Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open. Browser emulation is not a substitute for these external checks; the 1.0.0 release remains gated.
@@ -63,7 +63,7 @@ Boundaries and remaining work:
 | Product catalog | A committed local snapshot with 1,000 real listings selected from the ABO dataset; category and search filters run locally. |
 | Product pages | Every product has its own static GlobalCart detail route. Alternate photos are available in a thumbnail/arrow gallery; no outbound product link is presented. |
 | Images | Original source imagery is normalized to responsive WebP and stored under `public/images/catalog/`; card, thumbnail and detail images load lazily after the layout is painted. |
-| Pricing / availability | The selected ABO fields do not provide sale prices, ratings or stock values. GlobalCart labels them as unlisted; no fabricated values are shown. |
+| Pricing / availability | Stable category-based GlobalCart demo estimates are displayed separately from source provenance. ABO seller prices, ratings and stock are not provided; no live price or stock claim is made. |
 | Translation | Paused; original source text is preserved |
 | Currency | TGJU free-market USD page, Rial converted to Toman; indicative, not an executable quote |
 | Cart / favorites | Local browser state; product records are not sent to a server. |
@@ -72,7 +72,7 @@ Boundaries and remaining work:
 
 Amazon's public storefront must not be scraped or bulk-copied. Any future adapter requires verified program/API eligibility and compliance with current content, image, price-refresh, attribution and linking rules. Affiliate product discovery is not an unrestricted catalog feed.
 
-**Real-product catalog:** the main storefront catalog now discovers real eligible merchant listings through Shopify Global Catalog at runtime. Merchant names and seller listing links remain visible; Shopify is not used as the storefront brand. Search results and images are not cached or stored. The cart and checkout remain simulations and do not create merchant orders. Architecture and constraints are documented in [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md).
+**Catalog source boundary:** the active offline storefront uses the committed 1,000-item Amazon Berkeley Objects snapshot and locally hosted image galleries. Shopify Global Catalog remains a separate Cloudflare Worker integration/smoke-test path; it is not the active storefront catalog source. No Shopify merchant offer is persisted in the local catalog. The cart and checkout remain simulations. Architecture and source constraints are documented in [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md).
 
 ## Technology
 
