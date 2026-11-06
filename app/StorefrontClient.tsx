@@ -157,11 +157,30 @@ const formatCatalogTimestamp = (value:string|null, locale:Locale) => {
 
 export default function StorefrontClient({ initialProducts, catalogTimestamp, fxSnapshot: fxQuote }: StorefrontClientProps) {
   const [locale,setLocale]=useState<Locale>("fa");
+  const [catalogRequested,setCatalogRequested]=useState(isE2EFixtureCatalog);
   useEffect(()=>{
     const savedLocale=readLocalePreference();
     if(savedLocale)setLocale(savedLocale);
   },[]);
   useEffect(()=>{
+    if(catalogRequested)return;
+    const target=document.querySelector(".catalog-section");
+    if(!target||typeof IntersectionObserver==="undefined"){
+      setCatalogRequested(true);
+      return;
+    }
+    const observer=new IntersectionObserver(entries=>{
+      if(entries.some(entry=>entry.isIntersecting)){
+        observer.disconnect();
+        setCatalogRequested(true);
+      }
+    },{rootMargin:"1800px 0px"});
+    observer.observe(target);
+    return()=>observer.disconnect();
+  },[catalogRequested]);
+
+  useEffect(()=>{
+    if(!catalogRequested)return;
     let active=true;
     const basePath=process.env.NEXT_PUBLIC_BASE_PATH||"";
     fetch(basePath+"/data/catalog.json",{cache:"force-cache"})
@@ -179,7 +198,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
       })
       .catch(()=>{if(active)setCatalogLoaded(false);});
     return ()=>{active=false;};
-  },[initialProducts]);
+  },[catalogRequested,initialProducts]);
 
   const toggleLocale=()=>{
     const next=locale==="fa"?"en":"fa";
@@ -576,7 +595,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
   };
 
   return (
-    <main id="top" className={rtl?"store storefront-v2 rtl":"store storefront-v2 ltr"} dir={rtl?"rtl":"ltr"} data-catalog-loaded={catalogLoaded?"true":"false"}>
+    <main id="top" className={rtl?"store storefront-v2 rtl":"store storefront-v2 ltr"} dir={rtl?"rtl":"ltr"} data-catalog-loaded={catalogLoaded?"true":"false"} onFocusCapture={()=>setCatalogRequested(true)} onPointerDownCapture={()=>setCatalogRequested(true)}>
       <div className="topline"><span>{t.top}</span><span className="topline-right"><ShieldCheck size={13}/>{t.noPayment}</span></div>
       <header className="header">
         <button className="mobile-toggle icon-button" onClick={()=>setMobileMenu(!mobileMenu)} aria-label={t.menu} aria-expanded={mobileMenu} aria-controls="primary-navigation"><Menu size={21}/></button>
