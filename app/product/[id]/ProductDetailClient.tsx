@@ -99,11 +99,9 @@ export default function ProductDetailClient({product,related}:Props) {
       localStorage.setItem(storageKey,JSON.stringify({...state,recent:[product.id,...recentIds.filter(id=>id!==product.id)].slice(0,8)}));
     }catch{/* Ignore invalid local demo state. */}
   },[product.id]);
-  const format=(value:number)=>!hasDisplayPrice
-    ? (rtl?"قیمت ثبت نشده":"Price not listed")
-    : rtl&&rate!==null
-      ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:value,fxRate:rate}).toman)+" تومان"
-      : "$"+value.toFixed(2);
+  const format=(value:number)=>rtl&&rate!==null
+    ? new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(calculateDemoPrice({sourcePrice:value,fxRate:rate}).toman)+" تومان"
+    : "$"+value.toFixed(2);
   const category=categoryNames[product.category]||{fa:product.category,en:product.category.replaceAll("-"," ")};
   const localizedCopy=getPersianProductCopy(product.id);
   const addToCart=()=>{
@@ -160,7 +158,7 @@ export default function ProductDetailClient({product,related}:Props) {
         <span className="buybox-kicker">{rtl?"قیمت تخمینی · نمایشی":"ESTIMATED · DEMO PRICE"}</span>
         <div className="detail-price">{!productHasDisplayPrice?(rtl?"قیمت ثبت نشده":"Price not listed"):priceBreakdown?(rtl?new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(priceBreakdown.toman)+" تومان":"$"+priceBreakdown.discountedUsd.toFixed(2)):"$"+discounted.toFixed(2)}</div>
         {(rate===null||fxStatus!=="fresh")&&<small className={`detail-fx-status ${fxStatus}`} role="status">{rtl?"وضعیت نرخ TGJU: "+fxStatusLabel:"TGJU rate: "+fxStatusLabel}</small>}
-        {!hasDisplayPrice
+        {!productHasDisplayPrice
           ? <p className="price-breakdown">{rtl?"قیمت این کالا هنوز در کاتالوگ ثبت نشده است.":"A price has not been listed for this product yet."}</p>
           : <><div className="detail-old-price"><s>{format(product.price)}</s><span>{rtl?"قیمت قبل از تخفیف":"Before discount"}</span></div>
         <details className="price-breakdown"><summary>{rtl?"منبع و جزئیات نرخ تبدیل":"FX source and calculation"}</summary>
