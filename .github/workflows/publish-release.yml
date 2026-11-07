@@ -60,10 +60,11 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      - name: Production static build
+      - name: Production static build for deterministic browser verification
         run: npm run build
         env:
           GITHUB_ACTIONS: "true"
+          NEXT_PUBLIC_E2E_FIXTURE_CATALOG: "1"
 
       - name: Install cross-browser test engines
         run: npx playwright install --with-deps chromium firefox webkit
