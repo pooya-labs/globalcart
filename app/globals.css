@@ -1929,7 +1929,7 @@ body{background:#f7f8f5;color:var(--ink)}
  .storefront-v2 .hero-product-collage{inset-inline-end:10px;bottom:12px;gap:5px;max-width:none}
  .storefront-v2 .hero-product-tile{display:grid;place-items:center;gap:0;width:48px;height:48px;padding:3px;border-radius:11px;background:rgba(250,252,248,.94)}
  .storefront-v2 .hero-product-image{width:40px;height:40px;flex-basis:40px;border-radius:8px}
- .storefront-v2 .hero-product-meta{display:none}
+ .storefront-v2 .hero-product-meta{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
  .storefront-v2 .hero-image-caption{max-width:55%;min-width:0}
  .storefront-v2 .hero-image-caption b{font-size:10px}
  .storefront-v2 .hero-image-caption span{font-size:6px}
