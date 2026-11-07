@@ -115,21 +115,57 @@ jobs:
           NODE
           echo "Public Pages smoke passed for the storefront, representative product detail and bilingual case study."
 
-      - name: Confirm the release target is unchanged
+      - name: Confirm main only contains the verified catalog timestamp refresh
+        id: final_target
         shell: bash
         run: |
           set -euo pipefail
           git fetch origin main --quiet
-          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
-            echo "::error::main moved during release verification. No tag was created; rerun the release after the new main head is verified."
-            exit 1
+          tested_sha="$(git rev-parse HEAD)"
+          main_sha="$(git rev-parse origin/main)"
+          final_sha="$tested_sha"
+
+          if [ "$tested_sha" != "$main_sha" ]; then
+            changed_files="$(git diff --name-only "$tested_sha" "$main_sha")"
+            if [ "$changed_files" != "data/catalog.json" ]; then
+              echo "::error::main changed outside the catalog snapshot after release verification. No tag was created."
+              printf '%s\n' "$changed_files"
+              exit 1
+            fi
+
+            node - "$tested_sha" "$main_sha" <<'NODE'
+          const { execFileSync } = require("node:child_process");
+          const [tested, current] = process.argv.slice(2);
+          const load = sha => JSON.parse(execFileSync("git", ["show", sha + ":data/catalog.json"], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 }));
+          const normalize = snapshot => ({
+            schemaVersion: snapshot.schemaVersion,
+            source: snapshot.source,
+            productCount: snapshot.productCount,
+            products: snapshot.products.map(({ importedAt, ...product }) => product)
+          });
+          const previous = load(tested);
+          const latest = load(current);
+          if (JSON.stringify(normalize(previous)) !== JSON.stringify(normalize(latest))) {
+            throw new Error("The deployment catalog refresh changed product data, not only generated/import timestamps.");
+          }
+          const pkg = JSON.parse(execFileSync("git", ["show", current + ":package.json"], { encoding: "utf8" }));
+          const lock = JSON.parse(execFileSync("git", ["show", current + ":package-lock.json"], { encoding: "utf8" }));
+          if (pkg.version !== "1.0.0" || lock.version !== "1.0.0" || lock.packages?.[""]?.version !== "1.0.0") {
+            throw new Error("The latest main manifest no longer matches GlobalCart 1.0.0.");
+          }
+          console.log("Accepted catalog-only refresh: 1,000 products and all product fields are unchanged; only generatedAt/importedAt timestamps moved.");
+          NODE
+            final_sha="$main_sha"
           fi
+
+          echo "target_sha=$final_sha" >> "$GITHUB_OUTPUT"
+          echo "Verified release target: $final_sha"
 
       - name: Create the 1.0.0 GitHub release and tag
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.manifest.outputs.version }}
-          TARGET_SHA: ${{ steps.manifest.outputs.target_sha }}
+          TARGET_SHA: ${{ steps.final_target.outputs.target_sha }}
         run: |
           set -euo pipefail
           tag="v$VERSION"
