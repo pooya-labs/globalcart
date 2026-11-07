@@ -12,6 +12,18 @@ Mandatory reading for every assistant, coding agent or human contributor taking 
 7. docs/DATABASE_MIGRATION_POLICY.md before changing, applying or recovering PostgreSQL migrations.
 8. package.json and relevant source files.
 
+
+## Current continuation checkpoint — 2026-11-07 (M09.8)
+
+- Canonical source of truth: `pooya-labs/globalcart`, branch `main`; latest reviewed HEAD was `8a89f0d`. Refresh main before editing because scheduled catalog/FX workflows may add generated-data commits.
+- Current storefront catalog: committed 1,000-product Amazon Berkeley Objects snapshot; importer is `scripts/sync-catalog.ts` and mapper is `lib/catalog/abo.ts`. Product galleries are self-hosted WebP. Shopify Global Catalog is a separate Worker smoke path, not the active storefront feed.
+- Prices are positive, deterministic GlobalCart demo estimates, not seller quotes. Keep `priceKind: "estimated"` and `priceAvailable: false`; the latter records that the source does not provide a verified seller price. Never remove this provenance flag to make a price visible. Use `hasDisplayPrice` / `isEstimatedPrice` for display decisions.
+- Translation for the full catalog is paused. Only 12 curated products have reviewed Persian editorial copy. Do not restart the Google Apps Script/translation path unless the owner explicitly changes this decision.
+- Latest Pages public smoke [42387896585](https://github.com/pooya-labs/globalcart/actions/runs/42387896585), Lighthouse budget gate [42367298478](https://github.com/pooya-labs/globalcart/actions/runs/42367298478), post-deploy visual QA [42367298484](https://github.com/pooya-labs/globalcart/actions/runs/42367298484), Shopify Worker smoke [42367298509](https://github.com/pooya-labs/globalcart/actions/runs/42367298509) and TGJU refresh [42387859483](https://github.com/pooya-labs/globalcart/actions/runs/42387859483) passed.
+- The latest Browser E2E attempt [42247489435](https://github.com/pooya-labs/globalcart/actions/runs/42247489435) was cancelled; M09.8 is not green. Run the complete Browser E2E + axe suite on the current code and verify JavaScript/CSS budgets. Do not weaken assertions or thresholds to get a green run.
+- Keep `0.2.3-dev`. Do not tag `1.0.0` until automated checks pass and the owner has reviewed the design on physical desktop/mobile devices, with actual screen-reader and human RTL/LTR checks plus normal-network/CDN evidence.
+
+
 ## Non-negotiable requirements
 - Work only in the canonical repository pooya-labs/globalcart (formerly pooya16pg-spec/globalcart); keep it independent from other portfolio projects.
 - Treat GlobalCart as a high-fidelity portfolio simulation, never a live retailer.

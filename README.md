@@ -25,6 +25,8 @@ GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate p
 
 ## Current status — v0.2.3-dev · M09.8 editorial polish in progress; v1.0 remains gated by automated and manual QA
 
+**Latest verification checkpoint — 2026-11-07:** Pages deployment/public smoke [42387896585](https://github.com/pooya-labs/globalcart/actions/runs/42387896585), the six-report Lighthouse regression gate [42367298478](https://github.com/pooya-labs/globalcart/actions/runs/42367298478), post-deploy visual QA [42367298484](https://github.com/pooya-labs/globalcart/actions/runs/42367298484), Shopify Worker smoke [42367298509](https://github.com/pooya-labs/globalcart/actions/runs/42367298509) and TGJU refresh [42387859483](https://github.com/pooya-labs/globalcart/actions/runs/42387859483) passed. The latest Browser E2E attempt [42247489435](https://github.com/pooya-labs/globalcart/actions/runs/42247489435) was cancelled; M09.8 is **not** fully verified and the version remains `0.2.3-dev`.
+
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
 - Responsive marketplace storefront with Persian RTL and English LTR, category-first navigation and refreshed retail design system.

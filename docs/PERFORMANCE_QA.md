@@ -1,5 +1,13 @@
 # Public performance and release QA
 
+## Latest published gate — 2026-11-07
+
+- Public Lighthouse run [42367298478](https://github.com/pooya-labs/globalcart/actions/runs/42367298478) completed all six audits (storefront, product detail and case study in mobile and desktop modes) and passed the workflow's regression-budget enforcement step.
+- The same post-deploy checkpoint's live visual alignment QA passed on [run 42367298484](https://github.com/pooya-labs/globalcart/actions/runs/42367298484). The later Pages publication [42387896585](https://github.com/pooya-labs/globalcart/actions/runs/42387896585) passed its own public smoke checks.
+- The current gate enforces a complete six-report matrix, mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95. Exact per-route measurements and raw reports are retained in the Lighthouse run's artifact and summary.
+- These remain GitHub-hosted lab measurements. They do not prove physical-device behavior, field INP/CrUX Core Web Vitals, CDN performance from every geography, or manual assistive-technology compatibility.
+
+
 ## Automated Lighthouse lab baseline
 
 The `Public Lighthouse lab audit` workflow runs after a successful GitHub Pages deployment and can also be started manually or on its weekly schedule.
@@ -26,7 +34,7 @@ Each route is audited in Lighthouse's default mobile mode and its desktop preset
 - These are *lab* measurements from one GitHub-hosted runner. They are useful for repeatable comparisons and regressions, but network load, runner contention, source-image hosts and geographic routing can change results.
 - A simulated mobile profile is not a physical phone. A desktop preset is not a substitute for a real desktop browser check.
 - TBT is a lab diagnostic; it is not field INP. Do not report these results as CrUX or real-user Core Web Vitals.
-- The workflow deliberately does not fail on an arbitrary Lighthouse score threshold before a stable baseline has been reviewed. Use repeated runs and inspect the raw reports before setting budgets.
+- The workflow enforces the repository's documented six-report regression budgets through `scripts/check-lighthouse-budget.ts`. A passing budget is a lab regression guard, not proof of real-user performance or release readiness.
 - The workflow does not upload reports to a third-party Lighthouse server and does not need a PSI API key.
 
 ## Recorded published lab baseline — 2026-11-03

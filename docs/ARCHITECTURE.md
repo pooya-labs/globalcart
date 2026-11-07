@@ -3,32 +3,38 @@
 ## Current product boundary
 GlobalCart is an independent portfolio marketplace simulation. The current public preview is a Next.js static export on GitHub Pages. Cart, favorites and checkout are local/demo state. No real payment, fulfillment or seller payout is performed.
 
-## Current catalog data flow
+## Current catalog and price data flow (ABO snapshot)
 
 ```text
-Supplier-specific source adapter (DummyJSON today)
+Amazon Berkeley Objects dataset (selected 1,000-item sample)
         |
         v
-scripts/sync-catalog.ts (scheduled/manual GitHub Actions)
+scripts/sync-catalog.ts
+  - fetches dataset rows and original-image metadata server-side
+  - lib/catalog/abo.ts maps records and deterministic demo-price estimates
+  - downloads/optimizes original gallery images to local WebP
+        |
+        +----> data/catalog.json (product metadata + provenance)
+        |
+        +----> public/images/catalog/*.webp (self-hosted galleries)
         |
         v
-Shared adapter mapping + typed normalization + validation + deduplication
+Next.js static export on GitHub Pages
         |
-        +----> source identity / URL / import timestamp
+        +----> local search, filters, comparison and product routes
         |
-        v
-unique same-directory temp file + atomic rename
-        v
-data/catalog.json (static snapshot)
-        |
-        v
-Next.js static storefront
+        +----> browser-local bag / favorites / browsing history / demo checkout
+
+TGJU public USD board
         |
         v
-Browser-local cart / favorites / simulated checkout
+scripts/sync-tgju-fx.ts -> data/fx-rate.json
+        |
+        v
+USD estimate -> indicative Toman conversion + freshness disclosure
 ```
 
-The browser may attempt a live catalog refresh. If it fails, the storefront keeps the generated snapshot; local fixtures are used only if no snapshot exists.
+The current storefront reads the committed local catalog snapshot; it does not fetch a retailer feed in the visitor's browser. The ABO source supplies product metadata and images, not verified seller prices, ratings or stock. GlobalCart adds stable `priceKind: "estimated"` amounts for the demo while retaining `priceAvailable: false`. TGJU is only the USD-to-Toman conversion source and does not validate a product price. Shopify Global Catalog remains a separate Cloudflare Worker integration/smoke path and is not wired to the active storefront. A failed scheduled ABO refresh preserves the last-known-good catalog snapshot.
 
 ## Database schema reference
 
@@ -78,12 +84,15 @@ This target architecture is not deployed. GitHub Pages cannot host the Go API, P
 | app/page.tsx | Storefront and local demo interactions |
 | app/globals.css | Responsive design system, RTL/LTR |
 | data/catalog.json | Static catalog snapshot contract |
-| scripts/sync-catalog.ts | Scheduled/manual source import and snapshot generation |
+| scripts/sync-catalog.ts | Scheduled/manual ABO snapshot and original-gallery generation |
+| lib/catalog/abo.ts | Active ABO listing mapper and deterministic demo-price estimates |
 | lib/catalog/types.ts | Normalized product contract |
-| lib/catalog/normalize.ts | Validation and deduplication |
-| lib/catalog/dummyjson.ts | Live demo source adapter |
-| lib/pricing.ts | Integer-cent pricing and fixed-point FX |
-| lib/translation/* | Translation provider contract and honest unavailable/error states |
+| lib/catalog/normalize.ts | Shared validation and deduplication primitives |
+| lib/catalog/dummyjson.ts | Legacy/sample adapter; not the active storefront source |
+| lib/catalog/shopify.ts | Separate Shopify Worker smoke/integration mapping; not the active storefront feed |
+| scripts/sync-tgju-fx.ts | Scheduled/manual TGJU USD quote snapshot |
+| lib/pricing.ts | Displayable-price provenance, integer-cent math and fixed-point FX |
+| lib/translation/* | Translation provider contract; full-catalog translation is paused by decision |
 | tests/*.test.ts | Domain unit tests |
 
 ## Catalog and translation contracts
@@ -127,4 +136,4 @@ The internal commerce service now implements demo checkout transactionally in Go
 ## Supplier ingestion boundary (M08.3)
 A `CatalogSourceAdapter` owns supplier-specific fetching and mapping. It emits raw records in the canonical catalog input shape; `loadCatalogFromSource` applies shared normalization, provenance and identity de-duplication before data can become a snapshot. Empty, malformed and wholly unmappable feeds fail closed, allowing the snapshot job to preserve its last-known-good file. Variant identity is source-scoped as `(source, sourceId)`, consistent with the PostgreSQL unique key.
 
-DummyJSON is the current product-only sample adapter and does not provide variants. A synthetic supplier fixture tests the shape of a future authorized feed, but is never used as storefront inventory. Real supplier connectors remain gated by explicit authorization and terms review.
+This section documents the historical M08.3 supplier-adapter foundation, not the active storefront source. DummyJSON remains a legacy/sample adapter; the active storefront catalog is the committed ABO snapshot described above. A synthetic supplier fixture tests the shape of a future authorized feed, but is never used as storefront inventory. Real supplier connectors remain gated by explicit authorization and terms review.

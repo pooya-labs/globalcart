@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased — M09.8 status and source-disclosure alignment (2026-11-07)
+
+### Changed
+- Corrected the storefront filter disclosure: the current ABO catalog does not provide verified seller prices or real stock; displayed amounts are local GlobalCart demo estimates. The bag and checkout remain simulations.
+- Reconciled the active catalog architecture, current continuation checkpoint, handoff, roadmap and performance QA docs with the committed ABO snapshot and TGJU conversion flow.
+- Closed the stale top-level gallery checklist against M09.6's complete 1,000-product gallery evidence and the successful current Pages asset smoke; kept the separate real-device owner review open.
+
+### Verification before this documentation/code-sync commit
+- Pages deployment/public smoke [42387896585](https://github.com/pooya-labs/globalcart/actions/runs/42387896585), Lighthouse six-report budget gate [42367298478](https://github.com/pooya-labs/globalcart/actions/runs/42367298478), post-deploy visual QA [42367298484](https://github.com/pooya-labs/globalcart/actions/runs/42367298484), Shopify Worker smoke [42367298509](https://github.com/pooya-labs/globalcart/actions/runs/42367298509), and TGJU refresh [42387859483](https://github.com/pooya-labs/globalcart/actions/runs/42387859483) passed.
+- The latest Browser E2E attempt [42247489435](https://github.com/pooya-labs/globalcart/actions/runs/42247489435) was cancelled. This checkpoint does not claim that M09.8's full Browser E2E/axe or current stylesheet-budget verification has passed.
+- Keep package version `0.2.3-dev`; no `1.0.0` tag or production commerce scope is introduced.
+
+
 ## Unreleased — M09.7 catalog estimate provenance and CI stabilization (2026-11-06)
 
 ### Changed
