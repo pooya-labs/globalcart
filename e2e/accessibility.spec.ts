@@ -187,7 +187,8 @@ test("recently viewed page meets WCAG checks in populated and empty RTL/LTR stat
 
 test("static product detail page meets WCAG 2.1 AA automated checks", async ({ page }) => {
   const productLink = page.locator(".product-card h3 a").first();
-  const productTitle = await productLink.innerText();
+  const productTitle = (await productLink.textContent())?.trim() ?? "";
+  expect(productTitle).not.toBe("");
   const productId = Number((await productLink.getAttribute("href"))?.split("/").filter(Boolean).pop());
   await productLink.click();
   const localizedCopy=getPersianProductCopy(productId);
