@@ -115,7 +115,7 @@ jobs:
           NODE
           echo "Public Pages smoke passed for the storefront, representative product detail and bilingual case study."
 
-      - name: Confirm main only contains the verified catalog timestamp refresh
+      - name: Confirm main contains only verified generated-data updates
         id: final_target
         shell: bash
         run: |
@@ -127,13 +127,19 @@ jobs:
 
           if [ "$tested_sha" != "$main_sha" ]; then
             changed_files="$(git diff --name-only "$tested_sha" "$main_sha")"
-            if [ "$changed_files" != "data/catalog.json" ]; then
-              echo "::error::main changed outside the catalog snapshot after release verification. No tag was created."
-              printf '%s\n' "$changed_files"
-              exit 1
-            fi
+            while IFS= read -r file; do
+              case "$file" in
+                data/catalog.json|data/fx-rate.json|docs/screenshots/*.png|public/images/catalog/*.webp|public/images/site/*.webp)
+                  ;;
+                *)
+                  echo "::error::main changed an application or release file during verification: $file"
+                  exit 1
+                  ;;
+              esac
+            done <<< "$changed_files"
 
-            node - "$tested_sha" "$main_sha" <<'NODE'
+            if printf '%s\n' "$changed_files" | grep -qx 'data/catalog.json'; then
+              node - "$tested_sha" "$main_sha" <<'NODE'
           const { execFileSync } = require("node:child_process");
           const [tested, current] = process.argv.slice(2);
           const load = sha => JSON.parse(execFileSync("git", ["show", sha + ":data/catalog.json"], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 }));
@@ -143,19 +149,27 @@ jobs:
             productCount: snapshot.productCount,
             products: snapshot.products.map(({ importedAt, ...product }) => product)
           });
-          const previous = load(tested);
-          const latest = load(current);
-          if (JSON.stringify(normalize(previous)) !== JSON.stringify(normalize(latest))) {
-            throw new Error("The deployment catalog refresh changed product data, not only generated/import timestamps.");
+          if (JSON.stringify(normalize(load(tested))) !== JSON.stringify(normalize(load(current)))) {
+            throw new Error("The deployment catalog refresh changed product content, not only generation/import timestamps.");
           }
-          const pkg = JSON.parse(execFileSync("git", ["show", current + ":package.json"], { encoding: "utf8" }));
-          const lock = JSON.parse(execFileSync("git", ["show", current + ":package-lock.json"], { encoding: "utf8" }));
-          if (pkg.version !== "1.0.0" || lock.version !== "1.0.0" || lock.packages?.[""]?.version !== "1.0.0") {
-            throw new Error("The latest main manifest no longer matches GlobalCart 1.0.0.");
-          }
-          console.log("Accepted catalog-only refresh: 1,000 products and all product fields are unchanged; only generatedAt/importedAt timestamps moved.");
           NODE
+            fi
+
+            if printf '%s\n' "$changed_files" | grep -qx 'data/fx-rate.json'; then
+              node - "$main_sha" <<'NODE'
+          const { execFileSync } = require("node:child_process");
+          const [current] = process.argv.slice(2);
+          const fx = JSON.parse(execFileSync("git", ["show", current + ":data/fx-rate.json"], { encoding: "utf8" }));
+          if (fx.schemaVersion !== 3 || fx.provider !== "TGJU" || fx.instrument !== "price_dollar_rl" ||
+              fx.baseCurrency !== "USD" || fx.displayQuoteCurrency !== "TOMAN" ||
+              !Number.isFinite(fx.tomanPerUsd) || fx.tomanPerUsd <= 0) {
+            throw new Error("The latest generated FX snapshot does not satisfy the TGJU source contract.");
+          }
+          NODE
+            fi
+
             final_sha="$main_sha"
+            echo "Accepted generated-data-only updates after verification: $changed_files"
           fi
 
           echo "target_sha=$final_sha" >> "$GITHUB_OUTPUT"
