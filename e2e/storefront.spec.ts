@@ -25,7 +25,7 @@ const searchFixture = findSearchFixture();
 
 async function openFirstVisibleProduct(page: Page) {
   const link = page.locator(".product-card h3 a").first();
-  const title = await link.innerText();
+  const title = (await link.textContent())?.trim() ?? "";
   const href = await link.getAttribute("href");
   const id = Number(href?.split("/").filter(Boolean).pop());
   expect(id).toBeGreaterThan(0);
@@ -459,7 +459,7 @@ test("saved searches persist locally and can be applied and deleted", async ({ p
 test("cart and checkout remain a clearly simulated local flow", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   const targetProduct = page.locator(".product-card").first();
-  const productTitle = await targetProduct.locator("h3 a").innerText();
+  const productTitle = (await targetProduct.locator("h3 a").textContent())?.trim() ?? "";
   await targetProduct.locator(".product-price button").click();
   await page.getByRole("button", { name: /Your bag/ }).click();
   await expect(page.getByRole("dialog").getByText(productTitle, { exact: true })).toBeVisible();

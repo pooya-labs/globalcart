@@ -112,7 +112,7 @@ test("homepage prioritizes its hero and defers non-critical images", async ({ pa
 test("product detail prioritizes the main image and defers gallery extras", async ({ page }) => {
   await page.getByRole("button", { name: "EN", exact: true }).click();
   const productLink = page.locator(".product-card h3 a").first();
-  const productTitle = await productLink.innerText();
+  const productTitle = (await productLink.textContent())?.trim() ?? "";
   await productLink.click();
   await expect(page.locator(".detail-information h1")).toHaveText(productTitle);
 
@@ -174,6 +174,7 @@ test("production fonts are self-hosted without Google Fonts requests", async ({ 
 test("keeps the full catalog out of the initial storefront DOM", async ({ page }) => {
   await expect(page.locator("main.store")).toHaveAttribute("data-catalog-loaded", "true");
   await expect(page.locator(".product-card")).toHaveCount(36);
+  await expect(page.locator(".product-card").first()).toHaveCSS("content-visibility", "auto");
   const loadMoreButton = page.locator(".catalog-load-more button");
   await expect(loadMoreButton).toBeVisible();
   await expect(loadMoreButton).toHaveText(/\S+/);

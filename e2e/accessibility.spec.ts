@@ -139,7 +139,7 @@ test("command palette dialog remains accessible when open", async ({ page }) => 
 
 test("recently viewed page meets WCAG checks in populated and empty RTL/LTR states", async ({ page }) => {
   const productLink = page.locator(".product-card h3 a").first();
-  const productTitle = await productLink.innerText();
+  const productTitle = (await productLink.textContent())?.trim() ?? "";
   const productId = Number((await productLink.getAttribute("href"))?.split("/").filter(Boolean).pop());
   expect(productId).toBeGreaterThan(0);
   await productLink.click();
