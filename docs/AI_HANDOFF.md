@@ -13,16 +13,19 @@ Mandatory reading for every assistant, coding agent or human contributor taking 
 8. package.json and relevant source files.
 
 
-## Current continuation checkpoint — 2026-11-08 (M09.8 automated gates green)
+## Current continuation checkpoint — 2026-11-08 (v1.0.0 release candidate)
 
-- Canonical source of truth: `pooya-labs/globalcart`, branch `main`; reviewed HEAD [`b006ad6`](https://github.com/pooya-labs/globalcart/commit/b006ad6ee46b5fa87708f5425e33d023f5b337e8). Refresh main before editing because scheduled catalog/FX workflows may add generated-data commits.
-- The storefront uses the committed 1,000-product Amazon Berkeley Objects snapshot and self-hosted WebP galleries. Shopify Global Catalog remains a separate Worker smoke/integration path, not the active storefront feed.
-- Prices are positive, deterministic GlobalCart demo estimates, not seller quotes. Keep `priceKind: "estimated"` and `priceAvailable: false`; this flags the absence of verified source seller prices. Use `hasDisplayPrice` / `isEstimatedPrice` for display decisions.
-- Translation for the full catalog is paused. Only 12 curated products have reviewed Persian editorial copy. Do not restart the Google Apps Script/translation path unless the owner explicitly changes this decision.
-- Browser E2E + axe [42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573) passed: 140 passed, 9 intentional skips, 0 failed across Chromium desktop/mobile/tablet, Firefox and WebKit. TypeScript, unit tests and static build passed in the same run.
-- Lighthouse six-report budget gate [42418719210](https://github.com/pooya-labs/globalcart/actions/runs/42418719210) passed. Homepage mobile Performance 96 / LCP 2.4 s / TBT 140 ms / CLS 0; Accessibility, Best Practices and SEO were 100 across all six reports. These are GitHub-hosted lab metrics, not field data.
-- Pages deployment/public smoke [42418515019](https://github.com/pooya-labs/globalcart/actions/runs/42418515019), post-deploy live visual QA [42418719206](https://github.com/pooya-labs/globalcart/actions/runs/42418719206), Shopify Worker smoke [42418719191](https://github.com/pooya-labs/globalcart/actions/runs/42418719191), and Security [42418515016](https://github.com/pooya-labs/globalcart/actions/runs/42418515016) passed. TGJU refresh [42407257227](https://github.com/pooya-labs/globalcart/actions/runs/42407257227) passed.
-- Keep `0.2.3-dev`. Do not tag `1.0.0` until the owner has reviewed the live design on physical desktop/mobile devices and completed actual screen-reader, human RTL/LTR, normal-network/CDN and eligible field checks. The earlier Pages run [42400795572](https://github.com/pooya-labs/globalcart/actions/runs/42400795572) timed out during provider file sync; the later [42407289469](https://github.com/pooya-labs/globalcart/actions/runs/42407289469) deployment and public smoke succeeded.
+- Canonical source of truth: `pooya-labs/globalcart`, branch `main`. Package and lockfile are now at `1.0.0`; a version number alone is not proof of a published release.
+- The owner explicitly authorized publication of the stable portfolio/demo scope on 2026-11-08. This does not certify physical-device, actual screen-reader, full manual RTL/LTR or field CDN/Core Web Vitals checks.
+- Active catalog: committed 1,000-product Amazon Berkeley Objects snapshot with self-hosted optimized WebP galleries. Shopify Global Catalog remains a separate Worker smoke/integration path, not the active storefront feed.
+- Catalog amounts are deterministic GlobalCart estimates, not retailer offers. Keep `priceKind: "estimated"` and `priceAvailable: false`; use `hasDisplayPrice` / `isEstimatedPrice` for display decisions. Source seller ratings and stock remain unprovided.
+- Translation remains paused. Do not reintroduce Google Apps Script translation unless the owner explicitly changes that decision.
+- Product detail layout is protected by explicit responsive grid areas and cross-width RTL/LTR geometry tests. The home catalog has an E2E regression for positive estimates so they are not mislabeled as unavailable.
+- Public Lighthouse rerun [42420460048](https://github.com/pooya-labs/globalcart/actions/runs/42420460048) passed all six reports and unchanged regression budgets: home mobile 94 / LCP 2.4 s / TBT 200 ms / CLS 0; Accessibility, Best Practices and SEO were 100 for all six. First attempt TBT 352 ms failed, retry passed without relaxing the budget.
+- The previous full Browser E2E + axe run [42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573) passed 140 passed / 9 intentional skips / 0 failed. The new release workflow repeats this validation and the unit/build/typecheck/security/public smoke gates before publishing.
+- Release workflow: `.github/workflows/publish-release.yml`. It triggers after successful public Lighthouse, verifies the v1.0.0 manifest, reruns software quality gates, checks the published storefront/product/case-study and creates the `v1.0.0` tag / GitHub Release only after success.
+- Keep manual verification honest: physical desktop/phone, real screen reader, complete human RTL/LTR and eligible field/CDN evidence remain open. Do not mark them complete based on Playwright/axe or Lighthouse emulation.
+
 
 ## Non-negotiable requirements
 - Work only in the canonical repository pooya-labs/globalcart (formerly pooya16pg-spec/globalcart); keep it independent from other portfolio projects.
