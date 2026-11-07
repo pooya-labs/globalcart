@@ -1993,3 +1993,10 @@ body{background:#f7f8f5;color:var(--ink)}
 .drawer-fx-note[data-status="aging"]{color:#805a23}
 .drawer-fx-note[data-status="stale"],.drawer-fx-note[data-status="unavailable"]{color:#9d403b}
 .history-source-title{display:block;color:#526458;font-size:9px;line-height:1.6}
+
+
+/* M09.8 performance — defer offscreen catalog-card rendering without removing content. */
+.storefront-v2 .product-grid>.product-card{
+  content-visibility:auto;
+  contain-intrinsic-size:auto 380px;
+}
