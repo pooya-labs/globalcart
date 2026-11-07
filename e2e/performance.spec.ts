@@ -471,7 +471,7 @@ test("product detail gallery, copy and purchase panel never overlap at responsiv
     const layout=await page.evaluate(selectors=>{
       const boxes=selectors.map(selector=>{
         const element=document.querySelector(selector);
-        if(!element)return {selector,missing:true};
+        if(!element)return {selector,missing:true,left:0,right:0,top:0,bottom:0,width:0,height:0};
         const rect=element.getBoundingClientRect();
         return {
           selector,
