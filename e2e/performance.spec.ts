@@ -443,3 +443,92 @@ test("redesigned lower sections and footer keep a readable responsive layout", a
     }
   }
 });
+
+
+test("product detail gallery, copy and purchase panel never overlap at responsive widths", async ({ page }) => {
+  const response=await page.goto(`./product/${firstProduct.id}/`);
+  expect(response?.status()).toBe(200);
+  await expect(page.locator(".detail-information h1")).toBeVisible();
+  await expect(page.locator(".detail-main-image")).toBeVisible();
+
+  const viewports=[
+    {width:1440,height:1000},
+    {width:1280,height:900},
+    {width:1101,height:900},
+    {width:1100,height:900},
+    {width:1024,height:900},
+    {width:800,height:900},
+    {width:761,height:900},
+    {width:760,height:900},
+    {width:390,height:844},
+    {width:320,height:740}
+  ];
+
+  const regions=[".detail-gallery",".detail-information",".detail-buybox"];
+  for(const viewport of viewports){
+    await page.setViewportSize(viewport);
+    await expect(page.locator(".detail-information h1")).toBeVisible();
+    const layout=await page.evaluate(selectors=>{
+      const boxes=selectors.map(selector=>{
+        const element=document.querySelector(selector);
+        if(!element)return {selector,missing:true};
+        const rect=element.getBoundingClientRect();
+        return {
+          selector,
+          left:rect.left,
+          right:rect.right,
+          top:rect.top,
+          bottom:rect.bottom,
+          width:rect.width,
+          height:rect.height
+        };
+      });
+      return {
+        boxes,
+        viewportWidth:document.documentElement.clientWidth,
+        documentWidth:document.documentElement.scrollWidth,
+        bodyWidth:document.body.scrollWidth,
+        areas:getComputedStyle(document.querySelector(".product-detail-layout")!).gridTemplateAreas
+      };
+    },regions);
+    expect(layout.boxes.every(box=>!box.missing&&box.width>0&&box.height>0),
+      `A product detail region is missing at ${viewport.width}px: ${JSON.stringify(layout)}`).toBe(true);
+    expect(Math.max(layout.documentWidth,layout.bodyWidth)).toBeLessThanOrEqual(layout.viewportWidth);
+
+    for(let i=0;i<layout.boxes.length;i++){
+      for(let j=i+1;j<layout.boxes.length;j++){
+        const a=layout.boxes[i]!;
+        const b=layout.boxes[j]!;
+        const overlaps=a.left<b.right-1&&b.left<a.right-1&&a.top<b.bottom-1&&b.top<a.bottom-1;
+        expect(overlaps,
+          `Product detail regions overlap at ${viewport.width}px: ${a.selector} / ${b.selector}; ${JSON.stringify(layout)}`
+        ).toBe(false);
+      }
+    }
+
+    const [gallery,information,buybox]=layout.boxes as Array<{top:number;bottom:number}>;
+    if(viewport.width<=760){
+      expect(information.top).toBeGreaterThanOrEqual(gallery.bottom-1);
+      expect(buybox.top).toBeGreaterThanOrEqual(information.bottom-1);
+    }else if(viewport.width<=1100){
+      expect(buybox.top).toBeGreaterThanOrEqual(Math.max(gallery.bottom,information.bottom)-1);
+    }
+  }
+
+  // Repeat representative checks in English LTR so text direction cannot
+  // reintroduce a width or stacking regression.
+  await page.locator(".product-page-top button").click();
+  await expect(page.locator("main.product-page")).toHaveAttribute("dir","ltr");
+  for(const viewport of [{width:1024,height:900},{width:390,height:844}]){
+    await page.setViewportSize(viewport);
+    const boxes=await Promise.all(regions.map(selector=>page.locator(selector).boundingBox()));
+    expect(boxes.every(Boolean)).toBe(true);
+    for(let i=0;i<boxes.length;i++){
+      for(let j=i+1;j<boxes.length;j++){
+        const a=boxes[i]!,b=boxes[j]!;
+        const overlaps=a.x<b.x+b.width-1&&b.x<a.x+a.width-1&&a.y<b.y+b.height-1&&b.y<a.y+a.height-1;
+        expect(overlaps,`LTR product regions overlap at ${viewport.width}px`).toBe(false);
+      }
+    }
+  }
+});

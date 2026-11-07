@@ -38,3 +38,86 @@
 .product-page .product-source-title{color:#526458}
 .product-page .detail-source-note{color:#536458}
 .product-page .detail-source-note a{color:#174b3c}
+
+
+/* Product detail layout guard — keep the gallery, copy and purchase panel
+   in separate grid areas at every breakpoint. This overrides legacy
+   storefront-wide responsive rules that previously moved the buy box
+   into the text column around tablet widths. */
+.product-page .product-detail-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr) minmax(260px,.72fr);
+  grid-template-areas:"gallery information buybox";
+  align-items:start;
+  gap:clamp(18px,2.2vw,34px);
+  min-width:0;
+}
+.product-page .detail-gallery{grid-area:gallery;min-width:0;max-width:100%}
+.product-page .detail-information{grid-area:information;min-width:0;max-width:100%;overflow-wrap:anywhere}
+.product-page .detail-buybox{grid-area:buybox;grid-column:auto;position:sticky;top:96px;min-width:0;max-width:100%}
+.product-page .detail-main-image{
+  width:100%;
+  height:auto;
+  min-width:0;
+  aspect-ratio:1 / 1;
+  max-height:690px;
+}
+.product-page .detail-main-image>img{
+  display:block;
+  width:100%;
+  height:100%;
+  min-width:0;
+  max-width:100%;
+  object-fit:contain;
+}
+.product-page .detail-information h1,
+.product-page .product-source-title,
+.product-page .detail-description,
+.product-page .detail-specs b{
+  min-width:0;
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
+@media(max-width:1100px){
+  .product-page .product-detail-layout{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-areas:
+      "gallery information"
+      "buybox buybox";
+    gap:20px;
+  }
+  .product-page .detail-buybox{
+    grid-column:auto;
+    position:static;
+    top:auto;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:10px 20px;
+  }
+}
+@media(max-width:760px){
+  .product-page .product-detail-layout{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:
+      "gallery"
+      "information"
+      "buybox";
+    gap:18px;
+    padding-inline:0;
+  }
+  .product-page .detail-main-image{
+    height:auto;
+    aspect-ratio:1 / 1;
+    max-height:560px;
+  }
+  .product-page .detail-main-image>img{padding:14px}
+  .product-page .detail-buybox{
+    display:block;
+    grid-column:auto;
+    position:static;
+    top:auto;
+    bottom:auto;
+    z-index:auto;
+    width:100%;
+  }
+}
