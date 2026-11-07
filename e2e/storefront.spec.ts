@@ -63,8 +63,12 @@ test.beforeEach(async ({ page }) => {
 test("home merchandising is curated, category-balanced and bilingual", async ({ page }) => {
   await expect(page.locator(".hero-product-collage .hero-product-tile")).toHaveCount(3);
   await expect(page.locator('.hero-product-tile[href*="/product/601270869"]')).toHaveCount(1);
-  await expect(page.locator('.hero-product-tile[href*="/product/344744539"]')).toHaveCount(1);
-  await expect(page.locator('.hero-product-tile[href*="/product/2039335072"]')).toHaveCount(1);
+  const monitorStandTile=page.locator('.hero-product-tile[href*="/product/344744539"]');
+  const laptopTableTile=page.locator('.hero-product-tile[href*="/product/2039335072"]');
+  await expect(monitorStandTile).toHaveCount(1);
+  await expect(laptopTableTile).toHaveCount(1);
+  await expect(monitorStandTile).toHaveAccessibleName("تجهیزات فضای کار پایه رومیزی مانیتور");
+  await expect(laptopTableTile).toHaveAccessibleName("تجهیزات فضای کار میز قابل‌حمل لپ‌تاپ");
   const categoryTiles=page.locator(".category-strip .category-tile");
   await expect(categoryTiles.locator(".category-symbol svg")).toHaveCount(await categoryTiles.count());
   await expect(page.locator(".product-title-fa").first()).toBeVisible();
