@@ -21,14 +21,15 @@
 
 </details>
 
-GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. The editorial storefront shell redesign in [PR #2](https://github.com/pooya-labs/globalcart/pull/2) is merged; the current M09.8 polish pass is tracked in [ROADMAP.md](ROADMAP.md). It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
+GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate product engineering: responsive retail UX, catalog ingestion, localization, pricing, discovery, shopping flows, dashboards, automated quality checks and deployment. The editorial storefront redesign is merged and the portfolio demo is being prepared for its stable v1.0.0 release; implementation and verification history are tracked in [ROADMAP.md](ROADMAP.md). It is not a live retailer. No real goods are sold and no real payment, inventory reservation, shipment, seller payout or money refund is processed. Returns/refunds exist only as an internal demo state machine.
 
-## Current status — v0.2.3-dev · M09.8 automated gates green; owner/manual QA remains
+## Current status — v1.0.0 release candidate · 2026-11-08
 
-**Latest verification checkpoint — 2026-11-08:** Browser E2E + axe [42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573) passed with 140 tests passed, 9 intentional skips and 0 failed across Chromium desktop/mobile/tablet, Firefox and WebKit. TypeScript, unit tests and static build passed in the same run. The latest six-report Lighthouse gate [42418719210](https://github.com/pooya-labs/globalcart/actions/runs/42418719210) passed (homepage mobile Performance 96, LCP 2.4 s, TBT 140 ms, CLS 0; all Accessibility / Best Practices / SEO scores 100). Live visual QA [42418719206](https://github.com/pooya-labs/globalcart/actions/runs/42418719206), Shopify Worker smoke [42418719191](https://github.com/pooya-labs/globalcart/actions/runs/42418719191), Security [42418515016](https://github.com/pooya-labs/globalcart/actions/runs/42418515016), and the latest Pages deployment/public smoke [42418515019](https://github.com/pooya-labs/globalcart/actions/runs/42418515019) passed. TGJU refresh [42407257227](https://github.com/pooya-labs/globalcart/actions/runs/42407257227) passed.
+**Release scope:** stable portfolio/demo publication, not a live retailer. The owner has explicitly authorized the v1.0.0 release. The release tag is created only after the new release workflow finishes its verification pipeline.
 
-**Release status:** M09.8 automated checks are green. Version remains `0.2.3-dev`; v1.0 is not released. Physical desktop/mobile review, real screen-reader verification, owner approval, complete human RTL/LTR inspection and normal-network/CDN plus eligible field evidence remain release gates.
+**Automated verification:** the release pipeline repeats TypeScript validation, unit tests, production build, the cross-browser Playwright/axe suite, historical secret scanning and public Pages smoke checks. The independent six-report public Lighthouse gate has passed on [run 42420460048](https://github.com/pooya-labs/globalcart/actions/runs/42420460048), including home-mobile Performance 94, LCP 2.4 s, TBT 200 ms and CLS 0.
 
+**QA boundary:** physical-device testing, actual platform screen-reader review, comprehensive human RTL/LTR inspection and eligible field/CDN Core Web Vitals evidence are not claimed as completed. The catalog prices remain illustrative estimates, and cart/checkout are simulations. No production payments, inventory reservation, fulfillment or seller payouts are enabled.
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
