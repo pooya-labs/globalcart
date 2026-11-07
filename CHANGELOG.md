@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased — M09.8 cross-browser verification and Pages publication (2026-11-08)
+
+### Changed
+- Fixed mobile hero product links so their names remain available to assistive technology while the visible title treatment remains visually hidden at compact breakpoints.
+- Changed the command-palette overlay fade to animate the backdrop only; dialog text and keyboard hints remain fully opaque while the panel enters.
+- Deferred rendering of offscreen catalog cards with `content-visibility: auto` while keeping the card text in the DOM/accessibility tree. Updated browser tests to read deferred title content safely with `textContent`.
+- Kept all alternate product-gallery images and the existing Lighthouse budgets; no catalogue/gallery reduction or threshold relaxation was used to address the Pages provider delay.
+
+### Verification
+- Full Browser E2E + axe [run 42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573): **140 passed / 9 intentional skips / 0 failed** across Chromium desktop/mobile/tablet, Firefox and WebKit.
+- Security scan [run 42400795745](https://github.com/pooya-labs/globalcart/actions/runs/42400795745) passed.
+- Six-report public Lighthouse gate [run 42400190622](https://github.com/pooya-labs/globalcart/actions/runs/42400190622) passed. Homepage mobile scored 99 with FCP 1.1 s, LCP 2.2 s, TBT 50 ms and CLS 0; all Accessibility / Best Practices / SEO scores were 100.
+- Live desktop/mobile image QA [run 42400190621](https://github.com/pooya-labs/globalcart/actions/runs/42400190621) and Shopify Worker smoke [run 42400190741](https://github.com/pooya-labs/globalcart/actions/runs/42400190741) passed.
+- GitHub Pages deployment and public homepage / JavaScript asset / site image / product / case-study smoke [run 42407289469](https://github.com/pooya-labs/globalcart/actions/runs/42407289469) passed. The preceding attempt [42400795572](https://github.com/pooya-labs/globalcart/actions/runs/42400795572) timed out during provider-side `syncing_files`; a later scheduled deployment completed successfully.
+- TGJU refresh [run 42407257227](https://github.com/pooya-labs/globalcart/actions/runs/42407257227) passed.
+
+### Release note
+- Keep package version `0.2.3-dev`. Automated M09.8 gates are green, but owner approval, physical desktop/mobile checks, actual screen-reader review, human RTL/LTR inspection and normal-network/CDN plus eligible field evidence remain open. No `1.0.0` tag is created.
+
 ## Unreleased — M09.8 status and source-disclosure alignment (2026-11-07)
 
 ### Changed

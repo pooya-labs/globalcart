@@ -13,16 +13,16 @@ Mandatory reading for every assistant, coding agent or human contributor taking 
 8. package.json and relevant source files.
 
 
-## Current continuation checkpoint — 2026-11-07 (M09.8)
+## Current continuation checkpoint — 2026-11-08 (M09.8 automated gates green)
 
-- Canonical source of truth: `pooya-labs/globalcart`, branch `main`; latest reviewed HEAD was `8a89f0d`. Refresh main before editing because scheduled catalog/FX workflows may add generated-data commits.
-- Current storefront catalog: committed 1,000-product Amazon Berkeley Objects snapshot; importer is `scripts/sync-catalog.ts` and mapper is `lib/catalog/abo.ts`. Product galleries are self-hosted WebP. Shopify Global Catalog is a separate Worker smoke path, not the active storefront feed.
-- Prices are positive, deterministic GlobalCart demo estimates, not seller quotes. Keep `priceKind: "estimated"` and `priceAvailable: false`; the latter records that the source does not provide a verified seller price. Never remove this provenance flag to make a price visible. Use `hasDisplayPrice` / `isEstimatedPrice` for display decisions.
+- Canonical source of truth: `pooya-labs/globalcart`, branch `main`; reviewed HEAD [`b006ad6`](https://github.com/pooya-labs/globalcart/commit/b006ad6ee46b5fa87708f5425e33d023f5b337e8). Refresh main before editing because scheduled catalog/FX workflows may add generated-data commits.
+- The storefront uses the committed 1,000-product Amazon Berkeley Objects snapshot and self-hosted WebP galleries. Shopify Global Catalog remains a separate Worker smoke/integration path, not the active storefront feed.
+- Prices are positive, deterministic GlobalCart demo estimates, not seller quotes. Keep `priceKind: "estimated"` and `priceAvailable: false`; this flags the absence of verified source seller prices. Use `hasDisplayPrice` / `isEstimatedPrice` for display decisions.
 - Translation for the full catalog is paused. Only 12 curated products have reviewed Persian editorial copy. Do not restart the Google Apps Script/translation path unless the owner explicitly changes this decision.
-- Latest Pages public smoke [42387896585](https://github.com/pooya-labs/globalcart/actions/runs/42387896585), Lighthouse budget gate [42367298478](https://github.com/pooya-labs/globalcart/actions/runs/42367298478), post-deploy visual QA [42367298484](https://github.com/pooya-labs/globalcart/actions/runs/42367298484), Shopify Worker smoke [42367298509](https://github.com/pooya-labs/globalcart/actions/runs/42367298509) and TGJU refresh [42387859483](https://github.com/pooya-labs/globalcart/actions/runs/42387859483) passed.
-- The latest Browser E2E attempt [42247489435](https://github.com/pooya-labs/globalcart/actions/runs/42247489435) was cancelled; M09.8 is not green. Run the complete Browser E2E + axe suite on the current code and verify JavaScript/CSS budgets. Do not weaken assertions or thresholds to get a green run.
-- Keep `0.2.3-dev`. Do not tag `1.0.0` until automated checks pass and the owner has reviewed the design on physical desktop/mobile devices, with actual screen-reader and human RTL/LTR checks plus normal-network/CDN evidence.
-
+- Browser E2E + axe [42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573) passed: 140 passed, 9 intentional skips, 0 failed across Chromium desktop/mobile/tablet, Firefox and WebKit. TypeScript, unit tests and static build passed in the same run.
+- Lighthouse six-report budget gate [42400190622](https://github.com/pooya-labs/globalcart/actions/runs/42400190622) passed. Homepage mobile Performance 99 / LCP 2.2 s / TBT 50 ms / CLS 0; Accessibility, Best Practices and SEO were 100 across all six reports. These are GitHub-hosted lab metrics, not field data.
+- Pages deployment/public smoke [42407289469](https://github.com/pooya-labs/globalcart/actions/runs/42407289469), post-deploy live visual QA [42400190621](https://github.com/pooya-labs/globalcart/actions/runs/42400190621), Shopify Worker smoke [42400190741](https://github.com/pooya-labs/globalcart/actions/runs/42400190741), and Security [42400795745](https://github.com/pooya-labs/globalcart/actions/runs/42400795745) passed. TGJU refresh [42407257227](https://github.com/pooya-labs/globalcart/actions/runs/42407257227) passed.
+- Keep `0.2.3-dev`. Do not tag `1.0.0` until the owner has reviewed the live design on physical desktop/mobile devices and completed actual screen-reader, human RTL/LTR, normal-network/CDN and eligible field checks. The earlier Pages run [42400795572](https://github.com/pooya-labs/globalcart/actions/runs/42400795572) timed out during provider file sync; the later [42407289469](https://github.com/pooya-labs/globalcart/actions/runs/42407289469) deployment and public smoke succeeded.
 
 ## Non-negotiable requirements
 - Work only in the canonical repository pooya-labs/globalcart (formerly pooya16pg-spec/globalcart); keep it independent from other portfolio projects.

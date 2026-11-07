@@ -1,12 +1,23 @@
 # Public performance and release QA
 
-## Latest published gate — 2026-11-07
+## Latest published gate — 2026-11-08
 
-- Public Lighthouse run [42367298478](https://github.com/pooya-labs/globalcart/actions/runs/42367298478) completed all six audits (storefront, product detail and case study in mobile and desktop modes) and passed the workflow's regression-budget enforcement step.
-- The same post-deploy checkpoint's live visual alignment QA passed on [run 42367298484](https://github.com/pooya-labs/globalcart/actions/runs/42367298484). The later Pages publication [42387896585](https://github.com/pooya-labs/globalcart/actions/runs/42387896585) passed its own public smoke checks.
-- The current gate enforces a complete six-report matrix, mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95. Exact per-route measurements and raw reports are retained in the Lighthouse run's artifact and summary.
-- These remain GitHub-hosted lab measurements. They do not prove physical-device behavior, field INP/CrUX Core Web Vitals, CDN performance from every geography, or manual assistive-technology compatibility.
+- The six-report public Lighthouse run [42400190622](https://github.com/pooya-labs/globalcart/actions/runs/42400190622) completed all audits (storefront, product detail and case study in mobile and desktop modes) and passed the enforced regression budgets.
+- Exact reported results:
 
+| Route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.4 s | 0 ms | 0 |
+| Case study — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 60 ms | 0 |
+| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
+| Home — mobile | 99 | 100 | 100 | 100 | 1.1 s | 2.2 s | 50 ms | 0 |
+| Product — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.5 s | 0 ms | 0 |
+| Product — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 50 ms | 0 |
+
+- The current gate enforces mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95.
+- Live desktop/mobile image alignment QA passed on [run 42400190621](https://github.com/pooya-labs/globalcart/actions/runs/42400190621). A later Pages publication [42407289469](https://github.com/pooya-labs/globalcart/actions/runs/42407289469) passed deployment plus public route/asset smoke.
+- Browser E2E + axe passed on [run 42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573): 140 passed / 9 intentional skips / 0 failed. Security passed on [run 42400795745](https://github.com/pooya-labs/globalcart/actions/runs/42400795745).
+- These are GitHub-hosted lab measurements. They do not prove physical-device behavior, field INP/CrUX Core Web Vitals, CDN performance from every geography, or manual assistive-technology compatibility.
 
 ## Automated Lighthouse lab baseline
 
