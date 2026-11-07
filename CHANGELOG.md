@@ -1,3 +1,19 @@
+## 1.0.0 — GlobalCart portfolio demo release (2026-11-08)
+
+### Included
+- Establish the first stable version of the independent GlobalCart portfolio/demo project.
+- Retain the Persian RTL / English LTR storefront, offline-first 1,000-product catalog, self-hosted image galleries, static product details, comparison and discovery flows.
+- Retain explicit illustrative price provenance and TGJU conversion disclosure; local cart and checkout remain simulations.
+- Add a release workflow that gates tag creation on typecheck, unit tests, production build, full Playwright/axe, historical secret scanning and published-route smoke checks. The public Lighthouse workflow independently enforces all six route/mode budgets.
+
+### Verification
+- Public six-report Lighthouse audit and retry passed on [run 42420460048](https://github.com/pooya-labs/globalcart/actions/runs/42420460048): home mobile Performance 94 / LCP 2.4 s / TBT 200 ms / CLS 0; the other five reports also passed. Accessibility, Best Practices and SEO were 100 in all six reports.
+- The initial run attempt measured home-mobile TBT at 352 ms and failed the 300 ms budget; the job was rerun without changing the budget and passed at 200 ms. The regression threshold was not relaxed.
+
+### Release boundary
+- This is a stable portfolio/demo release, not a production commerce service. Product prices are estimates rather than verified seller quotes; the catalog source does not provide live seller stock or ratings.
+- Physical desktop/mobile testing, actual platform screen-reader review, complete human RTL/LTR inspection and eligible field/CDN Core Web Vitals evidence remain unverified and are not represented as passed. No real payment, inventory reservation, shipping, seller payout or refund is enabled.
+
 # Changelog
 
 ## Unreleased — M09.8 cross-browser verification and Pages publication (2026-11-08)
