@@ -4,10 +4,10 @@
   "instrument": "price_dollar_rl",
   "baseCurrency": "USD",
   "rawQuoteCurrency": "IRR",
-  "rawPriceRial": 2669000,
+  "rawPriceRial": 2664100,
   "displayQuoteCurrency": "TOMAN",
-  "tomanPerUsd": 266900,
-  "sourceTimeTehran": "15:54:56",
+  "tomanPerUsd": 266410,
+  "sourceTimeTehran": "19:05:56",
   "sourceTimeKind": "clock",
-  "sourceUpdatedAt": "2026-11-07T12:24:56.000Z"
+  "sourceUpdatedAt": "2026-11-07T15:35:56.000Z"
 }
