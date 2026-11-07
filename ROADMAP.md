@@ -2,16 +2,16 @@
 
 > The single source of truth. A stage is complete only after implementation and verification.
 
-**Current release:** 0.2.3-dev  
-**Active stage:** M09.8 — editorial storefront polish. Automated release gates are green; owner/device/manual accessibility approval remains open. The reviewed repository checkpoint is [b006ad6](https://github.com/pooya-labs/globalcart/commit/b006ad6ee46b5fa87708f5425e33d023f5b337e8), an automated catalog/lockfile/image persistence commit after the verified application work.
+**Current release:** 1.0.0 (stable portfolio/demo release candidate)  
+**Active stage:** M09 — final verification and v1 publication. Owner authorization to publish the portfolio/demo scope was received on 2026-11-08. The release automation must pass before the tag is created.
 
 - **Catalog and prices:** 1,000 ABO products are stored locally with positive, deterministic GlobalCart demo estimates. Every product retains `priceKind: "estimated"` and `priceAvailable: false`: the source provides no verified seller price, rating or stock. Estimates are not retailer quotes. TGJU is used only to convert USD estimates to Toman and disclose FX freshness.
-- **Latest publication:** GitHub Pages deployment and public smoke passed on [run 42418515019](https://github.com/pooya-labs/globalcart/actions/runs/42418515019). A prior run [42400795572](https://github.com/pooya-labs/globalcart/actions/runs/42400795572) timed out while Pages was syncing files; later deployments completed successfully without removing gallery assets.
-- **Browser E2E:** the full cross-browser + axe run [42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573) passed with **140 passed / 9 intentional skips / 0 failed**. TypeScript, unit tests and static build passed in the same run.
-- **Public quality:** the latest six-report Lighthouse gate passed on [run 42418719210](https://github.com/pooya-labs/globalcart/actions/runs/42418719210); homepage mobile scored 96 with LCP 2.4 s, TBT 140 ms and CLS 0. All Accessibility / Best Practices / SEO scores were 100. Live desktop/mobile image QA passed on [run 42418719206](https://github.com/pooya-labs/globalcart/actions/runs/42418719206); Shopify Worker smoke passed on [run 42418719191](https://github.com/pooya-labs/globalcart/actions/runs/42418719191); the latest TGJU refresh passed on [run 42407257227](https://github.com/pooya-labs/globalcart/actions/runs/42407257227). These are CI/lab checks, not physical-device or field Core Web Vitals evidence.
-- **Security:** the latest changed-code secret scan passed on [run 42418515016](https://github.com/pooya-labs/globalcart/actions/runs/42418515016).
-- **Release gate:** owner visual approval, physical desktop/mobile validation, actual screen-reader review, human RTL/LTR inspection and normal-network/CDN plus eligible field evidence remain open. **Do not tag or publish 1.0.0 until the owner approves the storefront and the remaining manual checks are complete.** Keep `0.2.3-dev`.
-
+- **Price display:** shared `hasDisplayPrice` logic keeps positive demo estimates visible in product cards, detail pages and cart calculations without misrepresenting them as source-verified seller prices. Browser E2E includes a regression asserting that the home catalog does not show the old “Price not provided” message for these estimates.
+- **Product layout:** the gallery, product copy and purchase panel use explicit responsive grid areas. Browser geometry tests cover ten widths, RTL/LTR and overlap/overflow assertions; the fix is already present on `main`.
+- **Browser E2E:** the latest completed cross-browser + axe baseline [run 42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573) passed **140 passed / 9 intentional skips / 0 failed**. The v1 release workflow repeats the suite on the 1.0.0 candidate.
+- **Public quality:** six-report Lighthouse rerun passed on [run 42420460048](https://github.com/pooya-labs/globalcart/actions/runs/42420460048); home-mobile Performance 94, LCP 2.4 s, TBT 200 ms and CLS 0. All Accessibility / Best Practices / SEO scores were 100. The first attempt hit TBT 352 ms; the successful rerun passed the unchanged 300 ms budget.
+- **Previous publication and security:** Pages smoke [run 42418515019](https://github.com/pooya-labs/globalcart/actions/runs/42418515019), live desktop/mobile visual QA [run 42418719206](https://github.com/pooya-labs/globalcart/actions/runs/42418719206), Shopify Worker smoke [run 42418719191](https://github.com/pooya-labs/globalcart/actions/runs/42418719191), and Security [run 42418515016](https://github.com/pooya-labs/globalcart/actions/runs/42418515016) passed on the previous verified main head.
+- **Owner release decision:** publish v1.0.0 as a stable portfolio/demo project. Physical-device testing, actual screen-reader review, comprehensive manual RTL/LTR inspection and field/CDN Core Web Vitals evidence remain open and are not claimed as completed. Real payments, inventory reservation, fulfillment and production seller operations remain out of scope.
 
 | Frontend | Next.js App Router, React, TypeScript | Storefront, product pages, admin/seller UX | Current |
 | Backend | Go REST API + OpenAPI | Domain services, auth, catalog and orders | M04 |
@@ -51,7 +51,7 @@
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Internal admin and seller services through profile/demo analytics CI-verified; dashboard UI and public routes remain gated |
 | M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
 | M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget, Lighthouse lab, route-scoped image hints and FX snapshot publication relay implemented and event-verified; physical/manual QA remains |
-| M09 | 1.0.0 | Portfolio case study, release and public demo QA | Planned |
+| M09 | 1.0.0 | Portfolio case study, release and public demo QA | Release candidate; publish after automated release workflow passes |
 
 ## M00 — Product and governance
 - [x] Portfolio simulation, not a live retailer.
@@ -1263,3 +1263,16 @@ Scope: raise the public demo's retail credibility without adding live payments, 
 - [ ] Perform owner review of selected catalog items, Persian naming and product-detail presentation.
 
 **Scope:** portfolio/demo polish only. Real payment, inventory, shipping, seller production operations and real account services remain out of scope. Keep `0.2.3-dev`; no 1.0.0 tag until automated checks and manual release gates pass.
+
+
+## M10 — GlobalCart 1.0.0 release candidate (2026-11-08)
+
+- [x] Set the application package and lockfile version to `1.0.0`.
+- [x] Add release notes with clear simulation, catalog-price and infrastructure boundaries.
+- [x] Add a release workflow that waits for a successful public Lighthouse audit, then repeats TypeScript, unit, production-build, cross-browser Playwright/axe, Gitleaks and public-route smoke checks before creating the `v1.0.0` tag and GitHub Release.
+- [ ] Confirm the Pages deployment triggered by the release candidate completes successfully.
+- [ ] Confirm the release workflow completes and the `v1.0.0` tag / GitHub Release exist.
+- [ ] After publication, update this roadmap, README, Project Context, AI handoff and performance record with the exact successful run links.
+- [ ] Physical desktop/mobile, actual screen-reader, full human RTL/LTR and field CDN/Core Web Vitals checks remain external follow-up evidence. These are not marked complete by CI or by the owner's authorization to publish the portfolio demo.
+
+**Release boundary:** version 1.0.0 describes the stable portfolio simulation. It does not claim production commerce readiness or external hardware/assistive-technology validation.
