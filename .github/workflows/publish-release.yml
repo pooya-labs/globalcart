@@ -1,0 +1,159 @@
+name: Publish GlobalCart 1.0.0
+
+on:
+  workflow_run:
+    workflows: ["Public Lighthouse lab audit"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: globalcart-v1-release
+  cancel-in-progress: false
+
+jobs:
+  verify-and-publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.repository.full_name == github.repository }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out the release candidate from main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Verify the release manifest
+        id: manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p 'require("./package.json").version')"
+          test "$version" = "1.0.0"
+          grep -q '^## 1.0.0 — GlobalCart portfolio demo release' CHANGELOG.md
+          test -s docs/releases/v1.0.0.md
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "target_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Release manifest is consistent: $version"
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit
+
+      - name: Install the pinned image optimizer
+        run: npm install --no-save --package-lock=false --no-audit --no-fund sharp@0.35.5
+
+      - name: Prepare self-hosted site imagery
+        run: npm run assets:sync
+
+      - name: TypeScript validation
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production static build
+        run: npm run build
+        env:
+          GITHUB_ACTIONS: "true"
+
+      - name: Install cross-browser test engines
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Full Browser E2E and axe suite
+        run: npm run test:e2e
+
+      - name: Scan repository history for secrets
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_ENABLE_SUMMARY: "true"
+
+      - name: Verify the published storefront, product and case study
+        shell: bash
+        env:
+          SITE_BASE: https://pooya-labs.github.io/globalcart
+        run: |
+          set -euo pipefail
+          product_id="$(node -e 'const p=require("./data/catalog.json").products; if(!Array.isArray(p)||!p[0]?.id)process.exit(1); process.stdout.write(String(p[0].id))')"
+          home="$(mktemp)"
+          product="$(mktemp)"
+          case_study="$(mktemp)"
+          trap 'rm -f "$home" "$product" "$case_study"' EXIT
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors "$SITE_BASE/" --output "$home"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors "$SITE_BASE/product/$product_id/" --output "$product"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors "$SITE_BASE/case-study/" --output "$case_study"
+          node - "$home" "$product" "$case_study" "$product_id" <<'NODE'
+          const fs = require("node:fs");
+          const [homeFile, productFile, caseFile, id] = process.argv.slice(2);
+          const home = fs.readFileSync(homeFile, "utf8");
+          const product = fs.readFileSync(productFile, "utf8");
+          const study = fs.readFileSync(caseFile, "utf8");
+          for (const [name, html] of [["home", home], ["product", product], ["case study", study]]) {
+            if (!html.includes("<html") || /<title>404[ -]/i.test(html)) {
+              throw new Error("Published " + name + " route is missing or returned 404.");
+            }
+          }
+          if (!product.includes(id) || !product.includes("detail-main-image") || !product.includes("detail-price")) {
+            throw new Error("Published product route is missing its product identity, gallery or price region.");
+          }
+          if (product.includes("Price not listed")) {
+            throw new Error("Published representative product page has no visible demo estimate.");
+          }
+          if (!study.includes("DATABASE_ERD.md")) {
+            throw new Error("Published case study is missing its architecture/ERD reference.");
+          }
+          NODE
+          echo "Public Pages smoke passed for the storefront, representative product detail and bilingual case study."
+
+      - name: Confirm the release target is unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --quiet
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+            echo "::error::main moved during release verification. No tag was created; rerun the release after the new main head is verified."
+            exit 1
+          fi
+
+      - name: Create the 1.0.0 GitHub release and tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.manifest.outputs.version }}
+          TARGET_SHA: ${{ steps.manifest.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "GitHub release $tag already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create "$tag" \
+            --target "$TARGET_SHA" \
+            --title "GlobalCart $VERSION" \
+            --notes-file docs/releases/v1.0.0.md
+
+      - name: Publish release summary
+        if: success()
+        env:
+          VERSION: ${{ steps.manifest.outputs.version }}
+          TARGET_SHA: ${{ steps.manifest.outputs.target_sha }}
+        run: |
+          {
+            echo "## GlobalCart $VERSION published"
+            echo
+            echo "- Tag: `v$VERSION`"
+            echo "- Commit: `$TARGET_SHA`"
+            echo "- Release: https://github.com/pooya-labs/globalcart/releases/tag/v$VERSION"
+            echo "- Scope: stable portfolio/demo release; no production commerce or real transactions."
+            echo "- Hardware, screen-reader, comprehensive manual RTL/LTR and field Core Web Vitals checks are not claimed as completed."
+          } >> "$GITHUB_STEP_SUMMARY"
