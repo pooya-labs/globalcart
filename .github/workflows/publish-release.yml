@@ -182,7 +182,7 @@ jobs:
         if: success()
         env:
           VERSION: ${{ steps.manifest.outputs.version }}
-          TARGET_SHA: ${{ steps.manifest.outputs.target_sha }}
+          TARGET_SHA: ${{ steps.final_target.outputs.target_sha }}
         run: |
           {
             echo "## GlobalCart $VERSION published"
