@@ -10,7 +10,7 @@ const content = {
   fa: {
     eyebrow: "PORTFOLIO CASE STUDY · POOYA LABS · 2026",
     title: "یک بازار جهانی؛ از تجربه کاربری تا زیرساخت داده",
-    intro: "GlobalCart یک شبیه‌سازی مستقل از تجربه بازارگاه‌های مدرن است؛ پروژه‌ای برای نمایش مهندسی محصول، طراحی رابط دوزبانه، خط لوله داده و معماری بک‌اند قابل توسعه. مالکیت و نگهداری پروژه بر عهده Pooya Labs است.",
+    intro: "GlobalCart یک شبیه‌سازی مستقل و کامل از تجربه یک بازارگاه مدرن است؛ مطالعه‌ای عملی از طراحی محصول دوزبانه، کاتالوگ آفلاین، تجربه کشف و مقایسه، شفافیت قیمت و زیرساخت مهندسی. محصول و نگه‌داری آن متعلق به Pooya Labs است و نسخهٔ پایدار نمایشی ۱.۰.۰ آن منتشر شده است.",
     explore: "مشاهده فروشگاه", github: "مشاهده کد در GitHub", language: "English",
     stats: [["1,000", "محصول نمونه"], ["24", "دسته‌بندی کالا"], ["2", "زبان و جهت نوشتار"], ["0", "تراکنش واقعی"]],
     storyTitle: "از یک ویترین ساده تا یک سیستم چندلایه",
@@ -19,7 +19,7 @@ const content = {
     features: [
       ["01", "کشف و جست‌وجو", "پیشنهادهای جست‌وجو، فیلترهای ترکیبی، مرتب‌سازی، جست‌وجوی ذخیره‌شده و فرمان‌پالت صفحه‌کلید.", "رفتن به ویترین", "/#catalog"],
       ["02", "تجربه محصول", "صفحه مستقل محصول، گالری قابل پیمایش تصاویر، محصولات مرتبط و مقایسه هم‌زمان تا چهار محصول.", "دیدن محصولات", "/#catalog"],
-      ["03", "داده و قیمت", "کاتالوگ ۱۰۰۰ محصولی از مجموعه‌دادهٔ Amazon Berkeley Objects با مجوز CC BY 4.0 و آخرین نسخهٔ معتبر؛ نرخ TGJU فقط برای نمایش تبدیل ارز، بدون ساختن قیمت کالا.", "روش کار داده", "#architecture"],
+      ["03", "داده و قیمت", "کاتالوگ ۱۰۰۰ محصولی از مجموعه‌دادهٔ Amazon Berkeley Objects با مجوز CC BY 4.0؛ برآوردهای نمایشی قیمت به‌صورت جداگانه و با برچسب تخمینی نمایش داده می‌شوند. TGJU فقط تبدیل دلار به تومان و تازگی نرخ ارز را فراهم می‌کند.", "روش کار داده", "#architecture"],
       ["04", "مسیر خرید نمایشی", "سبد خرید، علاقه‌مندی‌ها، بازدیدهای اخیر و ثبت سفارش آزمایشی؛ بدون پرداخت یا ارسال واقعی.", "بازدیدهای اخیر", "/recently-viewed/"]
     ],
     architectureTitle: "معماری امروز، نه معماری خیالی",
@@ -38,7 +38,7 @@ const content = {
     ci: "GitHub Actions", ciNote: "تست، اسکن امنیتی، ساخت و انتشار Pages",
     boundaryTitle: "مرزهای محصول و تصمیم‌های مهندسی",
     boundaries: [
-      ["داده نمونه", "کاتالوگ ۱۰۰۰ محصولی از Amazon Berkeley Objects با مجوز CC BY 4.0 ساخته شده است؛ این مجموعه‌داده قیمت فروش، امتیاز و موجودی واقعی نمی‌دهد و این فیلدها عمداً ثبت نشده‌اند."],
+      ["داده نمونه و برآورد قیمت", "مجموعه‌دادهٔ Amazon Berkeley Objects قیمت فروش، امتیاز یا موجودی فروشنده را ارائه نمی‌کند. GlobalCart برای تجربهٔ نمایشی، برآوردهای ثابت و دسته‌محور می‌سازد و آن‌ها را با وضعیت تخمینی از دادهٔ منبع جدا نگه می‌دارد؛ این ارقام قیمت فروشنده نیستند و قیمت منبع همچنان ناموجود است."],
       ["نرخ ارز", "منبع نرخ دلار آزاد TGJU است. مقدار خام ریال حفظ و برای نمایش به تومان بر ده تقسیم می‌شود؛ نرخ نمایشی، قیمت اجرایی معامله نیست."],
       ["خرید", "سبد، پرداخت، سفارش، مرجوعی و بازپرداخت صرفاً شبیه‌سازی هستند؛ هیچ پول یا کالایی جابه‌جا نمی‌شود."],
       ["تأمین‌کننده", "اتصال زنده به آمازون یا فروشندگان بدون دسترسی رسمی و مجوز داده انجام نمی‌شود؛ scraping در برنامه نیست."],
@@ -46,15 +46,15 @@ const content = {
     ],
     stackTitle: "پشته فنی",
     stack: ["Next.js 15", "React 19", "TypeScript", "Go", "PostgreSQL 17", "sqlc", "Playwright", "GitHub Actions"],
-    nextTitle: "قدم بعدی",
-    next: "نسخهٔ پایدار ۱.۰.۰ برای نمایش و بررسی مهندسی منتشر شده است. گام‌های باقی‌مانده، بازبینی دستی روی دستگاه‌های واقعی، صفحه‌خوان و رفتار کامل RTL/LTR هستند؛ این بررسی‌ها بیرون از شبیه‌سازی مرورگر و Lighthouse انجام می‌شوند.",
-    footer: "محصول متعلق به Pooya Labs · طراحی و مهندسی پویا گودرزی",
+    nextTitle: "انتشار پایدار و کیفیت نهایی",
+    next: "نسخهٔ پایدار نمایشی ۱.۰.۰ در ۸ نوامبر ۲۰۲۶ منتشر شد و محدودهٔ نسخهٔ اول بسته شده است. آزمون‌های مرورگر روی Chromium، Firefox و WebKit، ۱۶۳ آزمون موفق، ۹ مورد کنارگذاری عمدی و صفر شکست ثبت کردند. هر شش گزارش Lighthouse بودجه‌های بدون تغییر را پاس کردند: امتیاز کارایی موبایل برای خانه، محصول و کیس‌استادی ۹۶، ۹۶ و ۹۹؛ امتیاز دسکتاپ هر سه مسیر ۱۰۰ بود. دسترس‌پذیری، بهترین‌روش‌ها و SEO در هر شش گزارش ۱۰۰ و CLS صفر ثبت شد. اسکن امنیتی، استقرار Pages، بازبینی تصویری زنده و کنترل کاتالوگ نیز موفق بودند. مالک، بازبینی روی دستگاه‌های واقعی دسکتاپ و موبایل، صفحه‌خوان واقعی و بررسی کامل فارسی RTL / انگلیسی LTR را تأیید کرده است. بهینه‌سازی بیشتر یک قطعهٔ مشترک JavaScript و داده‌های میدانی Core Web Vitals پیگیری‌های اختیاری آینده‌اند؛ دادهٔ میدانی هنوز جمع‌آوری نشده و هیچ‌کدام مانع انتشار نسخهٔ نمایشی نیستند.",
+    footer: "محصول و نگه‌داری: Pooya Labs · طراحی و مهندسی: پویا گودرزی",
     back: "بازگشت به فروشگاه"
   },
   en: {
     eyebrow: "PORTFOLIO CASE STUDY · POOYA LABS · 2026",
     title: "A global marketplace, from product experience to data infrastructure",
-    intro: "GlobalCart is an independent simulation of a modern marketplace: a portfolio project showcasing product engineering, bilingual interface design, data pipelines and an extensible backend architecture. Owned and maintained by Pooya Labs.",
+    intro: "GlobalCart is an independent, end-to-end marketplace simulation and a practical study in bilingual product design, an offline-first catalog, discovery and comparison, transparent pricing, and production-minded engineering. Owned and maintained by Pooya Labs, its stable 1.0.0 portfolio release is now published.",
     explore: "Explore the storefront", github: "View source on GitHub", language: "فارسی",
     stats: [["1,000", "sample products"], ["24", "product categories"], ["2", "languages & directions"], ["0", "real transactions"]],
     storyTitle: "From a storefront to a layered system",
@@ -63,7 +63,7 @@ const content = {
     features: [
       ["01", "Discovery & search", "Search suggestions, combined facets, sorting, saved searches and a keyboard command palette.", "Explore the catalog", "/#catalog"],
       ["02", "Product experience", "Dedicated product pages, browsable multi-image galleries, related products and side-by-side comparison for up to four items.", "Browse products", "/#catalog"],
-      ["03", "Data & pricing", "A 1,000-product catalog built from the CC BY 4.0 Amazon Berkeley Objects dataset with last-known-good protection; TGJU is used for indicative FX display, never to invent product prices.", "How data flows", "#architecture"],
+      ["03", "Data & pricing", "A 1,000-product catalog built from the CC BY 4.0 Amazon Berkeley Objects dataset. Clearly labelled, deterministic demo estimates are kept separate from unavailable source prices; TGJU supplies USD-to-Toman conversion and FX freshness only.", "How data flows", "#architecture"],
       ["04", "Demo commerce journey", "Cart, favorites, recently viewed and simulated order completion—with no real payment or fulfillment.", "Recently viewed", "/recently-viewed/"]
     ],
     architectureTitle: "The architecture that exists—not an imaginary one",
@@ -82,7 +82,7 @@ const content = {
     ci: "GitHub Actions", ciNote: "Tests, security scans, build and Pages deployment",
     boundaryTitle: "Product boundaries & engineering decisions",
     boundaries: [
-      ["Sample data", "The 1,000-product sample catalog is built from Amazon Berkeley Objects under CC BY 4.0. The dataset does not supply retail sale prices, ratings or stock, so those fields remain explicitly unavailable."],
+      ["Sample data & estimates", "The Amazon Berkeley Objects dataset does not supply seller sale prices, ratings or stock. GlobalCart generates stable category-bounded demo estimates and labels them as estimates, separately from source provenance; no estimate is presented as a verified seller price."],
       ["Foreign exchange", "TGJU is the USD free-market source. Its raw Rial quote is retained and divided by ten for Toman display; this is not an executable quote."],
       ["Commerce", "Cart, payment, orders, returns and refunds are simulations. No money or goods move."],
       ["Suppliers", "Amazon or seller integrations require authorized access and data rights. Scraping is not part of the plan."],
@@ -90,9 +90,9 @@ const content = {
     ],
     stackTitle: "Technology",
     stack: ["Next.js 15", "React 19", "TypeScript", "Go", "PostgreSQL 17", "sqlc", "Playwright", "GitHub Actions"],
-    nextTitle: "What comes next",
-    next: "The stable 1.0.0 portfolio/demo release is published. Remaining follow-up is owner-led review on real desktop/mobile devices, actual platform screen readers and complete human RTL/LTR behavior; browser emulation and Lighthouse lab runs do not replace those checks.",
-    footer: "A Pooya Labs product · Designed and engineered by Pooya Goodarzi",
+    nextTitle: "Stable release & quality closeout",
+    next: "The stable 1.0.0 portfolio/demo release was published on November 8, 2026, and the v1.0 scope is closed. Cross-browser runs on Chromium, Firefox and WebKit recorded 163 passed tests, 9 intentional skips and zero failures. All six Lighthouse reports passed the unchanged budgets: mobile Performance scored 96, 96 and 99 for the home, product and case-study routes; desktop Performance was 100 on all three. Accessibility, Best Practices and SEO scored 100 in every report, with CLS at zero throughout. Security scanning, Pages deployment, live visual QA and catalog smoke checks also passed. The owner confirmed real desktop/mobile review, an actual platform screen-reader review and a full human RTL/LTR pass. Further shared-chunk JavaScript reduction and field Core Web Vitals collection are optional follow-ups; field data has not been collected, and neither item blocks this static portfolio/demo release.",
+    footer: "Owned and maintained by Pooya Labs · Designed and engineered by Pooya Goodarzi",
     back: "Back to storefront"
   }
 } as const;
@@ -217,7 +217,7 @@ export default function CaseStudyPage() {
       </section>
 
       <section className="cs-next">
-        <span className="cs-kicker">07 / ROAD AHEAD</span><h2>{t.nextTitle}</h2><p>{t.next}</p>
+        <span className="cs-kicker">{rtl ? "07 / انتشار و کیفیت" : "07 / RELEASE & QUALITY"}</span><h2>{t.nextTitle}</h2><p>{t.next}</p>
         <Link href="/">{t.back}{rtl ? <ArrowLeft size={16}/> : <ArrowRight size={16}/>}</Link>
       </section>
 

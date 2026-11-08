@@ -10,6 +10,8 @@ test("capture the Persian case study for portfolio evidence", async ({ page }, t
   await expect(main).toHaveAttribute("dir", "rtl");
   await expect(main.getByRole("heading", { level: 1 })).toContainText("یک بازار جهانی");
   await expect(main.getByRole("heading", { name: "مدل داده و روابط پایگاه‌داده" })).toBeVisible();
+  await expect(main.getByRole("heading", { name: "انتشار پایدار و کیفیت نهایی" })).toBeVisible();
+  await expect(main.getByText(/۱۶۳ آزمون موفق/)).toBeVisible();
   await expect(main.getByRole("link", { name: /مشاهده نمودار کامل ERD/ })).toBeVisible();
 
   await page.evaluate(() => document.fonts.ready);

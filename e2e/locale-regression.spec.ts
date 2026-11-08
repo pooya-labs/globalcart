@@ -89,11 +89,15 @@ test("Persian RTL and English LTR persist across public routes without horizonta
   const caseStudy = page.locator("main.case-study");
   await expect(caseStudy).toHaveAttribute("dir", "ltr");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("A global marketplace");
+  await expect(page.getByRole("heading", { name: "Stable release & quality closeout" })).toBeVisible();
+  await expect(caseStudy.getByText(/163 passed tests, 9 intentional skips and zero failures/)).toBeVisible();
   await expectNoHorizontalOverflow(page, "English case study");
 
   await page.getByRole("button", { name: "تغییر زبان به فارسی" }).click();
   await expect(caseStudy).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("یک بازار جهانی");
+  await expect(page.getByRole("heading", { name: "انتشار پایدار و کیفیت نهایی" })).toBeVisible();
+  await expect(caseStudy.getByText(/۱۶۳ آزمون موفق/)).toBeVisible();
   await expectNoHorizontalOverflow(page, "Persian case study");
 
   // Returning to the storefront must preserve the last selected language.

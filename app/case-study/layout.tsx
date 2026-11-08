@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "GlobalCart — Project Case Study",
-  description: "A bilingual portfolio case study covering GlobalCart's product experience, data pipeline and backend architecture.",
+  description: "The GlobalCart 1.0.0 bilingual portfolio case study: marketplace UX, offline catalog, labelled demo pricing, engineering architecture and verified release quality.",
   alternates: { canonical: "https://pooya-labs.github.io/globalcart/case-study/" }
 };
 
