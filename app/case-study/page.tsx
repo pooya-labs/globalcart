@@ -47,7 +47,7 @@ const content = {
     stackTitle: "پشته فنی",
     stack: ["Next.js 15", "React 19", "TypeScript", "Go", "PostgreSQL 17", "sqlc", "Playwright", "GitHub Actions"],
     nextTitle: "قدم بعدی",
-    next: "هسته فنی و تست‌های خودکار آماده‌اند. پیش از انتشار ۱.۰، بررسی دستی روی دستگاه واقعی، صفحه‌خوان، رفتار کامل RTL/LTR و سنجش واقعی CDN و Core Web Vitals باقی مانده است. سپس تصاویر مستند، نمودار ERD و انتشار نسخه نهایی تکمیل می‌شوند.",
+    next: "نسخهٔ پایدار ۱.۰.۰ برای نمایش و بررسی مهندسی منتشر شده است. گام‌های باقی‌مانده، بازبینی دستی روی دستگاه‌های واقعی، صفحه‌خوان و رفتار کامل RTL/LTR هستند؛ این بررسی‌ها بیرون از شبیه‌سازی مرورگر و Lighthouse انجام می‌شوند.",
     footer: "محصول متعلق به Pooya Labs · طراحی و مهندسی پویا گودرزی",
     back: "بازگشت به فروشگاه"
   },
@@ -91,7 +91,7 @@ const content = {
     stackTitle: "Technology",
     stack: ["Next.js 15", "React 19", "TypeScript", "Go", "PostgreSQL 17", "sqlc", "Playwright", "GitHub Actions"],
     nextTitle: "What comes next",
-    next: "The engineering foundation and automated checks are in place. Before the 1.0 release, manual real-device, screen-reader, full RTL/LTR and live CDN/Core Web Vitals reviews remain. Then the final screenshots, ERD and versioned release can be completed.",
+    next: "The stable 1.0.0 portfolio/demo release is published. Remaining follow-up is owner-led review on real desktop/mobile devices, actual platform screen readers and complete human RTL/LTR behavior; browser emulation and Lighthouse lab runs do not replace those checks.",
     footer: "A Pooya Labs product · Designed and engineered by Pooya Goodarzi",
     back: "Back to storefront"
   }
