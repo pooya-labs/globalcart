@@ -8,7 +8,7 @@
 - **Release target:** tag `v1.0.0` points to [`dfe9a98`](https://github.com/pooya-labs/globalcart/commit/dfe9a98c70a9bbde3f5444c6f2cad2abd74269ac); the official release workflow [run 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761) completed successfully on attempt 2.
 - **Browser E2E + axe:** **151 passed / 9 intentional skips / 0 failed** in the official release run. The independent mainline Browser E2E [run 42493655900](https://github.com/pooya-labs/globalcart/actions/runs/42493655900) also passed.
 - **Catalog and prices:** the published storefront uses the committed 1,000-product ABO snapshot. Deterministic positive estimates retain `priceKind: "estimated"` and `priceAvailable: false`; they are not retailer quotes. Source seller ratings and stock remain unprovided. TGJU converts USD estimates to Toman and reports FX freshness only.
-- **Published Lighthouse:** [run 42495556274](https://github.com/pooya-labs/globalcart/actions/runs/42495556274) passed all six route/mode reports. Mobile Performance: home 97 / product 97 / case study 100; desktop 100 throughout. Home mobile LCP 2.5 s / TBT 90 ms; CLS 0. Accessibility, Best Practices and SEO were 100 in all six reports. Budgets were not relaxed.
+- **Published Lighthouse:** [run 42497030779](https://github.com/pooya-labs/globalcart/actions/runs/42497030779) passed all six route/mode reports. Mobile Performance: home 92 / product 95 / case study 99; desktop 100 throughout. Home mobile LCP 2.5 s / TBT 280 ms; product mobile LCP 2.5 s / TBT 180 ms; case-study mobile LCP 0.9 s / TBT 100 ms. Accessibility, Best Practices and SEO are 100 throughout; CLS is 0. Budgets were not relaxed. Home-mobile TBT has only 20 ms headroom; M11 tracks initial JavaScript and long-task optimization.
 - **Pages and live visual QA:** deployment [run 42495371492](https://github.com/pooya-labs/globalcart/actions/runs/42495371492), live desktop/mobile image QA [run 42495556297](https://github.com/pooya-labs/globalcart/actions/runs/42495556297) and Shopify Worker catalog smoke [run 42495556252](https://github.com/pooya-labs/globalcart/actions/runs/42495556252) passed.
 - **Security:** Security workflow [run 42495371493](https://github.com/pooya-labs/globalcart/actions/runs/42495371493) passed, and the release Gitleaks scan found no leaks. One exact historical false positive for the documented PostgreSQL column name `carts.owner_user_id` is scoped by its single fingerprint in `.gitleaksignore`; no path-wide or rule-wide suppression is used.
 - **Manual follow-up:** physical desktop/phone, actual platform screen-reader, full human RTL/LTR, and eligible normal-network/CDN field Core Web Vitals remain unverified. Do not mark these complete based on browser emulation or Lighthouse lab data.
@@ -53,6 +53,8 @@
 | M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
 | M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget, Lighthouse lab, route-scoped image hints and FX snapshot publication relay implemented and event-verified; physical/manual QA remains |
 | M09 | 1.0.0 | Portfolio case study, release and public demo QA | Stable portfolio/demo release published; external manual QA remains follow-up |
+| M10 | 1.0.0 | Stable portfolio/demo release | Published; official release automation and six-report public quality gate passed |
+| M11 | 1.1.x (planned) | Post-release performance headroom and owner QA | Backlog: reduce homepage mobile long tasks while preserving budgets; complete physical-device, screen-reader and owner visual QA |
 
 ## M00 — Product and governance
 - [x] Portfolio simulation, not a live retailer.
@@ -1277,4 +1279,15 @@ Scope: raise the public demo's retail credibility without adding live payments, 
 - [ ] Physical desktop/mobile, actual screen-reader, full human RTL/LTR and eligible field/CDN Core Web Vitals remain external follow-up evidence; they are not marked complete by CI or by the owner's release authorization.
 
 **Release boundary:** v1.0.0 is a stable portfolio/demo release, not a production commerce service. Product values are estimates, seller ratings/stock are unverified, and all shopping/checkout behavior remains simulated. External hardware/assistive-technology and field QA are still open.
+
+## M11 — post-release performance headroom and owner QA (planned; 2026-11-08)
+
+- [ ] Investigate the homepage mobile TBT baseline from [Lighthouse run 42497030779](https://github.com/pooya-labs/globalcart/actions/runs/42497030779): 280 ms against a 300 ms budget. Keep the budget unchanged.
+- [ ] Profile the initial JavaScript long tasks before changing code: the report identifies a 244 ms task in the shared Next.js chunk `4bd1b696-c023c6e3521b1417.js`, a 120 ms document task, and two additional tasks of 77 ms / 66 ms in chunk `493-fb878163f2eec184.js`.
+- [ ] Evaluate a safe split/defer opportunity for the estimated 21.7 KiB unused portion of chunk `493-fb878163f2eec184.js` (about 60 ms potential audit savings). Preserve command palette, search, cart, favorite, comparison, locale and catalog behavior; do not remove galleries or relax asset/performance budgets.
+- [ ] Run typecheck, unit tests, full Playwright/axe, public Pages smoke and the six-report Lighthouse gate after any optimization. Aim for repeatable TBT headroom rather than one unusually low run.
+- [ ] Complete physical desktop/mobile review, actual platform screen-reader review and owner-led full RTL/LTR review; record device/browser/method and findings. These cannot be claimed from CI emulation.
+
+**Rule:** M11 is a post-release maintenance backlog. Do not change the published `v1.0.0` tag; any future code work should be scoped as a new patch/minor release after its own tests.
+
 
