@@ -1158,10 +1158,10 @@ body{background:#f7f8f5;color:var(--ink)}
 @media(max-width:760px){
   .storefront-v2 .topline{height:29px;padding-inline:12px;font-size:8px}
   .storefront-v2 .header{height:66px;padding-inline:4%;gap:8px}
-  .storefront-v2 .header-actions>.bag-button{position:relative;display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;padding:0}
+  .storefront-v2 .header-actions>.bag-button{position:relative;display:grid;place-items:center;flex:0 0 46px;height:46px;padding:0}
   .storefront-v2 .header-actions>.bag-button>svg{width:21px;height:21px}
   .storefront-v2 .header-actions>.bag-button>b{position:absolute;top:-5px;inset-inline-end:-5px;z-index:2}
-  .storefront-v2 .header-actions>.locale-button{color:#fff}
+  .storefront-v2 .header-actions>.locale-button{color:#fff;background:#174b3c;border-radius:9px}
   .storefront-v2 .categorybar{min-height:42px;padding-inline:4%;gap:7px;overflow:auto;white-space:nowrap}
   .storefront-v2 .hero-editorial-v2{
     width:calc(100% - 24px);margin:13px auto 0;
@@ -1201,9 +1201,10 @@ body{background:#f7f8f5;color:var(--ink)}
   }
   .storefront-v2 .benefits>div{gap:8px}
   .storefront-v2 .benefit-icon{width:31px;height:31px;border-radius:10px}
-  .storefront-v2 .benefits b{font-size:9px;line-height:1.7}
-  .storefront-v2 .benefits small{font-size:9px;line-height:1.65}
-  .storefront-v2 .fx-control{grid-column:1/-1;display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;padding:13px;border:1px solid #e3ebe2;border-radius:12px}
+  .storefront-v2 .benefits b,.storefront-v2 .benefits small{font-size:9px}
+  .storefront-v2 .benefits b{line-height:1.7}
+  .storefront-v2 .benefits small{line-height:1.65}
+  .storefront-v2 .fx-control{grid-column:1/-1;display:flex;flex-direction:column;gap:6px;min-width:0;padding:13px;border:1px solid #e3ebe2;border-radius:12px}
   .storefront-v2 .fx-control>strong{min-width:0;overflow-wrap:anywhere;line-height:1.8}
   .storefront-v2 .fx-control>small{line-height:1.8;overflow-wrap:anywhere}
   
@@ -1634,7 +1635,7 @@ body{background:#f7f8f5;color:var(--ink)}
   }
   .storefront-v2 .footer-links>b{grid-column:1/-1;margin-bottom:4px}
   .storefront-v2 .footer-links>a{width:100%;min-height:38px;font-size:11px;line-height:1.7}
-  .storefront-v2 .footer-disclaimer{padding:15px} .storefront-v2 .footer-disclaimer p{font-size:11px;line-height:1.9}
+  .storefront-v2 .footer-disclaimer{padding:15px}.storefront-v2 .footer-disclaimer p{font-size:11px;line-height:1.9}
   .storefront-v2 .footer-bottom{
     min-height:0;
     align-items:flex-start;
