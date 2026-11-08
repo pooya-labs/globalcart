@@ -2004,3 +2004,97 @@ body{background:#f7f8f5;color:var(--ink)}
 @media(max-width:760px){
   .storefront-v2 .product-grid>.product-card{contain-intrinsic-size:auto 390px}
 }
+
+/* Android/mobile header alignment: keep brand and utility actions in stable,
+   non-wrapping slots so the locale and cart controls never drift or collide. */
+@media (max-width: 760px) {
+  .storefront-v2 .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    min-width: 0;
+    padding-inline: max(12px, 3.5%);
+  }
+  .storefront-v2 .mobile-toggle {
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    width: 34px;
+    min-width: 34px;
+    height: 36px;
+    padding: 0;
+  }
+  .storefront-v2 .brand {
+    flex: 0 1 auto;
+    min-width: 0;
+    gap: 7px;
+  }
+  .storefront-v2 .brand-mark {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+  }
+  .storefront-v2 .brand-name {
+    min-width: 0;
+    white-space: nowrap;
+    font-size: clamp(12px, 3.6vw, 15px);
+  }
+  .storefront-v2 .header-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    min-width: max-content;
+    margin-inline-start: auto;
+  }
+  .storefront-v2 .header-actions > .mobile-search-trigger,
+  .storefront-v2 .header-actions > .locale-button {
+    display: grid;
+    flex: 0 0 34px;
+    place-items: center;
+    width: 34px;
+    min-width: 34px;
+    height: 36px;
+    padding: 0;
+  }
+  .storefront-v2 .header-actions > .search-area {
+    flex: 0 0 34px;
+    width: 34px;
+    min-width: 34px;
+  }
+  .storefront-v2 .header-actions > .bag-button {
+    display: flex;
+    flex: 0 0 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 42px;
+    min-width: 42px;
+    height: 38px;
+    padding: 0;
+    border-radius: 12px;
+  }
+  .storefront-v2 .header-actions > .bag-button > svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+  }
+  .storefront-v2 .header-actions > .bag-button > b {
+    position: absolute;
+    inset-block-start: -4px;
+    inset-inline-end: -4px;
+    width: 17px;
+    height: 17px;
+    font-size: 9px;
+    border: 2px solid #fbfcfa;
+  }
+}
+@media (max-width: 380px) {
+  .storefront-v2 .header { gap: 4px; padding-inline: 10px; }
+  .storefront-v2 .brand { gap: 5px; }
+  .storefront-v2 .brand-name { font-size: 12px; }
+  .storefront-v2 .header-actions { gap: 2px; }
+}
