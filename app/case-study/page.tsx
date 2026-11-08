@@ -114,7 +114,7 @@ export default function CaseStudyPage() {
   return (
     <main className={`case-study ${rtl ? "rtl" : "ltr"}`} dir={rtl ? "rtl" : "ltr"} lang={locale}>
       <header className="cs-topbar">
-        <Link href="/" className="cs-brand"><span className="cs-mark"><img src="../images/site/pooya-mark.svg" alt="Pooya Labs logo" width="38" height="38"/></span><span>globalcart<small>A POOYA LABS PRODUCT</small></span></Link>
+        <Link href="/" className="cs-brand"><span className="cs-mark">g.</span><span>globalcart<small>THE WORLD, WELL FOUND.</small></span></Link>
         <nav aria-label={rtl ? "ناوبری پرونده پروژه" : "Case study navigation"}>
           <Link href="/">{t.back}</Link>
           <button type="button" onClick={changeLocale} aria-label={rtl ? "Switch language to English" : "تغییر زبان به فارسی"}><Globe2 size={16}/>{t.language}</button>
@@ -133,7 +133,7 @@ export default function CaseStudyPage() {
         </div>
         <div className="cs-hero-art" role="img" aria-label="GlobalCart product architecture illustration">
           <div className="cs-art-orbit orbit-one"/><div className="cs-art-orbit orbit-two"/>
-          <div className="cs-art-core"><img src="../images/site/pooya-mark.svg" alt="" aria-hidden="true" width="88" height="88"/><b>GLOBALCART</b><small>OWNED BY POOYA LABS</small></div>
+          <div className="cs-art-core"><img src="../images/site/pooya-monogram.webp" alt="" aria-hidden="true" width="76" height="113"/><b>GLOBALCART</b><small>OWNED BY POOYA LABS</small></div>
           <div className="cs-art-chip chip-a">RTL ↔ LTR</div><div className="cs-art-chip chip-b">DATA → UX</div><div className="cs-art-chip chip-c">DEMO / SAFE</div>
         </div>
       </section>
@@ -218,7 +218,7 @@ export default function CaseStudyPage() {
         <Link href="/">{t.back}{rtl ? <ArrowLeft size={16}/> : <ArrowRight size={16}/>}</Link>
       </section>
 
-      <footer className="cs-footer"><Link href="/" className="cs-brand"><span className="cs-mark"><img src="../images/site/pooya-mark.svg" alt="Pooya Labs logo" width="30" height="30"/></span><span>globalcart<small>A POOYA LABS PRODUCT</small></span></Link><p>{t.footer}</p><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14}/></a></footer>
+      <footer className="cs-footer"><Link href="/" className="cs-brand"><span className="cs-mark">g.</span><span>globalcart</span></Link><p>{t.footer}</p><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14}/></a></footer>
     </main>
   );
 }
