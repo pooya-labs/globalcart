@@ -1,24 +1,25 @@
 # Public performance and release QA
 
-## Latest post-release measurement — 2026-11-08 (M11 lazy-dialog follow-up)
+## Latest post-release measurement — 2026-11-08 (post-merge deployed main)
 
-- Public Lighthouse [run 42517087881](https://github.com/pooya-labs/globalcart/actions/runs/42517087881), attempt 2, audited the newly deployed site after PR [#24](https://github.com/pooya-labs/globalcart/pull/24). All six published route/mode reports passed the existing budgets; no thresholds changed. Attempt 1 received a transient HTTP 503 on the case-study mobile request and was retried; the successful attempt includes all six reports.
+- Public Lighthouse [run 42518731855](https://github.com/pooya-labs/globalcart/actions/runs/42518731855) audited the latest deployed mainline snapshot after PRs [#24](https://github.com/pooya-labs/globalcart/pull/24) and [#25](https://github.com/pooya-labs/globalcart/pull/25). All six route/mode reports passed the existing budgets; no thresholds changed.
 - Exact results (Lighthouse 13.6.0, GitHub-hosted runner):
 
 | Route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
-| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 121 ms | 0 |
-| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 1 ms | 0 |
-| Home — mobile | 96 | 100 | 100 | 100 | 1.1 s | 2.4 s | 174 ms | 0 |
-| Product — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.5 s | 4 ms | 0 |
-| Product — mobile | 96 | 100 | 100 | 100 | 1.0 s | 2.5 s | 130 ms | 0 |
+| Case study — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 60 ms | 0 |
+| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 0 ms | 0 |
+| Home — mobile | 98 | 100 | 100 | 100 | 1.1 s | 2.3 s | 90 ms | 0 |
+| Product — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.5 s | 0 ms | 0 |
+| Product — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.4 s | 90 ms | 0 |
 
 - The unchanged gate still enforces mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95.
-- Compared with the preceding successful home-mobile measurement [run 42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362) (Performance 94 / LCP 2.47 s / TBT 224 ms), the new sample is 96 / 2.35 s / 174 ms. It is a better lab sample, but repeatability and causality are not established.
-- Paired home-mobile network traces show total initial JavaScript transfer falling from **139,873 to 137,202 bytes** (~2.7 KB); uncompressed transfer fell from **462,771 to 449,250 bytes**. The page chunk decreased from 85,727 to 75,230 raw bytes. However, the shared `255-1dfe01161d17a1b9.js` chunk remains unchanged at 174,525 raw / 47,415 transferred bytes, and Lighthouse estimates exactly **21,737 bytes** of unused code in it in both traces. The lazy-overlay boundary is therefore real and useful, but the remaining shared chunk is the next performance target.
-- The dialog regression verifies no drawer before the user opens the bag, then observes a new script request after interaction; focus enters the dialog and returns to its trigger after Escape. It passes in Chromium, Firefox and WebKit.
-- These are GitHub-hosted lab measurements, not physical-device or field Core Web Vitals. Physical-device, actual screen-reader, full manual RTL/LTR and eligible normal-network/CDN evidence remain separate follow-up checks.
+- Compared with the preceding successful home-mobile sample [run 42517087881](https://github.com/pooya-labs/globalcart/actions/runs/42517087881) (Performance 96 / LCP 2.4 s / TBT 174 ms), this latest lab sample is 98 / 2.3 s / 90 ms. These are lab diagnostics; do not infer a field Core Web Vitals result from them.
+- Paired network traces from the earlier PR #24 comparison still show ~2.7 KB less total initial script transfer, but the shared `255-1dfe01161d17a1b9.js` chunk remains 47,415 transferred bytes with 21,737 bytes estimated unused. It remains the next code-profiling target; do not claim the shared chunk is optimized.
+- The lazy-dialog regression proves no drawer before the user opens the bag, a new script request after interaction, focus entry, and focus restoration after Escape. It passes in Chromium, Firefox and WebKit.
+- **Owner-confirmed manual QA (2026-11-08):** physical desktop/phone review, actual platform screen-reader review, and full human Persian RTL / English LTR walkthrough were completed and passed, according to the project owner. Exact device, OS/browser and assistive-technology versions were not supplied in the repository record. Physical tablet and a separate physical-keyboard walkthrough were not explicitly included.
+- These Lighthouse results are GitHub-hosted lab measurements, not field Core Web Vitals. Eligible normal-network/CDN field measurements remain unverified.
 
 ## Latest published gate — 2026-11-08 current main deployment
 
@@ -310,17 +311,17 @@ Accessibility, Best Practices and SEO are 100 in every audit; CLS is zero throug
 
 ## Manual release checklist — fill with actual observations
 
-Do not tick these items based on CI emulation. Record actual device, browser/OS version, viewport, date and findings in the table before closing M09.4.
+Do not tick these items based on CI emulation. Owner-reported manual checks are marked explicitly as owner-confirmed; exact device/software matrix was not supplied. Keep unconfirmed tablet, physical-keyboard and field-delivery checks separate.
 
 | Area | Required evidence | Status / notes |
 |---|---|---|
-| Physical desktop | Open the public storefront and case study on a real laptop/desktop browser; inspect normal and narrow windows | Pending physical-device QA |
-| Physical mobile | Open the same routes on a real phone; inspect portrait and landscape, touch targets and overflow | Pending physical-device QA |
+| Physical desktop | Open the public storefront and case study on a real laptop/desktop browser; inspect normal and narrow windows | Owner-confirmed completed and passed 2026-11-08; exact device/browser matrix not recorded |
+| Physical mobile | Open the same routes on a real phone; inspect portrait and landscape, touch targets and overflow | Owner-confirmed completed and passed 2026-11-08; exact device/browser matrix not recorded |
 | Tablet hardware | Confirm both orientations and touch behavior on a real tablet; automated iPad emulation already passes | Automated iPad portrait/landscape passed in [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312); physical tablet remains unverified |
-| Persian RTL | Check navigation, search, filters, product detail, dialogs, cart simulation, case study and recently viewed | Automated route/locale regressions passed; full human visual pass pending |
-| English LTR | Repeat the full route pass after changing language; reload and verify the preference persists | Automated route/locale regressions passed; full human visual pass pending |
+| Persian RTL | Check navigation, search, filters, product detail, dialogs, cart simulation, case study and recently viewed | Owner-confirmed full human RTL walkthrough completed and passed 2026-11-08 |
+| English LTR | Repeat the full route pass after changing language; reload and verify the preference persists | Owner-confirmed full human LTR walkthrough completed and passed 2026-11-08 |
 | Keyboard | Verify logical tab order, visible focus, Escape-to-close, focus containment and focus restoration for dialogs/drawers | Playwright keyboard/focus regressions passed in the cross-browser suite; physical keyboard review pending |
-| Screen reader | Complete real navigation and form/dialog interactions with a platform screen reader; report announcements and focus order | Pending actual assistive-technology review |
+| Screen reader | Complete real navigation and form/dialog interactions with a platform screen reader; report announcements and focus order | Owner-confirmed actual platform screen-reader review completed and passed 2026-11-08; exact AT/version not recorded |
 | Published delivery | Repeat Lighthouse from a normal network/location and capture the URL/date/method; distinguish lab from field data | GitHub-hosted lab audits and six-report guard passed; normal-network run pending |
 | Field Core Web Vitals | Record real-user/CrUX data only when the origin has eligible data; otherwise state that no field sample is available | No field sample claimed; check eligibility after redesign/public traffic |
 
@@ -334,6 +335,6 @@ Do not tick these items based on CI emulation. Record actual device, browser/OS 
 
 ### Release decision
 
-The stable v1.0.0 portfolio/demo release is published. Physical-device, actual screen-reader, full-site RTL/LTR and published-delivery/field-metric checks remain external follow-up evidence. Automated axe and Playwright coverage is regression protection, not evidence that those manual checks have happened.
+The stable v1.0.0 portfolio/demo release is published. Owner-confirmed physical desktop/phone, actual screen-reader and full-site RTL/LTR checks completed and passed on 2026-11-08. Physical tablet, a separate physical-keyboard walkthrough and normal-network/field Core Web Vitals remain external follow-up evidence. Automated axe and Playwright coverage remains regression protection, not the evidence for those owner-led checks.
 
 The latest successful home-mobile Lighthouse retry measured TBT at 200 ms against a 300 ms budget; the first sample was 353 ms. Both are retained as lab-run variance evidence. The M11 backlog tracks the shared-chunk/document long tasks and unused JavaScript estimate for post-release optimization.
