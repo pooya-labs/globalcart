@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { filterCatalogProducts } from "../lib/catalog/filtering";
 import { EDITORIAL_PRODUCT_GROUPS, getPersianProductCopy, selectEditorialProducts } from "../lib/catalog/editorial";
 import { buildCatalogSuggestions, type CatalogSearchSuggestion } from "../lib/catalog/suggestions";
@@ -19,6 +20,8 @@ import {
   Music, Package, PawPrint, Plus, Search, ShieldCheck, Shirt, ShoppingBag, ShoppingCart, SlidersHorizontal, Smartphone,
   Sparkles, Star, Trash2, Truck, Utensils, Watch, Wrench, GitCompareArrows, type LucideIcon, X, Zap
 } from "lucide-react";
+
+const CommandPalette = dynamic(() => import("./CommandPalette"), { ssr: false, loading: () => null });
 
 export type Product = {
   id: number; title: string; description: string; category: string; price: number;
@@ -296,14 +299,11 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
   const [searchSuggestionsOpen,setSearchSuggestionsOpen]=useState(false);
   const [activeSuggestionIndex,setActiveSuggestionIndex]=useState(-1);
   const [commandPaletteOpen,setCommandPaletteOpen]=useState(false);
-  const [commandQuery,setCommandQuery]=useState("");
-  const [activeCommandIndex,setActiveCommandIndex]=useState(0);
+  const [commandPaletteReady,setCommandPaletteReady]=useState(false);
   const searchInputRef=useRef<HTMLInputElement>(null);
-  const commandInputRef=useRef<HTMLInputElement>(null);
   const commandPaletteReturnFocusRef=useRef<HTMLElement|null>(null);
   const nextDialogReturnFocusRef=useRef<HTMLElement|null>(null);
   const searchListboxId=useId();
-  const commandInputId=useId();
   const t=copy[locale];
   const rtl=locale==="fa";
   const fxTimestampLabel = fxQuote.sourceTimeKind==="date_only" && fxQuote.sourceTimeTehran
@@ -334,10 +334,10 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
   const modalActive=commandPaletteOpen||checkout||compareOpen||Boolean(quick)||favoriteOpen||cartOpen;
   const overlayModalActive=checkout||compareOpen||Boolean(quick)||favoriteOpen||cartOpen;
 
+  const markCommandPaletteReady=useCallback(()=>setCommandPaletteReady(true),[]);
   const openCommandPalette=()=>{
     commandPaletteReturnFocusRef.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
-    setCommandQuery("");
-    setActiveCommandIndex(0);
+    setCommandPaletteReady(false);
     setCommandPaletteOpen(true);
   };
   useEffect(()=>{
@@ -354,6 +354,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
   },[modalActive]);
   useEffect(()=>{
     if(!modalActive)return;
+    if(commandPaletteOpen&&!commandPaletteReady)return;
     const dialog=document.querySelector<HTMLElement>('[role="dialog"][aria-modal="true"]');
     if(!dialog)return;
     const requestedReturnTarget=nextDialogReturnFocusRef.current;
@@ -364,7 +365,10 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
     const selector='a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
     const getFocusable=()=>Array.from(dialog.querySelectorAll<HTMLElement>(selector)).filter(el=>!el.hasAttribute("hidden")&&el.getAttribute("aria-hidden")!=="true");
     const focusable=getFocusable();
-    (focusable[0]??dialog).focus();
+    const activeElement=document.activeElement;
+    if(!(activeElement instanceof HTMLElement)||!dialog.contains(activeElement)){
+      (focusable[0]??dialog).focus();
+    }
     const trapTab=(event:KeyboardEvent)=>{
       if(event.key!=="Tab")return;
       const items=getFocusable();
@@ -378,13 +382,10 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
       document.removeEventListener("keydown",trapTab);
       if(previouslyFocused?.isConnected)previouslyFocused.focus();
     };
-  },[modalActive,commandPaletteOpen,checkout,compareOpen,quick,favoriteOpen,cartOpen]);
+  },[modalActive,commandPaletteOpen,commandPaletteReady,checkout,compareOpen,quick,favoriteOpen,cartOpen]);
 
   useEffect(()=>{
-    if(commandPaletteOpen){
-      commandInputRef.current?.focus();
-      return;
-    }
+    if(commandPaletteOpen)return;
     const target=commandPaletteReturnFocusRef.current;
     if(!target)return;
     commandPaletteReturnFocusRef.current=null;
@@ -594,18 +595,8 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
 
   const closeCommandPalette=()=>{
     setCommandPaletteOpen(false);
-    setCommandQuery("");
-    setActiveCommandIndex(0);
+    setCommandPaletteReady(false);
   };
-  const commandItems=[
-    {id:"catalog",label:t.commandCatalog,keywords:"shop products storefront catalog ویترین فروشگاه محصول"},
-    {id:"categories",label:t.commandCategories,keywords:"category categories browse دسته بندی گروه"},
-    {id:"cart",label:t.commandCart,keywords:"bag basket cart سبد خرید"},
-    {id:"favorites",label:t.commandFavorites,keywords:"saved favorite wishlist علاقه مندی ذخیره"},
-    {id:"compare",label:t.commandCompare,keywords:"comparison compare مقایسه"},
-    {id:"clear",label:t.commandClear,keywords:"reset filters پاک کردن فیلتر بازنشانی"},
-    {id:"language",label:t.commandLanguage,keywords:"locale فارسی english زبان"}
-  ].filter(item=>(item.label+" "+item.keywords).toLocaleLowerCase().includes(commandQuery.trim().toLocaleLowerCase()));
   const runCommand=(id:string)=>{
     if(id==="cart"||id==="favorites"||(id==="compare"&&compareIds.length>=2)){
       nextDialogReturnFocusRef.current=commandPaletteReturnFocusRef.current;
@@ -906,31 +897,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
 
       <footer className="footer"><div className="footer-main"><div><a href="#top" className="brand footer-brand"><span className="brand-mark brand-mark-owner"><img src="images/site/pooya-mark.svg" alt="Pooya Labs logo" width="40" height="40"/></span><span className="brand-name">globalcart<small>A POOYA LABS PRODUCT</small></span></a><p>{t.footer}</p><span className="footer-owner">{t.owner}</span></div><div className="footer-links"><b>EXPLORE</b><a href="#catalog">{t.nav1}</a><a href="#categories">{t.nav2}</a><Link href="/recently-viewed">{t.recently}</Link><a href="#about">{t.nav4}</a><Link href="/case-study/">Case study / روایت پروژه</Link><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpLeftIcon/></a></div><div className="footer-disclaimer"><span><ShieldCheck size={17}/>{t.demo}</span><p>{t.noPayment}</p><small>PRODUCT DATA IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY.</small></div></div><div className="footer-bottom"><span>© 2026 GLOBALCART · POOYA LABS</span><span>CREATED BY POOYA GOODARZI · INDEPENDENTLY ENGINEERED.</span></div></footer>
 
-      {commandPaletteOpen&&<div className="overlay modal-overlay command-palette-overlay" onMouseDown={event=>{if(event.target===event.currentTarget)closeCommandPalette();}}>
-        <section className="command-palette" role="dialog" aria-modal="true" aria-labelledby={commandInputId+"-title"} aria-describedby={commandInputId+"-hint"} tabIndex={-1}>
-          <div className="command-palette-heading"><div><span className="section-kicker">GLOBALCART / COMMANDS</span><h2 id={commandInputId+"-title"}>{t.commandPalette}</h2></div><button className="icon-button" onClick={closeCommandPalette} aria-label={t.close}><X size={18}/></button></div>
-          <label className="command-palette-search" htmlFor={commandInputId}><Search size={18}/><input
-            id={commandInputId} ref={commandInputRef} autoFocus value={commandQuery}
-            role="combobox" aria-autocomplete="list" aria-controls={commandInputId+"-list"}
-            aria-expanded={commandItems.length>0}
-            aria-activedescendant={commandItems[activeCommandIndex]?commandInputId+"-option-"+activeCommandIndex:undefined}
-            onChange={event=>{setCommandQuery(event.target.value);setActiveCommandIndex(0);}}
-            onKeyDown={event=>{
-              if(event.key==="ArrowDown"){event.preventDefault();setActiveCommandIndex(current=>commandItems.length?Math.min(current+1,commandItems.length-1):0);}
-              else if(event.key==="ArrowUp"){event.preventDefault();setActiveCommandIndex(current=>Math.max(current-1,0));}
-              else if(event.key==="Enter"){event.preventDefault();const chosen=commandItems[activeCommandIndex]??commandItems[0];if(chosen)runCommand(chosen.id);}
-            }}
-            placeholder={t.commandSearch}
-          /></label>
-          <div className="command-palette-list" id={commandInputId+"-list"} role="listbox" aria-label={t.commandPalette}>
-            {commandItems.length===0?<p className="command-palette-empty" role="status">{t.noCommands}</p>:commandItems.map((command,index)=><button type="button" role="option" id={commandInputId+"-option-"+index} aria-selected={index===activeCommandIndex} className={index===activeCommandIndex?"command-option active":"command-option"} key={command.id} onMouseEnter={()=>setActiveCommandIndex(index)} onClick={()=>runCommand(command.id)}>
-              <span className="command-option-icon">{command.id==="catalog"?<Search size={17}/>:command.id==="categories"?<LayoutGrid size={17}/>:command.id==="cart"?<ShoppingBag size={17}/>:command.id==="favorites"?<Heart size={17}/>:command.id==="compare"?<GitCompareArrows size={17}/>:command.id==="clear"?<X size={17}/>:<Zap size={17}/>}</span>
-              <b>{command.label}</b><span className="command-option-key">{index===activeCommandIndex?"↵":index+1}</span>
-            </button>)}
-          </div>
-          <div className="command-palette-footer" id={commandInputId+"-hint"}><span>{t.commandHint}</span><span><kbd>↑</kbd><kbd>↓</kbd><kbd>Enter</kbd><kbd>Esc</kbd></span></div>
-        </section>
-      </div>}
+      {commandPaletteOpen&&<CommandPalette labels={t} onClose={closeCommandPalette} onRunCommand={runCommand} onReady={markCommandPaletteReady}/>}
 
       {cartOpen&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setCartOpen(false);}}><aside className="side-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-dialog-title" tabIndex={-1}><div className="drawer-head"><div><span className="section-kicker">YOUR SELECTION</span><h3 id="cart-dialog-title">{t.cart} <small>({count})</small></h3></div><button className="icon-button" onClick={()=>setCartOpen(false)} aria-label={t.close}><X/></button></div><p className="drawer-demo-note" role="note">{t.noPayment}</p>{cart.length===0?<div className="drawer-empty"><span className="empty-state-icon"><ShoppingBag size={25}/></span><b>{t.emptyCart}</b><p>{t.emptyCartHint}</p><button className="button-primary" onClick={()=>setCartOpen(false)}>{t.continue}</button></div>:<><div className="drawer-items">{cart.map((line,index)=><div className="drawer-item" key={line.product.id}><img src={catalogImageSrc(line.product.thumbnail)} alt={line.product.title} loading="lazy" decoding="async" fetchPriority="low" width={1440} height={1440}/><div className="drawer-item-info"><b>{rtl?(getPersianProductCopy(line.product.id)?.title??line.product.title):line.product.title}</b><strong>{formatPrice(line.product)}</strong><div className="quantity"><button aria-label={t.decrease} onClick={()=>changeQuantity(line.product.id,-1)}><Minus size={13}/></button><span>{line.quantity}</span><button aria-label={t.increase} onClick={()=>changeQuantity(line.product.id,1)}><Plus size={13}/></button></div></div><button className="remove-item" aria-label={t.remove} onClick={()=>removeCartLine(line,index)}><X size={16}/></button></div>)}</div><div className="drawer-bottom"><div><span>{t.subtotal}</span><b>{subtotalHasUnavailablePrice?(rtl?"قیمت در منبع موجود نیست":"Price not provided by source"):rtl&&subtotalToman!==null?money(subtotalToman,locale)+" تومان":usd(subtotalUsd)}</b><small className="drawer-fx-note" data-status={fxStatus}>{rtl?"وضعیت نرخ تبدیل TGJU: ":"TGJU conversion rate: "}{fxStatusLabel}</small></div><button className="button-primary full-button" onClick={()=>{setCartOpen(false);setCheckout(true);}}>{t.checkout}<ArrowLeft size={16}/></button></div></>}</aside></div>}
 
