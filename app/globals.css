@@ -2005,21 +2005,26 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .product-grid>.product-card{contain-intrinsic-size:auto 390px}
 }
 
-/* Android/mobile header alignment: keep brand and utility actions in stable,
-   non-wrapping slots so the locale and cart controls never drift or collide. */
+/* Android typography and header repair.
+   Preserve the document's writing direction: in RTL the bag belongs at the
+   far left of the action group, while search stays next to the brand. */
+.storefront-v2 {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 @media (max-width: 760px) {
   .storefront-v2 .header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
+    justify-content: flex-start;
+    gap: 7px;
     min-width: 0;
-    padding-inline: max(12px, 3.5%);
+    padding-inline: 12px;
   }
   .storefront-v2 .mobile-toggle {
     display: grid;
-    place-items: center;
     flex: 0 0 34px;
+    place-items: center;
     width: 34px;
     min-width: 34px;
     height: 36px;
@@ -2028,7 +2033,7 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .brand {
     flex: 0 1 auto;
     min-width: 0;
-    gap: 7px;
+    gap: 6px;
   }
   .storefront-v2 .brand-mark {
     flex: 0 0 34px;
@@ -2038,49 +2043,65 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .brand-name {
     min-width: 0;
     white-space: nowrap;
-    font-size: clamp(12px, 3.6vw, 15px);
+    font-size: clamp(12px, 3.5vw, 14px);
   }
+  .storefront-v2 .brand-name small { display: none; }
   .storefront-v2 .header-actions {
     display: flex;
     flex: 0 0 auto;
     flex-wrap: nowrap;
     align-items: center;
-    justify-content: flex-end;
-    gap: 4px;
-    min-width: max-content;
+    justify-content: flex-start;
+    gap: 5px;
+    min-width: 0;
     margin-inline-start: auto;
+    direction: inherit;
   }
   .storefront-v2 .header-actions > .mobile-search-trigger,
   .storefront-v2 .header-actions > .locale-button {
     display: grid;
-    flex: 0 0 34px;
+    flex: 0 0 36px;
     place-items: center;
-    width: 34px;
-    min-width: 34px;
-    height: 36px;
+    width: 36px;
+    min-width: 36px;
+    height: 38px;
     padding: 0;
+    border-radius: 10px;
   }
   .storefront-v2 .header-actions > .search-area {
-    flex: 0 0 34px;
-    width: 34px;
-    min-width: 34px;
+    display: none;
+  }
+  .storefront-v2 .header-actions > .search-area.search-area-open {
+    display: block;
+    position: absolute;
+    top: calc(100% + 7px);
+    inset-inline: 12px;
+    width: auto;
+    min-width: 0;
+    z-index: 36;
+  }
+  .storefront-v2 .header-actions > .search-area.search-area-open .search-box {
+    width: 100%;
+    min-width: 0;
+    height: 48px;
   }
   .storefront-v2 .header-actions > .bag-button {
+    position: relative;
     display: flex;
-    flex: 0 0 42px;
+    flex: 0 0 44px;
     align-items: center;
     justify-content: center;
     gap: 0;
-    width: 42px;
-    min-width: 42px;
-    height: 38px;
+    width: 44px;
+    min-width: 44px;
+    height: 40px;
     padding: 0;
     border-radius: 12px;
   }
   .storefront-v2 .header-actions > .bag-button > svg {
-    width: 17px;
-    height: 17px;
     flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
   }
   .storefront-v2 .header-actions > .bag-button > b {
     position: absolute;
@@ -2091,61 +2112,189 @@ body{background:#f7f8f5;color:var(--ink)}
     font-size: 9px;
     border: 2px solid #fbfcfa;
   }
-}
-@media (max-width: 380px) {
-  .storefront-v2 .header { gap: 4px; padding-inline: 10px; }
-  .storefront-v2 .brand { gap: 5px; }
-  .storefront-v2 .brand-name { font-size: 12px; }
-  .storefront-v2 .header-actions { gap: 2px; }
-}
 
-/* Mobile utility controls: predictable LTR order inside the RTL header.
-   Search stays at the outer edge; locale and cart sit beside the brand. */
-@media (max-width: 760px) {
-  .storefront-v2 .header-actions {
-    direction: ltr;
-    flex: 0 0 auto;
-    justify-content: flex-start;
-    gap: 7px;
+  /* Keep useful copy legible and let every text column shrink before clipping. */
+  .storefront-v2 .hero-copy,
+  .storefront-v2 .hero-actions,
+  .storefront-v2 .benefits > div,
+  .storefront-v2 .fx-control,
+  .storefront-v2 .section-heading > div,
+  .storefront-v2 .merchandising-panel,
+  .storefront-v2 .merchandising-item,
+  .storefront-v2 .product-details,
+  .storefront-v2 .service-card,
+  .storefront-v2 .faq-intro,
+  .storefront-v2 .faq-list details,
+  .storefront-v2 .about-section > div,
+  .storefront-v2 .about-stats > div,
+  .storefront-v2 .footer-main > div,
+  .storefront-v2 .footer-bottom > span {
     min-width: 0;
   }
-  .storefront-v2 .header-actions > .mobile-search-trigger {
-    display: grid;
+  .storefront-v2 .hero-editorial-v2 .hero-copy > p {
+    font-size: 13px;
+    line-height: 2.05;
+    overflow-wrap: anywhere;
+  }
+  .storefront-v2 .hero-proofline {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .storefront-v2 .hero-proofline b { font-size: 12px; }
+  .storefront-v2 .hero-proofline span { font-size: 9px; line-height: 1.6; }
+  .storefront-v2 .hero-actions { flex-wrap: wrap; align-items: center; }
+  .storefront-v2 .hero-actions .button-primary,
+  .storefront-v2 .hero-actions .hero-secondary {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.65;
+    text-align: center;
+  }
+
+  .storefront-v2 .benefits b { font-size: 10px; line-height: 1.7; }
+  .storefront-v2 .benefits small { font-size: 9px; line-height: 1.7; }
+  .storefront-v2 .fx-control { font-size: 10px; line-height: 1.7; }
+  .storefront-v2 .fx-control > span,
+  .storefront-v2 .fx-control > strong { min-width: 0; overflow-wrap: anywhere; }
+  .storefront-v2 .fx-control .fx-caveat { font-size: 10px; line-height: 1.8; }
+
+  .storefront-v2 .section-heading h2,
+  .storefront-v2 .marketplace-services > .section-heading h2,
+  .storefront-v2 .faq-intro h2,
+  .storefront-v2 .about-section h2,
+  .storefront-v2 .merchandising-intro h2,
+  .storefront-v2 .catalog-heading h2 {
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+  .storefront-v2 .section-heading p,
+  .storefront-v2 .marketplace-services > .section-heading p,
+  .storefront-v2 .faq-intro p,
+  .storefront-v2 .about-section > div:first-child > p {
+    font-size: 12px;
+    line-height: 2;
+    overflow-wrap: anywhere;
+  }
+  .storefront-v2 .category-tile { min-width: 0; }
+  .storefront-v2 .category-name {
+    font-size: 12px !important;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+  .storefront-v2 .category-count,
+  .storefront-v2 .category-index { font-size: 9px; line-height: 1.5; }
+
+  .storefront-v2 .merchandising-panel-head h3 { font-size: 14px; line-height: 1.7; }
+  .storefront-v2 .merchandising-item b {
+    font-size: 11px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+  .storefront-v2 .merchandising-item .merchandising-category,
+  .storefront-v2 .recently-viewed-category { font-size: 9px; line-height: 1.6; }
+
+  .storefront-v2 .product-card { min-width: 0; }
+  .storefront-v2 .product-details { padding-inline: 9px; }
+  .storefront-v2 .product-brand { font-size: 9px; line-height: 1.6; letter-spacing: .4px; }
+  .storefront-v2 .product-details h3,
+  .storefront-v2 .product-card-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 0 !important;
+    max-height: none;
+    margin: 8px 0 12px !important;
+    overflow: visible;
+    line-height: 1.65;
+  }
+  .storefront-v2 .product-title-fa {
+    font-size: 10.5px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+  .storefront-v2 .product-title-original {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    font-size: 11px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+  .storefront-v2 .product-rating {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+    line-height: 1.6;
+  }
+  .storefront-v2 .product-rating small {
+    display: block;
+    font-size: 9px;
+    line-height: 1.6;
+  }
+  .storefront-v2 .recommendation-reason {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 0;
+    padding: 5px 7px;
+    font-size: 9px;
+    line-height: 1.6;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .storefront-v2 .product-price {
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+  }
+  .storefront-v2 .product-price > div { flex: 1 1 auto; min-width: 0; }
+  .storefront-v2 .product-price b { font-size: 11px; line-height: 1.7; }
+  .storefront-v2 .product-price small,
+  .storefront-v2 .price-estimate-note,
+  .storefront-v2 .price-fx-note { font-size: 9px !important; line-height: 1.65; }
+  .storefront-v2 .product-price > button {
     flex: 0 0 34px;
     width: 34px;
     min-width: 34px;
-    height: 36px;
+    height: 34px;
+    min-height: 34px;
   }
-  .storefront-v2 .header-actions > .search-area {
-    display: none;
-  }
-  .storefront-v2 .header-actions > .search-area.search-area-open {
-    display: block;
-    position: absolute;
-    top: calc(100% + 7px);
-    left: 12px;
-    right: 12px;
-    width: auto;
-    z-index: 36;
-  }
-  .storefront-v2 .header-actions > .locale-button {
-    direction: ltr;
-    flex: 0 0 38px;
-    width: 38px;
-    min-width: 38px;
-    height: 36px;
-    border-radius: 10px;
-    background: transparent;
-  }
-  .storefront-v2 .header-actions > .bag-button {
-    position: relative;
-    flex: 0 0 42px;
-    width: 42px;
-    min-width: 42px;
-    height: 38px;
-    margin-inline-start: 0;
-  }
+  .storefront-v2 .quick-view { font-size: 9px; line-height: 1.5; }
+  .storefront-v2 .active-filter-chip { font-size: 9px; line-height: 1.5; white-space: normal; }
+
+  .storefront-v2 .service-card { align-items: stretch; }
+  .storefront-v2 .service-card > b { font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+  .storefront-v2 .service-card > p { font-size: 12px; line-height: 1.9; overflow-wrap: anywhere; }
+  .storefront-v2 .service-card > strong { font-size: 11px; line-height: 1.7; flex-wrap: wrap; }
+  .storefront-v2 .faq-list summary { font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
+  .storefront-v2 .faq-list details > p { font-size: 11px; line-height: 2; overflow-wrap: anywhere; }
+  .storefront-v2 .about-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .storefront-v2 .about-stats > div { min-width: 0; padding: 10px 7px; }
+  .storefront-v2 .about-stats b { font-size: 15px; line-height: 1.4; overflow-wrap: anywhere; }
+  .storefront-v2 .about-stats span { font-size: 9px; line-height: 1.6; letter-spacing: 0; overflow-wrap: anywhere; }
+  .storefront-v2 .footer-main > div:first-child > p,
+  .storefront-v2 .footer-disclaimer p { font-size: 11px; line-height: 1.9; overflow-wrap: anywhere; }
+  .storefront-v2 .footer-links > a { font-size: 11px; line-height: 1.7; }
+  .storefront-v2 .footer-disclaimer > small { font-size: 9px; line-height: 1.8; }
+  .storefront-v2 .footer-bottom { font-size: 9px; line-height: 1.7; letter-spacing: 0; }
 }
 @media (max-width: 380px) {
-  .storefront-v2 .header-actions { gap: 4px; }
+  .storefront-v2 .header { gap: 5px; padding-inline: 10px; }
+  .storefront-v2 .brand { gap: 5px; }
+  .storefront-v2 .brand-name { font-size: 12px; }
+  .storefront-v2 .header-actions { gap: 3px; }
+  .storefront-v2 .product-grid { gap: 12px 8px; }
+  .storefront-v2 .product-details { padding-inline: 7px; }
+  .storefront-v2 .product-title-original { font-size: 10.5px; }
+  .storefront-v2 .about-stats { grid-template-columns: 1fr; }
+  .storefront-v2 .about-stats > div {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
 }
