@@ -49,19 +49,15 @@
 @media(max-width:650px){.cs-database{padding:38px 0}.cs-database-grid{grid-template-columns:1fr}.cs-database-card{min-height:0}}
 
 
-/* Pooya Labs ownership and logo, shared by every case-study section. */
-.cs-brand .cs-mark{background:transparent;box-shadow:none;padding:0;overflow:visible}
-.cs-brand .cs-mark img{display:block;width:100%;height:100%;object-fit:contain}
+/* Keep the GlobalCart brand mark intact; use the official studio monogram only in the ownership badge. */
 .cs-brand small{color:#536f5e;font-size:7px;font-weight:850;letter-spacing:.85px}
-.cs-art-core>img{display:block;width:88px;height:88px;object-fit:contain}
-.cs-art-core>span{display:none}
+.cs-art-core>img{display:block;width:76px;height:113px;object-fit:contain}
 .cs-kicker::after,.cs-eyebrow::after{
   content:"· POOYA LABS";display:inline-block;direction:ltr;unicode-bidi:isolate;
   color:#6d8775;font-size:7px;font-weight:850;letter-spacing:.8px;white-space:nowrap;
 }
 .cs-footer .cs-mark{width:30px;height:30px}
 @media(max-width:700px){
-  .cs-brand .cs-mark{width:34px;height:34px}
   .cs-brand small{font-size:6px}
-  .cs-art-core>img{width:76px;height:76px}
+  .cs-art-core>img{width:64px;height:95px}
 }
