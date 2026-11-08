@@ -1,6 +1,6 @@
 # GlobalCart — Intelligent Global Marketplace
 
-<p><img src="public/images/site/pooya-mark.svg" alt="Pooya Labs logo" width="52" /></p>
+<p><img src="public/images/site/pooya-monogram.webp" alt="Pooya Labs monogram" width="52" /></p>
 
 **Portfolio project 06 · Independent repository**  
 **Owner / product studio:** [Pooya Labs](https://github.com/pooya-labs)  
