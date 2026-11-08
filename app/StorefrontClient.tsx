@@ -697,7 +697,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
           <button className="command-shortcut" type="button" onClick={openCommandPalette} aria-label={t.keyboardHint+" "+t.commandPalette}><span>{t.keyboardHint}</span></button>
           <button className="locale-button" onClick={toggleLocale}>{rtl?"EN":"فا"}</button>
           <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites+" "+favorites.length}><Heart size={19}/><span>{favorites.length}</span></button>
-          <button className="bag-button" onClick={()=>setCartOpen(true)} aria-label={t.cart+" "+count}><ShoppingCart size={20} strokeWidth={2.1} aria-hidden="true"/><span>{t.cart}</span><b>{count}</b></button>
+          <button className="bag-button" onClick={()=>setCartOpen(true)}><ShoppingCart size={20} strokeWidth={2.1} aria-hidden="true"/><span>{t.cart}</span><b>{count}</b></button>
         </div>
       </header>
 
