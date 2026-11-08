@@ -2208,3 +2208,164 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .hero-product-tile { flex-basis:46px;width:46px;min-width:46px;height:46px; }
   .storefront-v2 .hero-product-image { width:36px;height:36px;flex-basis:36px; }
 }
+
+/* Mobile QA pass — anchor the cart badge to its button, keep the icon legible,
+   and let the FX quote wrap inside its own card instead of escaping the viewport. */
+.storefront-v2 .bag-button{
+  position:relative;
+  isolation:isolate;
+  flex:0 0 auto;
+}
+.storefront-v2 .bag-button > svg{
+  display:block;
+  width:19px!important;
+  height:19px!important;
+  min-width:19px;
+  flex:0 0 19px;
+  overflow:visible;
+  stroke:currentColor;
+  stroke-width:2;
+}
+.storefront-v2 .bag-button > b{
+  position:absolute;
+  z-index:2;
+  top:-5px;
+  inset-inline-end:-5px;
+  display:grid;
+  place-items:center;
+  width:19px;
+  height:19px;
+  min-width:19px;
+  border:2px solid #fbfcfa;
+  border-radius:50%;
+  background:#d9ed80;
+  color:#173f32;
+  font-size:10px;
+  line-height:1;
+}
+@media(max-width:760px){
+  .storefront-v2 .header-actions{
+    display:flex;
+    align-items:center;
+    flex-wrap:nowrap;
+    min-width:0;
+    gap:7px;
+  }
+  .storefront-v2 .header-actions > .bag-button{
+    display:grid;
+    place-items:center;
+    width:46px;
+    min-width:46px;
+    height:46px;
+    padding:0!important;
+    border-radius:14px;
+    overflow:visible;
+  }
+  .storefront-v2 .header-actions > .bag-button > svg{
+    width:21px!important;
+    height:21px!important;
+    min-width:21px;
+    flex-basis:21px;
+  }
+  .storefront-v2 .header-actions > .bag-button > span{
+    position:absolute!important;
+    width:1px!important;
+    height:1px!important;
+    padding:0!important;
+    margin:-1px!important;
+    overflow:hidden!important;
+    clip:rect(0,0,0,0)!important;
+    white-space:nowrap!important;
+    border:0!important;
+  }
+  .storefront-v2 .fx-control{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr);
+    align-items:start;
+    justify-items:stretch;
+    min-width:0;
+    width:100%;
+    gap:7px;
+    padding:14px 13px!important;
+    border:1px solid #e3ebe2!important;
+    border-radius:13px;
+    background:#f8faf7;
+    text-align:start;
+  }
+  .storefront-v2 .fx-control > span,
+  .storefront-v2 .fx-control > strong,
+  .storefront-v2 .fx-control > small{
+    display:block;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    margin:0;
+    text-align:start;
+  }
+  .storefront-v2 .fx-control > span{line-height:1.7}
+  .storefront-v2 .fx-control > strong{
+    grid-column:1;
+    justify-self:stretch;
+    font-size:clamp(14px,4vw,17px)!important;
+    line-height:1.65;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    direction:inherit;
+  }
+  .storefront-v2 .fx-control > small{font-size:9px!important;line-height:1.7}
+  .storefront-v2 .fx-control .fx-caveat{
+    grid-column:1;
+    color:#66776b;
+    line-height:1.85;
+    overflow-wrap:anywhere;
+  }
+  .storefront-v2 .hero-editorial-v2 .hero-visual{
+    position:relative;
+    overflow:hidden;
+    isolation:isolate;
+  }
+  .storefront-v2 .hero-image-caption{
+    max-width:min(55%,360px);
+    overflow-wrap:anywhere;
+  }
+}
+@media(max-width:520px){
+  .storefront-v2 .hero-editorial-v2 .hero-visual{
+    height:clamp(280px,78vw,350px);
+  }
+  .storefront-v2 .hero-image-caption{
+    inset-inline:12px;
+    bottom:72px;
+    width:auto;
+    max-width:none;
+    min-width:0;
+    padding:10px 12px;
+  }
+  .storefront-v2 .hero-image-caption b{
+    font-size:11px;
+    line-height:1.6;
+  }
+  .storefront-v2 .hero-image-caption span{
+    font-size:8px;
+    line-height:1.6;
+  }
+  .storefront-v2 .hero-product-collage{
+    inset-inline-start:12px;
+    inset-inline-end:12px;
+    bottom:12px;
+    display:flex;
+    justify-content:flex-start;
+    gap:7px;
+  }
+  .storefront-v2 .hero-product-tile{
+    width:46px;
+    height:46px;
+    flex:0 0 46px;
+  }
+  .storefront-v2 .hero-product-image{
+    width:38px;
+    height:38px;
+    flex-basis:38px;
+  }
+}
