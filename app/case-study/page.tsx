@@ -133,7 +133,7 @@ export default function CaseStudyPage() {
         </div>
         <div className="cs-hero-art">
           <div className="cs-art-orbit orbit-one" aria-hidden="true"/><div className="cs-art-orbit orbit-two" aria-hidden="true"/>
-          <a className="cs-art-core" href="https://pooya-labs.github.io/pooya-labs-platform/" target="_blank" rel="noopener noreferrer" aria-label={rtl ? "ورود به وب‌سایت رسمی پویا لبز" : "Visit the official Pooya Labs website"}>
+          <a className="cs-art-core" href="https://pooya-labs.github.io/pooya-labs-platform/" target="_blank" rel="noopener noreferrer">
             <img src="../images/site/pooya-monogram.webp" alt="" aria-hidden="true" width="76" height="113"/>
             <b>GLOBALCART</b><small>OWNED BY POOYA LABS</small>
           </a>
