@@ -33,11 +33,11 @@ GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate p
 
 **Release verification:** the official release workflow [run 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761) completed successfully on attempt 2. It passed TypeScript validation, unit tests, the production static build, the full cross-browser Playwright/axe suite (**151 passed / 9 intentional skips / 0 failed**), the historical Gitleaks scan (**no leaks found**), public storefront/product/case-study smoke checks and final commit validation before creating the tag and GitHub Release.
 
-**Latest public quality gate:** [Lighthouse run 42498127131](https://github.com/pooya-labs/globalcart/actions/runs/42498127131) passed all six route/mode reports on the current `main` deployment (attempt 2). Mobile Performance: home 95, product 96, case study 99; desktop Performance 100 on all three. Home mobile LCP 2.5 s / TBT 200 ms; product mobile LCP 2.5 s / TBT 140 ms; case-study mobile LCP 0.9 s / TBT 90 ms. Accessibility, Best Practices and SEO are 100 in every report; CLS is 0 throughout. The initial sample exceeded the mobile TBT budget at 353 ms, while the same-report retry passed at 200 ms; the M11 backlog tracks repeatable headroom.
+**Latest public quality gate:** [Lighthouse run 42511765152](https://github.com/pooya-labs/globalcart/actions/runs/42511765152), attempt 2, passed all six route/mode reports on the post-branding deployment. Mobile Performance: home 97 / LCP 2.5 s / TBT 110 ms; product 99 / LCP 2.0 s / TBT 50 ms; case study 99 / LCP 1.0 s / TBT 90 ms. Desktop Performance is 100 on all three routes. Accessibility, Best Practices and SEO are 100 in every report; CLS is 0 throughout. Attempt 1 measured home-mobile TBT at 320 ms and failed the 300 ms lab budget; retry 2 measured 110 ms and passed. The budget was not changed. These are GitHub-hosted lab measurements, not field Core Web Vitals.
 
-**Companion verification:** GitHub Pages deployment [42495371492](https://github.com/pooya-labs/globalcart/actions/runs/42495371492), live desktop/mobile image QA [run 42495556297](https://github.com/pooya-labs/globalcart/actions/runs/42495556297), Shopify Worker catalog smoke [run 42495556252](https://github.com/pooya-labs/globalcart/actions/runs/42495556252) and Security [run 42495371493](https://github.com/pooya-labs/globalcart/actions/runs/42495371493) all passed on the final pre-documentation release sequence.
+**Companion verification:** post-branding Pages deployment and published-route smoke [run 42511594806](https://github.com/pooya-labs/globalcart/actions/runs/42511594806), mainline Browser E2E [42511594771](https://github.com/pooya-labs/globalcart/actions/runs/42511594771), live desktop/mobile visual QA [42511765184](https://github.com/pooya-labs/globalcart/actions/runs/42511765184), Shopify Worker catalog smoke [42511765156](https://github.com/pooya-labs/globalcart/actions/runs/42511765156) and Security [42511594785](https://github.com/pooya-labs/globalcart/actions/runs/42511594785) passed.
 
-**QA boundary:** GlobalCart is a stable portfolio/demo simulation, not a live retailer. Physical-device review, actual platform screen-reader review, complete human RTL/LTR inspection and eligible normal-network/CDN field Core Web Vitals remain external follow-up checks; they are not represented as completed. Product amounts remain illustrative estimates and cart/checkout are simulations. No real payments, inventory reservation, fulfillment or seller payouts are enabled.
+**QA boundary:** GlobalCart is a stable portfolio/demo simulation, not a live retailer. The owner confirmed that manual review on real desktop/mobile devices, an actual platform screen reader and full human RTL/LTR behavior was completed on 2026-11-08. Eligible normal-network/CDN field Core Web Vitals have not been collected and are not inferred from Lighthouse lab reports. Product amounts remain illustrative estimates and cart/checkout are simulations. No real payments, inventory reservation, fulfillment or seller payouts are enabled.
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -128,7 +128,7 @@ npm run build
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system boundaries and data flow.
 - [docs/DATABASE_ERD.md](docs/DATABASE_ERD.md) — migration-derived PostgreSQL ERD covering all 27 tables and key constraints.
 - [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md) — public Lighthouse lab baseline, methodology and manual 1.0 release checklist.
-- Latest published Lighthouse [42498127131](https://github.com/pooya-labs/globalcart/actions/runs/42498127131): six route/mode reports passed on retry 2. Mobile Performance home 95 / LCP 2.5 s / TBT 200 ms; product 96 / 2.5 s / 140 ms; case study 99 / 0.9 s / 90 ms. Desktop Performance is 100 on all routes. Accessibility, Best Practices and SEO are 100 in all six audits; CLS is 0 throughout. The initial 353 ms home-mobile TBT sample did not reproduce on retry (200 ms); no budget was relaxed. GitHub-hosted lab only, not field Core Web Vitals. Full diagnostics: [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
+- Latest published Lighthouse [42511765152](https://github.com/pooya-labs/globalcart/actions/runs/42511765152), attempt 2: six route/mode reports passed. Mobile Performance home 97 / LCP 2.5 s / TBT 110 ms; product 99 / 2.0 s / 50 ms; case study 99 / 1.0 s / 90 ms. Desktop Performance is 100 on all routes. Accessibility, Best Practices and SEO are 100 in all six audits; CLS is 0 throughout. The first home-mobile sample was 320 ms TBT; retry 2 passed at 110 ms against the unchanged 300 ms budget. GitHub-hosted lab only, not field Core Web Vitals. Full diagnostics: [docs/PERFORMANCE_QA.md](docs/PERFORMANCE_QA.md).
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — source provenance and provider policy.
 - [docs/REAL_CATALOG_MIGRATION.md](docs/REAL_CATALOG_MIGRATION.md) — requirements and blockers for replacing sample items with real products.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — accepted architecture decisions.
@@ -156,9 +156,11 @@ Historical M04 backend CI [41382309964](https://github.com/pooya-labs/globalcart
 
 **GlobalCart** یک شبیه‌ساز بازارگاه آنلاین با تجربهٔ فروشگاهی چنددسته‌ای است که برای نمایش مهندسی محصول، تجربهٔ خرید واکنش‌گرا، فهرست کالا، جست‌وجو، فیلترها، بومی‌سازی و جریان‌های سبد خرید ساخته شده است.
 
-### وضعیت انتشار
+### وضعیت انتشار و بازبینی نهایی
 
-نسخهٔ پایدار نمایشی **۱.۰.۰** در تاریخ ۸ نوامبر ۲۰۲۶ منتشر شده است. وب‌سایت عمومی به‌صورت استاتیک روی GitHub Pages اجرا می‌شود. جزئیات وضعیت انتشار، آزمون‌ها و شواهد کیفیت در بخش انگلیسی README و فایل‌های مستندات مخزن ثبت شده‌اند.
+نسخهٔ پایدار نمایشی **۱.۰.۰** در ۸ نوامبر ۲۰۲۶ منتشر شده است و روی GitHub Pages در دسترس است. نشان‌های مالکیت Pooya Labs در بخش معرفی فروشگاه و تصویر مرکزی کیس‌استادی به وب‌سایت رسمی [Pooya Labs](https://pooya-labs.github.io/pooya-labs-platform/) پیوند دارند.
+
+بازبینی دستی مالک روی دستگاه‌های واقعی دسکتاپ و موبایل، صفحه‌خوان واقعی و رفتار کامل فارسی راست‌به‌چپ / انگلیسی چپ‌به‌راست در همین تاریخ انجام شده است. آزمون مرورگر پس از اصلاحات برندینگ نیز **۱۵۸ آزمون موفق و بدون شکست** ثبت کرده است.
 
 ### امکانات نسخهٔ نمایشی
 
@@ -178,6 +180,10 @@ Historical M04 backend CI [41382309964](https://github.com/pooya-labs/globalcart
 
 TypeScript، CSS، Go، SQL، Next.js، React، GitHub Actions و GitHub Pages. بخش رابط فروشگاه از state محلی مرورگر استفاده می‌کند.
 
+### کیفیت و کارایی
+
+در گزارش عمومی Lighthouse [اجرای 42511765152](https://github.com/pooya-labs/globalcart/actions/runs/42511765152)، اجرای دوم هر شش حالت موبایل و دسکتاپ موفق شد: امتیاز کارایی موبایل برای خانه ۹۷، محصول ۹۹ و کیس‌استادی ۹۹ بود؛ امتیاز دسکتاپ هر سه مسیر ۱۰۰ بود. TBT موبایل خانه ۱۱۰، محصول ۵۰ و کیس‌استادی ۹۰ میلی‌ثانیه ثبت شد. اجرای نخست خانه ۳۲۰ میلی‌ثانیه بود و از سقف ۳۰۰ عبور کرد؛ در اجرای مجدد به ۱۱۰ رسید. سقف آزمون تغییر نکرد. این اعداد آزمایشگاهی‌اند و معادل Core Web Vitals کاربران واقعی نیستند.
+
 ### اجرای محلی
 
 به Node.js نسخهٔ ۲۰٫۹ یا جدیدتر و npm نیاز دارید:
@@ -196,6 +202,14 @@ npm run typecheck
 npm run build
 ```
 
+### پیوندهای اصلی
+
+- [وب‌سایت زندهٔ GlobalCart](https://pooya-labs.github.io/globalcart/)
+- [کیس‌استادی دوزبانه](https://pooya-labs.github.io/globalcart/case-study/)
+- [وب‌سایت رسمی Pooya Labs](https://pooya-labs.github.io/pooya-labs-platform/)
+- [انتشار پایدار نسخهٔ ۱.۰.۰](https://github.com/pooya-labs/globalcart/releases/tag/v1.0.0)
+- [مخزن GitHub پروژه](https://github.com/pooya-labs/globalcart)
+
 ### مستندات و ادامهٔ مسیر
 
-برای نقشهٔ راه، معماری، منابع داده، راهنمای تحویل به توسعه‌دهندهٔ بعدی، ERD و گزارش آزمون کارایی به فایل‌های `ROADMAP.md`، `PROJECT_CONTEXT.md`، `docs/AI_HANDOFF.md`، `docs/ARCHITECTURE.md` و سایر پیوندهای بخش انگلیسی README مراجعه کنید.
+برای نقشهٔ راه، وضعیت فعلی، معماری، منابع داده، راهنمای تحویل به توسعه‌دهندهٔ بعدی، ERD و گزارش آزمون کارایی به فایل‌های `ROADMAP.md`، `PROJECT_CONTEXT.md`، `docs/AI_HANDOFF.md`، `docs/ARCHITECTURE.md`، `docs/DATABASE_ERD.md` و `docs/PERFORMANCE_QA.md` مراجعه کنید.
