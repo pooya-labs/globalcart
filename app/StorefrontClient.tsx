@@ -65,7 +65,7 @@ const copy = {
     catalogLastChecked: "آخرین دریافت", snapshotGenerated: "زمان تولید کاتالوگ", freshnessFresh: "تازه", freshnessAging: "در حال کهنه‌شدن", freshnessStale: "قدیمی", freshnessUnknown: "زمان نامشخص",
     why: "چرا GlobalCart؟", whyText: "یک پروژه مستقل برای نمایش مهندسی محصول، معماری فرانت‌اند، یکپارچه‌سازی داده و طراحی تجربه تجارت الکترونیک.",
     feature1: "کشف هوشمند", feature1d: "جست‌وجو و فیلتر سریع", feature2: "اطلاعات شفاف", feature2d: "نمایش منبع و قیمت", feature3: "تجربه امن", feature3d: "بدون تراکنش واقعی",
-    footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "طراحی و توسعه: پویا گودرزی",
+    footer: "یک تجربه تجارت الکترونیک مستقل، ساخته‌شده برای نمایش مهندسی محصول.", owner: "محصولی از Pooya Labs · طراحی و توسعه پویا گودرزی",
     count: "محصول", menu: "منو", compare: "مقایسه", recently: "تازه بازدیدشده", emptyFav: "هنوز محصولی ذخیره نکرده‌ای.", loadMore: "نمایش محصولات بیشتر",
     min: "کمترین قیمت", max: "بیشترین قیمت", result: "نتیجه", brand: "فروشنده", allBrands: "همه برندها", minRatingLabel: "حداقل امتیاز", anyRating: "همه امتیازها",
     saveSearch: "ذخیره جست‌وجو", savedSearches: "جست‌وجوهای ذخیره‌شده", savedSearchName: "نام جست‌وجو", savedSearchPlaceholder: "مثلاً هدفون اقتصادی",
@@ -100,7 +100,7 @@ const copy = {
     catalogLastChecked: "Fetched", snapshotGenerated: "Snapshot generated", freshnessFresh: "Fresh", freshnessAging: "Aging", freshnessStale: "Stale", freshnessUnknown: "Unknown",
     why: "Why GlobalCart?", whyText: "An independent portfolio project showcasing product engineering, frontend architecture, data integration and commerce experience design.",
     feature1: "Smart discovery", feature1d: "Fast search and filters", feature2: "Clear information", feature2d: "Source and price context", feature3: "Safe experience", feature3d: "No real transactions",
-    footer: "An independent commerce experience, built to showcase product engineering.", owner: "Designed & engineered by Pooya Goodarzi",
+    footer: "An independent commerce experience, built to showcase product engineering.", owner: "A Pooya Labs product · Designed & engineered by Pooya Goodarzi",
     count: "products", menu: "Menu", compare: "Compare", recently: "Recently viewed", emptyFav: "You have not saved anything yet.", loadMore: "Load more products",
     min: "Min price", max: "Max price", result: "Results", brand: "Brand", allBrands: "All brands", minRatingLabel: "Minimum rating", anyRating: "Any rating",
     saveSearch: "Save search", savedSearches: "Saved searches", savedSearchName: "Search name", savedSearchPlaceholder: "e.g. Budget headphones",
@@ -652,7 +652,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
       <div className="topline"><span>{t.top}</span><span className="topline-right"><ShieldCheck size={13}/>{t.noPayment}</span></div>
       <header className="header">
         <button className="mobile-toggle icon-button" onClick={()=>setMobileMenu(!mobileMenu)} aria-label={t.menu} aria-expanded={mobileMenu} aria-controls="primary-navigation"><Menu size={21}/></button>
-        <a href="#top" className="brand"><span className="brand-mark">g<span>.</span></span><span className="brand-name">globalcart<small>THE WORLD, WELL FOUND.</small></span></a>
+        <a href="#top" className="brand" aria-label="GlobalCart — a Pooya Labs product"><span className="brand-mark brand-mark-owner"><img src="images/site/pooya-mark.svg" alt="Pooya Labs logo" width="40" height="40"/></span><span className="brand-name">globalcart<small>A POOYA LABS PRODUCT</small></span></a>
         <nav id="primary-navigation" className={mobileMenu?"main-nav nav-open":"main-nav"}>
           <a href="#catalog" onClick={()=>setMobileMenu(false)}>{t.nav1}</a>
           <button className={categoryMenu?"nav-category-trigger active":"nav-category-trigger"} onClick={()=>setCategoryMenu(v=>!v)} aria-expanded={categoryMenu} aria-controls="category-menu-panel"><LayoutGrid size={15}/>{t.nav2}<ChevronDown size={13}/></button>
@@ -719,7 +719,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
 
       <section className="hero hero-editorial-v2">
         <div className="hero-copy">
-          <div className="eyebrow"><span></span>{t.heroEyebrow}<small>GLOBALCART / 2026</small></div>
+          <div className="eyebrow"><span></span>{t.heroEyebrow}<small>A POOYA LABS PRODUCT · 2026</small></div>
           <h1>{t.heroTitle.split("\n").map((line,i)=><span key={i}>{line}</span>)}</h1>
           <p>{t.heroDesc}</p>
           <div className="hero-actions">
@@ -902,9 +902,9 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
         </div>
       </section>
 
-      <section className="about-section" id="about"><div className="about-intro"><div className="about-identity"><img src="images/site/pooya-mark.svg" alt="Pooya personal logo" width="76" height="76" loading="lazy" decoding="async"/><span><small>DESIGNED & BUILT BY</small><b>POOYA GOODARZI</b></span></div><span className="section-kicker">04 / BUILT AS A PORTFOLIO PROJECT</span><h2>{t.why}</h2><p>{t.whyText}</p></div><div className="about-stats"><div><b>01</b><span>INDEPENDENT PRODUCT</span></div><div><b>RTL + LTR</b><span>BILINGUAL EXPERIENCE</span></div><div><b>DEMO</b><span>NO REAL TRANSACTIONS</span></div></div></section>
+      <section className="about-section" id="about"><div className="about-intro"><div className="about-identity"><img src="images/site/pooya-mark.svg" alt="Pooya personal logo" width="76" height="76" loading="lazy" decoding="async"/><span><small>PROJECT OWNER & PRODUCT STUDIO</small><b>POOYA LABS</b><em>Created and led by Pooya Goodarzi</em></span></div><span className="section-kicker">04 / BUILT AS A PORTFOLIO PROJECT</span><h2>{t.why}</h2><p>{t.whyText}</p></div><div className="about-stats"><div><b>01</b><span>INDEPENDENT PRODUCT</span></div><div><b>RTL + LTR</b><span>BILINGUAL EXPERIENCE</span></div><div><b>DEMO</b><span>NO REAL TRANSACTIONS</span></div></div></section>
 
-      <footer className="footer"><div className="footer-main"><div><a href="#top" className="brand footer-brand"><span className="brand-mark">g<span>.</span></span><span className="brand-name">globalcart<small>THE WORLD, WELL FOUND.</small></span></a><p>{t.footer}</p><span className="footer-owner">{t.owner}</span></div><div className="footer-links"><b>EXPLORE</b><a href="#catalog">{t.nav1}</a><a href="#categories">{t.nav2}</a><Link href="/recently-viewed">{t.recently}</Link><a href="#about">{t.nav4}</a><Link href="/case-study/">Case study / روایت پروژه</Link><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpLeftIcon/></a></div><div className="footer-disclaimer"><span><ShieldCheck size={17}/>{t.demo}</span><p>{t.noPayment}</p><small>PRODUCT DATA IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY.</small></div></div><div className="footer-bottom"><span>© 2026 GLOBALCART · POOYA GOODARZI</span><span>INDEPENDENTLY BUILT. THOUGHTFULLY ENGINEERED.</span></div></footer>
+      <footer className="footer"><div className="footer-main"><div><a href="#top" className="brand footer-brand" aria-label="GlobalCart — a Pooya Labs product"><span className="brand-mark brand-mark-owner"><img src="images/site/pooya-mark.svg" alt="Pooya Labs logo" width="40" height="40"/></span><span className="brand-name">globalcart<small>A POOYA LABS PRODUCT</small></span></a><p>{t.footer}</p><span className="footer-owner">{t.owner}</span></div><div className="footer-links"><b>EXPLORE</b><a href="#catalog">{t.nav1}</a><a href="#categories">{t.nav2}</a><Link href="/recently-viewed">{t.recently}</Link><a href="#about">{t.nav4}</a><Link href="/case-study/">Case study / روایت پروژه</Link><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpLeftIcon/></a></div><div className="footer-disclaimer"><span><ShieldCheck size={17}/>{t.demo}</span><p>{t.noPayment}</p><small>PRODUCT DATA IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY.</small></div></div><div className="footer-bottom"><span>© 2026 GLOBALCART · POOYA LABS</span><span>CREATED BY POOYA GOODARZI · INDEPENDENTLY ENGINEERED.</span></div></footer>
 
       {commandPaletteOpen&&<div className="overlay modal-overlay command-palette-overlay" onMouseDown={event=>{if(event.target===event.currentTarget)closeCommandPalette();}}>
         <section className="command-palette" role="dialog" aria-modal="true" aria-labelledby={commandInputId+"-title"} aria-describedby={commandInputId+"-hint"} tabIndex={-1}>
