@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { ArrowLeft, GitCompareArrows, Heart, LayoutGrid, Search, ShoppingBag, X, Zap } from "lucide-react";
+import { GitCompareArrows, Heart, LayoutGrid, Search, ShoppingBag, X, Zap } from "lucide-react";
 
 export type CommandId = "catalog" | "categories" | "cart" | "favorites" | "compare" | "clear" | "language";
 
