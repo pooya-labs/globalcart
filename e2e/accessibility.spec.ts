@@ -106,6 +106,35 @@ test("quick command palette loads on demand and preserves keyboard focus", async
   await expect(trigger).toBeFocused();
 });
 
+
+
+test("storefront dialogs load on demand and preserve focus", async ({ page }) => {
+  const initialScriptChunks = await page.evaluate(() =>
+    performance.getEntriesByType("resource")
+      .map(entry => entry.name)
+      .filter(url => url.includes("/_next/static/chunks/") && url.endsWith(".js"))
+  );
+  const trigger = page.locator(".bag-button");
+  await trigger.focus();
+  await expect(page.locator(".side-drawer")).toHaveCount(0);
+
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: /سبد خرید/ });
+  await expect(dialog).toBeVisible();
+  await expect.poll(() => page.evaluate(initial => {
+    return performance.getEntriesByType("resource").some(entry =>
+      entry.name.includes("/_next/static/chunks/") &&
+      entry.name.endsWith(".js") &&
+      !initial.includes(entry.name)
+    );
+  }, initialScriptChunks)).toBe(true);
+  await expect(dialog.locator("button").first()).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});
+
 test("storefront homepage meets WCAG checks in RTL and LTR", async ({ page }) => {
   // Two axe scans (RTL + LTR) can take over 30 seconds on WebKit CI runners.
   test.setTimeout(60_000);
