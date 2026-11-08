@@ -2,7 +2,7 @@
   "name": "globalcart",
   "version": "1.0.0",
   "private": true,
-  "author": "Pooya Goodarzi",
+  "author": "Pooya Labs (Pooya Goodarzi)",
   "description": "Commerce-grade intelligent global marketplace portfolio demo",
   "scripts": {
     "dev": "next dev",

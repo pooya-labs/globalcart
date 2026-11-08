@@ -1,7 +1,10 @@
 # GlobalCart — Intelligent Global Marketplace
 
+<p><img src="public/images/site/pooya-mark.svg" alt="Pooya Labs logo" width="52" /></p>
+
 **Portfolio project 06 · Independent repository**  
-**Owner / product engineer:** [Pooya Goodarzi](https://github.com/pooya-labs)  
+**Owner / product studio:** [Pooya Labs](https://github.com/pooya-labs)  
+**Creator / product engineer:** Pooya Goodarzi  
 **Source repository:** https://github.com/pooya-labs/globalcart  
 **Public preview:** https://pooya-labs.github.io/globalcart/  
 **Bilingual case study:** https://pooya-labs.github.io/globalcart/case-study/
@@ -135,7 +138,7 @@ npm run build
 
 GlobalCart follows semantic versioning. Every release must update package.json, CHANGELOG.md, ROADMAP.md and PROJECT_CONTEXT.md in the same release commit. A roadmap checkbox is only marked complete after implementation and verification. The repository is the source of truth; chat history is not.
 
-**Built and maintained independently by Pooya Goodarzi.**
+**Owned and maintained by [Pooya Labs](https://github.com/pooya-labs) · Created and engineered by Pooya Goodarzi.**
 
 
 ## Backend foundation (local development)

@@ -8,9 +8,9 @@ import { readLocalePreference, writeLocalePreference, type Locale } from "../../
 
 const content = {
   fa: {
-    eyebrow: "PORTFOLIO CASE STUDY · 2026",
+    eyebrow: "PORTFOLIO CASE STUDY · POOYA LABS · 2026",
     title: "یک بازار جهانی؛ از تجربه کاربری تا زیرساخت داده",
-    intro: "GlobalCart یک شبیه‌سازی مستقل از تجربه بازارگاه‌های مدرن است؛ پروژه‌ای برای نمایش مهندسی محصول، طراحی رابط دوزبانه، خط لوله داده و معماری بک‌اند قابل توسعه.",
+    intro: "GlobalCart یک شبیه‌سازی مستقل از تجربه بازارگاه‌های مدرن است؛ پروژه‌ای برای نمایش مهندسی محصول، طراحی رابط دوزبانه، خط لوله داده و معماری بک‌اند قابل توسعه. مالکیت و نگهداری پروژه بر عهده Pooya Labs است.",
     explore: "مشاهده فروشگاه", github: "مشاهده کد در GitHub", language: "English",
     stats: [["1,000", "محصول نمونه"], ["24", "دسته‌بندی کالا"], ["2", "زبان و جهت نوشتار"], ["0", "تراکنش واقعی"]],
     storyTitle: "از یک ویترین ساده تا یک سیستم چندلایه",
@@ -48,13 +48,13 @@ const content = {
     stack: ["Next.js 15", "React 19", "TypeScript", "Go", "PostgreSQL 17", "sqlc", "Playwright", "GitHub Actions"],
     nextTitle: "قدم بعدی",
     next: "هسته فنی و تست‌های خودکار آماده‌اند. پیش از انتشار ۱.۰، بررسی دستی روی دستگاه واقعی، صفحه‌خوان، رفتار کامل RTL/LTR و سنجش واقعی CDN و Core Web Vitals باقی مانده است. سپس تصاویر مستند، نمودار ERD و انتشار نسخه نهایی تکمیل می‌شوند.",
-    footer: "ساخته و مهندسی‌شده توسط پویا گودرزی · پروژه مستقل پورتفولیو",
+    footer: "محصول متعلق به Pooya Labs · طراحی و مهندسی پویا گودرزی",
     back: "بازگشت به فروشگاه"
   },
   en: {
-    eyebrow: "PORTFOLIO CASE STUDY · 2026",
+    eyebrow: "PORTFOLIO CASE STUDY · POOYA LABS · 2026",
     title: "A global marketplace, from product experience to data infrastructure",
-    intro: "GlobalCart is an independent simulation of a modern marketplace: a portfolio project showcasing product engineering, bilingual interface design, data pipelines and an extensible backend architecture.",
+    intro: "GlobalCart is an independent simulation of a modern marketplace: a portfolio project showcasing product engineering, bilingual interface design, data pipelines and an extensible backend architecture. Owned and maintained by Pooya Labs.",
     explore: "Explore the storefront", github: "View source on GitHub", language: "فارسی",
     stats: [["1,000", "sample products"], ["24", "product categories"], ["2", "languages & directions"], ["0", "real transactions"]],
     storyTitle: "From a storefront to a layered system",
@@ -92,7 +92,7 @@ const content = {
     stack: ["Next.js 15", "React 19", "TypeScript", "Go", "PostgreSQL 17", "sqlc", "Playwright", "GitHub Actions"],
     nextTitle: "What comes next",
     next: "The engineering foundation and automated checks are in place. Before the 1.0 release, manual real-device, screen-reader, full RTL/LTR and live CDN/Core Web Vitals reviews remain. Then the final screenshots, ERD and versioned release can be completed.",
-    footer: "Designed and engineered by Pooya Goodarzi · Independent portfolio project",
+    footer: "A Pooya Labs product · Designed and engineered by Pooya Goodarzi",
     back: "Back to storefront"
   }
 } as const;
@@ -114,7 +114,7 @@ export default function CaseStudyPage() {
   return (
     <main className={`case-study ${rtl ? "rtl" : "ltr"}`} dir={rtl ? "rtl" : "ltr"} lang={locale}>
       <header className="cs-topbar">
-        <Link href="/" className="cs-brand"><span className="cs-mark">g.</span><span>globalcart<small>THE WORLD, WELL FOUND.</small></span></Link>
+        <Link href="/" className="cs-brand"><span className="cs-mark"><img src="../images/site/pooya-mark.svg" alt="Pooya Labs logo" width="38" height="38"/></span><span>globalcart<small>A POOYA LABS PRODUCT</small></span></Link>
         <nav aria-label={rtl ? "ناوبری پرونده پروژه" : "Case study navigation"}>
           <Link href="/">{t.back}</Link>
           <button type="button" onClick={changeLocale} aria-label={rtl ? "Switch language to English" : "تغییر زبان به فارسی"}><Globe2 size={16}/>{t.language}</button>
@@ -133,7 +133,7 @@ export default function CaseStudyPage() {
         </div>
         <div className="cs-hero-art" role="img" aria-label="GlobalCart product architecture illustration">
           <div className="cs-art-orbit orbit-one"/><div className="cs-art-orbit orbit-two"/>
-          <div className="cs-art-core"><span>g.</span><b>GLOBALCART</b><small>DISCOVER · COMPARE · CHOOSE</small></div>
+          <div className="cs-art-core"><img src="../images/site/pooya-mark.svg" alt="" aria-hidden="true" width="88" height="88"/><b>GLOBALCART</b><small>OWNED BY POOYA LABS</small></div>
           <div className="cs-art-chip chip-a">RTL ↔ LTR</div><div className="cs-art-chip chip-b">DATA → UX</div><div className="cs-art-chip chip-c">DEMO / SAFE</div>
         </div>
       </section>
@@ -218,7 +218,7 @@ export default function CaseStudyPage() {
         <Link href="/">{t.back}{rtl ? <ArrowLeft size={16}/> : <ArrowRight size={16}/>}</Link>
       </section>
 
-      <footer className="cs-footer"><Link href="/" className="cs-brand"><span className="cs-mark">g.</span><span>globalcart</span></Link><p>{t.footer}</p><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14}/></a></footer>
+      <footer className="cs-footer"><Link href="/" className="cs-brand"><span className="cs-mark"><img src="../images/site/pooya-mark.svg" alt="Pooya Labs logo" width="30" height="30"/></span><span>globalcart<small>A POOYA LABS PRODUCT</small></span></Link><p>{t.footer}</p><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14}/></a></footer>
     </main>
   );
 }

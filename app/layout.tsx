@@ -6,8 +6,11 @@ const vazirmatn = Vazirmatn({ subsets: ["arabic", "latin"], display: "swap", var
 
 export const metadata: Metadata = {
   title: "GlobalCart — Intelligent Marketplace",
-  description: "A commerce-grade interactive marketplace portfolio by Pooya Goodarzi.",
-  authors: [{ name: "Pooya Goodarzi", url: "https://github.com/pooya-labs" }]
+  description: "An independent commerce experience owned by Pooya Labs and created by Pooya Goodarzi.",
+  authors: [
+    { name: "Pooya Labs", url: "https://github.com/pooya-labs" },
+    { name: "Pooya Goodarzi", url: "https://github.com/pooya-labs" }
+  ]
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
