@@ -25,6 +25,8 @@ GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate p
 
 ## Current status — v1.0.0 release candidate · 2026-11-08
 
+**Release pipeline note:** the browser build compiles with `NEXT_PUBLIC_E2E_FIXTURE_CATALOG=1` so recently-viewed, locale, and product-detail journeys use the same deterministic catalog fixture as the standalone E2E workflow. The first release attempt used the production snapshot mode and exposed this mismatch; the corrected workflow now uses the deterministic fixture before rerunning the suite.
+
 **Release scope:** stable portfolio/demo publication, not a live retailer. The owner has explicitly authorized the v1.0.0 release. The release tag is created only after the new release workflow finishes its verification pipeline.
 
 **Automated verification:** the release pipeline repeats TypeScript validation, unit tests, production build, the cross-browser Playwright/axe suite, historical secret scanning and public Pages smoke checks. The independent six-report public Lighthouse gate has passed on [run 42420460048](https://github.com/pooya-labs/globalcart/actions/runs/42420460048), including home-mobile Performance 94, LCP 2.4 s, TBT 200 ms and CLS 0.
