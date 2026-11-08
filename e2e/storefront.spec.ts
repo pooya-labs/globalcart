@@ -867,7 +867,7 @@ test("GlobalCart keeps its own G mark while Pooya Labs uses the official ownersh
   await expect(headerBrand.locator("img")).toHaveCount(0);
   await expect(page.locator(".footer-brand .brand-mark")).toHaveText("g.");
 
-  await page.goto("./product/1/");
+  await page.goto(`./product/${firstProduct.id}/`);
   await expect(page.locator(".product-page-top .brand-mark")).toHaveText("g.");
 
   await page.goto("./recently-viewed/");
