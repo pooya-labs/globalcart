@@ -13,7 +13,7 @@ export default function Home() {
 
   return (
     <StorefrontClient
-      initialProducts={products.slice(0, 36)}
+      initialProducts={products.slice(0, 18)}
       catalogTimestamp={catalogTimestamp}
       fxSnapshot={fxSnapshot as unknown as FxRateSnapshot}
     />
