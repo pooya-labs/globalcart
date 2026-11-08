@@ -2000,22 +2000,12 @@ body{background:#f7f8f5;color:var(--ink)}
 @media(max-width:760px){.about-identity{gap:12px;margin-bottom:17px}.about-identity img{width:64px;height:64px}}
 
 
-/* Pooya Labs ownership system — reuse the personal mark already in this repository. */
-.storefront-v2 .brand-mark.brand-mark-owner{display:block;flex:0 0 auto;overflow:visible;padding:0;background:transparent!important;box-shadow:none!important}
-.storefront-v2 .brand-mark.brand-mark-owner img{display:block;width:100%;height:100%;object-fit:contain}
-.storefront-v2 .brand-name small{color:#405447;font-size:7px;font-weight:800;letter-spacing:1.05px}
-.storefront-v2 .footer-brand .brand-name small{color:#dce8de}
+/* Studio attribution remains separate from the GlobalCart product mark. */
 .storefront-v2 .section-kicker::after{
   content:"· POOYA LABS";display:inline-block;direction:ltr;unicode-bidi:isolate;margin-inline-start:3px;
   color:#718575;font-size:7px;font-weight:800;letter-spacing:.8px;white-space:nowrap;
 }
 .storefront-v2 .about-identity em{color:#637568;font-size:8px;font-style:normal;font-weight:650;line-height:1.6}
-.storefront-v2 .footer-brand .brand-mark-owner{background:transparent!important;box-shadow:none!important}
-.history-topbar .history-brand{gap:10px;min-width:0}
-.history-topbar .history-brand>img{display:block;width:34px;height:34px;flex:0 0 34px;object-fit:contain}
-.history-topbar .history-brand>span{display:flex;flex-direction:column;gap:2px}
-.history-topbar .history-brand b{font-size:15px;line-height:1.2}
-.history-topbar .history-brand small{color:#405447;font-size:7px;font-weight:800;letter-spacing:.9px}
 .history-page .section-kicker::after{
   content:"· POOYA LABS";color:#718575;font-size:7px;font-weight:800;letter-spacing:.8px;
   direction:ltr;unicode-bidi:isolate;white-space:nowrap;
