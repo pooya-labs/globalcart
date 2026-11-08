@@ -11,6 +11,8 @@
 - The live storefront still uses the local 1,000-product ABO snapshot across 24 categories. Displayed positive prices remain estimates (`priceKind: "estimated"`, `priceAvailable: false`); TGJU only converts USD estimates to Toman and provides FX freshness. No live seller stock, seller ratings, payment, fulfillment or seller payout is enabled.
 - Physical desktop/phone, actual platform screen-reader, comprehensive human RTL/LTR and eligible normal-network/CDN field Core Web Vitals remain open. Do not mark these complete based on Playwright or Lighthouse emulation.
 
+- Security exception: `.gitleaksignore` contains exactly one fingerprint for the historical `generic-api-key` false positive on the documented PostgreSQL identifier `carts.owner_user_id` at `PROJECT_CONTEXT.md:775` in commit `2ebdc241842a6366482ba6865ea7f748ab0eedb7`. Keep this exact suppression only; never broaden it to a path or rule.
+
 **Next action:** profile the modules retained by shared chunk `255-1dfe01161d17a1b9.js` and look for a meaningful reduction without damaging visible controls, product details, RTL/LTR or focus behavior. Keep all existing Lighthouse budgets. Then assist with owner-led physical-device, screen-reader and human RTL/LTR QA.
 ---
 
