@@ -756,11 +756,11 @@ test("Android-width text containers do not clip or overflow in Persian and Engli
         for (const selector of selectors) {
           for (const element of document.querySelectorAll<HTMLElement>(selector)) {
             const rect = element.getBoundingClientRect();
-            if (!rect.width || !rect.height || rect.bottom < 0 || rect.top > innerHeight) continue;
+            if (!rect.width || !rect.height) continue;
             const style = getComputedStyle(element);
             const text = (element.innerText || element.textContent || "").trim().replace(/\\s+/g, " ").slice(0, 90);
             const horizontalClip = style.overflowX !== "visible" && element.scrollWidth > element.clientWidth + 2;
-            const lineClamped = Number.parseInt(style.webkitLineClamp || "0", 10) > 0;
+            const lineClamped = Number.parseInt(style.getPropertyValue("-webkit-line-clamp") || "0", 10) > 0;
             const verticalClip = !lineClamped && style.overflowY !== "visible" && element.scrollHeight > element.clientHeight + 2;
             const outsideViewport = rect.left < -1 || rect.right > document.documentElement.clientWidth + 1;
             if (horizontalClip || verticalClip || outsideViewport) {
@@ -778,4 +778,52 @@ test("Android-width text containers do not clip or overflow in Persian and Engli
       expect(issues, JSON.stringify(issues, null, 2)).toEqual([]);
     }
   }
+});
+
+test("Android product detail cards and information panels keep text within their boxes", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  const response = await page.goto("./product/601270869/");
+  expect(response?.status()).toBe(200);
+  await expect(page.locator("main.product-page")).toBeVisible();
+
+  const selectors = [
+    ".product-page-top > a", ".product-breadcrumb",
+    ".detail-brand", ".detail-information h1", ".product-source-title",
+    ".detail-rating", ".detail-description", ".detail-highlights b",
+    ".detail-highlights small", ".detail-specs > div", ".detail-specs span",
+    ".detail-specs b", ".buybox-kicker", ".detail-price", ".buybox-stock",
+    ".buybox-quantity", ".buybox-add", ".buybox-save", ".buybox-confirm",
+    ".buybox-disclaimer", ".buybox-source", ".detail-fx-status",
+    ".detail-description-panel h2", ".detail-description-panel p",
+    ".detail-description-panel > div", ".detail-related h2",
+    ".related-grid span", ".related-grid b", ".related-grid strong",
+    ".product-page-footer", ".product-page-footer span"
+  ];
+  const issues = await page.evaluate(selectors => {
+    const failures: Array<{selector:string;text:string;problem:string;size:string}> = [];
+    for (const selector of selectors) {
+      for (const element of document.querySelectorAll<HTMLElement>(selector)) {
+        const rect = element.getBoundingClientRect();
+        if (!rect.width || !rect.height) continue;
+        const style = getComputedStyle(element);
+        const text = (element.innerText || element.textContent || "").trim().replace(/\\s+/g, " ").slice(0, 90);
+        const horizontalClip = style.overflowX !== "visible" && element.scrollWidth > element.clientWidth + 2;
+        const lineClamped = Number.parseInt(style.getPropertyValue("-webkit-line-clamp") || "0", 10) > 0;
+        const verticalClip = !lineClamped
+          && (style.overflowY === "hidden" || style.overflowY === "clip")
+          && element.scrollHeight > element.clientHeight + 2;
+        const outsideViewport = rect.left < -1 || rect.right > document.documentElement.clientWidth + 1;
+        if (horizontalClip || verticalClip || outsideViewport) {
+          failures.push({
+            selector,
+            text,
+            problem: [horizontalClip && "horizontal clipping", verticalClip && "vertical clipping", outsideViewport && "outside viewport"].filter(Boolean).join(", "),
+            size: `client ${element.clientWidth}x${element.clientHeight}, scroll ${element.scrollWidth}x${element.scrollHeight}`
+          });
+        }
+      }
+    }
+    return failures.slice(0, 30);
+  }, selectors);
+  expect(issues, JSON.stringify(issues, null, 2)).toEqual([]);
 });
