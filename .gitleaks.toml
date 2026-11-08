@@ -7,4 +7,7 @@ condition = "AND"
 commits = ["2ebdc241842a6366482ba6865ea7f748ab0eedb7"]
 paths = ['''^PROJECT_CONTEXT\.md$''']
 regexTarget = "line"
-regexes = ['''^\s*- Added `docs/DATABASE_ERD\.md` with domain-grouped Mermaid diagrams for catalog/marketplace, demo commerce, identity/access and editorial/seller revision history\..*''']
+regexes = [
+  '''^\s*- Added `docs/DATABASE_ERD\.md` with domain-grouped Mermaid diagrams for catalog/marketplace, demo commerce, identity/access and editorial/seller revision history\..*''',
+  '''^\s*- Added `docs/DATABASE_ERD\.md` with domain-grouped Mermaid diagrams for catalog/marketplace, demo commerce, identity/access and editorial/seller revision history\. Notes explain composite foreign keys, parent/child vendor orders, cart ownership through `carts\.owner_user_id`, digest-only tokens, and append-only audit/revision records\.$'''
+]
