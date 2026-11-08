@@ -66,12 +66,24 @@ async function expectDialogFocusLoop(page: Page, dialog: ReturnType<Page["locato
 
 test("quick command palette loads on demand and preserves keyboard focus", async ({ page }) => {
   const trigger = page.locator(".locale-button");
+  const initialScriptChunks = await page.evaluate(() =>
+    performance.getEntriesByType("resource")
+      .map(entry => entry.name)
+      .filter(url => url.includes("/_next/static/chunks/") && url.endsWith(".js"))
+  );
   await trigger.focus();
   await expect(page.locator(".command-palette")).toHaveCount(0);
 
   await page.keyboard.press("Control+k");
   const dialog = page.getByRole("dialog", { name: "فرمان‌های سریع" });
   await expect(dialog).toBeVisible();
+  await expect.poll(() => page.evaluate(initial =>
+    performance.getEntriesByType("resource").some(entry =>
+      entry.name.includes("/_next/static/chunks/") &&
+      entry.name.endsWith(".js") &&
+      !initial.includes(entry.name)
+    ), initialScriptChunks
+  )).toBe(true);
   const input = dialog.getByRole("combobox");
   await expect(input).toBeFocused();
 
