@@ -1159,7 +1159,7 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .topline{height:29px;padding-inline:12px;font-size:8px}
   .storefront-v2 .header{height:66px;padding-inline:4%;gap:8px}
   .storefront-v2 .header-actions>.bag-button{position:relative;display:grid;place-items:center;flex:0 0 46px;height:46px;padding:0}
-  .storefront-v2 .header-actions>.bag-button>svg{width:21px;height:21px}
+  .storefront-v2 .header-actions>.bag-button>svg{width:21px;height:21px;stroke:#fff}
   .storefront-v2 .header-actions>.bag-button>b{position:absolute;top:-5px;inset-inline-end:-5px}
   .storefront-v2 .header-actions>.locale-button{color:#fff;background:#174b3c;border-radius:9px}
   .storefront-v2 .categorybar{min-height:42px;padding-inline:4%;gap:7px;overflow:auto;white-space:nowrap}
@@ -1202,7 +1202,7 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .benefits>div{gap:8px}
   .storefront-v2 .benefit-icon{width:31px;height:31px;border-radius:10px}
   .storefront-v2 .benefits b,.storefront-v2 .benefits small{line-height:1.7}
-  .storefront-v2 .fx-control{grid-column:1/-1;min-width:0;align-items:stretch;padding:13px}
+  .storefront-v2 .fx-control{grid-column:1/-1;min-width:0;display:grid;grid-template-columns:1fr;padding:13px}
   .storefront-v2 .fx-control>strong{min-width:0;overflow-wrap:anywhere}
   
   .storefront-v2 .categories-section{
