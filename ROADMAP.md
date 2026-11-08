@@ -1293,4 +1293,4 @@ Scope: raise the public demo's retail credibility without adding live payments, 
 - [ ] Optional evidence only: collect eligible normal-network/CDN field Core Web Vitals. This is not a blocker for the stable static portfolio/demo release and must not be inferred from Lighthouse lab results.
 
 **Closeout:** M11's release-critical code and QA gates are complete. The first stable release remains the immutable [`v1.0.0`](https://github.com/pooya-labs/globalcart/releases/tag/v1.0.0); post-release maintenance does not rewrite that tag. PR [#18](https://github.com/pooya-labs/globalcart/pull/18) was closed as superseded by PR #21.
-**Rule:** M11 is a post-release maintenance backlog. Do not change the published `v1.0.0` tag; any future code work should be scoped as a new patch/minor release after its own tests.
+**Versioning rule:** the published `v1.0.0` tag is immutable. Any future optional code change must be released as a separately tested patch/minor version; do not rewrite the original release.
