@@ -8,6 +8,10 @@
 - Added browser coverage proving interaction-triggered dialog loading and keyboard focus restoration across Chromium, Firefox and WebKit.
 - The deployment workflow refreshed the offline ABO snapshot at 1,000 products across 24 categories. Stable `v1.0.0` remains unchanged.
 
+### Owner-confirmed manual QA
+- Owner-confirmed manual QA (2026-11-08): physical desktop and phone review, actual platform screen-reader review, and full human Persian RTL / English LTR walkthrough were completed and passed. Exact device, OS/browser and assistive-technology versions were not recorded; this is owner-reported evidence, not an automated CI claim.
+- Physical tablet and a separate physical-keyboard walkthrough were not explicitly included in the confirmation. Normal-network/CDN field Core Web Vitals remain unverified.
+
 ### Verification
 - PR [#24](https://github.com/pooya-labs/globalcart/pull/24) merged as [`905c6cf`](https://github.com/pooya-labs/globalcart/commit/905c6cf91bef53761d915421cbf4cd73837b1476). Its Browser E2E [42516287507](https://github.com/pooya-labs/globalcart/actions/runs/42516287507) passed **163 / 172 tests (9 intentional skips), 0 failed**.
 - Merged-main Browser E2E [42516946135](https://github.com/pooya-labs/globalcart/actions/runs/42516946135) also passed **163 / 172 (9 intentional skips), 0 failed**; TypeScript, unit tests and production static build passed. Security [42516945842](https://github.com/pooya-labs/globalcart/actions/runs/42516945842) passed.
@@ -18,7 +22,7 @@
 ### Remaining M11 work
 - Profile and reduce the unchanged shared JavaScript chunk `255-1dfe01161d17a1b9.js` (47,415 bytes transferred in the prior trace; 21,737 bytes estimated unused). Do not split more UI blindly or relax Lighthouse budgets.
 - Establish repeatable mobile TBT headroom under the existing 300 ms budget.
-- Owner physical-device, actual screen-reader and full manual RTL/LTR review remain open.
+- Owner-confirmed physical desktop/phone, actual screen-reader and full manual Persian RTL / English LTR reviews completed and passed on 2026-11-08 (exact device/software matrix not recorded). Physical tablet, separate physical-keyboard and field Core Web Vitals checks remain open.
 
 ### Release boundary
 - Stable `v1.0.0` and its tag remain unchanged. The project is still a portfolio/demo; no real seller inventory, payments, fulfillment or payouts are enabled. Cart and checkout are local simulations.
