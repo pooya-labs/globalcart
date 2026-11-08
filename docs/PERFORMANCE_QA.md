@@ -2,21 +2,21 @@
 
 ## Latest published gate — 2026-11-08 current main deployment
 
-- The six-report public Lighthouse audit and enforced budget gate passed on [run 42497030779](https://github.com/pooya-labs/globalcart/actions/runs/42497030779) against current main commit `2513843`. All six reports passed; no thresholds were relaxed.
-- Exact successful report results (Lighthouse 13.6.0, GitHub-hosted runner):
+- The six-report public Lighthouse audit and enforced budget gate passed on [run 42498127131](https://github.com/pooya-labs/globalcart/actions/runs/42498127131), retry 2, against current main commit `5b7141c`. All six reports passed; no thresholds were relaxed.
+- Exact successful retry report results (Lighthouse 13.6.0, GitHub-hosted runner):
 
 | Route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 0 ms | 0 |
-| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 100 ms | 0 |
-| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 20 ms | 0 |
-| Home — mobile | 92 | 100 | 100 | 100 | 1.0 s | 2.5 s | 280 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 90 ms | 0 |
+| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
+| Home — mobile | 95 | 100 | 100 | 100 | 1.0 s | 2.5 s | 200 ms | 0 |
 | Product — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 0 ms | 0 |
-| Product — mobile | 95 | 100 | 100 | 100 | 0.9 s | 2.5 s | 180 ms | 0 |
+| Product — mobile | 96 | 100 | 100 | 100 | 1.0 s | 2.5 s | 140 ms | 0 |
 
 - The unchanged gate enforces mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95.
-- Home mobile TBT is only 20 ms below the 300 ms budget. The run passed; this is not a budget violation, but it has limited headroom and deserves a follow-up.
-- The raw `home-mobile.json` report recorded four long tasks: 244 ms in shared Next.js chunk `4bd1b696-c023c6e3521b1417.js`, 120 ms in the document, and 77 ms / 66 ms in chunk `493-fb878163f2eec184.js`. The `unused-javascript` audit estimated 21,757 bytes (~21.7 KiB) unused in that second chunk, with an estimated 60 ms saving. These are audit leads, not an instruction to remove the chunk wholesale.
+- The first sample of this same run measured home-mobile TBT at 353 ms and failed the budget; retry 2 measured 200 ms and passed. Do not treat the failed sample as the final result, but retain it as evidence of lab variance and continue to seek repeatable headroom. The budget remains unchanged.
+- The successful raw `home-mobile.json` report recorded four long tasks: 154 ms in shared Next.js chunk `4bd1b696-c023c6e3521b1417.js`, 112 ms in the document, and 75 ms / 59 ms in chunk `493-fb878163f2eec184.js`. The `unused-javascript` audit estimated 21,762 bytes (~21.8 KiB) unused in that second chunk, with an estimated 60 ms saving. These are audit leads, not an instruction to remove the chunk wholesale.
 - Follow-up: inspect the initial homepage hydration/shared chunk, evaluate safe code splitting or deferred loading for non-critical interactions, and re-run all six reports. Keep the existing thresholds, preserve the catalog/gallery and visible controls, and seek repeatable TBT headroom.
 - These are GitHub-hosted lab measurements, not physical-device or field Core Web Vitals. Physical-device, actual screen-reader, full manual RTL/LTR and eligible normal-network/CDN evidence remain separate follow-up checks.
 
@@ -316,4 +316,4 @@ Do not tick these items based on CI emulation. Record actual device, browser/OS 
 
 The stable v1.0.0 portfolio/demo release is published. Physical-device, actual screen-reader, full-site RTL/LTR and published-delivery/field-metric checks remain external follow-up evidence. Automated axe and Playwright coverage is regression protection, not evidence that those manual checks have happened.
 
-The latest home-mobile Lighthouse TBT is 280 ms against a 300 ms budget. This passes, but the M11 backlog tracks the shared-chunk/document long tasks and unused JavaScript estimate for post-release optimization.
+The latest successful home-mobile Lighthouse retry measured TBT at 200 ms against a 300 ms budget; the first sample was 353 ms. Both are retained as lab-run variance evidence. The M11 backlog tracks the shared-chunk/document long tasks and unused JavaScript estimate for post-release optimization.
