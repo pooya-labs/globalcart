@@ -1,24 +1,24 @@
 # Public performance and release QA
 
-## Latest post-release measurement — 2026-11-08 (M11 follow-up)
+## Latest published measurement — 2026-11-08 (final v1.0.0 closeout)
 
-- Public Lighthouse [run 42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362) audited the published site after the palette extraction and catalog refresh. All six route/mode reports passed the existing regression budgets; no thresholds were changed.
+- Public Lighthouse [run 42515189075](https://github.com/pooya-labs/globalcart/actions/runs/42515189075) audited the latest published snapshot after the branding and on-demand command-palette changes. All six route/mode reports passed the existing regression budgets; no thresholds were changed.
 - Exact results (Lighthouse 13.6.0, GitHub-hosted runner):
 
 | Route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
-| Case study — mobile | 99 | 100 | 100 | 100 | 1.0 s | 1.0 s | 90 ms | 0 |
-| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
-| Home — mobile | 94 | 100 | 100 | 100 | 1.0 s | 2.5 s | 220 ms | 0 |
-| Product — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.5 s | 0 ms | 0 |
-| Product — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.4 s | 100 ms | 0 |
+| Case study — mobile | 100 | 100 | 100 | 100 | 1.0 s | 1.0 s | 80 ms | 0 |
+| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 0 ms | 0 |
+| Home — mobile | 97 | 100 | 100 | 100 | 1.0 s | 2.3 s | 150 ms | 0 |
+| Product — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 0 ms | 0 |
+| Product — mobile | 97 | 100 | 100 | 100 | 1.0 s | 2.5 s | 100 ms | 0 |
 
-- The unchanged gate still enforces mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95.
-- Compared with the preceding successful home-mobile measurement [run 42498127131](https://github.com/pooya-labs/globalcart/actions/runs/42498127131) (Performance 95 / LCP 2.5 s / TBT 200 ms), the new sample is 94 / 2.5 s / 220 ms. Both pass the budget; the change does **not** demonstrate a TBT improvement. The current unused-JavaScript audit estimates 21,737 transferred bytes (~21.7 KiB) versus 21,762 bytes (~21.8 KiB) previously.
-- Current home-mobile long tasks were 169 ms in the document, 155 ms in `main-app-d0bf562d86ed8952.js`, 60 ms unattributed and 50 ms in `255-1dfe01161d17a1b9.js`. Treat the audit as a prompt to inspect initial chunk loading/preloading; do not assume the extracted command palette is responsible for every task or that it has been fully deferred.
-- Continue M11 by checking whether the dynamic chunk is requested on initial navigation, identifying the remaining shared chunk's module ownership, and testing a genuinely interaction-triggered boundary if safe. Preserve command/focus behavior and all existing performance budgets.
-- These are GitHub-hosted lab measurements, not physical-device or field Core Web Vitals. Physical-device, actual screen-reader, full manual RTL/LTR and eligible normal-network/CDN evidence remain separate follow-up checks.
+- The unchanged gate enforces mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95.
+- Lab variance is documented rather than hidden: on earlier runs of the post-branding build, home-mobile TBT measured 320 ms and 303 ms; later full six-report runs passed at 110 ms, 180 ms and 150 ms. The latest report is fully green. The 300 ms budget was never relaxed.
+- PR [#21](https://github.com/pooya-labs/globalcart/pull/21) adds a network-level Browser E2E assertion proving that the command-palette JavaScript chunk is not requested at initial navigation and is requested only when the user opens the palette. Its full cross-browser test suite passed **158 tests / 0 failures**; mainline rerun [42514840653](https://github.com/pooya-labs/globalcart/actions/runs/42514840653) also passed.
+- The owner confirmed physical desktop/mobile, actual platform screen-reader and full human RTL/LTR review on 2026-11-08. These owner-led checks are separate from automation.
+- Eligible normal-network/CDN field Core Web Vitals have not been collected. These are GitHub-hosted lab measurements, not field LCP/INP/CLS; TBT is not field INP.
 
 ## Latest published gate — 2026-11-08 current main deployment
 
@@ -334,6 +334,6 @@ Do not tick these items based on CI emulation. Record actual device, browser/OS 
 
 ### Release decision
 
-The stable v1.0.0 portfolio/demo release is published. Physical-device, actual screen-reader, full-site RTL/LTR and published-delivery/field-metric checks remain external follow-up evidence. Automated axe and Playwright coverage is regression protection, not evidence that those manual checks have happened.
+The stable v1.0.0 portfolio/demo release is published. The owner confirmed physical-device, actual platform screen-reader and full-site RTL/LTR manual QA on 2026-11-08. Automated axe and Playwright coverage remains regression protection rather than a substitute for that review.
 
-The latest successful home-mobile Lighthouse retry measured TBT at 200 ms against a 300 ms budget; the first sample was 353 ms. Both are retained as lab-run variance evidence. The M11 backlog tracks the shared-chunk/document long tasks and unused JavaScript estimate for post-release optimization.
+Latest Lighthouse run [42515189075](https://github.com/pooya-labs/globalcart/actions/runs/42515189075) passed all six reports: home-mobile TBT 150 ms, product-mobile 100 ms and case-study mobile 80 ms, with all desktop routes at Performance 100. Earlier home-mobile samples at 320/303 ms exceeded the 300 ms budget; later full runs passed at 110/180/150 ms. The budget was not relaxed. PR #21's network-level regression proves the command-palette chunk is only requested after interaction. Eligible normal-network/CDN field Core Web Vitals remain unmeasured; do not report lab values as field data.
