@@ -1158,7 +1158,7 @@ body{background:#f7f8f5;color:var(--ink)}
 @media(max-width:760px){
   .storefront-v2 .topline{height:29px;padding-inline:12px;font-size:8px}
   .storefront-v2 .header{height:66px;padding-inline:4%;gap:8px}
-  .storefront-v2 .header-actions>.bag-button{position:relative;display:grid;place-items:center;flex:0 0 46px;height:46px;padding:0}
+  .storefront-v2 .header-actions>.bag-button{position:relative;display:grid;place-items:center;flex:0 0 46px;height:46px;padding:0;border-radius:14px}
   .storefront-v2 .header-actions>.bag-button>svg{width:21px;height:21px;stroke:#fff}
   .storefront-v2 .header-actions>.bag-button>b{position:absolute;top:-5px;inset-inline-end:-5px}
   .storefront-v2 .header-actions>.locale-button{color:#fff;background:#174b3c;border-radius:9px}
@@ -1208,7 +1208,7 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .categories-section{
     width:calc(100% - 32px);padding:48px 0 15px;
   }
-  .storefront-v2 .section-heading{gap:10px}
+  
   .storefront-v2 .section-heading h2{font-size:27px}
   .storefront-v2 .category-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
   .storefront-v2 .category-tile{height:118px;min-height:118px;padding:13px 14px;border-radius:13px}
