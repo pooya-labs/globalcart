@@ -2146,14 +2146,17 @@ body{background:#f7f8f5;color:var(--ink)}
     line-height:1.9;
   }
   .storefront-v2 .hero-product-collage {
-    inset-inline:10px;
+    inset-inline-start:auto;
+    inset-inline-end:10px;
     bottom:10px;
     display:flex;
     flex-direction:row;
+    direction:ltr;
     align-items:flex-end;
     justify-content:flex-start;
     gap:6px;
-    max-width:none;
+    width:auto;
+    max-width:48%;
     min-width:0;
   }
   .storefront-v2 .hero-product-tile {
@@ -2180,13 +2183,15 @@ body{background:#f7f8f5;color:var(--ink)}
     object-fit:contain;
   }
   .storefront-v2 .hero-image-caption {
-    position:relative;
-    inset:auto;
-    flex:1 1 auto;
+    position:absolute;
+    z-index:5;
+    bottom:10px;
+    inset-inline-start:10px;
+    inset-inline-end:auto;
     width:auto;
     min-width:0;
-    max-width:none;
-    margin-inline-start:auto;
+    max-width:48%;
+    margin:0;
     padding:10px 12px;
     border-radius:12px;
   }
