@@ -150,6 +150,16 @@ Historical M04 backend CI [41382309964](https://github.com/pooya-labs/globalcart
 
 ---
 
+## Latest project update — 8 November 2026
+
+The bilingual case study now includes committed desktop and mobile full-page captures. The latest storefront maintenance also persisted the catalog snapshot, lockfile and site imagery in the repository, while a branding fix made the Pooya Labs ownership marks clickable and restored case-study badge contrast. The published v1.0.0 scope and demo-only commerce boundaries above remain unchanged.
+
+## Project ownership
+
+<p align="center"><a href="https://pooya-labs.github.io/pooya-labs-platform/"><img src="https://raw.githubusercontent.com/pooya-labs/pooya-labs-platform/main/apps/platform/public/brand/pooya-monogram.webp" alt="Pooya Labs Platform monogram" width="64" /></a></p>
+
+**Owned and maintained by [Pooya Labs Platform](https://pooya-labs.github.io/pooya-labs-platform/).** Product direction and engineering: **Pooya Goodarzi**.
+
 ## راهنمای فارسی
 
 ### معرفی
@@ -199,3 +209,13 @@ npm run build
 ### مستندات و ادامهٔ مسیر
 
 برای نقشهٔ راه، معماری، منابع داده، راهنمای تحویل به توسعه‌دهندهٔ بعدی، ERD و گزارش آزمون کارایی به فایل‌های `ROADMAP.md`، `PROJECT_CONTEXT.md`، `docs/AI_HANDOFF.md`، `docs/ARCHITECTURE.md` و سایر پیوندهای بخش انگلیسی README مراجعه کنید.
+
+### آخرین تغییرات — ۸ نوامبر ۲۰۲۶
+
+برای مطالعهٔ موردی دوزبانه، تصاویر کامل صفحه در اندازه‌های دسکتاپ و موبایل به مخزن اضافه شدند. در آخرین نگه‌داری فروشگاه نیز snapshot کاتالوگ، lockfile و تصاویر سایت در مخزن ثبت شدند. اصلاح هویت بصری باعث شد نشان‌های مالکیت پویا لبز قابل کلیک باشند و کنتراست نشان مطالعهٔ موردی نیز بازگردد. وضعیت انتشار v1.0.0 و محدودیت‌های فروش نمایشی تغییری نکرده‌اند.
+
+### مالکیت و نگه‌داری
+
+<p align="center"><a href="https://pooya-labs.github.io/pooya-labs-platform/"><img src="https://raw.githubusercontent.com/pooya-labs/pooya-labs-platform/main/apps/platform/public/brand/pooya-monogram.webp" alt="نشان مونوگرام پویا لبز" width="64" /></a></p>
+
+**مالک و نگه‌دارنده: [پلتفرم پویا لبز](https://pooya-labs.github.io/pooya-labs-platform/)** · طراحی محصول و توسعه: **پویا گودرزی**.
