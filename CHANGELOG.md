@@ -1,3 +1,21 @@
+## Unreleased — post-release M11 maintenance (2026-11-08)
+
+### Changed
+- Extracted the seven-command quick palette into a separate client component, retaining Persian/English search, keyboard navigation, Escape dismissal and focus restoration.
+- Added cross-browser regression coverage for on-demand dialog rendering and keyboard focus. This is post-release maintenance; the `v1.0.0` tag and release remain unchanged.
+- The deployment pipeline refreshed and persisted the offline snapshot at 1,000 products across 24 categories.
+
+### Verification
+- PR [#17](https://github.com/pooya-labs/globalcart/pull/17) passed Browser E2E **156 passed / 9 intentional skips / 0 failed / 0 flaky** ([run 42503976312](https://github.com/pooya-labs/globalcart/actions/runs/42503976312)); TypeScript, unit tests, build and Security passed. The merged mainline Browser E2E [42504699145](https://github.com/pooya-labs/globalcart/actions/runs/42504699145) also passed.
+- Pages deployment/public smoke [42504699227](https://github.com/pooya-labs/globalcart/actions/runs/42504699227), live visual QA [42504858327](https://github.com/pooya-labs/globalcart/actions/runs/42504858327), Shopify Worker catalog smoke [42504858421](https://github.com/pooya-labs/globalcart/actions/runs/42504858421), and Security [42504699072](https://github.com/pooya-labs/globalcart/actions/runs/42504699072) passed.
+- Six-report Lighthouse [42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362) passed all unchanged budgets. Home-mobile Performance was 94 / LCP 2.5 s / TBT 220 ms; product-mobile 97 / 2.4 s / 100 ms; case-study mobile 99 / 1.0 s / 90 ms. Desktop Performance was 100 on all routes; Accessibility, Best Practices and SEO were 100 throughout; CLS was 0.
+- The home-mobile comparison (previous successful run 42498127131: Performance 95 / TBT 200 ms) does not prove a performance improvement. Estimated unused JavaScript remains approximately 21.7 KiB, versus 21.8 KiB previously. Continue M11 chunk/preload investigation without changing budgets.
+
+### Release boundary
+- The current stable release remains `v1.0.0`. This follow-up does not enable real seller inventory, payment, checkout, shipping or fulfillment. Owner device, screen-reader and manual RTL/LTR reviews remain open.
+
+---
+
 ## 1.0.0 — GlobalCart portfolio demo release (2026-11-08)
 
 ### Included
