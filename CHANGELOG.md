@@ -2,6 +2,7 @@
 
 ### Changed
 - Kept the existing seven-command quick palette in its own lazy client component.
+- Added a lightweight preflight check so the full `v1.0.0` release verification is skipped after the stable release already exists.
 - Moved cart, favorites, quick-view, comparison and demo-checkout overlays into `app/StorefrontDialogs.tsx`, loaded only after a relevant user interaction.
 - Preserved the existing Persian/English content, local-only demo commerce behavior and all drawer/modal markup; delayed focus-trap setup until the lazy module mounts to preserve focus entry and restoration.
 - Added browser coverage proving interaction-triggered dialog loading and keyboard focus restoration across Chromium, Firefox and WebKit.
@@ -22,7 +23,6 @@
 ### Release boundary
 - Stable `v1.0.0` and its tag remain unchanged. The project is still a portfolio/demo; no real seller inventory, payments, fulfillment or payouts are enabled. Cart and checkout are local simulations.
 
----
 ---
 
 ## 1.0.0 — GlobalCart portfolio demo release (2026-11-08)

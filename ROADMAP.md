@@ -14,6 +14,8 @@
 - **Catalog and prices:** the storefront continues to use the offline ABO snapshot (1,000 products / 24 categories). Illustrative values retain `priceKind: "estimated"` and `priceAvailable: false`; they are not retailer quotes. TGJU is used for USD-to-Toman conversion/freshness only. Seller ratings and live stock are not verified.
 - **Manual follow-up:** physical desktop/phone, actual platform screen-reader, full human RTL/LTR and eligible normal-network/CDN field Core Web Vitals remain unverified. Automated browser emulation and Lighthouse lab data do not close these checks.
 - **Demo boundary:** no production payments, inventory reservation, fulfillment, seller payouts or live seller stock are enabled. Cart and checkout remain simulations.
+- **Security exception:** `.gitleaksignore` contains exactly one fingerprint for the historical `generic-api-key` false positive on the documented PostgreSQL identifier `carts.owner_user_id` at `PROJECT_CONTEXT.md:775` in commit `2ebdc241842a6366482ba6865ea7f748ab0eedb7`. Keep this exact fingerprint only; never broaden it to a path or rule.
+
 | Frontend | Next.js App Router, React, TypeScript | Storefront, product pages, admin/seller UX | Current |
 | Backend | Go REST API + OpenAPI | Domain services, auth, catalog and orders | M04 |
 | Primary database | PostgreSQL | Relational data and transactional consistency | M04 |
