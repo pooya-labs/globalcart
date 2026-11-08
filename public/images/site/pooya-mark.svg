@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Pooya personal P monogram">
+  <defs>
+    <linearGradient id="pooya-mark-main" x1="20" y1="12" x2="108" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C4FFF2"/><stop offset=".27" stop-color="#75E8CB"/><stop offset=".68" stop-color="#35C99A"/><stop offset="1" stop-color="#16886F"/>
+    </linearGradient>
+    <linearGradient id="pooya-mark-fold" x1="48" y1="46" x2="94" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9CFFE5"/><stop offset=".55" stop-color="#49DCC0"/><stop offset="1" stop-color="#2B9CC0"/>
+    </linearGradient>
+  </defs>
+  <path d="M15 91C28 113 69 121 99 101C111 92 117 77 113 63" fill="none" stroke="#35C99A" stroke-opacity=".48" stroke-width="2.1" stroke-linecap="round"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M31 105V27C31 20 37 14 45 14H74C96 14 110 28 110 49C110 70 96 84 74 84H52" stroke="url(#pooya-mark-main)" stroke-width="15"/>
+    <path d="M52 84L88 49" stroke="url(#pooya-mark-fold)" stroke-width="15"/>
+    <path d="M40 22H73C91 22 101 31 104 47" stroke="#E6FFF8" stroke-opacity=".58" stroke-width="2.1"/>
+  </g>
+  <circle cx="113" cy="63" r="4" fill="#8BF2D8"/>
+</svg>
