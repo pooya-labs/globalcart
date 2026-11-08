@@ -355,7 +355,7 @@ button:disabled{cursor:not-allowed;opacity:.55}
 .search-suggestion:focus-visible,.command-option:focus-visible,.command-shortcut:focus-visible{outline:2px solid #176b55;outline-offset:2px}
 @media(max-width:760px){
   .search-area{display:none;width:38px;position:static}
-  .search-area.search-area-open{display:block;position:absolute;top:66px;inset-inline:4%;width:auto;z-index:36}
+  .search-area.search-area-open{display:block;position:fixed;top:102px;inset-inline:12px;width:auto;z-index:36}
   .search-area.search-area-open .search-box{position:relative;top:auto;inset-inline:auto;width:100%;height:48px;background:#fff;padding:0 13px;border:1px solid #e1e7ef;box-shadow:0 8px 24px rgba(16,31,50,.12)}
   .search-area.search-area-open .search-box input{display:block}
   .search-area.search-area-open .search-suggestions{top:calc(100% + 6px)}
@@ -1943,7 +1943,7 @@ body{background:#f7f8f5;color:var(--ink)}
  .storefront-v2 .filter-panel.filter-visible .filter-option.active{background:#e9f2e8}
  .storefront-v2 .filter-panel.filter-visible .price-filter label{gap:10px}
  .storefront-v2 .filter-panel.filter-visible .price-filter input{width:112px;height:36px;border-radius:8px}
- .storefront-v2 .product-card-title{min-height:0!important;max-height:none;overflow:visible;gap:4px}
+ .storefront-v2 .product-card-title{min-height:0!important;max-height:none;overflow:visible;gap:4px} .storefront-v2 .product-details h3.product-card-title{display:flex;max-height:none;overflow:visible;-webkit-line-clamp:unset;line-height:1.65}
  .storefront-v2 .product-title-fa{font-size:10px;line-height:1.65;overflow-wrap:anywhere}
  .storefront-v2 .product-title-original{font-size:10px;line-height:1.6;-webkit-line-clamp:3;overflow-wrap:anywhere}
 }
