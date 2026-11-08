@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { lazy, Suspense, useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
+
 import { filterCatalogProducts } from "../lib/catalog/filtering";
 import { EDITORIAL_PRODUCT_GROUPS, getPersianProductCopy, selectEditorialProducts } from "../lib/catalog/editorial";
 import { buildCatalogSuggestions, type CatalogSearchSuggestion } from "../lib/catalog/suggestions";
@@ -21,7 +21,7 @@ import {
   Sparkles, Star, Trash2, Truck, Utensils, Watch, Wrench, GitCompareArrows, type LucideIcon, X, Zap
 } from "lucide-react";
 
-const CommandPalette = dynamic(() => import("./CommandPalette"), { ssr: false, loading: () => null });
+const CommandPalette = lazy(() => import("./CommandPalette"));
 
 export type Product = {
   id: number; title: string; description: string; category: string; price: number;
@@ -897,7 +897,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
 
       <footer className="footer"><div className="footer-main"><div><a href="#top" className="brand footer-brand"><span className="brand-mark">g<span>.</span></span><span className="brand-name">globalcart<small>THE WORLD, WELL FOUND.</small></span></a><p>{t.footer}</p><span className="footer-owner">{t.owner}</span></div><div className="footer-links"><b>EXPLORE</b><a href="#catalog">{t.nav1}</a><a href="#categories">{t.nav2}</a><Link href="/recently-viewed">{t.recently}</Link><a href="#about">{t.nav4}</a><Link href="/case-study/">Case study / روایت پروژه</Link><a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer">GitHub <ArrowUpLeftIcon/></a></div><div className="footer-disclaimer"><span><ShieldCheck size={17}/>{t.demo}</span><p>{t.noPayment}</p><small>PRODUCT DATA IS PROVIDED FOR DEMONSTRATION PURPOSES ONLY.</small></div></div><div className="footer-bottom"><span>© 2026 GLOBALCART · POOYA LABS</span><span>CREATED BY POOYA GOODARZI · INDEPENDENTLY ENGINEERED.</span></div></footer>
 
-      {commandPaletteOpen&&<CommandPalette labels={t} onClose={closeCommandPalette} onRunCommand={runCommand} onReady={markCommandPaletteReady}/>}
+      {commandPaletteOpen&&<Suspense fallback={null}><CommandPalette labels={t} onClose={closeCommandPalette} onRunCommand={runCommand} onReady={markCommandPaletteReady}/></Suspense>}
 
       {cartOpen&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setCartOpen(false);}}><aside className="side-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-dialog-title" tabIndex={-1}><div className="drawer-head"><div><span className="section-kicker">YOUR SELECTION</span><h3 id="cart-dialog-title">{t.cart} <small>({count})</small></h3></div><button className="icon-button" onClick={()=>setCartOpen(false)} aria-label={t.close}><X/></button></div><p className="drawer-demo-note" role="note">{t.noPayment}</p>{cart.length===0?<div className="drawer-empty"><span className="empty-state-icon"><ShoppingBag size={25}/></span><b>{t.emptyCart}</b><p>{t.emptyCartHint}</p><button className="button-primary" onClick={()=>setCartOpen(false)}>{t.continue}</button></div>:<><div className="drawer-items">{cart.map((line,index)=><div className="drawer-item" key={line.product.id}><img src={catalogImageSrc(line.product.thumbnail)} alt={line.product.title} loading="lazy" decoding="async" fetchPriority="low" width={1440} height={1440}/><div className="drawer-item-info"><b>{rtl?(getPersianProductCopy(line.product.id)?.title??line.product.title):line.product.title}</b><strong>{formatPrice(line.product)}</strong><div className="quantity"><button aria-label={t.decrease} onClick={()=>changeQuantity(line.product.id,-1)}><Minus size={13}/></button><span>{line.quantity}</span><button aria-label={t.increase} onClick={()=>changeQuantity(line.product.id,1)}><Plus size={13}/></button></div></div><button className="remove-item" aria-label={t.remove} onClick={()=>removeCartLine(line,index)}><X size={16}/></button></div>)}</div><div className="drawer-bottom"><div><span>{t.subtotal}</span><b>{subtotalHasUnavailablePrice?(rtl?"قیمت در منبع موجود نیست":"Price not provided by source"):rtl&&subtotalToman!==null?money(subtotalToman,locale)+" تومان":usd(subtotalUsd)}</b><small className="drawer-fx-note" data-status={fxStatus}>{rtl?"وضعیت نرخ تبدیل TGJU: ":"TGJU conversion rate: "}{fxStatusLabel}</small></div><button className="button-primary full-button" onClick={()=>{setCartOpen(false);setCheckout(true);}}>{t.checkout}<ArrowLeft size={16}/></button></div></>}</aside></div>}
 
