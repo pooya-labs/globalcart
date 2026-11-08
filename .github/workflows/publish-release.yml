@@ -73,11 +73,7 @@ jobs:
         run: npm run test:e2e
 
       - name: Scan repository history for secrets
-        uses: gitleaks/gitleaks-action@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_ENABLE_COMMENTS: "false"
-          GITLEAKS_ENABLE_SUMMARY: "true"
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.3 detect --source=/repo --redact --no-banner
 
       - name: Verify the published storefront, product and case study
         shell: bash
