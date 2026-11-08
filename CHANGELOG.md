@@ -1,29 +1,25 @@
-## Unreleased — post-release M11 maintenance (2026-11-08)
+## Unreleased — v1.0.0 post-release closeout (2026-11-08)
 
-### Changed
-- Kept the existing seven-command quick palette in its own lazy client component.
-- Added a lightweight preflight check so the full `v1.0.0` release verification is skipped after the stable release already exists.
-- Moved cart, favorites, quick-view, comparison and demo-checkout overlays into `app/StorefrontDialogs.tsx`, loaded only after a relevant user interaction.
-- Preserved the existing Persian/English content, local-only demo commerce behavior and all drawer/modal markup; delayed focus-trap setup until the lazy module mounts to preserve focus entry and restoration.
-- Added browser coverage proving interaction-triggered dialog loading and keyboard focus restoration across Chromium, Firefox and WebKit.
-- The deployment workflow refreshed the offline ABO snapshot at 1,000 products across 24 categories. Stable `v1.0.0` remains unchanged.
+### Completed on main
+- Restored the exact GlobalCart `g.` product mark and official Pooya Labs monogram; owner marks link to the Pooya Labs platform and the case-study badge has verified contrast.
+- Deferred the command palette and commerce dialogs (cart, favorites, quick view, compare and demo checkout) until user interaction, preserving keyboard navigation, focus entry and focus restoration.
+- Refreshed and persisted the offline catalog snapshot, lockfile and self-hosted site imagery: 1,000 products across 24 categories.
+- Updated release preflight so reruns recognize the already-published stable tag and do not recreate or retarget it.
+- Synchronized bilingual case-study/README, roadmap, project context, handoff and performance documentation.
 
 ### Verification
-- PR [#24](https://github.com/pooya-labs/globalcart/pull/24) merged as [`905c6cf`](https://github.com/pooya-labs/globalcart/commit/905c6cf91bef53761d915421cbf4cd73837b1476). Its Browser E2E [42516287507](https://github.com/pooya-labs/globalcart/actions/runs/42516287507) passed **163 / 172 tests (9 intentional skips), 0 failed**.
-- Merged-main Browser E2E [42516946135](https://github.com/pooya-labs/globalcart/actions/runs/42516946135) also passed **163 / 172 (9 intentional skips), 0 failed**; TypeScript, unit tests and production static build passed. Security [42516945842](https://github.com/pooya-labs/globalcart/actions/runs/42516945842) passed.
-- Pages deploy/public route smoke [42516945973](https://github.com/pooya-labs/globalcart/actions/runs/42516945973), live desktop/mobile visual QA [42517087944](https://github.com/pooya-labs/globalcart/actions/runs/42517087944) and Shopify Worker catalog smoke [42517088007](https://github.com/pooya-labs/globalcart/actions/runs/42517088007) passed.
-- Six-report public Lighthouse [42517087881](https://github.com/pooya-labs/globalcart/actions/runs/42517087881), attempt 2, passed all unchanged budgets. Mobile home/product/case-study Performance was 96 / 96 / 99; LCP 2.4 / 2.5 / 0.9 s; TBT 174 / 130 / 121 ms. Desktop Performance was 100 on all routes; Accessibility, Best Practices and SEO were 100 throughout; CLS was 0. Attempt 1 hit a transient 503 on the case-study mobile route; retry 2 generated all six reports and passed.
-- Compared with the previous successful home-mobile sample [42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362), TBT changed from 224 to 174 ms and LCP from 2.47 to 2.35 s. Initial script transfer across the paired traces fell by about 2.7 KB (139,873 → 137,202 bytes), but the unused-JavaScript estimate remained exactly 21,737 bytes in the shared chunk. Treat this as a modest lab observation, not a proven causal or field-performance gain.
+- Merged-main Browser E2E [42516946135](https://github.com/pooya-labs/globalcart/actions/runs/42516946135) passed **163 tests / 9 intentional skips / 0 failures** across Chromium, Firefox and WebKit. TypeScript, unit tests and production static build passed.
+- Mainline Security [42518528453](https://github.com/pooya-labs/globalcart/actions/runs/42518528453), Pages deployment [42518528466](https://github.com/pooya-labs/globalcart/actions/runs/42518528466), live visual QA [42518731820](https://github.com/pooya-labs/globalcart/actions/runs/42518731820) and Shopify catalog smoke [42518731796](https://github.com/pooya-labs/globalcart/actions/runs/42518731796) succeeded.
+- Six-report Lighthouse [42517087881](https://github.com/pooya-labs/globalcart/actions/runs/42517087881) passed unchanged budgets: mobile Performance 96/96/99; desktop Performance 100; Accessibility, Best Practices and SEO 100; CLS 0. Mobile TBT was 174/130/121 ms for home/product/case study. Earlier 320/303 ms home samples are retained as lab variance; no threshold was relaxed.
+- Release preflight [42518896659](https://github.com/pooya-labs/globalcart/actions/runs/42518896659) succeeded and correctly skipped re-publication because `v1.0.0` already exists. The original release/tag remains untouched at `dfe9a98`.
+- The owner confirmed real desktop/mobile, actual platform screen-reader and full human RTL/LTR review on 2026-11-08.
 
-### Remaining M11 work
-- Profile and reduce the unchanged shared JavaScript chunk `255-1dfe01161d17a1b9.js` (47,415 bytes transferred in the prior trace; 21,737 bytes estimated unused). Do not split more UI blindly or relax Lighthouse budgets.
-- Establish repeatable mobile TBT headroom under the existing 300 ms budget.
-- Owner physical-device, actual screen-reader and full manual RTL/LTR review remain open.
+### Non-blocking follow-up
+- Lighthouse previously estimated about 21.7 KiB of unused code in one shared chunk. This remains an optional performance optimization; the six-report gate passes and thresholds remain unchanged.
+- Eligible normal-network/CDN field Core Web Vitals have not been collected. They are optional external evidence, not a blocker for this static portfolio/demo release.
 
 ### Release boundary
-- Stable `v1.0.0` and its tag remain unchanged. The project is still a portfolio/demo; no real seller inventory, payments, fulfillment or payouts are enabled. Cart and checkout are local simulations.
-
----
+- GlobalCart 1.0.0 is a stable portfolio/demo simulation, not a live retailer. No real payment, stock reservation, shipment, fulfillment, seller payout or money refund is processed. Product values are illustrative estimates, not seller quotes.
 
 ## 1.0.0 — GlobalCart portfolio demo release (2026-11-08)
 
