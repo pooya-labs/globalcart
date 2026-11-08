@@ -90,7 +90,7 @@ test("homepage prioritizes its hero and defers non-critical images", async ({ pa
         loading: image.loading,
         decoding: image.decoding,
         isHero: image.matches(".hero-visual > img"),
-        isBrandMark: image.src.includes("pooya-mark.svg")
+        isBrandMark: image.src.includes("pooya-monogram.webp")
       };
     })
   );
@@ -125,7 +125,7 @@ test("product detail prioritizes the main image and defers gallery extras", asyn
   const extras = await page.locator("img").evaluateAll(images =>
     images.filter(node =>
       !(node as HTMLImageElement).matches(".detail-main-image > img") &&
-      !(node as HTMLImageElement).src.includes("pooya-mark.svg")
+      !(node as HTMLImageElement).src.includes("pooya-monogram.webp")
     )
       .map(node => {
         const image = node as HTMLImageElement;
