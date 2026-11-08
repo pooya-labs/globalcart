@@ -65,7 +65,7 @@ async function expectDialogFocusLoop(page: Page, dialog: ReturnType<Page["locato
 
 
 test("quick command palette loads on demand and preserves keyboard focus", async ({ page }) => {
-  const trigger = page.locator(".command-shortcut");
+  const trigger = page.locator(".locale-button");
   await trigger.focus();
   await expect(page.locator(".command-palette")).toHaveCount(0);
 
