@@ -681,30 +681,33 @@ test("mobile header keeps locale and cart controls aligned without overlap in RT
       }
       await expect(root).toHaveAttribute("dir", locale);
       const header = page.locator("header.header");
+      const search = header.locator(".mobile-search-trigger");
       const language = header.locator(".locale-button");
       const cart = header.locator(".bag-button");
+      await expect(search).toBeVisible();
       await expect(language).toBeVisible();
       await expect(cart).toBeVisible();
       const geometry = await header.evaluate(element => {
         const rect = (selector: string) => {
           const box = element.querySelector(selector)!.getBoundingClientRect();
-          return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+          return { left: box.left, right: box.right };
         };
         return {
           header: rect(".header-actions"),
+          search: rect(".mobile-search-trigger"),
           language: rect(".locale-button"),
           cart: rect(".bag-button"),
           viewportWidth: document.documentElement.clientWidth
         };
       });
-      expect(geometry.language.left).toBeGreaterThanOrEqual(0);
-      expect(geometry.cart.left).toBeGreaterThanOrEqual(0);
-      expect(geometry.language.right).toBeLessThanOrEqual(geometry.viewportWidth);
-      expect(geometry.cart.right).toBeLessThanOrEqual(geometry.viewportWidth);
-      expect(
-        geometry.language.right <= geometry.cart.left || geometry.cart.right <= geometry.language.left
-      ).toBeTruthy();
-      expect(geometry.header.right - geometry.header.left).toBeLessThanOrEqual(geometry.viewportWidth);
+      for (const control of [geometry.search, geometry.language, geometry.cart]) {
+        expect(control.left).toBeGreaterThanOrEqual(0);
+        expect(control.right).toBeLessThanOrEqual(geometry.viewportWidth);
+      }
+      expect(geometry.search.right).toBeLessThanOrEqual(geometry.language.left);
+      expect(geometry.language.right).toBeLessThanOrEqual(geometry.cart.left);
+      expect(geometry.header.left).toBeGreaterThanOrEqual(0);
+      expect(geometry.header.right).toBeLessThanOrEqual(geometry.viewportWidth);
     }
   }
 });
