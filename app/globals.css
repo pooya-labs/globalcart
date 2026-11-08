@@ -1204,9 +1204,9 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .benefits b,.storefront-v2 .benefits small{font-size:9px}
   .storefront-v2 .benefits b{line-height:1.7}
   .storefront-v2 .benefits small{line-height:1.65}
-  .storefront-v2 .fx-control{grid-column:1/-1;display:flex;flex-direction:column;gap:6px;min-width:0;padding:13px;border:1px solid #e3ebe2;border-radius:12px}
+  .storefront-v2 .fx-control{grid-column:1/-1;min-width:0;align-items:stretch;padding:13px;border:1px solid #e3ebe2;border-radius:12px}
   .storefront-v2 .fx-control>strong{min-width:0;overflow-wrap:anywhere;line-height:1.8}
-  .storefront-v2 .fx-control>small{line-height:1.8;overflow-wrap:anywhere}
+  .storefront-v2 .fx-control .fx-caveat{overflow-wrap:anywhere}
   
   .storefront-v2 .categories-section{
     width:calc(100% - 32px);padding:48px 0 15px;
