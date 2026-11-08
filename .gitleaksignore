@@ -1,0 +1,3 @@
+# Exact historical false positive: a PostgreSQL schema identifier in the M09.2 ERD checkpoint, not a credential.
+# Keep this fingerprint narrowly scoped; do not add a path-wide or rule-wide suppression.
+2ebdc241842a6366482ba6865ea7f748ab0eedb7:PROJECT_CONTEXT.md:generic-api-key:775
