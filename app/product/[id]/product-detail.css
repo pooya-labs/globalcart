@@ -194,17 +194,10 @@
 }
 
 
-/* Pooya Labs identity across product detail and its sub-sections. */
-.product-page-top .product-header-brand{gap:10px}
-.product-page-top .product-owner-mark{display:block;width:34px;height:34px;flex:0 0 34px;object-fit:contain}
-.product-page-top .product-header-brand>b{display:flex;flex-direction:column;gap:3px;font-size:12px;line-height:1.2}
-.product-page-top .product-header-brand>b small,.product-footer-brand small{color:#405447;font-size:7px;font-weight:800;letter-spacing:.85px}
+/* Studio attribution on the product page, separate from the GlobalCart mark. */
 .product-page .section-kicker::after{
   content:"· POOYA LABS";color:#718575;font-size:7px;font-weight:800;letter-spacing:.8px;
   direction:ltr;unicode-bidi:isolate;white-space:nowrap;
 }
-.product-page-footer .product-footer-brand{display:inline-flex;align-items:center;gap:9px;color:#174b3c;font-size:12px;text-decoration:none;font-weight:850}
-.product-page-footer .product-footer-brand img{display:block;width:28px;height:28px;object-fit:contain}
-.product-page-footer .product-footer-brand>span{display:flex;flex-direction:column;gap:3px}
 .product-page-footer>span{max-width:65%;text-align:end;line-height:1.8}
 @media(max-width:700px){.product-page-footer{flex-wrap:wrap}.product-page-footer>span{max-width:100%;text-align:start}}
