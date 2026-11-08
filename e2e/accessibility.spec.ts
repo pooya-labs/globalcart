@@ -63,6 +63,36 @@ async function expectDialogFocusLoop(page: Page, dialog: ReturnType<Page["locato
   await expect(last).toBeFocused();
 }
 
+
+test("quick command palette loads on demand and preserves keyboard focus", async ({ page }) => {
+  const trigger = page.locator(".locale-button");
+  await trigger.focus();
+  await expect(page.locator(".command-palette")).toHaveCount(0);
+
+  await page.keyboard.press("Control+k");
+  const dialog = page.getByRole("dialog", { name: "فرمان‌های سریع" });
+  await expect(dialog).toBeVisible();
+  const input = dialog.getByRole("combobox");
+  await expect(input).toBeFocused();
+
+  await page.keyboard.press("ArrowDown");
+  await expect(dialog.getByRole("option", { name: /نمایش دسته‌بندی‌ها/ })).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Enter");
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator("#category-menu-panel")).toBeVisible();
+  await expect(trigger).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#category-menu-panel")).toHaveCount(0);
+  await trigger.focus();
+  await page.keyboard.press("Control+k");
+  const reopened = page.getByRole("dialog", { name: "فرمان‌های سریع" });
+  await expect(reopened).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(reopened).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});
+
 test("storefront homepage meets WCAG checks in RTL and LTR", async ({ page }) => {
   // Two axe scans (RTL + LTR) can take over 30 seconds on WebKit CI runners.
   test.setTimeout(60_000);
