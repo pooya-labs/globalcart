@@ -23,6 +23,10 @@ function findSearchFixture() {
 
 const searchFixture = findSearchFixture();
 
+async function headerLocaleToggle(page: Page) {
+  return page.locator("header.header .locale-button");
+}
+
 async function openFirstVisibleProduct(page: Page) {
   const link = page.locator(".product-card h3 a").first();
   const title = (await link.textContent())?.trim() ?? "";
@@ -672,10 +676,8 @@ test("mobile header keeps locale and cart controls aligned without overlap in RT
     await page.setViewportSize({ width, height: 800 });
     for (const locale of ["rtl", "ltr"] as const) {
       const root = page.locator("main.store");
-      if (locale === "ltr" && await root.getAttribute("dir") !== "ltr") {
-        await page.getByRole("button", { name: "Switch language to English" }).click();
-      } else if (locale === "rtl" && await root.getAttribute("dir") !== "rtl") {
-        await page.getByRole("button", { name: "تغییر زبان به فارسی" }).click();
+      if ((await root.getAttribute("dir")) !== locale) {
+        await headerLocaleToggle(page).click();
       }
       await expect(root).toHaveAttribute("dir", locale);
       const header = page.locator("header.header");
