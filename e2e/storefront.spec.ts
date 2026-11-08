@@ -844,7 +844,9 @@ test("about section uses the official Pooya Labs monogram without overflow", asy
   await page.goto("./");
   const about = page.locator("#about");
   await about.scrollIntoViewIfNeeded();
-  const mark = about.getByRole("img", { name: "Pooya Labs monogram" });
+  const ownerLink = about.getByRole("link", { name: /POOYA LABS/i });
+  await expect(ownerLink).toHaveAttribute("href", "https://pooya-labs.github.io/pooya-labs-platform/");
+  const mark = ownerLink.locator("img");
   await expect(mark).toBeVisible();
   await expect(mark).toHaveAttribute("src", "images/site/pooya-monogram.webp");
   await expect.poll(() => mark.evaluate(image => {
@@ -870,7 +872,7 @@ test("GlobalCart keeps its own G mark while Pooya Labs uses the official ownersh
   await expect(aboutOwnerLink).toHaveAttribute("href", "https://pooya-labs.github.io/pooya-labs-platform/");
   await expect(aboutOwnerLink).toHaveAttribute("target", "_blank");
   await expect(aboutOwnerLink).toHaveAttribute("rel", "noopener noreferrer");
-  await expect(aboutOwnerLink).toHaveAttribute("aria-label", /.+/);
+  await expect(aboutOwnerLink).toHaveAccessibleName(/POOYA LABS/i);
 
   await page.goto(`./product/${firstProduct.id}/`);
   await expect(page.locator(".product-page-top .brand-mark")).toHaveText("g.");
@@ -885,6 +887,7 @@ test("GlobalCart keeps its own G mark while Pooya Labs uses the official ownersh
   await expect(caseStudyOwnerLink).toHaveAttribute("href", "https://pooya-labs.github.io/pooya-labs-platform/");
   await expect(caseStudyOwnerLink).toHaveAttribute("target", "_blank");
   await expect(caseStudyOwnerLink).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(caseStudyOwnerLink).toHaveAccessibleName(/OWNED BY POOYA LABS/i);
   await expect(caseStudyOwnerLink).toHaveCSS("background-color", "rgb(16, 44, 37)");
   const ownerBadge = page.locator(".cs-art-core > img");
   await expect(ownerBadge).toBeVisible();
