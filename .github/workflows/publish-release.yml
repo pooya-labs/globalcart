@@ -73,7 +73,52 @@ jobs:
         run: npm run test:e2e
 
       - name: Scan repository history for secrets
-        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.3 detect --source=/repo --redact --no-banner
+        shell: bash
+        run: |
+          set -uo pipefail
+          report="$RUNNER_TEMP/gitleaks-report.json"
+          rm -f "$report"
+          set +e
+          docker run --rm \
+            -v "$PWD:/repo" \
+            -v "$RUNNER_TEMP:/reports" \
+            zricethezav/gitleaks:v8.24.3 detect \
+            --source=/repo \
+            --redact \
+            --report-format=json \
+            --report-path=/reports/gitleaks-report.json \
+            --no-banner
+          scan_status=$?
+          set -e
+
+          if [ -s "$report" ]; then
+            node - "$report" <<'NODE'
+          const fs = require("node:fs");
+          const parsed = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+          const findings = Array.isArray(parsed) ? parsed : (parsed.findings ?? []);
+          if (!findings.length) {
+            process.stdout.write("Gitleaks produced no structured findings.\n");
+          } else {
+            process.stdout.write(`Gitleaks structured findings: ${findings.length}\n`);
+            for (const [index, finding] of findings.entries()) {
+              const safe = {
+                index: index + 1,
+                ruleID: finding.RuleID ?? finding.ruleID ?? "unknown",
+                file: finding.File ?? finding.file ?? "unknown",
+                commit: finding.Commit ?? finding.commit ?? "unknown",
+                startLine: finding.StartLine ?? finding.startLine ?? null,
+                endLine: finding.EndLine ?? finding.endLine ?? null,
+                fingerprint: finding.Fingerprint ?? finding.fingerprint ?? "unavailable"
+              };
+              process.stdout.write(JSON.stringify(safe) + "\n");
+            }
+          }
+          NODE
+          else
+            echo "Gitleaks did not write a structured report; scan exit: $scan_status"
+          fi
+
+          exit "$scan_status"
 
       - name: Verify the published storefront, product and case study
         shell: bash
