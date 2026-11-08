@@ -687,6 +687,10 @@ test("mobile header keeps locale and cart on the correct outer side in RTL and L
       await expect(search).toBeVisible();
       await expect(language).toBeVisible();
       await expect(cart).toBeVisible();
+      const cartIcon = await cart.locator("svg").boundingBox();
+      expect(cartIcon).not.toBeNull();
+      expect(cartIcon!.width).toBeGreaterThanOrEqual(18);
+      expect(cartIcon!.height).toBeGreaterThanOrEqual(18);
       const geometry = await header.evaluate(element => {
         const rect = (selector: string) => {
           const box = element.querySelector(selector)!.getBoundingClientRect();
