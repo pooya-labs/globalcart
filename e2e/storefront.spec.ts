@@ -666,3 +666,43 @@ test("recently viewed empty state waits for browser storage hydration", async ({
   await expect(history.locator(".history-grid")).toHaveCount(0);
   await expect(history.locator(".history-clear")).toHaveCount(0);
 });
+
+test("mobile header keeps locale and cart controls aligned without overlap in RTL and LTR", async ({ page }) => {
+  for (const width of [360, 390]) {
+    await page.setViewportSize({ width, height: 800 });
+    for (const locale of ["rtl", "ltr"] as const) {
+      const root = page.locator("main.store");
+      if (locale === "ltr" && await root.getAttribute("dir") !== "ltr") {
+        await page.getByRole("button", { name: "Switch language to English" }).click();
+      } else if (locale === "rtl" && await root.getAttribute("dir") !== "rtl") {
+        await page.getByRole("button", { name: "تغییر زبان به فارسی" }).click();
+      }
+      await expect(root).toHaveAttribute("dir", locale);
+      const header = page.locator("header.header");
+      const language = header.locator(".locale-button");
+      const cart = header.locator(".bag-button");
+      await expect(language).toBeVisible();
+      await expect(cart).toBeVisible();
+      const geometry = await header.evaluate(element => {
+        const rect = (selector: string) => {
+          const box = element.querySelector(selector)!.getBoundingClientRect();
+          return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+        };
+        return {
+          header: rect(".header-actions"),
+          language: rect(".locale-button"),
+          cart: rect(".bag-button"),
+          viewportWidth: document.documentElement.clientWidth
+        };
+      });
+      expect(geometry.language.left).toBeGreaterThanOrEqual(0);
+      expect(geometry.cart.left).toBeGreaterThanOrEqual(0);
+      expect(geometry.language.right).toBeLessThanOrEqual(geometry.viewportWidth);
+      expect(geometry.cart.right).toBeLessThanOrEqual(geometry.viewportWidth);
+      expect(
+        geometry.language.right <= geometry.cart.left || geometry.cart.right <= geometry.language.left
+      ).toBeTruthy();
+      expect(geometry.header.right - geometry.header.left).toBeLessThanOrEqual(geometry.viewportWidth);
+    }
+  }
+});
