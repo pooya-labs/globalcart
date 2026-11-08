@@ -84,6 +84,7 @@ jobs:
             -v "$RUNNER_TEMP:/reports" \
             zricethezav/gitleaks:v8.24.3 detect \
             --source=/repo \
+            --config=/repo/.gitleaks.toml \
             --redact \
             --report-format=json \
             --report-path=/reports/gitleaks-report.json \
