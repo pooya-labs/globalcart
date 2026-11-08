@@ -47,7 +47,7 @@ const content = {
     stackTitle: "پشته فنی",
     stack: ["Next.js 15", "React 19", "TypeScript", "Go", "PostgreSQL 17", "sqlc", "Playwright", "GitHub Actions"],
     nextTitle: "قدم بعدی",
-    next: "هسته فنی و تست‌های خودکار آماده‌اند. پیش از انتشار ۱.۰، بررسی دستی روی دستگاه واقعی، صفحه‌خوان، رفتار کامل RTL/LTR و سنجش واقعی CDN و Core Web Vitals باقی مانده است. سپس تصاویر مستند، نمودار ERD و انتشار نسخه نهایی تکمیل می‌شوند.",
+    next: "نسخهٔ پایدار ۱.۰.۰ برای نمایش و بررسی مهندسی منتشر شده است. گام‌های باقی‌مانده، بازبینی دستی روی دستگاه‌های واقعی، صفحه‌خوان و رفتار کامل RTL/LTR هستند؛ این بررسی‌ها بیرون از شبیه‌سازی مرورگر و Lighthouse انجام می‌شوند.",
     footer: "محصول متعلق به Pooya Labs · طراحی و مهندسی پویا گودرزی",
     back: "بازگشت به فروشگاه"
   },
@@ -91,7 +91,7 @@ const content = {
     stackTitle: "Technology",
     stack: ["Next.js 15", "React 19", "TypeScript", "Go", "PostgreSQL 17", "sqlc", "Playwright", "GitHub Actions"],
     nextTitle: "What comes next",
-    next: "The engineering foundation and automated checks are in place. Before the 1.0 release, manual real-device, screen-reader, full RTL/LTR and live CDN/Core Web Vitals reviews remain. Then the final screenshots, ERD and versioned release can be completed.",
+    next: "The stable 1.0.0 portfolio/demo release is published. Remaining follow-up is owner-led review on real desktop/mobile devices, actual platform screen readers and complete human RTL/LTR behavior; browser emulation and Lighthouse lab runs do not replace those checks.",
     footer: "A Pooya Labs product · Designed and engineered by Pooya Goodarzi",
     back: "Back to storefront"
   }
@@ -131,10 +131,13 @@ export default function CaseStudyPage() {
             <a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer" className="cs-secondary">{t.github}<ArrowUpRight size={15}/></a>
           </div>
         </div>
-        <div className="cs-hero-art" role="img" aria-label="GlobalCart product architecture illustration">
-          <div className="cs-art-orbit orbit-one"/><div className="cs-art-orbit orbit-two"/>
-          <div className="cs-art-core"><img src="../images/site/pooya-monogram.webp" alt="" aria-hidden="true" width="76" height="113"/><b>GLOBALCART</b><small>OWNED BY POOYA LABS</small></div>
-          <div className="cs-art-chip chip-a">RTL ↔ LTR</div><div className="cs-art-chip chip-b">DATA → UX</div><div className="cs-art-chip chip-c">DEMO / SAFE</div>
+        <div className="cs-hero-art">
+          <div className="cs-art-orbit orbit-one" aria-hidden="true"/><div className="cs-art-orbit orbit-two" aria-hidden="true"/>
+          <a className="cs-art-core" href="https://pooya-labs.github.io/pooya-labs-platform/" target="_blank" rel="noopener noreferrer">
+            <img src="../images/site/pooya-monogram.webp" alt="" aria-hidden="true" width="76" height="113"/>
+            <b>GLOBALCART</b><small>OWNED BY POOYA LABS</small>
+          </a>
+          <div className="cs-art-chip chip-a" aria-hidden="true">RTL ↔ LTR</div><div className="cs-art-chip chip-b" aria-hidden="true">DATA → UX</div><div className="cs-art-chip chip-c" aria-hidden="true">DEMO / SAFE</div>
         </div>
       </section>
 
