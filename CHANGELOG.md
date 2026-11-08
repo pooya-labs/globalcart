@@ -1,18 +1,22 @@
-## Unreleased — post-release M11 maintenance (2026-11-08)
+## Unreleased — final v1.0.0 closeout (2026-11-08)
 
 ### Changed
-- Extracted the seven-command quick palette into a separate client component, retaining Persian/English search, keyboard navigation, Escape dismissal and focus restoration.
-- Added cross-browser regression coverage for on-demand dialog rendering and keyboard focus. This is post-release maintenance; the `v1.0.0` tag and release remain unchanged.
-- The deployment pipeline refreshed and persisted the offline snapshot at 1,000 products across 24 categories.
+- Made the Pooya Labs owner mark in the storefront about section and the case-study hero badge open the official Pooya Labs portfolio in a new, safely isolated tab.
+- Restored strong contrast on the case-study ownership badge while retaining the exact official `pooya-monogram.webp` asset and the original GlobalCart `g.` mark.
+- Updated the bilingual case-study release status and added/updated the Persian README guide with the project overview, live links, boundaries, local setup and QA status.
+- Deferred the command-palette module with React `lazy + Suspense`; its keyboard and focus behavior remain intact. The Playwright regression now proves the palette chunk is requested only after opening the palette.
 
 ### Verification
-- PR [#17](https://github.com/pooya-labs/globalcart/pull/17) passed Browser E2E **156 passed / 9 intentional skips / 0 failed / 0 flaky** ([run 42503976312](https://github.com/pooya-labs/globalcart/actions/runs/42503976312)); TypeScript, unit tests, build and Security passed. The merged mainline Browser E2E [42504699145](https://github.com/pooya-labs/globalcart/actions/runs/42504699145) also passed.
-- Pages deployment/public smoke [42504699227](https://github.com/pooya-labs/globalcart/actions/runs/42504699227), live visual QA [42504858327](https://github.com/pooya-labs/globalcart/actions/runs/42504858327), Shopify Worker catalog smoke [42504858421](https://github.com/pooya-labs/globalcart/actions/runs/42504858421), and Security [42504699072](https://github.com/pooya-labs/globalcart/actions/runs/42504699072) passed.
-- Six-report Lighthouse [42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362) passed all unchanged budgets. Home-mobile Performance was 94 / LCP 2.5 s / TBT 220 ms; product-mobile 97 / 2.4 s / 100 ms; case-study mobile 99 / 1.0 s / 90 ms. Desktop Performance was 100 on all routes; Accessibility, Best Practices and SEO were 100 throughout; CLS was 0.
-- The home-mobile comparison (previous successful run 42498127131: Performance 95 / TBT 200 ms) does not prove a performance improvement. Estimated unused JavaScript remains approximately 21.7 KiB, versus 21.8 KiB previously. Continue M11 chunk/preload investigation without changing budgets.
+- Branding PR [#20](https://github.com/pooya-labs/globalcart/pull/20) and performance PR [#21](https://github.com/pooya-labs/globalcart/pull/21) passed Browser E2E **158 passed / 0 failed** and Security before merge. Mainline Browser E2E [42514840653](https://github.com/pooya-labs/globalcart/actions/runs/42514840653) also passed **158 / 158**.
+- Latest Pages deployment/public smoke [42515001222](https://github.com/pooya-labs/globalcart/actions/runs/42515001222), visual QA [42515189133](https://github.com/pooya-labs/globalcart/actions/runs/42515189133), Shopify catalog smoke [42515189128](https://github.com/pooya-labs/globalcart/actions/runs/42515189128) and Security [42515001238](https://github.com/pooya-labs/globalcart/actions/runs/42515001238) passed.
+- Latest six-report public Lighthouse [42515189075](https://github.com/pooya-labs/globalcart/actions/runs/42515189075) passed unchanged budgets. Mobile Performance was home 97 / product 97 / case study 100, with TBT 150 / 100 / 80 ms; desktop Performance was 100 throughout. Accessibility, Best Practices and SEO were 100 in all six reports; CLS was 0.
+- Lab variance is retained: early home-mobile samples of 320 ms and 303 ms TBT exceeded the 300 ms budget; later full runs passed at 110 ms, 180 ms and 150 ms. No threshold was lowered.
+- The owner confirmed real-device desktop/mobile, actual platform screen-reader and full manual RTL/LTR review on 2026-11-08.
 
 ### Release boundary
-- The current stable release remains `v1.0.0`. This follow-up does not enable real seller inventory, payment, checkout, shipping or fulfillment. Owner device, screen-reader and manual RTL/LTR reviews remain open.
+- The stable [v1.0.0 release](https://github.com/pooya-labs/globalcart/releases/tag/v1.0.0) and tag remain immutable. These are post-release maintenance commits on `main`; they do not retarget the existing release.
+- Eligible normal-network/CDN field Core Web Vitals remain unmeasured. GlobalCart remains a portfolio/demo simulation with no real payments, reserved inventory, fulfillment or seller payouts.
+
 
 ---
 
