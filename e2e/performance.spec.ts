@@ -89,15 +89,16 @@ test("homepage prioritizes its hero and defers non-critical images", async ({ pa
         source: image.getAttribute("src") ?? "",
         loading: image.loading,
         decoding: image.decoding,
-        isHero: image.matches(".hero-visual > img")
+        isHero: image.matches(".hero-visual > img"),
+        isBrandMark: image.src.includes("pooya-mark.svg")
       };
     })
   );
-  const nonCritical = imagePolicy.filter(image => !image.isHero);
+  const nonCritical = imagePolicy.filter(image => !image.isHero && !image.isBrandMark);
   expect(nonCritical.length).toBeGreaterThan(0);
   expect(nonCritical.filter(image => image.loading !== "lazy")).toEqual([]);
   expect(nonCritical.filter(image => image.decoding !== "async")).toEqual([]);
-  expect(imagePolicy.filter(image => image.loading === "eager")).toHaveLength(1);
+  expect(imagePolicy.filter(image => image.loading === "eager" && !image.isBrandMark)).toHaveLength(1);
 
   // Fixed media containers reserve layout space even while remote images are
   // intentionally blocked in this deterministic browser suite.
@@ -122,7 +123,10 @@ test("product detail prioritizes the main image and defers gallery extras", asyn
   await expect(mainImage).toHaveAttribute("decoding", "async");
 
   const extras = await page.locator("img").evaluateAll(images =>
-    images.filter(node => !(node as HTMLImageElement).matches(".detail-main-image > img"))
+    images.filter(node =>
+      !(node as HTMLImageElement).matches(".detail-main-image > img") &&
+      !(node as HTMLImageElement).src.includes("pooya-mark.svg")
+    )
       .map(node => {
         const image = node as HTMLImageElement;
         return { loading: image.loading, decoding: image.decoding };

@@ -99,7 +99,7 @@ export default function RecentlyViewedClient() {
 
   return <main className={rtl?"history-page rtl":"history-page ltr"} dir={rtl?"rtl":"ltr"} data-catalog-loaded={storageReady&&(catalogLoadState==="loaded"||ids.length===0)?"true":"false"}>
     <header className="history-topbar">
-      <Link href="/" className="history-brand" aria-label="GlobalCart — a Pooya Labs product"><img src="../images/site/pooya-mark.svg" alt="Pooya Labs logo" width="34" height="34"/><span><b>globalcart</b><small>A POOYA LABS PRODUCT</small></span></Link>
+      <Link href="/" className="history-brand"><img src="../images/site/pooya-mark.svg" alt="Pooya Labs logo" width="34" height="34"/><span><b>globalcart</b><small>A POOYA LABS PRODUCT</small></span></Link>
       <div><button onClick={toggleLocale} aria-label={rtl?"EN — تغییر زبان به انگلیسی":"فا — Switch language to Persian"}>{rtl?"EN":"فا"}</button><Link href="/#catalog">{rtl?"بازگشت به فروشگاه":"Back to store"} <ArrowLeft size={15}/></Link></div>
     </header>
     <section className="history-content">

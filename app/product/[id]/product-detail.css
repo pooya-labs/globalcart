@@ -198,7 +198,7 @@
 .product-page-top .product-header-brand{gap:10px}
 .product-page-top .product-owner-mark{display:block;width:34px;height:34px;flex:0 0 34px;object-fit:contain}
 .product-page-top .product-header-brand>b{display:flex;flex-direction:column;gap:3px;font-size:12px;line-height:1.2}
-.product-page-top .product-header-brand>b small,.product-footer-brand small{color:#607166;font-size:7px;font-weight:800;letter-spacing:.85px}
+.product-page-top .product-header-brand>b small,.product-footer-brand small{color:#405447;font-size:7px;font-weight:800;letter-spacing:.85px}
 .product-page .section-kicker::after{
   content:"· POOYA LABS";color:#718575;font-size:7px;font-weight:800;letter-spacing:.8px;
   direction:ltr;unicode-bidi:isolate;white-space:nowrap;
