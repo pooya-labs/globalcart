@@ -31,13 +31,13 @@ GlobalCart is a commerce-grade marketplace **simulation** built to demonstrate p
 
 **Published release:** [GlobalCart 1.0.0](https://github.com/pooya-labs/globalcart/releases/tag/v1.0.0) is live. Tag `v1.0.0` points to [`dfe9a98`](https://github.com/pooya-labs/globalcart/commit/dfe9a98c70a9bbde3f5444c6f2cad2abd74269ac).
 
-**Release verification:** the official release workflow [run 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761) completed successfully on attempt 2. It passed TypeScript validation, unit tests, the production static build, the full cross-browser Playwright/axe suite (**151 passed / 9 intentional skips / 0 failed**), the historical Gitleaks scan (**no leaks found**), public storefront/product/case-study smoke checks and final commit validation before creating the tag and GitHub Release.
+**Release verification:** the official release workflow [run 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761) published the stable tag after TypeScript, unit tests, production build, cross-browser Playwright/axe (**151 passed / 9 intentional skips / 0 failed**), historical secret scan and public route smoke passed. Post-release merged-main Browser E2E [42516946135](https://github.com/pooya-labs/globalcart/actions/runs/42516946135) passed (**163 passed / 9 intentional skips / 0 failed**); the guarded release preflight [42518896659](https://github.com/pooya-labs/globalcart/actions/runs/42518896659) correctly skipped duplicate publication because v1.0.0 already exists.
 
-**Latest public quality gate:** [Lighthouse run 42498127131](https://github.com/pooya-labs/globalcart/actions/runs/42498127131) passed all six route/mode reports on the current `main` deployment (attempt 2). Mobile Performance: home 95, product 96, case study 99; desktop Performance 100 on all three. Home mobile LCP 2.5 s / TBT 200 ms; product mobile LCP 2.5 s / TBT 140 ms; case-study mobile LCP 0.9 s / TBT 90 ms. Accessibility, Best Practices and SEO are 100 in every report; CLS is 0 throughout. The initial sample exceeded the mobile TBT budget at 353 ms, while the same-report retry passed at 200 ms; the M11 backlog tracks repeatable headroom.
+**Latest complete public quality gate:** [Lighthouse run 42517087881](https://github.com/pooya-labs/globalcart/actions/runs/42517087881), attempt 2, passed all six route/mode reports with unchanged budgets. Mobile Performance: home 96, product 96, case study 99; desktop Performance 100 on all three. Mobile TBT was 174 / 130 / 121 ms and LCP 2.4 / 2.5 / 0.9 s (home / product / case study). Accessibility, Best Practices and SEO are 100 in every report; CLS is 0 throughout. Earlier 320/303 ms home-mobile outliers are retained as lab variance; no budget was relaxed.
 
-**Companion verification:** GitHub Pages deployment [42495371492](https://github.com/pooya-labs/globalcart/actions/runs/42495371492), live desktop/mobile image QA [run 42495556297](https://github.com/pooya-labs/globalcart/actions/runs/42495556297), Shopify Worker catalog smoke [run 42495556252](https://github.com/pooya-labs/globalcart/actions/runs/42495556252) and Security [run 42495371493](https://github.com/pooya-labs/globalcart/actions/runs/42495371493) all passed on the final pre-documentation release sequence.
+**Companion verification:** latest mainline Security [42518528453](https://github.com/pooya-labs/globalcart/actions/runs/42518528453), Pages deployment [42518528466](https://github.com/pooya-labs/globalcart/actions/runs/42518528466), live desktop/mobile QA [42518731820](https://github.com/pooya-labs/globalcart/actions/runs/42518731820) and Shopify Catalog Smoke [42518731796](https://github.com/pooya-labs/globalcart/actions/runs/42518731796) passed.
 
-**QA boundary:** GlobalCart is a stable portfolio/demo simulation, not a live retailer. Physical-device review, actual platform screen-reader review, complete human RTL/LTR inspection and eligible normal-network/CDN field Core Web Vitals remain external follow-up checks; they are not represented as completed. Product amounts remain illustrative estimates and cart/checkout are simulations. No real payments, inventory reservation, fulfillment or seller payouts are enabled.
+**QA boundary:** GlobalCart is a stable portfolio/demo simulation, not a live retailer. The owner confirmed real desktop/mobile review, an actual platform screen-reader pass and full human RTL/LTR review on 2026-11-08. Eligible normal-network/CDN field Core Web Vitals have not been collected and are not inferred from Lighthouse lab reports. Product amounts remain illustrative estimates and cart/checkout are simulations. No real payments, inventory reservation, fulfillment or seller payouts are enabled.
 
 Implemented:
 - Next.js 15 App Router, React 19 and TypeScript.
@@ -61,7 +61,7 @@ Implemented:
 - Source/demo disclosures and visible owner attribution.
 - GitHub Pages deployment workflow, project handoff documentation and a bilingual portfolio case study with architecture/data-flow view and a 27-table PostgreSQL ERD.
 - Real desktop/mobile full-page case-study screenshots are committed in `docs/screenshots/`.
-- Search suggestions, keyboard command palette, rating-based catalog ranking and saved-search flows.
+- Search suggestions, keyboard command palette, rating-based catalog ranking and saved-search flows. The command palette and cart/favorites/quick-view/compare/demo-checkout dialogs are interaction-loaded; cross-browser E2E verifies lazy loading and focus restoration.
 - Backend foundation: Go REST/OpenAPI, PostgreSQL 17 and sqlc are available for local development and CI. Redis is optional; no hosted business API or database is deployed. The only hosted Worker is a narrow public-catalog proxy.
 - Automated axe checks, keyboard focus tests, desktop/mobile Playwright journeys and first-party asset budgets run in CI. The M09.3 screenshot-capture checkpoint passed 40/40 Browser E2E scenarios in [run 41596731945](https://github.com/pooya-labs/globalcart/actions/runs/41596731945).
 
@@ -70,7 +70,7 @@ Boundaries and remaining work:
 - The storefront does not link customers out to upstream product pages and does not treat the licensed reference catalog as live retailer inventory. Displayed amounts are deterministic GlobalCart estimates, not seller prices; source price, ratings and stock remain unverified or unlisted. A future real-seller feed requires a separate authorized integration and terms review. Automated TGJU page retrieval remains subject to the source site's terms and availability.
 - Internal admin and seller services through M06.6 (seller profile and aggregate demo analytics) are implemented and CI-verified. Their dashboard UI, public routes and account-backed order history remain gated by approved hosting and identity infrastructure; cart, checkout, returns and refunds remain simulations/internal services, not live commerce.
 - Automated axe/WCAG coverage includes storefront, product detail, recently viewed (populated/empty in both locales), case study and key dialogs. Browser E2E [41652758312](https://github.com/pooya-labs/globalcart/actions/runs/41652758312) passed **99 tests** with **4 intentional skips** across Chromium desktop/mobile, iPad 7th-gen tablet, Firefox and WebKit. Tablet portrait/landscape checks (810×1080 and 1080×810) verify storefront/product/case study have no horizontal overflow; compact-phone checks (320 px and 360 px) cover the same routes. The WebKit dual-locale axe test now passes within its 60 s allowance without a retry.
-- Manual screen-reader, physical-device, comprehensive RTL/LTR and live CDN/Core Web Vitals QA remain open as post-release follow-up. Browser emulation is not a substitute for these external checks; these limits do not change the published portfolio/demo status or imply production-commerce readiness.
+- Owner-confirmed manual QA on real desktop/mobile devices, an actual platform screen reader and full human RTL/LTR is complete (2026-11-08). Eligible normal-network/CDN field Core Web Vitals remain unmeasured and optional; browser/Lighthouse lab measurements are not represented as field data.
 
 ## Demo boundaries
 
@@ -166,9 +166,9 @@ The bilingual case study now includes committed desktop and mobile full-page cap
 
 **GlobalCart** یک شبیه‌ساز بازارگاه آنلاین با تجربهٔ فروشگاهی چنددسته‌ای است که برای نمایش مهندسی محصول، تجربهٔ خرید واکنش‌گرا، فهرست کالا، جست‌وجو، فیلترها، بومی‌سازی و جریان‌های سبد خرید ساخته شده است.
 
-### وضعیت انتشار
+### وضعیت انتشار و بازبینی نهایی
 
-نسخهٔ پایدار نمایشی **۱.۰.۰** در تاریخ ۸ نوامبر ۲۰۲۶ منتشر شده است. وب‌سایت عمومی به‌صورت استاتیک روی GitHub Pages اجرا می‌شود. جزئیات وضعیت انتشار، آزمون‌ها و شواهد کیفیت در بخش انگلیسی README و فایل‌های مستندات مخزن ثبت شده‌اند.
+نسخهٔ پایدار نمایشی **۱.۰.۰** در تاریخ ۸ نوامبر ۲۰۲۶ منتشر شده و وب‌سایت عمومی روی GitHub Pages فعال است. بازبینی دستی مالک روی دستگاه‌های واقعی دسکتاپ و موبایل، صفحه‌خوان واقعی و رفتار کامل فارسی راست‌به‌چپ / انگلیسی چپ‌به‌راست نیز در همین تاریخ تأیید شده است. Core Web Vitals کاربران واقعی هنوز دادهٔ واجدشرایط ندارد و جزو پیش‌نیاز انتشار نمایشی نیست. جزئیات آزمون‌ها و شواهد کیفیت در بخش انگلیسی README و مستندات مخزن ثبت شده‌اند.
 
 ### امکانات نسخهٔ نمایشی
 
@@ -212,7 +212,7 @@ npm run build
 
 ### آخرین تغییرات — ۸ نوامبر ۲۰۲۶
 
-برای مطالعهٔ موردی دوزبانه، تصاویر کامل صفحه در اندازه‌های دسکتاپ و موبایل به مخزن اضافه شدند. در آخرین نگه‌داری فروشگاه نیز snapshot کاتالوگ، lockfile و تصاویر سایت در مخزن ثبت شدند. اصلاح هویت بصری باعث شد نشان‌های مالکیت پویا لبز قابل کلیک باشند و کنتراست نشان مطالعهٔ موردی نیز بازگردد. وضعیت انتشار v1.0.0 و محدودیت‌های فروش نمایشی تغییری نکرده‌اند.
+برای مطالعهٔ موردی دوزبانه، تصاویر کامل صفحه در اندازه‌های دسکتاپ و موبایل به مخزن اضافه شدند. snapshot کاتالوگ ۱۰۰۰ محصولی و ۲۴ دسته، lockfile و تصاویر سایت در مخزن ثبت شده‌اند. نشان‌های مالکیت پویا لبز به وب‌سایت رسمی پیوند دارند و کنتراست نشان مطالعهٔ موردی اصلاح شده است. بارگذاری پالت فرمان و پنجره‌های سبد، علاقه‌مندی، مقایسه و پرداخت نمایشی نیز تا زمان تعامل کاربر به تعویق افتاده و آزمون‌های مرورگر موفق بوده‌اند.
 
 ### مالکیت و نگه‌داری
 
