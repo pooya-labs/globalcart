@@ -671,7 +671,7 @@ test("recently viewed empty state waits for browser storage hydration", async ({
   await expect(history.locator(".history-clear")).toHaveCount(0);
 });
 
-test("mobile header keeps locale and cart controls aligned without overlap in RTL and LTR", async ({ page }) => {
+test("mobile header keeps locale and cart on the correct outer side in RTL and LTR", async ({ page }) => {
   for (const width of [360, 390]) {
     await page.setViewportSize({ width, height: 800 });
     for (const locale of ["rtl", "ltr"] as const) {
@@ -693,7 +693,7 @@ test("mobile header keeps locale and cart controls aligned without overlap in RT
           return { left: box.left, right: box.right };
         };
         return {
-          header: rect(".header-actions"),
+          actions: rect(".header-actions"),
           search: rect(".mobile-search-trigger"),
           language: rect(".locale-button"),
           cart: rect(".bag-button"),
@@ -704,10 +704,78 @@ test("mobile header keeps locale and cart controls aligned without overlap in RT
         expect(control.left).toBeGreaterThanOrEqual(0);
         expect(control.right).toBeLessThanOrEqual(geometry.viewportWidth);
       }
-      expect(geometry.search.right).toBeLessThanOrEqual(geometry.language.left);
-      expect(geometry.language.right).toBeLessThanOrEqual(geometry.cart.left);
-      expect(geometry.header.left).toBeGreaterThanOrEqual(0);
-      expect(geometry.header.right).toBeLessThanOrEqual(geometry.viewportWidth);
+      if (locale === "rtl") {
+        // RTL visual order, left to right: cart, locale, search, brand, menu.
+        expect(geometry.cart.right).toBeLessThanOrEqual(geometry.language.left);
+        expect(geometry.language.right).toBeLessThanOrEqual(geometry.search.left);
+        expect(geometry.cart.left).toBeLessThanOrEqual(geometry.actions.left + 2);
+      } else {
+        // LTR visual order, left to right: search, locale, cart.
+        expect(geometry.search.right).toBeLessThanOrEqual(geometry.language.left);
+        expect(geometry.language.right).toBeLessThanOrEqual(geometry.cart.left);
+        expect(geometry.cart.right).toBeGreaterThanOrEqual(geometry.actions.right - 2);
+      }
+      expect(geometry.actions.left).toBeGreaterThanOrEqual(0);
+      expect(geometry.actions.right).toBeLessThanOrEqual(geometry.viewportWidth);
+    }
+  }
+});
+
+test("Android-width text containers do not clip or overflow in Persian and English", async ({ page }) => {
+  const textSelectors = [
+    ".hero-editorial-v2 .hero-copy h1",
+    ".hero-editorial-v2 .hero-copy > p",
+    ".hero-actions .button-primary",
+    ".hero-actions .hero-secondary",
+    ".benefits b", ".benefits small", ".fx-control strong", ".fx-control .fx-caveat",
+    ".section-heading h2", ".section-heading p", ".category-name",
+    ".merchandising-panel-head h3", ".merchandising-item b",
+    ".product-brand", ".product-title-fa", ".product-title-original",
+    ".product-rating small", ".recommendation-reason", ".price-estimate-note", ".price-fx-note",
+    ".service-card > b", ".service-card > p", ".service-card > strong",
+    ".faq-list summary", ".faq-list details > p",
+    ".about-section h2", ".about-section > div:first-child > p", ".about-stats span",
+    ".footer-main > div:first-child > p", ".footer-links > a",
+    ".footer-disclaimer p", ".footer-disclaimer > small"
+  ];
+
+  for (const width of [360, 390]) {
+    await page.setViewportSize({ width, height: 800 });
+    for (const locale of ["rtl", "ltr"] as const) {
+      const root = page.locator("main.store");
+      if ((await root.getAttribute("dir")) !== locale) {
+        await headerLocaleToggle(page).click();
+      }
+      await expect(root).toHaveAttribute("dir", locale);
+      for (const selector of textSelectors) {
+        const first = page.locator(selector).first();
+        if (await first.count()) await first.scrollIntoViewIfNeeded();
+      }
+      const issues = await page.evaluate(selectors => {
+        const failures: Array<{selector:string;text:string;problem:string;size:string}> = [];
+        for (const selector of selectors) {
+          for (const element of document.querySelectorAll<HTMLElement>(selector)) {
+            const rect = element.getBoundingClientRect();
+            if (!rect.width || !rect.height || rect.bottom < 0 || rect.top > innerHeight) continue;
+            const style = getComputedStyle(element);
+            const text = (element.innerText || element.textContent || "").trim().replace(/\\s+/g, " ").slice(0, 90);
+            const horizontalClip = style.overflowX !== "visible" && element.scrollWidth > element.clientWidth + 2;
+            const lineClamped = Number.parseInt(style.webkitLineClamp || "0", 10) > 0;
+            const verticalClip = !lineClamped && style.overflowY !== "visible" && element.scrollHeight > element.clientHeight + 2;
+            const outsideViewport = rect.left < -1 || rect.right > document.documentElement.clientWidth + 1;
+            if (horizontalClip || verticalClip || outsideViewport) {
+              failures.push({
+                selector,
+                text,
+                problem: [horizontalClip && "horizontal clipping", verticalClip && "vertical clipping", outsideViewport && "outside viewport"].filter(Boolean).join(", "),
+                size: `client ${element.clientWidth}x${element.clientHeight}, scroll ${element.scrollWidth}x${element.scrollHeight}`
+              });
+            }
+          }
+        }
+        return failures.slice(0, 30);
+      }, textSelectors);
+      expect(issues, JSON.stringify(issues, null, 2)).toEqual([]);
     }
   }
 });
