@@ -46,6 +46,7 @@ type StorefrontDialogsProps = {
   checkout: boolean;
   setCheckout: BooleanSetter;
   subtotalHasUnavailablePrice: boolean;
+  subtotalLabel: string;
   subtotalToman: number | null;
   subtotalUsd: number;
   rate: number | null;
@@ -60,7 +61,7 @@ export default function StorefrontDialogs({
   favorites, favoriteOpen, setFavoriteOpen, favoriteProducts, toggleFavorite,
   quick, setQuick, isE2EFixtureCatalog, formatPrice, catalogImageSrc, usd, money, addToCart,
   compareIds, setCompareIds, compareOpen, setCompareOpen, compareProducts, toggleCompare,
-  checkout, setCheckout, subtotalHasUnavailablePrice, subtotalToman, subtotalUsd, rate,
+  checkout, setCheckout, subtotalHasUnavailablePrice, subtotalLabel, subtotalToman, subtotalUsd, rate,
   fxStatus, fxStatusLabel, placeDemoOrder, onReady
 }: StorefrontDialogsProps) {
   useEffect(() => {
