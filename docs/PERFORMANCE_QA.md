@@ -1,21 +1,22 @@
 # Public performance and release QA
 
-## Latest published gate — 2026-11-07 rerun
+## Latest published gate — 2026-11-08 stable v1.0.0
 
-- The six-report public Lighthouse audit and budget gate passed on [run 42420460048](https://github.com/pooya-labs/globalcart/actions/runs/42420460048) after rerunning its failed job. The initial attempt measured home-mobile TBT at 352 ms; the successful retry measured 200 ms. No performance budget was relaxed.
-- Exact successful retry results:
+- The six-report public Lighthouse audit and enforced budget gate passed on [run 42495556274](https://github.com/pooya-labs/globalcart/actions/runs/42495556274) against the published stable release target `dfe9a98`. All six reports passed; no thresholds were relaxed.
+- Exact successful report results (Lighthouse 13.6.0, GitHub-hosted runner):
 
 | Route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Case study — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.2 s | 0 ms | 0 |
-| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 110 ms | 0 |
-| Home — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.6 s | 20 ms | 0 |
-| Home — mobile | 94 | 100 | 100 | 100 | 1.1 s | 2.4 s | 200 ms | 0 |
-| Product — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 10 ms | 0 |
-| Product — mobile | 96 | 100 | 100 | 100 | 0.9 s | 2.5 s | 150 ms | 0 |
+| Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
+| Case study — mobile | 100 | 100 | 100 | 100 | 0.9 s | 0.9 s | 60 ms | 0 |
+| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 0 ms | 0 |
+| Home — mobile | 97 | 100 | 100 | 100 | 1.1 s | 2.5 s | 90 ms | 0 |
+| Product — desktop | 100 | 100 | 100 | 100 | 0.4 s | 0.5 s | 0 ms | 0 |
+| Product — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.4 s | 90 ms | 0 |
 
-- The current gate enforces mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95.
-- These are GitHub-hosted lab measurements, not physical-device or field Core Web Vitals. Physical-device, real screen-reader, full manual RTL/LTR and eligible normal-network/CDN evidence remain separate and unverified.
+- The unchanged gate enforces mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95.
+- The preceding published retry [run 42493807681](https://github.com/pooya-labs/globalcart/actions/runs/42493807681) also passed after an initial noisy TBT sample; the latest run above is the current baseline.
+- These are GitHub-hosted lab measurements, not physical-device or field Core Web Vitals. Physical-device, actual screen-reader, full manual RTL/LTR and eligible normal-network/CDN evidence remain separate follow-up checks.
 
 ## Automated Lighthouse lab baseline
 
@@ -311,4 +312,4 @@ Do not tick these items based on CI emulation. Record actual device, browser/OS 
 
 ### Release decision
 
-M09.4 remains open until physical-device, actual screen-reader, full-site RTL/LTR and published-delivery/field-metric checks are recorded. Automated axe and Playwright coverage is regression protection, not evidence that those manual checks have happened.
+The stable v1.0.0 portfolio/demo release is published. Physical-device, actual screen-reader, full-site RTL/LTR and published-delivery/field-metric checks remain external follow-up evidence. Automated axe and Playwright coverage is regression protection, not evidence that those manual checks have happened.

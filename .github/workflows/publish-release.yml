@@ -242,11 +242,11 @@ jobs:
           TARGET_SHA: ${{ steps.final_target.outputs.target_sha }}
         run: |
           {
-            echo "## GlobalCart $VERSION published"
-            echo
-            echo "- Tag: `v$VERSION`"
-            echo "- Commit: `$TARGET_SHA`"
-            echo "- Release: https://github.com/pooya-labs/globalcart/releases/tag/v$VERSION"
-            echo "- Scope: stable portfolio/demo release; no production commerce or real transactions."
-            echo "- Hardware, screen-reader, comprehensive manual RTL/LTR and field Core Web Vitals checks are not claimed as completed."
+            printf '## GlobalCart %s published\n\n' "$VERSION"
+            printf '%s\n' \
+              "- Tag: v$VERSION" \
+              "- Commit: $TARGET_SHA" \
+              "- Release: https://github.com/pooya-labs/globalcart/releases/tag/v$VERSION" \
+              "- Scope: stable portfolio/demo release; no production commerce or real transactions." \
+              "- Hardware, screen-reader, comprehensive manual RTL/LTR and field Core Web Vitals checks are not claimed as completed."
           } >> "$GITHUB_STEP_SUMMARY"

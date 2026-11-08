@@ -2,16 +2,17 @@
 
 > The single source of truth. A stage is complete only after implementation and verification.
 
-**Current release:** 1.0.0 (stable portfolio/demo release candidate)  
-**Active stage:** M09 — final verification and v1 publication. Owner authorization to publish the portfolio/demo scope was received on 2026-11-08. The release automation must pass before the tag is created.
+**Current release:** [GlobalCart 1.0.0 — stable portfolio/demo, published](https://github.com/pooya-labs/globalcart/releases/tag/v1.0.0)  
+**Active follow-up:** external manual QA only. The automated release, deployment, browser, security and public performance gates are complete.
 
-- **Catalog and prices:** 1,000 ABO products are stored locally with positive, deterministic GlobalCart demo estimates. Every product retains `priceKind: "estimated"` and `priceAvailable: false`: the source provides no verified seller price, rating or stock. Estimates are not retailer quotes. TGJU is used only to convert USD estimates to Toman and disclose FX freshness.
-- **Price display:** shared `hasDisplayPrice` logic keeps positive demo estimates visible in product cards, detail pages and cart calculations without misrepresenting them as source-verified seller prices. Browser E2E includes a regression asserting that the home catalog does not show the old “Price not provided” message for these estimates.
-- **Product layout:** the gallery, product copy and purchase panel use explicit responsive grid areas. Browser geometry tests cover ten widths, RTL/LTR and overlap/overflow assertions; the fix is already present on `main`.
-- **Browser E2E:** the latest completed cross-browser + axe baseline [run 42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573) passed **140 passed / 9 intentional skips / 0 failed**. The v1 release workflow repeats the suite on the 1.0.0 candidate.
-- **Public quality:** six-report Lighthouse rerun passed on [run 42420460048](https://github.com/pooya-labs/globalcart/actions/runs/42420460048); home-mobile Performance 94, LCP 2.4 s, TBT 200 ms and CLS 0. All Accessibility / Best Practices / SEO scores were 100. The first attempt hit TBT 352 ms; the successful rerun passed the unchanged 300 ms budget.
-- **Previous publication and security:** Pages smoke [run 42418515019](https://github.com/pooya-labs/globalcart/actions/runs/42418515019), live desktop/mobile visual QA [run 42418719206](https://github.com/pooya-labs/globalcart/actions/runs/42418719206), Shopify Worker smoke [run 42418719191](https://github.com/pooya-labs/globalcart/actions/runs/42418719191), and Security [run 42418515016](https://github.com/pooya-labs/globalcart/actions/runs/42418515016) passed on the previous verified main head.
-- **Owner release decision:** publish v1.0.0 as a stable portfolio/demo project. Physical-device testing, actual screen-reader review, comprehensive manual RTL/LTR inspection and field/CDN Core Web Vitals evidence remain open and are not claimed as completed. Real payments, inventory reservation, fulfillment and production seller operations remain out of scope.
+- **Release target:** tag `v1.0.0` points to [`dfe9a98`](https://github.com/pooya-labs/globalcart/commit/dfe9a98c70a9bbde3f5444c6f2cad2abd74269ac); the official release workflow [run 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761) completed successfully on attempt 2.
+- **Browser E2E + axe:** **151 passed / 9 intentional skips / 0 failed** in the official release run. The independent mainline Browser E2E [run 42493655900](https://github.com/pooya-labs/globalcart/actions/runs/42493655900) also passed.
+- **Catalog and prices:** the published storefront uses the committed 1,000-product ABO snapshot. Deterministic positive estimates retain `priceKind: "estimated"` and `priceAvailable: false`; they are not retailer quotes. Source seller ratings and stock remain unprovided. TGJU converts USD estimates to Toman and reports FX freshness only.
+- **Published Lighthouse:** [run 42495556274](https://github.com/pooya-labs/globalcart/actions/runs/42495556274) passed all six route/mode reports. Mobile Performance: home 97 / product 97 / case study 100; desktop 100 throughout. Home mobile LCP 2.5 s / TBT 90 ms; CLS 0. Accessibility, Best Practices and SEO were 100 in all six reports. Budgets were not relaxed.
+- **Pages and live visual QA:** deployment [run 42495371492](https://github.com/pooya-labs/globalcart/actions/runs/42495371492), live desktop/mobile image QA [run 42495556297](https://github.com/pooya-labs/globalcart/actions/runs/42495556297) and Shopify Worker catalog smoke [run 42495556252](https://github.com/pooya-labs/globalcart/actions/runs/42495556252) passed.
+- **Security:** Security workflow [run 42495371493](https://github.com/pooya-labs/globalcart/actions/runs/42495371493) passed, and the release Gitleaks scan found no leaks. One exact historical false positive for the documented PostgreSQL column name `carts.owner_user_id` is scoped by its single fingerprint in `.gitleaksignore`; no path-wide or rule-wide suppression is used.
+- **Manual follow-up:** physical desktop/phone, actual platform screen-reader, full human RTL/LTR, and eligible normal-network/CDN field Core Web Vitals remain unverified. Do not mark these complete based on browser emulation or Lighthouse lab data.
+- **Demo boundary:** no production payments, inventory reservation, fulfillment, seller payouts or live seller stock are enabled. The local bag and checkout remain simulations.
 
 | Frontend | Next.js App Router, React, TypeScript | Storefront, product pages, admin/seller UX | Current |
 | Backend | Go REST API + OpenAPI | Domain services, auth, catalog and orders | M04 |
@@ -51,7 +52,7 @@
 | M06 | 0.6.0 | Admin/seller workspaces, import operations and analytics | Internal admin and seller services through profile/demo analytics CI-verified; dashboard UI and public routes remain gated |
 | M07 | 0.7.0 | Advanced search, relevance, recommendations and saved searches | Implemented in storefront and read-only catalog API; saved preferences remain browser-local |
 | M08 | 0.8.0 | Browser tests, accessibility, security and performance | Automated browser, axe, focus, asset-budget, Lighthouse lab, route-scoped image hints and FX snapshot publication relay implemented and event-verified; physical/manual QA remains |
-| M09 | 1.0.0 | Portfolio case study, release and public demo QA | Release candidate; publish after automated release workflow passes |
+| M09 | 1.0.0 | Portfolio case study, release and public demo QA | Stable portfolio/demo release published; external manual QA remains follow-up |
 
 ## M00 — Product and governance
 - [x] Portfolio simulation, not a live retailer.
@@ -613,7 +614,7 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 
 **Release gate:** do not tag 1.0.0 until M08 manual real-device, screen-reader, comprehensive RTL/LTR and live CDN/Core Web Vitals QA are performed. Browser emulation is useful regression coverage, not a substitute for those checks.
 
-### M09.4 — Stable 1.0.0 release gate (blocked by manual M08 QA)
+### M09.4 — Stable 1.0.0 portfolio/demo release (published 2026-11-08; manual QA follow-up remains)
 - [ ] Verify the storefront on at least one physical desktop/laptop browser and one physical mobile browser; record browser/device/viewport and any regressions.
 - [x] Add automated axe/WCAG regression coverage to the public recently viewed route in populated and empty states in Persian RTL and English LTR, alongside the storefront, product detail, case study and key dialogs. Chromium desktop/mobile passed 48/48 tests on [run 41606569768](https://github.com/pooya-labs/globalcart/actions/runs/41606569768).
 - [x] Extend the accessibility suite to Firefox and WebKit desktop while retaining the full Chromium desktop/mobile suite. Cross-browser Browser E2E [41607322346](https://github.com/pooya-labs/globalcart/actions/runs/41607322346) passed **66/66**: 48 Chromium scenarios + 9 Firefox + 9 WebKit accessibility scenarios. Pages [41607322372](https://github.com/pooya-labs/globalcart/actions/runs/41607322372) and Security [41607322262](https://github.com/pooya-labs/globalcart/actions/runs/41607322262) also passed on the same implementation commit.
@@ -626,10 +627,10 @@ Raw JSON artifact: [globalcart-public-lighthouse, run 41604368513](https://githu
 - [ ] Complete an actual platform screen-reader review of primary navigation, dialogs/drawers, product detail, checkout simulation and the bilingual case-study route.
 - [ ] Perform a manual RTL/LTR pass across the full public site, including narrow screens, text wrapping, menus, focus order and persisted language preference.
 - [ ] Measure published CDN response and field/lab Core Web Vitals; record methodology, URL, date and observed values. Do not infer field metrics from Playwright timings.
-- [ ] Resolve and document any findings, rerun the relevant automated checks, then update package version, changelog, roadmap and project context together and create the 1.0.0 release/tag.
-- [ ] **Owner-requested pre-release hold:** immediately before preparing any final publication or `1.0.0` release, stop and notify the owner. First agree on and complete a new redesign of the storefront shell/visual skin; only then run visual, responsive, RTL/LTR, accessibility and performance regression checks and proceed with release after owner approval. Do not publish/tag `1.0.0` before this redesign checkpoint.
+- [x] Resolve the automated release blockers, update the version/changelog/release notes and publish the `v1.0.0` tag and GitHub Release through [run 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761).
+- [x] Complete the owner-requested storefront redesign and release approval checkpoint, then rerun responsive, RTL/LTR, accessibility, performance and cross-browser regression checks. The stable portfolio/demo release is now published as [GlobalCart 1.0.0](https://github.com/pooya-labs/globalcart/releases/tag/v1.0.0).
 
-**Why this is still open:** the automated CI suite runs Chromium desktop/mobile emulation and axe checks; it cannot physically operate a user's device or verify the actual assistive-technology experience and field CDN metrics. Keep the release at `0.2.3-dev` until these checks are genuinely performed.
+**Remaining external QA:** automated CI is complete, but it cannot physically operate a user's device or verify the actual assistive-technology experience and field CDN metrics. `v1.0.0` is published as a stable portfolio/demo release; keep these external checks open and never imply they passed.
 
 ## Handoff rule
 Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, docs/AI_HANDOFF.md, docs/ARCHITECTURE.md and docs/DECISIONS.md before changing code. Continue from the earliest incomplete item, inspect current Actions, and update documentation only with verified facts.
@@ -641,7 +642,8 @@ Every AI/developer must read PROJECT_CONTEXT.md, this roadmap, CHANGELOG.md, doc
 | 0.1.1 | Pricing foundation | Implemented | Integer-cent and fixed-point demo pricing |
 | 0.1.4 | M02 catalog pipeline | Implemented | Catalog import and snapshot pipeline; translation bridge parked and removed from CI |
 | 0.2.0-dev | M01.5 marketplace redesign | In progress | Category-first shell and updated marketplace visual system |
-| 0.2.1-dev | M03 product experience | In progress | Static product detail routes, gallery, buy box and related products added; verification pending |
+| 0.2.1-dev | M03 product experience | Implemented | Static product detail routes, gallery, buy box and related products added; superseded by the stable v1.0.0 portfolio/demo release |
+| 1.0.0 | M09/M10 | Published | Stable bilingual portfolio/demo release; automated release gates passed; external manual QA remains follow-up |
 
 
 ## 0.2.3-dev verification update — 2026-11-01
@@ -1233,7 +1235,7 @@ Scope: raise the public demo's retail credibility without adding live payments, 
 **Deployment note:** [run 42400795572](https://github.com/pooya-labs/globalcart/actions/runs/42400795572) reached the Pages provider but timed out while the large gallery set remained in `syncing_files`; the deploy action caps its timeout at 10 minutes. The next scheduled deployment [42407289469](https://github.com/pooya-labs/globalcart/actions/runs/42407289469) completed and passed smoke. No gallery assets or quality budgets were removed to work around the provider delay.
 
 
-## M09.7 — deterministic catalog estimates and CI stabilization (in progress; 2026-11-06)
+## M09.7 — deterministic catalog estimates and CI stabilization (complete; 2026-11-08)
 
 - [x] Add a stable category-bounded USD estimate for every ABO product using a versioned deterministic seed and product source ID.
 - [x] Keep source provenance honest: `priceKind: estimated`, `priceAvailable: false`, rating unavailable and stock unavailable. Estimates are GlobalCart demo values, not seller quotes or live retail offers.
@@ -1244,12 +1246,12 @@ Scope: raise the public demo's retail credibility without adding live payments, 
 - [x] Verify the persisted local catalog has 1,000/1,000 positive estimates, 0 zero values, and 1,000/1,000 `priceAvailable: false` flags.
 - [x] Pass the corrected full cross-browser Browser E2E + axe suite, including recently-viewed empty/filled/clear behavior and estimate disclosures: [run 42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573).
 - [x] Pass the six-report public Lighthouse audit and existing regression-budget gate on the latest published build [42367298478](https://github.com/pooya-labs/globalcart/actions/runs/42367298478); retain the 300 ms mobile TBT budget. The earlier 321 ms reading in [42212082469](https://github.com/pooya-labs/globalcart/actions/runs/42212082469) is superseded by this passing gate.
-- [ ] Refresh final screenshots, verify the current published Pages commit after the latest test fixes, and reconcile all top-level docs once CI is green.
+- [x] Refresh/publish the portfolio screenshots [run 42494174703](https://github.com/pooya-labs/globalcart/actions/runs/42494174703), verify the final Pages and visual QA runs [42495371492](https://github.com/pooya-labs/globalcart/actions/runs/42495371492) / [42495556297](https://github.com/pooya-labs/globalcart/actions/runs/42495556297), and reconcile the top-level handoff docs in this checkpoint.
 
-**Release boundary:** keep `0.2.3-dev`; do not mark M09.7 complete or tag 1.0.0 until automated checks and the separate manual release gates pass.
+**Release boundary:** M09.7 is complete and included in the published stable `v1.0.0` portfolio/demo release. External physical-device, screen-reader, comprehensive manual RTL/LTR and field/CDN QA remains follow-up evidence.
 
 
-## M09.8 — portfolio content and retail polish (in progress; 2026-11-06)
+## M09.8 — portfolio content and retail polish (complete; 2026-11-08)
 
 - [x] Replace algorithmically mixed first-page merchandising with a deterministic 12-product editorial selection across coherent workspace / audio-connectivity / everyday-carry groups.
 - [x] Add reviewed Persian display titles and concise Persian descriptions for all 12 selected products while preserving original source titles on product detail pages.
@@ -1258,21 +1260,21 @@ Scope: raise the public demo's retail credibility without adding live payments, 
 - [x] Surface TGJU freshness status next to converted prices in product cards and product detail, using the same freshness classification as the rate panel.
 - [x] Add concise Amazon Berkeley Objects / CC BY 4.0 source attribution to product detail pages.
 - [x] Refine product-card hover/focus feedback, empty-state visual hierarchy and merchandising image ratios.
-- [ ] Run unit tests, TypeScript, static build and full cross-browser E2E; fix regressions without weakening existing assertions or budgets.
-- [ ] Re-run public Lighthouse and deployment smoke; confirm updated Pages commit and mobile behavior.
+- [x] Pass TypeScript, unit tests, production build and full cross-browser Playwright/axe release verification: [run 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761) — 151 passed / 9 intentional skips / 0 failed.
+- [x] Re-run public Lighthouse and deployment smoke; the latest six-report gate [run 42495556274](https://github.com/pooya-labs/globalcart/actions/runs/42495556274) and Pages/visual QA [42495371492](https://github.com/pooya-labs/globalcart/actions/runs/42495371492) / [42495556297](https://github.com/pooya-labs/globalcart/actions/runs/42495556297) passed.
 - [ ] Perform owner review of selected catalog items, Persian naming and product-detail presentation.
 
-**Scope:** portfolio/demo polish only. Real payment, inventory, shipping, seller production operations and real account services remain out of scope. Keep `0.2.3-dev`; no 1.0.0 tag until automated checks and manual release gates pass.
+**Scope:** portfolio/demo polish is included in the published stable `v1.0.0` release. Real payment, inventory, shipping, seller production operations and real account services remain out of scope. Owner review of the final selected catalog assortment remains a manual follow-up.
 
 
-## M10 — GlobalCart 1.0.0 release candidate (2026-11-08)
+## M10 — GlobalCart 1.0.0 stable portfolio/demo publication (complete; 2026-11-08)
 
-- [x] Set the application package and lockfile version to `1.0.0`.
-- [x] Add release notes with clear simulation, catalog-price and infrastructure boundaries.
-- [x] Add a release workflow that waits for a successful public Lighthouse audit, then repeats TypeScript, unit, production-build, cross-browser Playwright/axe, Gitleaks and public-route smoke checks before creating the `v1.0.0` tag and GitHub Release.
-- [ ] Confirm the Pages deployment triggered by the release candidate completes successfully.
-- [ ] Confirm the release workflow completes and the `v1.0.0` tag / GitHub Release exist.
-- [ ] After publication, update this roadmap, README, Project Context, AI handoff and performance record with the exact successful run links.
-- [ ] Physical desktop/mobile, actual screen-reader, full human RTL/LTR and field CDN/Core Web Vitals checks remain external follow-up evidence. These are not marked complete by CI or by the owner's authorization to publish the portfolio demo.
+- [x] Set package.json and package-lock.json to version `1.0.0`.
+- [x] Publish the bilingual stable portfolio/demo release: [GitHub Release v1.0.0](https://github.com/pooya-labs/globalcart/releases/tag/v1.0.0), tag target [`dfe9a98`](https://github.com/pooya-labs/globalcart/commit/dfe9a98c70a9bbde3f5444c6f2cad2abd74269ac).
+- [x] Pass the official release workflow [run 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761) attempt 2: TypeScript, unit tests, production build, full Playwright/axe (151 passed / 9 intentional skips / 0 failed), Gitleaks (no leaks), public route smoke and final target validation.
+- [x] Pass the published six-report Lighthouse gate [run 42495556274](https://github.com/pooya-labs/globalcart/actions/runs/42495556274) and Pages deployment/visual QA [42495371492](https://github.com/pooya-labs/globalcart/actions/runs/42495371492) / [42495556297](https://github.com/pooya-labs/globalcart/actions/runs/42495556297).
+- [x] Synchronize README, PROJECT_CONTEXT, CHANGELOG, AI handoff, performance QA and this roadmap with the published release evidence.
+- [ ] Physical desktop/mobile, actual screen-reader, full human RTL/LTR and eligible field/CDN Core Web Vitals remain external follow-up evidence; they are not marked complete by CI or by the owner's release authorization.
 
-**Release boundary:** version 1.0.0 describes the stable portfolio simulation. It does not claim production commerce readiness or external hardware/assistive-technology validation.
+**Release boundary:** v1.0.0 is a stable portfolio/demo release, not a production commerce service. Product values are estimates, seller ratings/stock are unverified, and all shopping/checkout behavior remains simulated. External hardware/assistive-technology and field QA are still open.
+

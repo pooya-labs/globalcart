@@ -7,8 +7,13 @@
 - Add a release workflow that gates tag creation on typecheck, unit tests, production build, full Playwright/axe, historical secret scanning and published-route smoke checks. The public Lighthouse workflow independently enforces all six route/mode budgets.
 
 ### Verification
-- Public six-report Lighthouse audit and retry passed on [run 42420460048](https://github.com/pooya-labs/globalcart/actions/runs/42420460048): home mobile Performance 94 / LCP 2.4 s / TBT 200 ms / CLS 0; the other five reports also passed. Accessibility, Best Practices and SEO were 100 in all six reports.
-- The initial run attempt measured home-mobile TBT at 352 ms and failed the 300 ms budget; the job was rerun without changing the budget and passed at 200 ms. The regression threshold was not relaxed.
+- Official publication [release workflow 42494416761](https://github.com/pooya-labs/globalcart/actions/runs/42494416761), attempt 2, passed every step and created tag `v1.0.0` / GitHub Release on target [`dfe9a98`](https://github.com/pooya-labs/globalcart/commit/dfe9a98c70a9bbde3f5444c6f2cad2abd74269ac). The cross-browser Playwright/axe suite passed **151 tests / 9 intentional skips / 0 failures**.
+- Gitleaks scanned the full repository history and reported **no leaks**. One exact `.gitleaksignore` fingerprint covers the historical schema-name false positive `carts.owner_user_id` in the M09.2 ERD documentation; no path-wide or rule-wide suppression is used.
+- Public Pages smoke in the release workflow verified the published storefront, a representative product deep link and the bilingual case study. Latest Pages build/deploy [run 42495371492](https://github.com/pooya-labs/globalcart/actions/runs/42495371492) also passed.
+- Latest six-report public Lighthouse gate [run 42495556274](https://github.com/pooya-labs/globalcart/actions/runs/42495556274) passed unchanged budgets: home mobile Performance 97 / LCP 2.5 s / TBT 90 ms; product mobile 97 / 2.4 s / 90 ms; case-study mobile 100 / 0.9 s / 60 ms; desktop Performance 100 across all routes. Accessibility, Best Practices and SEO were 100 in all six reports; CLS was 0 throughout.
+- Live desktop/mobile image QA [run 42495556297](https://github.com/pooya-labs/globalcart/actions/runs/42495556297), Shopify Worker catalog smoke [run 42495556252](https://github.com/pooya-labs/globalcart/actions/runs/42495556252) and Security [run 42495371493](https://github.com/pooya-labs/globalcart/actions/runs/42495371493) passed.
+- The earlier 368 ms home-mobile TBT sample was not used to relax the budget; a same-version retry passed, and the latest published audit measured 90 ms.
+
 
 ### Release boundary
 - This is a stable portfolio/demo release, not a production commerce service. Product prices are estimates rather than verified seller quotes; the catalog source does not provide live seller stock or ratings.
@@ -16,13 +21,15 @@
 
 # Changelog
 
-## Unreleased — M09.8 cross-browser verification and Pages publication (2026-11-08)
+## 1.0.0 — final storefront, accessibility and publication hardening (2026-11-08)
 
 ### Changed
 - Fixed mobile hero product links so their names remain available to assistive technology while the visible title treatment remains visually hidden at compact breakpoints.
 - Changed the command-palette overlay fade to animate the backdrop only; dialog text and keyboard hints remain fully opaque while the panel enters.
 - Deferred rendering of offscreen catalog cards with `content-visibility: auto` while keeping the card text in the DOM/accessibility tree. Updated browser tests to read deferred title content safely with `textContent`.
 - Kept all alternate product-gallery images and the existing Lighthouse budgets; no catalogue/gallery reduction or threshold relaxation was used to address the Pages provider delay.
+- Replaced the storefront bag glyph with a clearer cart icon while keeping the accessible name aligned with visible button text; declared 128×128 intrinsic dimensions for the owner monogram SVG so its browser-native dimensions and asset test agree.
+- Added a single-fingerprint Gitleaks suppression for the historical PostgreSQL schema identifier false positive. The full release-history scan then reported no leaks.
 
 ### Verification
 - Full Browser E2E + axe [run 42400795573](https://github.com/pooya-labs/globalcart/actions/runs/42400795573): **140 passed / 9 intentional skips / 0 failed** across Chromium desktop/mobile/tablet, Firefox and WebKit.
