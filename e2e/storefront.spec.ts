@@ -839,19 +839,46 @@ test("Android product detail cards and information panels keep text within their
   expect(issues, JSON.stringify(issues, null, 2)).toEqual([]);
 });
 
-test("about section presents Pooya's personal emerald monogram without overflow", async ({ page }) => {
+test("about section uses the official Pooya Labs monogram without overflow", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto("./");
   const about = page.locator("#about");
   await about.scrollIntoViewIfNeeded();
-  const mark = about.getByRole("img", { name: "Pooya personal logo" });
+  const mark = about.getByRole("img", { name: "Pooya Labs monogram" });
   await expect(mark).toBeVisible();
-  await expect(mark).toHaveJSProperty("complete", true);
-  await expect(mark).toHaveJSProperty("naturalWidth", 128);
+  await expect(mark).toHaveAttribute("src", "images/site/pooya-monogram.webp");
+  await expect.poll(() => mark.evaluate(image => {
+    const element = image as HTMLImageElement;
+    return element.complete && element.naturalWidth === 168 && element.naturalHeight === 250;
+  })).toBe(true);
   const bounds = await about.evaluate(element => {
     const box = element.getBoundingClientRect();
     return { left: box.left, right: box.right, width: box.width, viewport: document.documentElement.clientWidth };
   });
   expect(bounds.left).toBeGreaterThanOrEqual(0);
   expect(bounds.right).toBeLessThanOrEqual(bounds.viewport);
+});
+
+test("GlobalCart keeps its own G mark while Pooya Labs uses the official ownership monogram", async ({ page }) => {
+  await page.goto("./");
+  const headerBrand = page.locator(".header .brand");
+  await expect(headerBrand.locator(".brand-mark")).toHaveText("g.");
+  await expect(headerBrand.locator(".brand-name small")).toHaveText("THE WORLD, WELL FOUND.");
+  await expect(headerBrand.locator("img")).toHaveCount(0);
+  await expect(page.locator(".footer-brand .brand-mark")).toHaveText("g.");
+
+  await page.goto("./product/1/");
+  await expect(page.locator(".product-page-top .brand-mark")).toHaveText("g.");
+
+  await page.goto("./recently-viewed/");
+  await expect(page.locator(".history-topbar .brand-mark")).toHaveText("g.");
+
+  await page.goto("./case-study/");
+  await expect(page.locator(".cs-topbar .cs-brand .cs-mark")).toHaveText("g.");
+  const ownerBadge = page.locator(".cs-art-core > img");
+  await expect(ownerBadge).toHaveAttribute("src", "../images/site/pooya-monogram.webp");
+  await expect.poll(() => ownerBadge.evaluate(image => {
+    const element = image as HTMLImageElement;
+    return element.complete && element.naturalWidth === 168 && element.naturalHeight === 250;
+  })).toBe(true);
 });
