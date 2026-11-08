@@ -838,3 +838,19 @@ test("Android product detail cards and information panels keep text within their
   }, selectors);
   expect(issues, JSON.stringify(issues, null, 2)).toEqual([]);
 });
+
+test("about section presents Pooya's personal emerald monogram without overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/");
+  const about = page.locator("#about");
+  const mark = about.getByRole("img", { name: "Pooya personal logo" });
+  await expect(mark).toBeVisible();
+  await expect(mark).toHaveJSProperty("complete", true);
+  await expect(mark).toHaveJSProperty("naturalWidth", 128);
+  const bounds = await about.evaluate(element => {
+    const box = element.getBoundingClientRect();
+    return { left: box.left, right: box.right, width: box.width, viewport: document.documentElement.clientWidth };
+  });
+  expect(bounds.left).toBeGreaterThanOrEqual(0);
+  expect(bounds.right).toBeLessThanOrEqual(bounds.viewport);
+});
