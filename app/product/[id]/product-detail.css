@@ -121,3 +121,74 @@
     width:100%;
   }
 }
+
+/* Mobile text-fit pass: preserve readable copy in compact Android viewports. */
+.product-page {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+@media (max-width: 700px) {
+  .product-page-top,
+  .product-page-top > a,
+  .product-page-top > div,
+  .product-page-top > div > a { min-width: 0; }
+  .product-page-top > div { gap: 8px; }
+  .product-page-top > div > a { font-size: 11px; }
+  .product-breadcrumb {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    font-size: 9px;
+    line-height: 1.7;
+  }
+  .product-breadcrumb::-webkit-scrollbar { display: none; }
+  .detail-brand,
+  .product-source-title,
+  .detail-fx-status { font-size: 10px; line-height: 1.7; overflow-wrap: anywhere; }
+  .detail-information h1 {
+    font-size: clamp(22px, 6vw, 26px);
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+  .detail-description,
+  .detail-description-panel p {
+    font-size: 13px;
+    line-height: 2.05;
+    overflow-wrap: anywhere;
+  }
+  .detail-highlights > div { min-width: 0; align-items: flex-start; }
+  .detail-highlights span { min-width: 0; }
+  .detail-highlights b { font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+  .detail-highlights small { font-size: 10px; line-height: 1.7; overflow-wrap: anywhere; }
+  .detail-specs { grid-template-columns: minmax(0, 1fr); }
+  .detail-specs > div {
+    min-width: 0;
+    gap: 12px;
+    font-size: 11px;
+    line-height: 1.7;
+  }
+  .detail-specs span,
+  .detail-specs b { min-width: 0; overflow-wrap: anywhere; }
+  .detail-buybox { min-width: 0; }
+  .buybox-kicker,
+  .detail-old-price,
+  .buybox-quantity,
+  .buybox-stock { font-size: 11px; line-height: 1.7; }
+  .buybox-stock { align-items: flex-start; overflow-wrap: anywhere; }
+  .buybox-add,
+  .buybox-save { min-height: 48px; font-size: 12px; line-height: 1.6; white-space: normal; }
+  .buybox-confirm,
+  .buybox-disclaimer { font-size: 10px; line-height: 1.8; overflow-wrap: anywhere; }
+  .buybox-source { font-size: 9px; line-height: 1.8; overflow-wrap: anywhere; }
+  .detail-description-panel { min-width: 0; padding: 17px; }
+  .detail-description-panel h2,
+  .detail-related h2 { font-size: 20px; line-height: 1.6; overflow-wrap: anywhere; }
+  .detail-description-panel > div { align-items: flex-start; font-size: 10px; line-height: 1.7; }
+  .detail-description-panel > div b { margin-inline-end: 8px; overflow-wrap: anywhere; }
+  .related-grid > a { min-width: 0; }
+  .related-grid span { font-size: 10px; line-height: 1.6; }
+  .related-grid b { min-height: 0; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+  .related-grid strong { font-size: 12px; line-height: 1.7; }
+  .product-page-footer { flex-wrap: wrap; font-size: 10px; line-height: 1.8; }
+  .product-page-footer span { min-width: 0; text-align: start !important; overflow-wrap: anywhere; }
+}
