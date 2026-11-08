@@ -23,7 +23,7 @@ function findSearchFixture() {
 
 const searchFixture = findSearchFixture();
 
-async function headerLocaleToggle(page: Page) {
+function headerLocaleToggle(page: Page) {
   return page.locator("header.header .locale-button");
 }
 
