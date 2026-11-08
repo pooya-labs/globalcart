@@ -1,23 +1,23 @@
 # Public performance and release QA
 
-## Latest post-release measurement — 2026-11-08 (M11 follow-up)
+## Latest post-release measurement — 2026-11-08 (M11 lazy-dialog follow-up)
 
-- Public Lighthouse [run 42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362) audited the published site after the palette extraction and catalog refresh. All six route/mode reports passed the existing regression budgets; no thresholds were changed.
+- Public Lighthouse [run 42517087881](https://github.com/pooya-labs/globalcart/actions/runs/42517087881), attempt 2, audited the newly deployed site after PR [#24](https://github.com/pooya-labs/globalcart/pull/24). All six published route/mode reports passed the existing budgets; no thresholds changed. Attempt 1 received a transient HTTP 503 on the case-study mobile request and was retried; the successful attempt includes all six reports.
 - Exact results (Lighthouse 13.6.0, GitHub-hosted runner):
 
 | Route / mode | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Case study — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.3 s | 0 ms | 0 |
-| Case study — mobile | 99 | 100 | 100 | 100 | 1.0 s | 1.0 s | 90 ms | 0 |
-| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.6 s | 0 ms | 0 |
-| Home — mobile | 94 | 100 | 100 | 100 | 1.0 s | 2.5 s | 220 ms | 0 |
-| Product — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.5 s | 0 ms | 0 |
-| Product — mobile | 97 | 100 | 100 | 100 | 0.9 s | 2.4 s | 100 ms | 0 |
+| Case study — mobile | 99 | 100 | 100 | 100 | 0.9 s | 0.9 s | 121 ms | 0 |
+| Home — desktop | 100 | 100 | 100 | 100 | 0.3 s | 0.5 s | 1 ms | 0 |
+| Home — mobile | 96 | 100 | 100 | 100 | 1.1 s | 2.4 s | 174 ms | 0 |
+| Product — desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.5 s | 4 ms | 0 |
+| Product — mobile | 96 | 100 | 100 | 100 | 1.0 s | 2.5 s | 130 ms | 0 |
 
 - The unchanged gate still enforces mobile LCP ≤4.0 s / TBT ≤300 ms, desktop LCP ≤2.5 s / TBT ≤200 ms, CLS ≤0.10 and Accessibility / Best Practices / SEO ≥95.
-- Compared with the preceding successful home-mobile measurement [run 42498127131](https://github.com/pooya-labs/globalcart/actions/runs/42498127131) (Performance 95 / LCP 2.5 s / TBT 200 ms), the new sample is 94 / 2.5 s / 220 ms. Both pass the budget; the change does **not** demonstrate a TBT improvement. The current unused-JavaScript audit estimates 21,737 transferred bytes (~21.7 KiB) versus 21,762 bytes (~21.8 KiB) previously.
-- Current home-mobile long tasks were 169 ms in the document, 155 ms in `main-app-d0bf562d86ed8952.js`, 60 ms unattributed and 50 ms in `255-1dfe01161d17a1b9.js`. Treat the audit as a prompt to inspect initial chunk loading/preloading; do not assume the extracted command palette is responsible for every task or that it has been fully deferred.
-- Continue M11 by checking whether the dynamic chunk is requested on initial navigation, identifying the remaining shared chunk's module ownership, and testing a genuinely interaction-triggered boundary if safe. Preserve command/focus behavior and all existing performance budgets.
+- Compared with the preceding successful home-mobile measurement [run 42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362) (Performance 94 / LCP 2.47 s / TBT 224 ms), the new sample is 96 / 2.35 s / 174 ms. It is a better lab sample, but repeatability and causality are not established.
+- Paired home-mobile network traces show total initial JavaScript transfer falling from **139,873 to 137,202 bytes** (~2.7 KB); uncompressed transfer fell from **462,771 to 449,250 bytes**. The page chunk decreased from 85,727 to 75,230 raw bytes. However, the shared `255-1dfe01161d17a1b9.js` chunk remains unchanged at 174,525 raw / 47,415 transferred bytes, and Lighthouse estimates exactly **21,737 bytes** of unused code in it in both traces. The lazy-overlay boundary is therefore real and useful, but the remaining shared chunk is the next performance target.
+- The dialog regression verifies no drawer before the user opens the bag, then observes a new script request after interaction; focus enters the dialog and returns to its trigger after Escape. It passes in Chromium, Firefox and WebKit.
 - These are GitHub-hosted lab measurements, not physical-device or field Core Web Vitals. Physical-device, actual screen-reader, full manual RTL/LTR and eligible normal-network/CDN evidence remain separate follow-up checks.
 
 ## Latest published gate — 2026-11-08 current main deployment

@@ -1,19 +1,28 @@
 ## Unreleased — post-release M11 maintenance (2026-11-08)
 
 ### Changed
-- Extracted the seven-command quick palette into a separate client component, retaining Persian/English search, keyboard navigation, Escape dismissal and focus restoration.
-- Added cross-browser regression coverage for on-demand dialog rendering and keyboard focus. This is post-release maintenance; the `v1.0.0` tag and release remain unchanged.
-- The deployment pipeline refreshed and persisted the offline snapshot at 1,000 products across 24 categories.
+- Kept the existing seven-command quick palette in its own lazy client component.
+- Moved cart, favorites, quick-view, comparison and demo-checkout overlays into `app/StorefrontDialogs.tsx`, loaded only after a relevant user interaction.
+- Preserved the existing Persian/English content, local-only demo commerce behavior and all drawer/modal markup; delayed focus-trap setup until the lazy module mounts to preserve focus entry and restoration.
+- Added browser coverage proving interaction-triggered dialog loading and keyboard focus restoration across Chromium, Firefox and WebKit.
+- The deployment workflow refreshed the offline ABO snapshot at 1,000 products across 24 categories. Stable `v1.0.0` remains unchanged.
 
 ### Verification
-- PR [#17](https://github.com/pooya-labs/globalcart/pull/17) passed Browser E2E **156 passed / 9 intentional skips / 0 failed / 0 flaky** ([run 42503976312](https://github.com/pooya-labs/globalcart/actions/runs/42503976312)); TypeScript, unit tests, build and Security passed. The merged mainline Browser E2E [42504699145](https://github.com/pooya-labs/globalcart/actions/runs/42504699145) also passed.
-- Pages deployment/public smoke [42504699227](https://github.com/pooya-labs/globalcart/actions/runs/42504699227), live visual QA [42504858327](https://github.com/pooya-labs/globalcart/actions/runs/42504858327), Shopify Worker catalog smoke [42504858421](https://github.com/pooya-labs/globalcart/actions/runs/42504858421), and Security [42504699072](https://github.com/pooya-labs/globalcart/actions/runs/42504699072) passed.
-- Six-report Lighthouse [42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362) passed all unchanged budgets. Home-mobile Performance was 94 / LCP 2.5 s / TBT 220 ms; product-mobile 97 / 2.4 s / 100 ms; case-study mobile 99 / 1.0 s / 90 ms. Desktop Performance was 100 on all routes; Accessibility, Best Practices and SEO were 100 throughout; CLS was 0.
-- The home-mobile comparison (previous successful run 42498127131: Performance 95 / TBT 200 ms) does not prove a performance improvement. Estimated unused JavaScript remains approximately 21.7 KiB, versus 21.8 KiB previously. Continue M11 chunk/preload investigation without changing budgets.
+- PR [#24](https://github.com/pooya-labs/globalcart/pull/24) merged as [`905c6cf`](https://github.com/pooya-labs/globalcart/commit/905c6cf91bef53761d915421cbf4cd73837b1476). Its Browser E2E [42516287507](https://github.com/pooya-labs/globalcart/actions/runs/42516287507) passed **163 / 172 tests (9 intentional skips), 0 failed**.
+- Merged-main Browser E2E [42516946135](https://github.com/pooya-labs/globalcart/actions/runs/42516946135) also passed **163 / 172 (9 intentional skips), 0 failed**; TypeScript, unit tests and production static build passed. Security [42516945842](https://github.com/pooya-labs/globalcart/actions/runs/42516945842) passed.
+- Pages deploy/public route smoke [42516945973](https://github.com/pooya-labs/globalcart/actions/runs/42516945973), live desktop/mobile visual QA [42517087944](https://github.com/pooya-labs/globalcart/actions/runs/42517087944) and Shopify Worker catalog smoke [42517088007](https://github.com/pooya-labs/globalcart/actions/runs/42517088007) passed.
+- Six-report public Lighthouse [42517087881](https://github.com/pooya-labs/globalcart/actions/runs/42517087881), attempt 2, passed all unchanged budgets. Mobile home/product/case-study Performance was 96 / 96 / 99; LCP 2.4 / 2.5 / 0.9 s; TBT 174 / 130 / 121 ms. Desktop Performance was 100 on all routes; Accessibility, Best Practices and SEO were 100 throughout; CLS was 0. Attempt 1 hit a transient 503 on the case-study mobile route; retry 2 generated all six reports and passed.
+- Compared with the previous successful home-mobile sample [42504858362](https://github.com/pooya-labs/globalcart/actions/runs/42504858362), TBT changed from 224 to 174 ms and LCP from 2.47 to 2.35 s. Initial script transfer across the paired traces fell by about 2.7 KB (139,873 → 137,202 bytes), but the unused-JavaScript estimate remained exactly 21,737 bytes in the shared chunk. Treat this as a modest lab observation, not a proven causal or field-performance gain.
+
+### Remaining M11 work
+- Profile and reduce the unchanged shared JavaScript chunk `255-1dfe01161d17a1b9.js` (47,415 bytes transferred in the prior trace; 21,737 bytes estimated unused). Do not split more UI blindly or relax Lighthouse budgets.
+- Establish repeatable mobile TBT headroom under the existing 300 ms budget.
+- Owner physical-device, actual screen-reader and full manual RTL/LTR review remain open.
 
 ### Release boundary
-- The current stable release remains `v1.0.0`. This follow-up does not enable real seller inventory, payment, checkout, shipping or fulfillment. Owner device, screen-reader and manual RTL/LTR reviews remain open.
+- Stable `v1.0.0` and its tag remain unchanged. The project is still a portfolio/demo; no real seller inventory, payments, fulfillment or payouts are enabled. Cart and checkout are local simulations.
 
+---
 ---
 
 ## 1.0.0 — GlobalCart portfolio demo release (2026-11-08)
