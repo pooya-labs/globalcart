@@ -16,7 +16,7 @@ import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpDown, Armchair, Baby, BookOpen, BookmarkCheck, BookmarkPlus,
   Briefcase, Car, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Dumbbell, Flower2,
   Footprints, Gamepad2, Gem, Heart, Headphones, Lamp, Laptop, LayoutGrid, Menu, Minus, Monitor,
-  Music, Package, PawPrint, Plus, Search, ShieldCheck, Shirt, ShoppingBag, SlidersHorizontal, Smartphone,
+  Music, Package, PawPrint, Plus, Search, ShieldCheck, Shirt, ShoppingBag, ShoppingCart, SlidersHorizontal, Smartphone,
   Sparkles, Star, Trash2, Truck, Utensils, Watch, Wrench, GitCompareArrows, type LucideIcon, X, Zap
 } from "lucide-react";
 
@@ -697,7 +697,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
           <button className="command-shortcut" type="button" onClick={openCommandPalette} aria-label={t.keyboardHint+" "+t.commandPalette}><span>{t.keyboardHint}</span></button>
           <button className="locale-button" onClick={toggleLocale}>{rtl?"EN":"فا"}</button>
           <button className="icon-button favorite-trigger" onClick={()=>setFavoriteOpen(true)} aria-label={t.favorites+" "+favorites.length}><Heart size={19}/><span>{favorites.length}</span></button>
-          <button className="bag-button" onClick={()=>setCartOpen(true)}><ShoppingBag size={17}/><span>{t.cart}</span><b>{count}</b></button>
+          <button className="bag-button" onClick={()=>setCartOpen(true)} aria-label={t.cart+" "+count}><ShoppingCart size={20} strokeWidth={2.1} aria-hidden="true"/><span>{t.cart}</span><b>{count}</b></button>
         </div>
       </header>
 

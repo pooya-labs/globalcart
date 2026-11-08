@@ -841,8 +841,9 @@ test("Android product detail cards and information panels keep text within their
 
 test("about section presents Pooya's personal emerald monogram without overflow", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  await page.goto("/");
+  await page.goto("./");
   const about = page.locator("#about");
+  await about.scrollIntoViewIfNeeded();
   const mark = about.getByRole("img", { name: "Pooya personal logo" });
   await expect(mark).toBeVisible();
   await expect(mark).toHaveJSProperty("complete", true);
