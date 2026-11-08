@@ -131,10 +131,13 @@ export default function CaseStudyPage() {
             <a href="https://github.com/pooya-labs/globalcart" target="_blank" rel="noreferrer" className="cs-secondary">{t.github}<ArrowUpRight size={15}/></a>
           </div>
         </div>
-        <div className="cs-hero-art" role="img" aria-label="GlobalCart product architecture illustration">
-          <div className="cs-art-orbit orbit-one"/><div className="cs-art-orbit orbit-two"/>
-          <div className="cs-art-core"><img src="../images/site/pooya-monogram.webp" alt="" aria-hidden="true" width="76" height="113"/><b>GLOBALCART</b><small>OWNED BY POOYA LABS</small></div>
-          <div className="cs-art-chip chip-a">RTL ↔ LTR</div><div className="cs-art-chip chip-b">DATA → UX</div><div className="cs-art-chip chip-c">DEMO / SAFE</div>
+        <div className="cs-hero-art">
+          <div className="cs-art-orbit orbit-one" aria-hidden="true"/><div className="cs-art-orbit orbit-two" aria-hidden="true"/>
+          <a className="cs-art-core" href="https://pooya-labs.github.io/pooya-labs-platform/" target="_blank" rel="noopener noreferrer" aria-label={rtl ? "ورود به وب‌سایت رسمی پویا لبز" : "Visit the official Pooya Labs website"}>
+            <img src="../images/site/pooya-monogram.webp" alt="" aria-hidden="true" width="76" height="113"/>
+            <b>GLOBALCART</b><small>OWNED BY POOYA LABS</small>
+          </a>
+          <div className="cs-art-chip chip-a" aria-hidden="true">RTL ↔ LTR</div><div className="cs-art-chip chip-b" aria-hidden="true">DATA → UX</div><div className="cs-art-chip chip-c" aria-hidden="true">DEMO / SAFE</div>
         </div>
       </section>
 
