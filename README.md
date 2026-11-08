@@ -146,3 +146,56 @@ GlobalCart follows semantic versioning. Every release must update package.json, 
 The M04 backend foundation is merged into `main`. It includes a Go REST API, PostgreSQL 17 Docker Compose setup, versioned SQL migrations, sqlc-generated query layer, catalog snapshot importer and OpenAPI 3.1 contract. It remains local-development infrastructure; the public GitHub Pages demo is static and no cloud database or API has been provisioned.
 
 Historical M04 backend CI [41382309964](https://github.com/pooya-labs/globalcart/actions/runs/41382309964), Security scans [41382310050](https://github.com/pooya-labs/globalcart/actions/runs/41382310050) and Pages deployment [41382310024](https://github.com/pooya-labs/globalcart/actions/runs/41382310024) validated that foundation when it was merged; current public Pages checks are tracked in the roadmap. See [backend/README.md](backend/README.md) for local setup and [backend/openapi.yaml](backend/openapi.yaml) for the read-only API contract.
+
+
+---
+
+## راهنمای فارسی
+
+### معرفی
+
+**GlobalCart** یک شبیه‌ساز بازارگاه آنلاین با تجربهٔ فروشگاهی چنددسته‌ای است که برای نمایش مهندسی محصول، تجربهٔ خرید واکنش‌گرا، فهرست کالا، جست‌وجو، فیلترها، بومی‌سازی و جریان‌های سبد خرید ساخته شده است.
+
+### وضعیت انتشار
+
+نسخهٔ پایدار نمایشی **۱.۰.۰** در تاریخ ۸ نوامبر ۲۰۲۶ منتشر شده است. وب‌سایت عمومی به‌صورت استاتیک روی GitHub Pages اجرا می‌شود. جزئیات وضعیت انتشار، آزمون‌ها و شواهد کیفیت در بخش انگلیسی README و فایل‌های مستندات مخزن ثبت شده‌اند.
+
+### امکانات نسخهٔ نمایشی
+
+- کاتالوگ محلی شامل ۱۰۰۰ فهرست کالا بر پایهٔ snapshot مجموعه‌دادهٔ Amazon Berkeley Objects.
+- صفحهٔ مستقل برای هر محصول و گالری تصاویر جایگزین.
+- جست‌وجو و فیلتر دسته‌بندی‌ها در مرورگر.
+- تصاویر WebP میزبانی‌شده در خود مخزن و بارگذاری تنبل پس از آماده‌شدن چیدمان صفحه.
+- نمایش برآوردهای نمایشی قیمت به‌صورت جدا از اطلاعات منبع؛ قیمت، موجودی و امتیاز فروشندهٔ زنده ادعا نمی‌شود.
+- سبد خرید، علاقه‌مندی‌ها، زبان و تاریخچهٔ مشاهده به‌صورت محلی در مرورگر.
+- شبیه‌سازی فرایند پرداخت بدون ارتباط با درگاه بانکی یا فروشنده.
+
+### مرزهای مهم داده و تجارت
+
+این پروژه فروشگاه واقعی نیست؛ کالا رزرو یا ارسال نمی‌شود و موجودی زنده‌ای نگهداری نمی‌شود. قیمت‌های نمایشی، قیمت قابل معامله یا پیشنهاد خرید محسوب نمی‌شوند. نسخهٔ عمومی به پایگاه داده یا API ابری متصل نیست. زیرساخت Go و PostgreSQL موجود در مخزن برای توسعهٔ محلی است و نباید آن را سرویس backend مستقرشدهٔ سایت عمومی تلقی کرد.
+
+### فناوری‌ها
+
+TypeScript، CSS، Go، SQL، Next.js، React، GitHub Actions و GitHub Pages. بخش رابط فروشگاه از state محلی مرورگر استفاده می‌کند.
+
+### اجرای محلی
+
+به Node.js نسخهٔ ۲۰٫۹ یا جدیدتر و npm نیاز دارید:
+
+```bash
+git clone https://github.com/pooya-labs/globalcart.git
+cd globalcart
+npm install
+npm run dev
+```
+
+برای بررسی و ساخت نسخه:
+
+```bash
+npm run typecheck
+npm run build
+```
+
+### مستندات و ادامهٔ مسیر
+
+برای نقشهٔ راه، معماری، منابع داده، راهنمای تحویل به توسعه‌دهندهٔ بعدی، ERD و گزارش آزمون کارایی به فایل‌های `ROADMAP.md`، `PROJECT_CONTEXT.md`، `docs/AI_HANDOFF.md`، `docs/ARCHITECTURE.md` و سایر پیوندهای بخش انگلیسی README مراجعه کنید.
