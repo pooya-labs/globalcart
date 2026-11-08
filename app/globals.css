@@ -2098,3 +2098,54 @@ body{background:#f7f8f5;color:var(--ink)}
   .storefront-v2 .brand-name { font-size: 12px; }
   .storefront-v2 .header-actions { gap: 2px; }
 }
+
+/* Mobile utility controls: predictable LTR order inside the RTL header.
+   Search stays at the outer edge; locale and cart sit beside the brand. */
+@media (max-width: 760px) {
+  .storefront-v2 .header-actions {
+    direction: ltr;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    gap: 7px;
+    min-width: 0;
+  }
+  .storefront-v2 .header-actions > .mobile-search-trigger {
+    display: grid;
+    flex: 0 0 34px;
+    width: 34px;
+    min-width: 34px;
+    height: 36px;
+  }
+  .storefront-v2 .header-actions > .search-area {
+    display: none;
+  }
+  .storefront-v2 .header-actions > .search-area.search-area-open {
+    display: block;
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 12px;
+    right: 12px;
+    width: auto;
+    z-index: 36;
+  }
+  .storefront-v2 .header-actions > .locale-button {
+    direction: ltr;
+    flex: 0 0 38px;
+    width: 38px;
+    min-width: 38px;
+    height: 36px;
+    border-radius: 10px;
+    background: transparent;
+  }
+  .storefront-v2 .header-actions > .bag-button {
+    position: relative;
+    flex: 0 0 42px;
+    width: 42px;
+    min-width: 42px;
+    height: 38px;
+    margin-inline-start: 0;
+  }
+}
+@media (max-width: 380px) {
+  .storefront-v2 .header-actions { gap: 4px; }
+}
