@@ -114,7 +114,7 @@ const copy = {
   }
 } as const;
 
-export type StorefrontLabels = typeof copy.fa;
+export type StorefrontLabels = { [Key in keyof typeof copy.fa]: string };
 
 const categories = [
   {id:"all",fa:"همه",en:"Everything",symbol:"✳"},
@@ -939,6 +939,7 @@ export default function StorefrontClient({ initialProducts, catalogTimestamp, fx
           checkout={checkout}
           setCheckout={setCheckout}
           subtotalHasUnavailablePrice={subtotalHasUnavailablePrice}
+          subtotalLabel={subtotalLabel}
           subtotalToman={subtotalToman}
           subtotalUsd={subtotalUsd}
           rate={rate}
