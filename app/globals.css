@@ -1999,6 +1999,7 @@ body{background:#f7f8f5;color:var(--ink)}
     inset-inline-end:10px;
     top:50%;
     transform:translateY(-50%);
+    direction:rtl;
     display:flex;
     flex-direction:row;
     flex-wrap:nowrap;
