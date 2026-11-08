@@ -717,6 +717,15 @@ test("mobile header keeps locale and cart on the correct outer side in RTL and L
       }
       expect(geometry.actions.left).toBeGreaterThanOrEqual(0);
       expect(geometry.actions.right).toBeLessThanOrEqual(geometry.viewportWidth);
+      const headerBounds = await header.evaluate(element => {
+        const rect = element.getBoundingClientRect();
+        return { left: rect.left, right: rect.right };
+      });
+      if (locale === "rtl") {
+        expect(geometry.actions.left).toBeLessThanOrEqual(headerBounds.left + 18);
+      } else {
+        expect(geometry.actions.right).toBeGreaterThanOrEqual(headerBounds.right - 18);
+      }
     }
   }
 });
@@ -747,10 +756,6 @@ test("Android-width text containers do not clip or overflow in Persian and Engli
         await headerLocaleToggle(page).click();
       }
       await expect(root).toHaveAttribute("dir", locale);
-      for (const selector of textSelectors) {
-        const first = page.locator(selector).first();
-        if (await first.count()) await first.scrollIntoViewIfNeeded();
-      }
       const issues = await page.evaluate(selectors => {
         const failures: Array<{selector:string;text:string;problem:string;size:string}> = [];
         for (const selector of selectors) {
