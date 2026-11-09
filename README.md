@@ -1,11 +1,10 @@
 # GlobalCart — Intelligent Global Marketplace
 
-<p><img src="https://raw.githubusercontent.com/pooya-labs/pooya-labs-platform/main/apps/platform/public/brand/pooya-monogram-tile.svg" alt="Pooya Labs monogram" width="96" /></p>
+<p align="center"><a href="https://pooya-labs.github.io/pooya-labs-platform/" aria-label="Pooya Labs Platform — official portfolio"><img src="https://raw.githubusercontent.com/pooya-labs/pooya-labs-platform/main/apps/platform/public/brand/pooya-monogram-tile.svg" alt="Pooya Monogram on a black rounded-square tile" width="96" /></a></p>
 
 **Portfolio project 06 · Independent repository**  
-**Owner / product studio:** [Pooya Labs](https://github.com/pooya-labs)  
-**Pooya Labs website:** https://pooya-labs.github.io/pooya-labs-platform/  
-**Creator / product engineer:** Pooya Goodarzi  
+**Personal owner / creator:** [Pooya Goodarzi](https://github.com/pooya-labs)  
+**Official portfolio and project gateway:** [Pooya Labs Platform](https://pooya-labs.github.io/pooya-labs-platform/)  
 **Source repository:** https://github.com/pooya-labs/globalcart  
 **Public preview:** https://pooya-labs.github.io/globalcart/  
 **Bilingual case study:** https://pooya-labs.github.io/globalcart/case-study/
@@ -156,9 +155,10 @@ The bilingual case study now includes committed desktop and mobile full-page cap
 
 ## Project ownership
 
-<p align="center"><a href="https://pooya-labs.github.io/pooya-labs-platform/"><img src="https://raw.githubusercontent.com/pooya-labs/pooya-labs-platform/main/apps/platform/public/brand/pooya-monogram-tile.svg" alt="Pooya Labs Platform monogram" width="96" /></a></p>
+<p align="center"><a href="https://pooya-labs.github.io/pooya-labs-platform/" aria-label="Pooya Labs Platform — official portfolio"><img src="https://raw.githubusercontent.com/pooya-labs/pooya-labs-platform/main/apps/platform/public/brand/pooya-monogram-tile.svg" alt="Pooya Monogram on a black rounded-square tile" width="96" /></a></p>
 
-**Owned and maintained by [Pooya Labs Platform](https://pooya-labs.github.io/pooya-labs-platform/).** Product direction and engineering: **Pooya Goodarzi**.
+**Personal owner and creator: Pooya Goodarzi.** [Pooya Labs Platform](https://pooya-labs.github.io/pooya-labs-platform/) is the official portfolio and project gateway, not a separate legal owner. Third-party assets remain subject to their respective licenses and rights. This attribution does not grant an open-source license.
+
 
 ## راهنمای فارسی
 
@@ -216,6 +216,6 @@ npm run build
 
 ### مالکیت و نگه‌داری
 
-<p align="center"><a href="https://pooya-labs.github.io/pooya-labs-platform/"><img src="https://raw.githubusercontent.com/pooya-labs/pooya-labs-platform/main/apps/platform/public/brand/pooya-monogram-tile.svg" alt="نشان مونوگرام پویا لبز" width="96" /></a></p>
+<p align="center"><a href="https://pooya-labs.github.io/pooya-labs-platform/" aria-label="درگاه رسمی پلتفرم پویا لبز"><img src="https://raw.githubusercontent.com/pooya-labs/pooya-labs-platform/main/apps/platform/public/brand/pooya-monogram-tile.svg" alt="مونوگرام پویا در قاب مربعی مشکی با گوشه‌های گرد" width="96" /></a></p>
 
-**مالک و نگه‌دارنده: [پلتفرم پویا لبز](https://pooya-labs.github.io/pooya-labs-platform/)** · طراحی محصول و توسعه: **پویا گودرزی**.
+**مالک شخصی و پدیدآورنده: پویا گودرزی.** [پلتفرم پویا لبز](https://pooya-labs.github.io/pooya-labs-platform/) درگاه رسمی معرفی پورتفولیو و پروژه‌هاست و مالک حقوقی جداگانه‌ای نیست. دارایی‌های اشخاص ثالث تابع مجوز و حقوق صاحبان آن‌ها هستند. این انتساب به‌تنهایی مجوز متن‌باز اعطا نمی‌کند.
