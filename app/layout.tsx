@@ -14,11 +14,11 @@ export const metadata: Metadata = {
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fa" dir="rtl" className={`${dmSans.variable} ${vazirmatn.variable}`}>
+    <html lang="fa" dir="rtl" className={`${dmSans.variable} ${vazirmatn.variable}`} suppressHydrationWarning>
       <head>
         {/* Route-level image preconnect hints live beside the routes that request them. */}
       </head>
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
